@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import org.jsoup.helper.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -34,7 +34,6 @@ public class ManufacturerFacadeImpl implements ManufacturerFacade {
 
   @Inject
   private Mapper<Manufacturer, ReadableManufacturer> readableManufacturerConverter;
-
 
   @Autowired
   private ManufacturerService manufacturerService;
@@ -89,7 +88,6 @@ public class ManufacturerFacadeImpl implements ManufacturerFacade {
     PersistableManufacturerPopulator populator = new PersistableManufacturerPopulator();
     populator.setLanguageService(languageService);
 
-
     Manufacturer manuf = new Manufacturer();
   
     if(manufacturer.getId() != null && manufacturer.getId().longValue() > 0) {
@@ -137,7 +135,6 @@ public class ManufacturerFacadeImpl implements ManufacturerFacade {
 
     ReadableManufacturerPopulator populator = new ReadableManufacturerPopulator();
     readableManufacturer = populator.populate(manufacturer, readableManufacturer, store, language);
-
 
     return readableManufacturer;
   }
@@ -195,7 +192,6 @@ public class ManufacturerFacadeImpl implements ManufacturerFacade {
     }
   }
 
-
   @Override
   public boolean manufacturerExist(MerchantStore store, String manufacturerCode) {
     Validate.notNull(store,"Store must not be null");
@@ -233,7 +229,6 @@ public ReadableManufacturerList listByStore(MerchantStore store, Language langua
         readableList.setRecordsTotal(m.getTotalElements());
         readableList.setNumber(m.getContent().size());
 
-
         
         ReadableManufacturerPopulator populator = new ReadableManufacturerPopulator();
         List<ReadableManufacturer> returnList = new ArrayList<ReadableManufacturer>();
@@ -252,6 +247,5 @@ public ReadableManufacturerList listByStore(MerchantStore store, Language langua
       }
 	
 }
-
 
 }

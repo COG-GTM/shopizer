@@ -121,7 +121,6 @@ public class ShopApplicationConfiguration implements WebMvcConfigurer {
     return new CorsFilter();
   }
 
-
   @Bean
   public SessionLocaleResolver localeResolver() {
     SessionLocaleResolver slr = new SessionLocaleResolver();

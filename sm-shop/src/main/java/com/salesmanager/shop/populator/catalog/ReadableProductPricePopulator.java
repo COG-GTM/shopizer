@@ -17,8 +17,6 @@ import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.shop.model.catalog.product.ReadableProductPrice;
 import com.salesmanager.shop.model.catalog.product.ReadableProductPriceFull;
 
-
-
 public class ReadableProductPricePopulator extends
 		AbstractDataPopulator<ProductPrice, ReadableProductPrice> {
 	
@@ -87,7 +85,6 @@ public class ReadableProductPricePopulator extends
                  ((ReadableProductPriceFull)target).setDescriptions(fulldescriptions);
                }
 		    }
-
 
 		} catch(Exception e) {
 			throw new ConversionException("Exception while converting to ReadableProductPrice",e);

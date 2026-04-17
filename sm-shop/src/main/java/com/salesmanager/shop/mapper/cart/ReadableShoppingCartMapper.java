@@ -299,5 +299,4 @@ public class ReadableShoppingCartMapper implements Mapper<ShoppingCart, Readable
 	}
 	
 
-
 }

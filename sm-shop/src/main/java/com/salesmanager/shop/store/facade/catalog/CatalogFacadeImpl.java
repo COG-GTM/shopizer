@@ -35,7 +35,6 @@ import static com.salesmanager.shop.util.ReadableEntityUtil.createReadableList;
 @Service("catalogFacade")
 public class CatalogFacadeImpl implements CatalogFacade {
 
-
     @Autowired
     private CatalogService catalogService;
 
@@ -53,7 +52,6 @@ public class CatalogFacadeImpl implements CatalogFacade {
 
     @Autowired
     private ReadableCatalogCategoryEntryMapper readableCatalogEntryMapper;
-
 
     @Override
     public ReadableCatalog saveCatalog(PersistableCatalog catalog, MerchantStore store, Language language) {

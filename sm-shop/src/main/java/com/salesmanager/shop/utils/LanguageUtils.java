@@ -5,9 +5,9 @@ import static com.salesmanager.core.business.constants.Constants.DEFAULT_STORE;
 import java.util.Locale;
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.logging.Log;
@@ -72,13 +72,10 @@ public class LanguageUtils {
         (MerchantStore) request.getSession().getAttribute(Constants.MERCHANT_STORE);
     
 
-
     if (language == null) {
       try {
 
         locale = LocaleContextHolder.getLocale();// should be browser locale
-
-
 
         if (store != null) {
           language = store.getDefaultLanguage();
@@ -106,7 +103,6 @@ public class LanguageUtils {
         }
       }
     } else {
-
 
       Locale localeFromContext = LocaleContextHolder.getLocale();// should be browser locale
       if (!language.getCode().equals(localeFromContext.getLanguage())) {

@@ -20,7 +20,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.5.12</version>
+		<version>3.3.7</version>
 	</parent>
 
 	<modules>
@@ -35,7 +35,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
 		<!--java version -->
-		<java.version>11</java.version>
+		<java.version>21</java.version>
 
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
@@ -50,17 +50,17 @@
 		<commons-io.version>2.7</commons-io.version>
 		<commons-collections4.version>4.1</commons-collections4.version>
 		<commons-validator.version>1.5.1</commons-validator.version>
-		<commons-fileupload>1.3.3</commons-fileupload>
+		<commons-fileupload>2.0.0-M2</commons-fileupload>
 		<org.mapstruct.version>1.3.0.Final</org.mapstruct.version>
 
 		<org.apache.httpcomponent.version>4.5.2</org.apache.httpcomponent.version>
-		<javax.inject.version>1</javax.inject.version>
+		<jakarta.inject.version>2.0.1</jakarta.inject.version>
 		<javax.el.version>2.2.4</javax.el.version>
 		<javax.servlet-api-version>3.0.1</javax.servlet-api-version>
-		<javax.annotation>1.3.2</javax.annotation>
+		<jakarta.annotation.version>3.0.0</jakarta.annotation.version>
 		<infinispan.version>9.4.18.Final</infinispan.version>
 		<infinispan.tree.version>9.4.18.Final</infinispan.tree.version>
-		<mysql-jdbc-version>8.0.21</mysql-jdbc-version>
+		<mysql-jdbc-version>8.0.33</mysql-jdbc-version>
 		<oracle.version>18.3.0.0</oracle.version>
 		<postgresql.version>42.2.18</postgresql.version>
 		<simple-json-version>1.1.1</simple-json-version>
@@ -114,11 +114,11 @@
 				<version>3.2.5</version>
 			</dependency>
 
-			<!-- https://mvnrepository.com/artifact/javax.inject/javax.inject -->
+			<!-- https://mvnrepository.com/artifact/jakarta.inject/jakarta.inject-api -->
 			<dependency>
-				<groupId>javax.inject</groupId>
-				<artifactId>javax.inject</artifactId>
-				<version>${javax.inject.version}</version>
+				<groupId>jakarta.inject</groupId>
+				<artifactId>jakarta.inject-api</artifactId>
+				<version>${jakarta.inject.version}</version>
 			</dependency>
 
 			<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
@@ -159,11 +159,11 @@
 				<version>${jackson-version}</version>
 			</dependency>
 
-			<!-- https://mvnrepository.com/artifact/javax.mail/mail -->
+			<!-- https://mvnrepository.com/artifact/jakarta.mail/jakarta.mail-api -->
 			<dependency>
-				<groupId>javax.mail</groupId>
-				<artifactId>mail</artifactId>
-				<version>1.4.7</version>
+				<groupId>jakarta.mail</groupId>
+				<artifactId>jakarta.mail-api</artifactId>
+				<version>2.1.3</version>
 			</dependency>
 
 			<!-- http://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple -->
@@ -174,8 +174,8 @@
 			</dependency>
 
 			<dependency>
-				<groupId>mysql</groupId>
-				<artifactId>mysql-connector-java</artifactId>
+				<groupId>com.mysql</groupId>
+				<artifactId>mysql-connector-j</artifactId>
 				<version>${mysql-jdbc-version}</version>
 			</dependency>
 
@@ -344,27 +344,42 @@
 			</dependency>
 
 			<dependency>
-				<groupId>commons-fileupload</groupId>
-				<artifactId>commons-fileupload</artifactId>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-fileupload2-jakarta-servlet6</artifactId>
 				<version>${commons-fileupload}</version>
 			</dependency>
 
 			<dependency>
-				<groupId>io.springfox</groupId>
-				<artifactId>springfox-swagger2</artifactId>
-				<version>${swagger.version}</version>
+				<groupId>org.springdoc</groupId>
+				<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+				<version>2.8.4</version>
 			</dependency>
 
 			<dependency>
-				<groupId>io.springfox</groupId>
-				<artifactId>springfox-swagger-ui</artifactId>
-				<version>${swagger.version}</version>
+				<groupId>jakarta.annotation</groupId>
+				<artifactId>jakarta.annotation-api</artifactId>
+				<version>${jakarta.annotation.version}</version>
 			</dependency>
 
+			<!-- Keep javax.annotation managed for other modules not yet migrated -->
 			<dependency>
 				<groupId>javax.annotation</groupId>
 				<artifactId>javax.annotation-api</artifactId>
-				<version>${javax.annotation}</version>
+				<version>1.3.2</version>
+			</dependency>
+
+			<!-- hibernate-ehcache for other modules not yet migrated -->
+			<dependency>
+				<groupId>org.hibernate</groupId>
+				<artifactId>hibernate-ehcache</artifactId>
+				<version>5.6.15.Final</version>
+			</dependency>
+
+			<!-- httpclient for other modules not yet migrated -->
+			<dependency>
+				<groupId>org.apache.httpcomponents</groupId>
+				<artifactId>httpclient</artifactId>
+				<version>4.5.14</version>
 			</dependency>
 
 		</dependencies>
@@ -375,13 +390,14 @@
 	<dependencies>
 
 		<dependency>
-			<groupId>javax.inject</groupId>
-			<artifactId>javax.inject</artifactId>
+			<groupId>jakarta.inject</groupId>
+			<artifactId>jakarta.inject-api</artifactId>
 		</dependency>
 
 		<dependency>
-			<groupId>javax.validation</groupId>
-			<artifactId>validation-api</artifactId>
+			<groupId>jakarta.validation</groupId>
+			<artifactId>jakarta.validation-api</artifactId>
+			<version>3.1.0</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
@@ -408,22 +424,11 @@
 			<artifactId>jackson-annotations</artifactId>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/net.sf.ehcache/ehcache -->
+		<!-- https://mvnrepository.com/artifact/jakarta.mail/jakarta.mail-api -->
 		<dependency>
-			<groupId>net.sf.ehcache</groupId>
-			<artifactId>ehcache</artifactId>
-		</dependency>
-
-		<!-- https://mvnrepository.com/artifact/javax.mail/javax.mail-api -->
-		<dependency>
-			<groupId>javax.mail</groupId>
-			<artifactId>javax.mail-api</artifactId>
-		</dependency>
-
-		<!-- https://mvnrepository.com/artifact/javax.mail/mail -->
-		<dependency>
-			<groupId>javax.mail</groupId>
-			<artifactId>mail</artifactId>
+			<groupId>jakarta.mail</groupId>
+			<artifactId>jakarta.mail-api</artifactId>
+			<version>2.1.3</version>
 		</dependency>
 
 		<!-- http://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple -->
@@ -441,8 +446,8 @@
 		<!-- Elastic search TODO replace with starter-->
 
 		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
+			<groupId>com.mysql</groupId>
+			<artifactId>mysql-connector-j</artifactId>
 		</dependency>
 
 		<!-- oracle -->
@@ -453,11 +458,6 @@
 		<!-- postgres <dependency> <groupId>org.postgresql</groupId> <artifactId>postgresql</artifactId> 
 			</dependency> -->
 
-		<dependency>
-			<groupId>org.junit.vintage</groupId>
-			<artifactId>junit-vintage-engine</artifactId>
-			<scope>test</scope>
-		</dependency>
 
 
 	</dependencies>

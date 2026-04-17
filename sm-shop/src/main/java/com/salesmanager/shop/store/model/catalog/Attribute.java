@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.salesmanager.shop.model.entity.ShopEntity;
 
-
 public class Attribute extends ShopEntity implements Serializable {
 	
 	/**
@@ -31,7 +30,6 @@ public class Attribute extends ShopEntity implements Serializable {
 	}
 	
 
-
 	public void setValues(List<AttributeValue> values) {
 		this.values = values;
 	}
@@ -50,8 +48,6 @@ public class Attribute extends ShopEntity implements Serializable {
 	public AttributeValue getReadOnlyValue() {
 		return readOnlyValue;
 	}
-
-
 
 	
 

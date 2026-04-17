@@ -1,6 +1,6 @@
 package com.salesmanager.shop.store.api.v1.system;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,10 +12,10 @@ import com.salesmanager.shop.model.system.Configs;
 import com.salesmanager.shop.store.controller.store.facade.StoreFacade;
 import com.salesmanager.shop.store.controller.system.MerchantConfigurationFacade;
 import com.salesmanager.shop.utils.LanguageUtils;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Parameters;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -35,17 +35,12 @@ public class PublicConfigsApi {
    * @return
    */
   @GetMapping("/config")
-  @ApiOperation(
-      httpMethod = "GET",
-      value = "Get public configuration for a given merchant store",
-      notes = "",
-      produces = "application/json",
-      response = Configs.class)
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-      @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en")
+  @Operation(summary = "Get public configuration for a given merchant store")
+  @Parameters({
+      @Parameter(name = "store", description = "store", example = "DEFAULT"),
+      @Parameter(name = "lang", description = "lang", example = "en")
   })
-  public Configs getConfig(@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) {
+  public Configs getConfig(@Parameter(hidden = true) MerchantStore merchantStore, @Parameter(hidden = true) Language language) {
     return configurationFacade.getMerchantConfig(merchantStore, language);
   }
 }

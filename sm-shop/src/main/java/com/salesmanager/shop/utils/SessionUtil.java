@@ -3,7 +3,7 @@
  */
 package com.salesmanager.shop.utils;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * @author Umesh Awasthi
@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class SessionUtil
 {
-
 
     
     @SuppressWarnings("unchecked")
@@ -26,6 +25,5 @@ public class SessionUtil
     public static void setSessionAttribute(final String key, final Object value, HttpServletRequest request) {
     	request.getSession().setAttribute( key, value );
     }
-
 
 }

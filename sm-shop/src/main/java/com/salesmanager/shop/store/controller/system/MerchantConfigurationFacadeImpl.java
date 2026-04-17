@@ -7,7 +7,7 @@ import static com.salesmanager.shop.constants.Constants.KEY_PINTEREST_PAGE_URL;
 
 import java.util.Optional;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -23,7 +23,6 @@ import com.salesmanager.core.model.system.MerchantConfig;
 import com.salesmanager.core.model.system.MerchantConfiguration;
 import com.salesmanager.shop.model.system.Configs;
 import com.salesmanager.shop.store.api.exception.ServiceRuntimeException;
-
 
 @Service
 public class MerchantConfigurationFacadeImpl implements MerchantConfigurationFacade {
@@ -60,7 +59,6 @@ public class MerchantConfigurationFacadeImpl implements MerchantConfigurationFac
 
     Optional<String> instagramConfigValue = getConfigValue(KEY_INSTAGRAM_URL, merchantStore);
     instagramConfigValue.ifPresent(readableConfig::setInstagram);
-
 
     Optional<String> pinterestConfigValue = getConfigValue(KEY_PINTEREST_PAGE_URL, merchantStore);
     pinterestConfigValue.ifPresent(readableConfig::setPinterest);

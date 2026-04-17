@@ -6,11 +6,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.NonUniqueResultException;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.NonUniqueResultException;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -103,7 +103,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
 			return (Product) q.getSingleResult();
 
-		} catch (javax.persistence.NoResultException ers) {
+		} catch (jakarta.persistence.NoResultException ers) {
 			return null;
 		}
 
@@ -156,7 +156,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
 			return (Product) q.getSingleResult();
 
-		} catch (javax.persistence.NoResultException ers) {
+		} catch (jakarta.persistence.NoResultException ers) {
 			return null;
 		}
 
@@ -198,7 +198,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
 			return (Product) q.getSingleResult();
 
-		} catch (javax.persistence.NoResultException ers) {
+		} catch (jakarta.persistence.NoResultException ers) {
 			return null;
 		}
 
@@ -260,7 +260,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 			}
 			// p = (Product)q.getSingleResult();
 			p = products.get(0);
-		} catch (javax.persistence.NoResultException ignore) {
+		} catch (jakarta.persistence.NoResultException ignore) {
 
 		}
 
@@ -1236,7 +1236,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
 			return (Product) q.getSingleResult();
 
-		} catch (javax.persistence.NoResultException ers) {
+		} catch (jakarta.persistence.NoResultException ers) {
 			return null;
 		}
 		

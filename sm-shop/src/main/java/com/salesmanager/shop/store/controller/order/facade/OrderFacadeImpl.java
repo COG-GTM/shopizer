@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -143,7 +143,6 @@ public class OrderFacadeImpl implements OrderFacade {
 	private CountryService countryService;
 	@Inject
 	private ZoneService zoneService;
-
 
 	@Autowired
 	private PersistableOrderApiPopulator persistableOrderApiPopulator;
@@ -1167,7 +1166,6 @@ public class OrderFacadeImpl implements OrderFacade {
 		//default value
 		billing.setCountry(store.getCountry());
 
-
 		// adjust shipping and billing
 		if (customer.getDelivery() == null || StringUtils.isBlank(customer.getDelivery().getPostalCode())) {
 			if(customer.getBilling()!=null) {
@@ -1203,7 +1201,6 @@ public class OrderFacadeImpl implements OrderFacade {
 		Validate.notNull(locale, "Locale cannot be null");
 
 		try {
-
 
 			Order modelOrder = new Order();
 			persistableOrderApiPopulator.populate(order, modelOrder, store, language);
@@ -1288,7 +1285,6 @@ public class OrderFacadeImpl implements OrderFacade {
 			// compare both prices
 			if (calculatedAmount.compareTo(formattedSubmittedAmount) != 0) {
 
-
 				throw new ConversionException("Payment.amount does not match what the system has calculated "
 						+ strCalculatedTotal + " (received " + submitedAmount + ") please recalculate the order and submit again");
 			}
@@ -1323,7 +1319,6 @@ public class OrderFacadeImpl implements OrderFacade {
 				}
 			}
 
-
 			//order service
 			modelOrder = orderService.processOrder(modelOrder, customer, items, orderTotalSummary, paymentModel, store);
 
@@ -1341,7 +1336,6 @@ public class OrderFacadeImpl implements OrderFacade {
 				try {
 
 					notify(modelOrder, customer, store, language, locale);
-
 
 				} catch (Exception e) {
 					LOGGER.error("Cannot send order confirmation email", e);
@@ -1375,7 +1369,6 @@ public class OrderFacadeImpl implements OrderFacade {
 		// send order confirmation email to merchant
 		emailTemplatesUtils.sendOrderEmail(store.getStoreEmailAddress(), customer, order, locale,
 				language, store, coreConfiguration.getProperty("CONTEXT_PATH"));
-
 
 	}
 
@@ -1576,11 +1569,9 @@ public class OrderFacadeImpl implements OrderFacade {
 				return TransactionType.OK;
 			}
 
-
 		} catch(Exception e) {
 			throw new ServiceRuntimeException("Error while getting last transaction for order [" + orderId + "]",e);
 		}
-
 
 	}
 

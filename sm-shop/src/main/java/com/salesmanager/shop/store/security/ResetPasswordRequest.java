@@ -2,7 +2,7 @@ package com.salesmanager.shop.store.security;
 
 import java.io.Serializable;
 
-import javax.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 
 public class ResetPasswordRequest implements Serializable {
 
@@ -20,7 +20,6 @@ public class ResetPasswordRequest implements Serializable {
 	
 	private String returnUrl;
     
-
 
     public ResetPasswordRequest() {
         super();

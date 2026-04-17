@@ -35,7 +35,6 @@ import com.salesmanager.shop.store.api.exception.ResourceNotFoundException;
 import com.salesmanager.shop.store.api.exception.ServiceRuntimeException;
 import com.salesmanager.shop.store.controller.product.facade.ProductVariantGroupFacade;
 
-
 @Component
 public class ProductVariantGroupFacadeImpl implements ProductVariantGroupFacade {
 	
@@ -184,7 +183,6 @@ public class ProductVariantGroupFacadeImpl implements ProductVariantGroupFacade 
 		} catch (Exception e) {
 			throw new ServiceRuntimeException("Exception while adding instance group image", e);
 		}
-
 
 		return;
 	}

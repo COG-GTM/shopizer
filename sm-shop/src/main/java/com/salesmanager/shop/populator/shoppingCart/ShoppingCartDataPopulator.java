@@ -34,7 +34,6 @@ import com.salesmanager.shop.model.shoppingcart.ShoppingCartData;
 import com.salesmanager.shop.model.shoppingcart.ShoppingCartItem;
 import com.salesmanager.shop.utils.ImageFilePath;
 
-
 /**
  * @author Umesh A
  *
@@ -63,8 +62,6 @@ public class ShoppingCartDataPopulator extends AbstractDataPopulator<ShoppingCar
 				this.imageUtils = imageUtils;
 			}
 
-
-
     @Override
     public ShoppingCartData createTarget()
     {
@@ -72,18 +69,13 @@ public class ShoppingCartDataPopulator extends AbstractDataPopulator<ShoppingCar
         return new ShoppingCartData();
     }
 
-
-
     public ShoppingCartCalculationService getOrderService() {
         return shoppingCartCalculationService;
     }
 
-
-
     public PricingService getPricingService() {
         return pricingService;
     }
-
 
     @Override
     public ShoppingCartData populate(final ShoppingCart shoppingCart,
@@ -208,27 +200,14 @@ public class ShoppingCartDataPopulator extends AbstractDataPopulator<ShoppingCar
         }
         return cart;
 
-
     };
-
-
-
-
 
     public void setPricingService(final PricingService pricingService) {
         this.pricingService = pricingService;
     }
 
-
-
-
-
-
     public void setShoppingCartCalculationService(final ShoppingCartCalculationService shoppingCartCalculationService) {
         this.shoppingCartCalculationService = shoppingCartCalculationService;
     }
-
-
-
 
 }

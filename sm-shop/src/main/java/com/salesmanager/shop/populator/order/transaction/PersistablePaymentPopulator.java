@@ -20,8 +20,6 @@ public class PersistablePaymentPopulator extends AbstractDataPopulator<Persistab
 	
 	PricingService pricingService;
 
-
-
 	@Override
 	public Payment populate(PersistablePayment source, Payment target, MerchantStore store, Language language)
 			throws ConversionException {

@@ -14,14 +14,11 @@ import java.util.Set;
 public class ReadableManufacturerPopulator extends
     AbstractDataPopulator<com.salesmanager.core.model.catalog.product.manufacturer.Manufacturer, ReadableManufacturer> {
 
-
-
   @Override
   public ReadableManufacturer populate(
       com.salesmanager.core.model.catalog.product.manufacturer.Manufacturer source,
       ReadableManufacturer target, MerchantStore store, Language language)
       throws ConversionException {
-
 
     if (language == null) {
       target = new ReadableManufacturerFull();
@@ -45,8 +42,6 @@ public class ReadableManufacturerPopulator extends
         }
       }
 
-
-
       if (description != null) {
         com.salesmanager.shop.model.catalog.manufacturer.ManufacturerDescription d =
             populateDescription(description);
@@ -58,8 +53,6 @@ public class ReadableManufacturerPopulator extends
       }
 
     }
-
-
 
     return target;
   }

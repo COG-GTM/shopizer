@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
@@ -29,7 +29,6 @@ import com.salesmanager.shop.admin.security.SecurityDataAccessException;
 import com.salesmanager.shop.constants.Constants;
 import com.salesmanager.shop.store.security.user.JWTUser;
 
-
 @Service("jwtAdminDetailsService")
 public class JWTAdminServicesImpl implements UserDetailsService{
 	
@@ -44,7 +43,6 @@ public class JWTAdminServicesImpl implements UserDetailsService{
 	private GroupService   groupService;
 	
 	public final static String ROLE_PREFIX = "ROLE_";//Spring Security 4
-
 
 	private UserDetails userDetails(String userName, User user, Collection<GrantedAuthority> authorities) {
         

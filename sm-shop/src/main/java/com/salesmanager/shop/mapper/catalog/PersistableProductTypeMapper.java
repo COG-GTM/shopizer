@@ -19,7 +19,6 @@ import com.salesmanager.shop.model.catalog.product.type.PersistableProductType;
 import com.salesmanager.shop.model.catalog.product.type.ProductTypeDescription;
 import com.salesmanager.shop.store.api.exception.ConversionRuntimeException;
 
-
 @Component
 public class PersistableProductTypeMapper implements Mapper<PersistableProductType, ProductType> {
 	

@@ -1,12 +1,11 @@
 package com.salesmanager.shop.mapper.catalog.product;
 
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.jsoup.helper.Validate;
@@ -110,6 +109,5 @@ public class ReadableProductVariantMapper implements Mapper<ProductVariant, Read
 		img.setImageUrl(imagUtils.buildCustomTypeImageUtils(store, img.getImageName(), FileContentType.VARIANT));
 		return img;
 	}
-
 
 }
