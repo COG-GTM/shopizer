@@ -1,6 +1,7 @@
 package com.salesmanager.core.business.repositories.user;
 
 import java.util.List;
+import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
@@ -15,6 +16,10 @@ import com.salesmanager.core.model.user.User;
 
 public class UserRepositoryImpl implements UserRepositoryCustom {
   
+  // Whitelist of allowed ORDER BY fields to prevent HQL injection
+  private static final Set<String> ALLOWED_ORDER_BY_FIELDS = Set.of(
+      "id", "adminName", "adminEmail", "firstName", "lastName", "active"
+  );
 
   @PersistenceContext
   private EntityManager em;
@@ -43,8 +48,13 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
       }
       
       if(!StringUtils.isBlank(criteria.getCriteriaOrderByField())) {
-        req.append(" order by u." + criteria.getCriteriaOrderByField() + " "
-            + criteria.getOrderBy().name().toLowerCase());
+        String orderByField = criteria.getCriteriaOrderByField();
+        if (ALLOWED_ORDER_BY_FIELDS.contains(orderByField)) {
+          req.append(" order by u." + orderByField + " "
+              + criteria.getOrderBy().name().toLowerCase());
+        } else {
+          LOGGER.warn("Invalid order by field requested: {}, ignoring", orderByField);
+        }
       }
 
       Query countQ = this.em.createQuery(countBuilder.toString());
