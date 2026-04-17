@@ -1,8 +1,8 @@
 package com.salesmanager.shop.store.api.v1.user;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -25,18 +25,14 @@ import com.salesmanager.shop.store.controller.user.facade.UserFacade;
 import com.salesmanager.shop.store.security.PasswordRequest;
 import com.salesmanager.shop.store.security.ResetPasswordRequest;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.SwaggerDefinition;
-import io.swagger.annotations.Tag;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Operation;
+
 
 @RestController
 @RequestMapping(value = "/api/v1")
-@Api(tags = { "User password reset resource (User password reset Api)" })
-@SwaggerDefinition(tags = { @Tag(name = "User password reset resource", description = "User password reset") })
+@Tag(name = "API")
 public class ResetUserPasswordApi {
 	
 	
@@ -55,13 +51,11 @@ public class ResetUserPasswordApi {
 	 * @param request
 	 */
 	@ResponseStatus(HttpStatus.OK)
-	@PostMapping(value = { "/user/password/reset/request" }, produces = MediaType.APPLICATION_JSON_VALUE)
-	@ApiOperation(httpMethod = "POST", value = "Launch user password reset flow", notes = "", response = ReadableUser.class)
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
-	public void passwordResetRequest(
-			@ApiIgnore MerchantStore merchantStore, 
-			@ApiIgnore Language language,
+	@PostMapping(value = { "/user/password/reset/request" })
+	@Operation(summary = "Launch user password reset flow", description = "")
+public void passwordResetRequest(
+			@Parameter(hidden = true) MerchantStore merchantStore, 
+			@Parameter(hidden = true) Language language,
 			@Valid @RequestBody ResetPasswordRequest user, HttpServletRequest request) {
 
 
@@ -78,12 +72,10 @@ public class ResetUserPasswordApi {
 	 * @param request
 	 */
 	@ResponseStatus(HttpStatus.OK)
-	@GetMapping(value = { "/user/{store}/reset/{token}" }, produces = MediaType.APPLICATION_JSON_VALUE)
-	@ApiOperation(httpMethod = "GET", value = "Validate user password reset token", notes = "", response = Void.class)
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
-	public void passwordResetVerify(@PathVariable String store, @PathVariable String token,
-			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language, HttpServletRequest request) {
+	@GetMapping(value = { "/user/{store}/reset/{token}" })
+	@Operation(summary = "Validate user password reset token", description = "")
+public void passwordResetVerify(@PathVariable String store, @PathVariable String token,
+			@Parameter(hidden = true) MerchantStore merchantStore, @Parameter(hidden = true) Language language, HttpServletRequest request) {
 
 		/**
 		 * Receives reset token Needs to validate if user found from token Needs
@@ -108,11 +100,11 @@ public class ResetUserPasswordApi {
 	 */
 	@PostMapping(value = "/user/{store}/password/{token}", produces = {
 			"application/json" })
-	@ApiOperation(httpMethod = "POST", value = "Change user password", response = Void.class)
+	@Operation(summary = "Change user password")
 	public void changePassword(
 			@RequestBody @Valid PasswordRequest passwordRequest, 
 			@PathVariable String store,
-			@PathVariable String token, @ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language,
+			@PathVariable String token, @Parameter(hidden = true) MerchantStore merchantStore, @Parameter(hidden = true) Language language,
 			HttpServletRequest request) {
 
 		// validate password

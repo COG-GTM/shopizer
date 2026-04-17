@@ -34,11 +34,7 @@ public class ModulesApi {
    * @throws Exception
    */
 /*  @PostMapping(value = "/module", consumes = MediaType.TEXT_PLAIN)
-  @ApiOperation(
-      httpMethod = "POST",
-      value = "Creates a new module",
-      notes = "",
-      produces = "application/json")
+  @Operation(summary = "Creates a new module")
   public ReadableEntity createModule(@RequestBody String json, HttpServletRequest request) {
 
       LOGGER.debug("Creating an integration module : " + json);

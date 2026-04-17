@@ -10,9 +10,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,19 +50,14 @@ import com.salesmanager.shop.store.controller.store.facade.StoreFacade;
 import com.salesmanager.shop.store.controller.user.facade.UserFacade;
 import com.salesmanager.shop.utils.ServiceRequestCriteriaBuilderUtils;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.SwaggerDefinition;
-import io.swagger.annotations.Tag;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Operation;
+
 
 @RestController
 @RequestMapping("/api/v1")
-@Api(tags = { "Merchant and store management resource (Merchant - Store Management Api)" })
-@SwaggerDefinition(tags = {
-		@Tag(name = "Merchant and store management", description = "Edit merchants (retailers) and stores") })
+@Tag(name = "API and stores")
 public class MerchantStoreApi {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MerchantStoreApi.class);
@@ -76,8 +71,8 @@ public class MerchantStoreApi {
 	@Inject
 	private UserFacade userFacade;
 
-	@GetMapping(value = { "/store/{code}" }, produces = MediaType.APPLICATION_JSON_VALUE)
-	@ApiOperation(httpMethod = "GET", value = "Get merchant store", notes = "", response = ReadableMerchantStore.class)
+	@GetMapping(value = { "/store/{code}" })
+	@Operation(summary = "Get merchant store", description = "")
 	public ReadableMerchantStore store(@PathVariable String code,
 			@RequestParam(value = "lang", required = false) String lang) {
 		//return storeFacade.getByCode(code, lang);
@@ -85,12 +80,11 @@ public class MerchantStoreApi {
 		return readable;
 	}
 
-	@GetMapping(value = { "/private/store/{code}" }, produces = MediaType.APPLICATION_JSON_VALUE)
-	@ApiOperation(httpMethod = "GET", value = "Get merchant store full details", notes = "", response = ReadableMerchantStore.class)
-	@ApiImplicitParams({ @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
-	public ReadableMerchantStore storeFull(
+	@GetMapping(value = { "/private/store/{code}" })
+	@Operation(summary = "Get merchant store full details", description = "")
+public ReadableMerchantStore storeFull(
 			@PathVariable String code,
-			@ApiIgnore Language language) {
+			@Parameter(hidden = true) Language language) {
 
 		String authenticatedUser = userFacade.authenticatedUser();
 		if (authenticatedUser == null) {
@@ -101,10 +95,9 @@ public class MerchantStoreApi {
 		return storeFacade.getFullByCode(code, language);
 	}
 
-	@GetMapping(value = { "/private/merchant/{code}/stores" }, produces = MediaType.APPLICATION_JSON_VALUE)
-	@ApiOperation(httpMethod = "GET", value = "Get retailer child stores", notes = "Merchant (retailer) can have multiple stores", response = ReadableMerchantStore.class)
-	@ApiImplicitParams({ @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
-	public ReadableMerchantStoreList list(@PathVariable String code, @ApiIgnore Language language,
+	@GetMapping(value = { "/private/merchant/{code}/stores" })
+	@Operation(summary = "Get retailer child stores", description = "Merchant (retailer) can have multiple stores")
+public ReadableMerchantStoreList list(@PathVariable String code, @Parameter(hidden = true) Language language,
 			@RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
 			@RequestParam(value = "count", required = false, defaultValue = "10") Integer count) {
 
@@ -122,12 +115,11 @@ public class MerchantStoreApi {
 	}
 
 	@ResponseStatus(HttpStatus.OK)
-	@GetMapping(value = { "/private/stores" }, produces = MediaType.APPLICATION_JSON_VALUE)
-	@ApiOperation(httpMethod = "GET", value = "Get list of stores. Returns all retailers and stores. If superadmin everything is returned, else only retailer and child stores.", notes = "", response = ReadableMerchantStore.class)
-	@ApiImplicitParams({ @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
-	public ReadableMerchantStoreList get(
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language,
+	@GetMapping(value = { "/private/stores" })
+	@Operation(summary = "Get list of stores. Returns all retailers and stores. If superadmin everything is returned, else only retailer and child stores.", description = "")
+public ReadableMerchantStoreList get(
+			@Parameter(hidden = true) MerchantStore merchantStore,
+			@Parameter(hidden = true) Language language,
 			@RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
 			@RequestParam(value = "count", required = false, defaultValue = "10") Integer count,
 			HttpServletRequest request) {
@@ -164,11 +156,11 @@ public class MerchantStoreApi {
 	 * @return
 	 */
 	@ResponseStatus(HttpStatus.OK)
-	@GetMapping(value = { "/private/stores/names" }, produces = MediaType.APPLICATION_JSON_VALUE)
-	@ApiOperation(httpMethod = "GET", value = "Get list of store names. Returns all retailers and stores", notes = "", response = ReadableMerchantStore.class)
+	@GetMapping(value = { "/private/stores/names" })
+	@Operation(summary = "Get list of store names. Returns all retailers and stores", description = "")
 	public List<ReadableMerchantStore> list(
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language,
+			@Parameter(hidden = true) MerchantStore merchantStore,
+			@Parameter(hidden = true) Language language,
 			@RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
 			@RequestParam(value = "count", required = false, defaultValue = "10") Integer count,
 			HttpServletRequest request
@@ -198,18 +190,18 @@ public class MerchantStoreApi {
 	}
 	
 	@ResponseStatus(HttpStatus.OK)
-	@GetMapping(value = { "/store/languages" }, produces = MediaType.APPLICATION_JSON_VALUE)
-	@ApiOperation(httpMethod = "GET", value = "Get list of store supported languages.", notes = "", response = ReadableMerchantStore.class)
+	@GetMapping(value = { "/store/languages" })
+	@Operation(summary = "Get list of store supported languages.", description = "")
 	public List<Language> supportedLanguages(
-			@ApiIgnore MerchantStore merchantStore,
+			@Parameter(hidden = true) MerchantStore merchantStore,
 			HttpServletRequest request) {
 
 		return storeFacade.supportedLanguages(merchantStore);
 	}
 
 	@ResponseStatus(HttpStatus.OK)
-	@PostMapping(value = { "/private/store" }, produces = MediaType.APPLICATION_JSON_VALUE)
-	@ApiOperation(httpMethod = "POST", value = "Creates a new store", notes = "", response = ReadableMerchantStore.class)
+	@PostMapping(value = { "/private/store" })
+	@Operation(summary = "Creates a new store", description = "")
 	public void create(@Valid @RequestBody PersistableMerchantStore store) {
 		
 		
@@ -225,8 +217,8 @@ public class MerchantStoreApi {
 	}
 
 	@ResponseStatus(HttpStatus.OK)
-	@PutMapping(value = { "/private/store/{code}" }, produces = MediaType.APPLICATION_JSON_VALUE)
-	@ApiOperation(httpMethod = "PUT", value = "Updates a store", notes = "", response = ReadableMerchantStore.class)
+	@PutMapping(value = { "/private/store/{code}" })
+	@Operation(summary = "Updates a store", description = "")
 	public void update(@PathVariable String code, @Valid @RequestBody PersistableMerchantStore store,
 			HttpServletRequest request) {
 
@@ -250,8 +242,8 @@ public class MerchantStoreApi {
 	}
 
 	@ResponseStatus(HttpStatus.OK)
-	@GetMapping(value = { "/private/store/{code}/marketing" }, produces = MediaType.APPLICATION_JSON_VALUE)
-	@ApiOperation(httpMethod = "GET", value = "Get store branding and marketing details", notes = "", response = ReadableBrand.class)
+	@GetMapping(value = { "/private/store/{code}/marketing" })
+	@Operation(summary = "Get store branding and marketing details", description = "")
 	public ReadableBrand getStoreMarketing(@PathVariable String code, HttpServletRequest request) {
 		String userName = getUserFromRequest(request);
 		validateUserPermission(userName, code);
@@ -266,10 +258,9 @@ public class MerchantStoreApi {
 	 * @return
 	 */
 	@ResponseStatus(HttpStatus.OK)
-	@GetMapping(value = { "/private/merchant/{code}/children" }, produces = MediaType.APPLICATION_JSON_VALUE)
-	@ApiOperation(httpMethod = "GET", value = "Get child stores", notes = "", response = List.class)
-	@ApiImplicitParams({ @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
-	public ReadableMerchantStoreList children(@PathVariable String code, @ApiIgnore Language language,
+	@GetMapping(value = { "/private/merchant/{code}/children" })
+	@Operation(summary = "Get child stores", description = "")
+public ReadableMerchantStoreList children(@PathVariable String code, @Parameter(hidden = true) Language language,
 			@RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
 			@RequestParam(value = "count", required = false, defaultValue = "10") Integer count,
 			HttpServletRequest request) {
@@ -282,8 +273,8 @@ public class MerchantStoreApi {
 
 	@Deprecated
 	@ResponseStatus(HttpStatus.CREATED)
-	@PostMapping(value = { "/private/store/{code}/marketing" }, produces = MediaType.APPLICATION_JSON_VALUE)
-	@ApiOperation(httpMethod = "POST", value = "Create or save store branding and marketing details", notes = "", response = ReadableBrand.class)
+	@PostMapping(value = { "/private/store/{code}/marketing" })
+	@Operation(summary = "Create or save store branding and marketing details", description = "")
 	public void saveStoreMarketing(@PathVariable String code, @RequestBody PersistableBrand brand,
 			HttpServletRequest request) {
 		String userName = getUserFromRequest(request);
@@ -293,7 +284,7 @@ public class MerchantStoreApi {
 
 	@ResponseStatus(HttpStatus.CREATED)
 	@PostMapping(value = { "/private/store/{code}/marketing/logo" })
-	@ApiOperation(httpMethod = "POST", value = "Add store logo", notes = "")
+	@Operation(summary = "Add store logo", description = "")
 	public void addLogo(@PathVariable String code, @RequestParam("file") MultipartFile uploadfile,
 			HttpServletRequest request) {
 
@@ -332,7 +323,7 @@ public class MerchantStoreApi {
 
 	@ResponseStatus(HttpStatus.OK)
 	@DeleteMapping(value = { "/private/store/{code}/marketing/logo" })
-	@ApiOperation(httpMethod = "DELETE", value = "Delete store logo", notes = "", response = Void.class)
+	@Operation(summary = "Delete store logo", description = "")
 	public void deleteStoreLogo(@PathVariable String code, HttpServletRequest request) {
 
 		// user doing action must be attached to the store being modified
@@ -344,8 +335,8 @@ public class MerchantStoreApi {
 	}
 
 	@ResponseStatus(HttpStatus.OK)
-	@GetMapping(value = { "/store/unique","/private/store/unique" }, produces = MediaType.APPLICATION_JSON_VALUE)
-	@ApiOperation(httpMethod = "GET", value = "Check if store code already exists", notes = "", response = EntityExists.class)
+	@GetMapping(value = { "/store/unique","/private/store/unique" })
+	@Operation(summary = "Check if store code already exists", description = "")
 	public ResponseEntity<EntityExists> exists(@RequestParam(value = "code") String code) {
 		boolean isStoreExist = storeFacade.existByCode(code);
 		return new ResponseEntity<EntityExists>(new EntityExists(isStoreExist), HttpStatus.OK);
@@ -355,7 +346,7 @@ public class MerchantStoreApi {
 
 	@ResponseStatus(HttpStatus.OK)
 	@DeleteMapping(value = { "/private/store/{code}" })
-	@ApiOperation(httpMethod = "DELETE", value = "Deletes a store", notes = "", response = Void.class)
+	@Operation(summary = "Deletes a store", description = "")
 	public void delete(@PathVariable String code, HttpServletRequest request) {
 		String userName = getUserFromRequest(request);
 		validateUserPermission(userName, code);
