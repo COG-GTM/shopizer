@@ -449,9 +449,14 @@ public class ContentApi {
 			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) {
 
 		for (MultipartFile f : files) {
+			String fileName = f.getOriginalFilename();
+			if (!fileNameUtils.validFileName(fileName)) {
+				throw new ServiceRuntimeException("Invalid filename: " + fileName);
+			}
+
 			ContentFile cf = new ContentFile();
 			cf.setContentType(f.getContentType());
-			cf.setName(f.getName());
+			cf.setName(fileName);
 			try {
 				cf.setFile(f.getBytes());
 				contentFacade.addContentFile(cf, merchantStore.getCode());
