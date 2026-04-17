@@ -13,6 +13,7 @@ public final class EncryptionImpl implements Encryption {
 
 	private static final int IV_LENGTH = 16;
 	private static final String LEGACY_IV = "fedcba9876543210";
+	private static final String NEW_FORMAT_PREFIX = "v1:";
 	private final static String KEY_SPEC = "AES";
 	private final static String CYPHER_SPEC = "AES/CBC/PKCS5Padding";
 	private static final SecureRandom SECURE_RANDOM = new SecureRandom();
@@ -37,7 +38,7 @@ public final class EncryptionImpl implements Encryption {
 		System.arraycopy(iv, 0, combined, 0, IV_LENGTH);
 		System.arraycopy(encrypted, 0, combined, IV_LENGTH, encrypted.length);
 
-		return bytesToHex(combined);
+		return NEW_FORMAT_PREFIX + bytesToHex(combined);
 	}
 
 	@Override
@@ -46,32 +47,39 @@ public final class EncryptionImpl implements Encryption {
 		if (StringUtils.isBlank(value))
 			throw new Exception("Nothing to decrypt");
 
-		byte[] combined = hexToBytes(value);
+		if (value.startsWith(NEW_FORMAT_PREFIX)) {
+			// New format: "v1:" prefix + hex(IV + ciphertext)
+			String hexPayload = value.substring(NEW_FORMAT_PREFIX.length());
+			byte[] combined = hexToBytes(hexPayload);
 
-		if (combined == null || combined.length <= IV_LENGTH) {
-			throw new Exception("Invalid encrypted data: too short");
-		}
+			if (combined == null || combined.length <= IV_LENGTH) {
+				throw new Exception("Invalid encrypted data: too short");
+			}
 
-		// Try new format first: IV (16 bytes) prepended to ciphertext
-		byte[] iv = new byte[IV_LENGTH];
-		System.arraycopy(combined, 0, iv, 0, IV_LENGTH);
-		byte[] ciphertext = new byte[combined.length - IV_LENGTH];
-		System.arraycopy(combined, IV_LENGTH, ciphertext, 0, ciphertext.length);
+			byte[] iv = new byte[IV_LENGTH];
+			System.arraycopy(combined, 0, iv, 0, IV_LENGTH);
+			byte[] ciphertext = new byte[combined.length - IV_LENGTH];
+			System.arraycopy(combined, IV_LENGTH, ciphertext, 0, ciphertext.length);
 
-		try {
 			Cipher cipher = Cipher.getInstance(CYPHER_SPEC);
 			SecretKeySpec keySpec = new SecretKeySpec(secretKey.getBytes(), KEY_SPEC);
 			IvParameterSpec ivSpec = new IvParameterSpec(iv);
 			cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec);
 			byte[] outText = cipher.doFinal(ciphertext);
 			return new String(outText);
-		} catch (Exception e) {
-			// Fall back to legacy format: static IV, no prepended IV in ciphertext
+		} else {
+			// Legacy format: static IV, no prepended IV in ciphertext
+			byte[] data = hexToBytes(value);
+
+			if (data == null || data.length == 0) {
+				throw new Exception("Invalid encrypted data");
+			}
+
 			Cipher cipher = Cipher.getInstance(CYPHER_SPEC);
 			SecretKeySpec keySpec = new SecretKeySpec(secretKey.getBytes(), KEY_SPEC);
 			IvParameterSpec ivSpec = new IvParameterSpec(LEGACY_IV.getBytes());
 			cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec);
-			byte[] outText = cipher.doFinal(combined);
+			byte[] outText = cipher.doFinal(data);
 			return new String(outText);
 		}
 	}
