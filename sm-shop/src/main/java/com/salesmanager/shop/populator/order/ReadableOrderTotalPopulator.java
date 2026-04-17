@@ -22,11 +22,7 @@ public class ReadableOrderTotalPopulator extends
 	
 	private PricingService pricingService;
 
-
 	private LabelUtils messages;
-
-
-
 
 	@Override
 	public ReadableOrderTotal populate(OrderTotal source,

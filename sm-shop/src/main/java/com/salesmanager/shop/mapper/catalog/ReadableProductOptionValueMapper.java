@@ -63,8 +63,6 @@ public class ReadableProductOptionValueMapper implements Mapper<ProductOptionVal
     return readableProductOptionValue;
   }
 
-
-
   com.salesmanager.shop.model.catalog.product.attribute.ProductOptionValueDescription description(ProductOptionValueDescription description) {
     com.salesmanager.shop.model.catalog.product.attribute.ProductOptionValueDescription desc = new com.salesmanager.shop.model.catalog.product.attribute.ProductOptionValueDescription();
     desc.setDescription(description.getDescription());
@@ -73,7 +71,6 @@ public class ReadableProductOptionValueMapper implements Mapper<ProductOptionVal
     desc.setLanguage(description.getLanguage().getCode());
     return desc;
   }
-
 
 @Override
 public ReadableProductOptionValue convert(ProductOptionValue source, MerchantStore store, Language language) {

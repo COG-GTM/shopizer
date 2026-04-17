@@ -64,7 +64,6 @@ public class ProductPriceFacadeImpl implements ProductPriceFacade {
 		return productPrice.getId();
 	}
 
-
 	@Override
 	public List<ReadableProductPrice> list(String sku, Long inventoryId, MerchantStore store, Language language) {
 		Validate.notNull(store, "MerchantStore cannot be null");
@@ -103,7 +102,6 @@ public class ProductPriceFacadeImpl implements ProductPriceFacade {
 
 	}
 
-
 	@Override
 	public void delete(Long priceId, String sku, MerchantStore store) {
 		Validate.notNull(priceId, "Product Price id cannot be null");
@@ -127,7 +125,6 @@ public class ProductPriceFacadeImpl implements ProductPriceFacade {
 		populator.setPricingService(pricingService);
 		return populator.populate(price, store, language);
 	}
-
 
 	@Override
 	public ReadableProductPrice get(String sku, Long productPriceId, MerchantStore store, Language language) {

@@ -15,9 +15,6 @@ import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.shop.model.catalog.product.attribute.PersistableProductOption;
 import com.salesmanager.shop.model.catalog.product.attribute.ProductOptionDescription;
 
-
-
-
 public class PersistableProductOptionPopulator extends
 		AbstractDataPopulator<PersistableProductOption, ProductOption> {
 	

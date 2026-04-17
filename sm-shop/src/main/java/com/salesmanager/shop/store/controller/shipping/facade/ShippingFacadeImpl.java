@@ -56,7 +56,6 @@ public class ShippingFacadeImpl implements ShippingFacade {
 	
 	
 
-
 	@Override
 	public ExpeditionConfiguration getExpeditionConfiguration(MerchantStore store, Language language) {
 		ExpeditionConfiguration expeditionConfiguration = new ExpeditionConfiguration();
@@ -98,7 +97,6 @@ public class ShippingFacadeImpl implements ShippingFacade {
 			this.saveShippingConfiguration(config, store);
 			
 			shippingService.setSupportedCountries(store, expedition.getShipToCountry());
-
 
 		} catch (ServiceException e) {
 			LOGGER.error("Error while getting expedition configuration", e);
@@ -172,7 +170,6 @@ public class ShippingFacadeImpl implements ShippingFacade {
 			LOGGER.error("Error while getting shipping origin for country [" + address.getCountry() + "]",e);
 			throw new ServiceRuntimeException("Error while getting shipping origin for country [" + address.getCountry() + "]",e);
 		}
-
 
 	}
 

@@ -1,7 +1,7 @@
 package com.salesmanager.shop.init.data;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
+import jakarta.annotation.PostConstruct;
+import jakarta.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -23,7 +23,6 @@ import com.salesmanager.core.model.system.MerchantConfig;
 import com.salesmanager.core.model.system.SystemConfiguration;
 import com.salesmanager.shop.admin.security.WebUserServices;
 import com.salesmanager.shop.constants.ApplicationConstants;
-
 
 @Component
 public class InitializationLoader {
@@ -90,7 +89,6 @@ public class InitializationLoader {
 				  
 				  merchantConfigurationService.saveMerchantConfig(config, store);
 
-
 			}
 			
 		} catch (Exception e) {
@@ -98,8 +96,5 @@ public class InitializationLoader {
 		}
 			
 	}
-
-
-
 
 }

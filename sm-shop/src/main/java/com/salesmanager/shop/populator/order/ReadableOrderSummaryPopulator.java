@@ -26,7 +26,6 @@ public class ReadableOrderSummaryPopulator extends AbstractDataPopulator<OrderTo
 	private LabelUtils messages;
 	
 
-
 	@Override
 	public ReadableOrderTotalSummary populate(OrderTotalSummary source, ReadableOrderTotalSummary target,
 			MerchantStore store, Language language) throws ConversionException {

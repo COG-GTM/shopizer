@@ -8,10 +8,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
@@ -42,21 +42,17 @@ import com.salesmanager.shop.store.api.exception.ResourceNotFoundException;
 import com.salesmanager.shop.store.api.exception.ServiceRuntimeException;
 import com.salesmanager.shop.store.api.exception.UnauthorizedException;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import io.swagger.annotations.SwaggerDefinition;
-import io.swagger.annotations.Tag;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.Parameters;
 
 @Controller
 @RequestMapping("/api/v1")
-@Api(tags = { "Product images management. Add, remove and set the order of product images." })
-@SwaggerDefinition(tags = {
-		@Tag(name = "Product images management", description = "Add and remove products images. Change images sort order.") })
+@Tag(name = "Product images management. Add, remove and set the order of product images.")
 public class ProductImageApi {
 
 	@Inject
@@ -82,14 +78,14 @@ public class ProductImageApi {
 	@ResponseStatus(HttpStatus.CREATED)
 	@RequestMapping(value = { "/private/product/{id}/image", "/auth/product/{id}/image" }, consumes = {
 			MediaType.MULTIPART_FORM_DATA_VALUE }, method = RequestMethod.POST)
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
+	@Parameters({ @Parameter(name = "store", description = "store", example = "DEFAULT"),
+			@Parameter(name = "lang", description = "lang", example = "en") })
 	public void uploadImage(
 			@PathVariable Long id, 
 			@RequestParam(value = "file", required = true) MultipartFile[] files,
 			@RequestParam(value = "order", required = false, defaultValue = "0") Integer position,
 			@RequestParam(value = "defaultImage", required = false, defaultValue = "false") boolean defaultImage,
-			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) throws IOException {
+			@Parameter(hidden = true) MerchantStore merchantStore, @Parameter(hidden = true) Language language) throws IOException {
 
 		try {
 
@@ -173,8 +169,7 @@ public class ProductImageApi {
 	@ResponseStatus(HttpStatus.OK)
 	@RequestMapping(value = { "/private/product/{id}/image/{imageId}" }, method = RequestMethod.DELETE)
 	public void deleteImage(@PathVariable Long id, @PathVariable Long imageId, @Valid NameEntity imageName,
-			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) {
-
+			@Parameter(hidden = true) MerchantStore merchantStore, @Parameter(hidden = true) Language language) {
 
 			Optional<ProductImage> productImage = productImageService.getProductImage(imageId, id, merchantStore);
 
@@ -205,16 +200,16 @@ public class ProductImageApi {
 	
 	@ResponseStatus(HttpStatus.OK)
 	@RequestMapping(value = { "/product/{productId}/images" }, method = RequestMethod.GET)
-	@ApiOperation(httpMethod = "GET", value = "Get images for a given product")
+	@Operation(summary = "Get images for a given product")
 	@ApiResponses(value = {
-			@ApiResponse(code = 200, message = "List of ProductImage found", response = List.class) })
+			@ApiResponse(responseCode = "200", description = "List of ProductImage found") })
 	@ResponseBody
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
+	@Parameters({ @Parameter(name = "store", description = "store", example = "DEFAULT"),
+			@Parameter(name = "lang", description = "lang", example = "en") })
 	public List<ReadableImage> images(
 			@PathVariable Long productId, 
-			@ApiIgnore MerchantStore merchantStore, 
-			@ApiIgnore Language language) {
+			@Parameter(hidden = true) MerchantStore merchantStore, 
+			@Parameter(hidden = true) Language language) {
 
 			
 			Product p = productService.getById(productId);
@@ -266,11 +261,11 @@ public class ProductImageApi {
 	@ResponseStatus(HttpStatus.OK)
 	@RequestMapping(value = { "/private/product/{id}/image/{imageId}",
 			"/auth/product/{id}/image/{id}" }, method = RequestMethod.PATCH)
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
+	@Parameters({ @Parameter(name = "store", description = "store", example = "DEFAULT"),
+			@Parameter(name = "lang", description = "lang", example = "en") })
 	public void imageDetails(@PathVariable Long id, @PathVariable Long imageId,
 			@RequestParam(value = "order", required = false, defaultValue = "0") Integer position,
-			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) throws IOException {
+			@Parameter(hidden = true) MerchantStore merchantStore, @Parameter(hidden = true) Language language) throws IOException {
 
 		try {
 			

@@ -10,7 +10,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -650,7 +650,6 @@ public class UserFacadeImpl implements UserFacade {
 			throw new ResourceNotFoundException("MerchantStore is not found");
 		}
 
-
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		
 
@@ -898,7 +897,6 @@ public class UserFacadeImpl implements UserFacade {
 			throws Exception {
 		try {
 
-
 			Map<String, String> templateTokens = emailUtils.createEmailObjectsMap(imageUtils.getContextPath(), store,
 					messages, locale);
 			templateTokens.put(EmailConstants.LABEL_HI, messages.getMessage("label.generic.hi", locale));
@@ -909,7 +907,6 @@ public class UserFacadeImpl implements UserFacade {
 			templateTokens.put(EmailConstants.LABEL_LINK_TITLE,
 					messages.getMessage("email.link.reset.password.title", locale));
 			templateTokens.put(EmailConstants.LABEL_LINK, messages.getMessage("email.link", locale));
-
 
 			Email email = new Email();
 			email.setFrom(store.getStorename());
@@ -925,6 +922,5 @@ public class UserFacadeImpl implements UserFacade {
 			throw new Exception("Cannot send email to customer", e);
 		}
 	}
-
 
 }

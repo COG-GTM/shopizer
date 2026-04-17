@@ -22,7 +22,6 @@ public class ReadableProductOptionMapper implements Mapper<ProductOption, Readab
     return merge(source, destination, store, language);
   }
 
-
   @Override
   public ReadableProductOptionEntity merge(ProductOption source,
                                            ReadableProductOptionEntity destination, MerchantStore store, Language language) {
@@ -54,8 +53,6 @@ public class ReadableProductOptionMapper implements Mapper<ProductOption, Readab
     
     return readableProductOption;
   }
-
-
 
   com.salesmanager.shop.model.catalog.product.attribute.ProductOptionDescription description(ProductOptionDescription description) {
     com.salesmanager.shop.model.catalog.product.attribute.ProductOptionDescription desc = new com.salesmanager.shop.model.catalog.product.attribute.ProductOptionDescription();

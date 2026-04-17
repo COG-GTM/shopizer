@@ -2,7 +2,7 @@ package com.salesmanager.shop.store.facade.product;
 
 import java.util.Optional;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -29,10 +29,8 @@ import com.salesmanager.shop.utils.ImageFilePath;
 public class ProductDefinitionFacadeImpl implements ProductDefinitionFacade {
 	
 
-
 	@Inject
 	private ProductService productService;
-
 
 	@Autowired
 	private PersistableProductDefinitionMapper persistableProductDefinitionMapper;
@@ -67,7 +65,6 @@ public class ProductDefinitionFacadeImpl implements ProductDefinitionFacade {
 				
 			productService.saveProduct(target);
 			product.setId(target.getId());
-
 
 			return target.getId();
 		} catch (Exception e) {

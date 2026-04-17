@@ -31,7 +31,6 @@ public class PersistableOrderProductPopulator extends
 	private DigitalProductService digitalProductService;
 	private ProductAttributeService productAttributeService;
 
-
 	public ProductAttributeService getProductAttributeService() {
 		return productAttributeService;
 	}
@@ -162,6 +161,5 @@ public class PersistableOrderProductPopulator extends
 		return productService;
 	}
 	
-
 
 }

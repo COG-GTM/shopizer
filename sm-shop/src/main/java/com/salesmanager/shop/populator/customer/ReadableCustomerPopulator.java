@@ -132,7 +132,6 @@ public class ReadableCustomerPopulator extends
 					optionValue.setCode(attribute.getCustomerOptionValue().getCode());
 					optionValue.setDescription(vd);
 
-
 					readableAttribute.setCustomerOptionValue(optionValue);
 					target.getAttributes().add(readableAttribute);
 				}

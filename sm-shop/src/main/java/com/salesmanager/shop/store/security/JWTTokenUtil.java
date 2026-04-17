@@ -46,7 +46,6 @@ public class JWTTokenUtil implements Serializable {
 	    static final String AUDIENCE_MOBILE = "mobile";
 	    static final String AUDIENCE_TABLET = "tablet";
 
-
 	    @Value("${jwt.secret}")
 	    private String secret;
 

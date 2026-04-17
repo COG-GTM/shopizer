@@ -146,7 +146,6 @@ public class PersistableProductVariantMapper implements Mapper<PersistableProduc
 			
 		}
 
-
 		
 		return destination;
 

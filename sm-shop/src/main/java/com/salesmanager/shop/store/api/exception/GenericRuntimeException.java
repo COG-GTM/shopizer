@@ -1,6 +1,5 @@
 package com.salesmanager.shop.store.api.exception;
 
-
 public class GenericRuntimeException extends RuntimeException {
 
   /**

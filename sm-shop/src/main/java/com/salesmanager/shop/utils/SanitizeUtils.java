@@ -56,7 +56,6 @@ public class SanitizeUtils {
 			throw new ServiceRuntimeException(e);
 		}
 
-
     	
     }
     
@@ -76,7 +75,6 @@ public class SanitizeUtils {
     return StringEscapeUtils.escapeXml11(safe.toString());
 }
     
-
 
 /*	public static String getSafeString(String value) {
 		

@@ -12,7 +12,6 @@ import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.shop.model.order.transaction.ReadableTransaction;
 import com.salesmanager.shop.utils.DateUtil;
 
-
 public class ReadableTransactionPopulator extends AbstractDataPopulator<Transaction, ReadableTransaction> {
 
 	

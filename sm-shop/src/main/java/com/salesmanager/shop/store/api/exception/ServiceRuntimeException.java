@@ -29,5 +29,4 @@ public class ServiceRuntimeException extends GenericRuntimeException {
         super(StringUtils.isBlank(errorCode)? "500": errorCode, message, exception);
     }
 
-
 }

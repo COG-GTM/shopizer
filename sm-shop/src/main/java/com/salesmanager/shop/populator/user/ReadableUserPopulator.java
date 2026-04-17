@@ -48,7 +48,6 @@ public class ReadableUserPopulator extends AbstractDataPopulator<User, ReadableU
     target.setMerchant(store.getCode());
     target.setId(source.getId());
 
-
     for (Group group : source.getGroups()) {
 
       ReadableGroup g = new ReadableGroup();
@@ -61,7 +60,6 @@ public class ReadableUserPopulator extends AbstractDataPopulator<User, ReadableU
      * dates DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm a z");
      * myObjectMapper.setDateFormat(df);
      */
-
 
     return target;
   }

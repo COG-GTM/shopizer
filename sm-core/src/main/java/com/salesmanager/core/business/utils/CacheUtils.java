@@ -3,7 +3,7 @@ package com.salesmanager.core.business.utils;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,29 +51,37 @@ public class CacheUtils {
 	
 	public List<String> getCacheKeys(MerchantStore store) throws Exception {
 		
-		  net.sf.ehcache.Cache cacheImpl = (net.sf.ehcache.Cache) cache.getNativeCache();
 		  List<String> returnKeys = new ArrayList<String>();
-		  for (Object key: cacheImpl.getKeys()) {
-		    
-			  
-				try {
-					String sKey = (String)key;
-					
-					// a key should be <storeId>_<rest of the key>
-					int delimiterPosition = sKey.indexOf(KEY_DELIMITER);
-					
-					if(delimiterPosition>0 && Character.isDigit(sKey.charAt(0))) {
-					
-						String keyRemaining = sKey.substring(delimiterPosition+1);
-						returnKeys.add(keyRemaining);
-					
-					}
+		  String storePrefix = String.valueOf(store.getId()) + KEY_DELIMITER;
+		  Object nativeCache = cache.getNativeCache();
+		  boolean enumerated = false;
 
-				} catch (Exception e) {
-					LOGGER.equals("key " + key + " cannot be converted to a String or parsed");
-				}  
+		  // ConcurrentMap-backed caches (e.g. Spring SimpleCacheManager)
+		  if (nativeCache instanceof java.util.concurrent.ConcurrentMap) {
+			  @SuppressWarnings("unchecked")
+			  java.util.concurrent.ConcurrentMap<Object, Object> map =
+					  (java.util.concurrent.ConcurrentMap<Object, Object>) nativeCache;
+			  for (Object key : map.keySet()) {
+				  extractStoreKey(key, storePrefix, returnKeys);
+			  }
+			  enumerated = true;
 		  }
 
+		  // JCache (JSR-107) backed caches (e.g. EhCache 3.x via JCache)
+		  if (!enumerated && nativeCache instanceof javax.cache.Cache) {
+			  @SuppressWarnings("unchecked")
+			  javax.cache.Cache<Object, Object> jcache =
+					  (javax.cache.Cache<Object, Object>) nativeCache;
+			  for (javax.cache.Cache.Entry<Object, Object> entry : jcache) {
+				  extractStoreKey(entry.getKey(), storePrefix, returnKeys);
+			  }
+			  enumerated = true;
+		  }
+
+		  if (!enumerated) {
+			  LOGGER.warn("getCacheKeys is not supported for native cache type {}",
+					  nativeCache.getClass().getName());
+		  }
 		return returnKeys;
 	}
 	
@@ -86,24 +94,64 @@ public class CacheUtils {
 	}
 	
 	public void removeAllFromCache(MerchantStore store) throws Exception {
-		  net.sf.ehcache.Cache cacheImpl = (net.sf.ehcache.Cache) cache.getNativeCache();
-		  for (Object key: cacheImpl.getKeys()) {
-				try {
-					String sKey = (String)key;
-					
-					// a key should be <storeId>_<rest of the key>
-					int delimiterPosition = sKey.indexOf(KEY_DELIMITER);
-					
-					if(delimiterPosition>0 && Character.isDigit(sKey.charAt(0))) {
-					
+		  // net.sf.ehcache is no longer available in Spring Boot 3.x.
+		  // The generic Spring Cache API does not support key enumeration,
+		  // so we use the native cache to iterate and selectively evict
+		  // only entries belonging to the specified store (by key prefix).
+		  String storePrefix = String.valueOf(store.getId()) + KEY_DELIMITER;
+		  Object nativeCache = cache.getNativeCache();
+		  boolean evicted = false;
 
-						cache.evict(key);
-					
-					}
+		  // ConcurrentMap-backed caches (e.g. Spring SimpleCacheManager)
+		  if (nativeCache instanceof java.util.concurrent.ConcurrentMap) {
+			  @SuppressWarnings("unchecked")
+			  java.util.concurrent.ConcurrentMap<Object, Object> map =
+					  (java.util.concurrent.ConcurrentMap<Object, Object>) nativeCache;
+			  for (Object key : map.keySet()) {
+				  evictIfStoreKey(key, storePrefix);
+			  }
+			  evicted = true;
+		  }
 
-				} catch (Exception e) {
-					LOGGER.equals("key " + key + " cannot be converted to a String or parsed");
-				}  
+		  // JCache (JSR-107) backed caches (e.g. EhCache 3.x via JCache)
+		  if (!evicted && nativeCache instanceof javax.cache.Cache) {
+			  @SuppressWarnings("unchecked")
+			  javax.cache.Cache<Object, Object> jcache =
+					  (javax.cache.Cache<Object, Object>) nativeCache;
+			  for (javax.cache.Cache.Entry<Object, Object> entry : jcache) {
+				  evictIfStoreKey(entry.getKey(), storePrefix);
+			  }
+			  evicted = true;
+		  }
+
+		  if (!evicted) {
+			  // Fallback: clear entire cache if native cache type is not supported
+			  LOGGER.warn("Cannot selectively evict cache entries for store {}. "
+					  + "Native cache type {} does not support key enumeration. Clearing entire cache.",
+					  store.getId(), nativeCache.getClass().getName());
+			  cache.clear();
+		  }
+	}
+
+	private void extractStoreKey(Object key, String storePrefix, List<String> returnKeys) {
+		  try {
+			  String sKey = (String) key;
+			  if (sKey.startsWith(storePrefix)) {
+				  returnKeys.add(sKey.substring(storePrefix.length()));
+			  }
+		  } catch (Exception e) {
+			  LOGGER.warn("key {} cannot be converted to a String or parsed", key);
+		  }
+	}
+
+	private void evictIfStoreKey(Object key, String storePrefix) {
+		  try {
+			  String sKey = (String) key;
+			  if (sKey.startsWith(storePrefix)) {
+				  cache.evict(key);
+			  }
+		  } catch (Exception e) {
+			  LOGGER.warn("key {} cannot be converted to a String or parsed", key);
 		  }
 	}
 	
