@@ -181,14 +181,14 @@ public class MultipleEntryPointsSecurityConfig {
 			.securityMatcher("/shop/**")
 			.csrf(csrf -> csrf.disable())
 			.authorizeHttpRequests(auth -> auth
-				.requestMatchers("/shop/").permitAll()
-				.requestMatchers("/shop/**").permitAll()
 				.requestMatchers("/shop/customer/logon*").permitAll()
 				.requestMatchers("/shop/customer/registration*").permitAll()
 				.requestMatchers("/shop/customer/logout*").permitAll()
 				.requestMatchers("/shop/customer/customLogon*").permitAll()
 				.requestMatchers("/shop/customer/denied*").permitAll()
 				.requestMatchers("/shop/customer/**").hasRole("AUTH_CUSTOMER")
+				.requestMatchers("/shop/").permitAll()
+				.requestMatchers("/shop/**").permitAll()
 				.anyRequest().authenticated()
 			)
 			.httpBasic(basic -> basic

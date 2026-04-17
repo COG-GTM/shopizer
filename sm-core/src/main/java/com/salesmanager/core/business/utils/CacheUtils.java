@@ -68,9 +68,33 @@ public class CacheUtils {
 	}
 	
 	public void removeAllFromCache(MerchantStore store) throws Exception {
-		  // Full cache clear - net.sf.ehcache is no longer available in Spring Boot 3.x
-		  // Using cache.clear() as a safe fallback
-		  cache.clear();
+		  // net.sf.ehcache is no longer available in Spring Boot 3.x.
+		  // The generic Spring Cache API does not support key enumeration,
+		  // so we use the native cache to iterate and selectively evict
+		  // only entries belonging to the specified store (by key prefix).
+		  Object nativeCache = cache.getNativeCache();
+		  if (nativeCache instanceof java.util.concurrent.ConcurrentMap) {
+			  @SuppressWarnings("unchecked")
+			  java.util.concurrent.ConcurrentMap<Object, Object> map =
+					  (java.util.concurrent.ConcurrentMap<Object, Object>) nativeCache;
+			  String storePrefix = String.valueOf(store.getId()) + KEY_DELIMITER;
+			  for (Object key : map.keySet()) {
+				  try {
+					  String sKey = (String) key;
+					  if (sKey.startsWith(storePrefix)) {
+						  cache.evict(key);
+					  }
+				  } catch (Exception e) {
+					  LOGGER.warn("key " + key + " cannot be converted to a String or parsed");
+				  }
+			  }
+		  } else {
+			  // Fallback: clear entire cache if native cache type is not supported
+			  LOGGER.warn("Cannot selectively evict cache entries for store {}. "
+					  + "Native cache type {} does not support key enumeration. Clearing entire cache.",
+					  store.getId(), nativeCache.getClass().getName());
+			  cache.clear();
+		  }
 	}
 	
 
