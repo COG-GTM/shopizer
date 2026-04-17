@@ -592,6 +592,29 @@
 			</plugin> 
 			-->
 
+		<!-- OWASP Dependency-Check for vulnerability scanning -->
+			<plugin>
+				<groupId>org.owasp</groupId>
+				<artifactId>dependency-check-maven</artifactId>
+				<version>9.0.9</version>
+				<configuration>
+					<failBuildOnCVSS>11</failBuildOnCVSS>
+					<formats>
+						<format>HTML</format>
+						<format>JSON</format>
+					</formats>
+					<outputDirectory>${project.build.directory}/dependency-check</outputDirectory>
+					<suppressionFile>${project.basedir}/dependency-check-suppression.xml</suppressionFile>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>aggregate</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
 		</plugins>
 	</build>
 
