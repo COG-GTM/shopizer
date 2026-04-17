@@ -180,7 +180,9 @@ public class CmsImageFileManagerImpl implements ProductAssetsManager {
 
       for (String key : cache.keySet()) {
         if (!key.startsWith(prefix)) continue;
-        String fileName = key.substring(prefix.length());
+        // Key format: rootName + storeCode/sku/SMALL/filename — extract leaf filename
+        String relPath = key.substring(prefix.length());
+        String fileName = relPath.contains("/") ? relPath.substring(relPath.lastIndexOf('/') + 1) : relPath;
 
         byte[] imageBytes = (byte[]) cache.get(key);
 
@@ -312,7 +314,9 @@ public class CmsImageFileManagerImpl implements ProductAssetsManager {
 
       for (String key : cache.keySet()) {
         if (!key.startsWith(prefix)) continue;
-        String fileName = key.substring(prefix.length());
+        // Key format: rootName + storeCode/sku/SMALL/filename — extract leaf filename
+        String relPath = key.substring(prefix.length());
+        String fileName = relPath.contains("/") ? relPath.substring(relPath.lastIndexOf('/') + 1) : relPath;
 
         byte[] imageBytes = (byte[]) cache.get(key);
 
