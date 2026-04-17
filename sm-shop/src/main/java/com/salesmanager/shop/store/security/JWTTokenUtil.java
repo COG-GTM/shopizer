@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -47,11 +49,24 @@ public class JWTTokenUtil implements Serializable {
 	    static final String AUDIENCE_TABLET = "tablet";
 
 
-	    @Value("${jwt.secret}")
-	    private String secret;
+	     @Value("${jwt.secret}")
+ 	    private String secret;
 
-	    @Value("${jwt.expiration}")
-	    private Long expiration;
+ 	    @Value("${jwt.expiration}")
+ 	    private Long expiration;
+
+ 	    @PostConstruct
+ 	    public void validateSecret() {
+ 	        if (secret == null || secret.trim().isEmpty()) {
+ 	            throw new IllegalStateException("JWT secret must be configured via the JWT_SECRET environment variable");
+ 	        }
+ 	        if ("aSecret".equals(secret)) {
+ 	            throw new IllegalStateException("Default JWT secret 'aSecret' must not be used. Set a secure JWT_SECRET environment variable (minimum 32 characters)");
+ 	        }
+ 	        if (secret.length() < 32) {
+ 	            throw new IllegalStateException("JWT secret must be at least 32 characters (256 bits) for HS256 security. Current length: " + secret.length());
+ 	        }
+ 	    }
 
 	    public String getUsernameFromToken(String token) {
 	        return getClaimFromToken(token, Claims::getSubject);
