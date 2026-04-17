@@ -1,30 +1,28 @@
 package com.salesmanager.core.model.user;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.time.LocalDateTime;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.UniqueConstraint;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotEmpty;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.TableGenerator;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
 
 import org.hibernate.annotations.Cascade;
 
@@ -35,6 +33,8 @@ import com.salesmanager.core.model.common.audit.Auditable;
 import com.salesmanager.core.model.generic.SalesManagerEntity;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 /**
  * User management
@@ -54,7 +54,7 @@ public class User extends SalesManagerEntity<Long, User> implements Auditable {
 	
 	@Id
 	@Column(name = "USER_ID", unique=true, nullable=false)
-	@TableGenerator(name = "TABLE_GEN", table = "SM_SEQUENCER", pkColumnName = "SEQ_NAME", valueColumnName = "SEQ_COUNT", pkColumnValue = "USER_SEQ_NEXT_VAL")
+	@TableGenerator(name = "TABLE_GEN", table = "SM_SEQUENCER", pkColumnName = "SEQ_NAME", valueColumnName = "SEQ_COUNT", pkColumnValue = "USER_SEQ_NEXT_VAL", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.TABLE, generator = "TABLE_GEN")
 	private Long id;
 	
@@ -84,7 +84,6 @@ public class User extends SalesManagerEntity<Long, User> implements Auditable {
 		org.hibernate.annotations.CascadeType.DETACH,
 		org.hibernate.annotations.CascadeType.LOCK,
 		org.hibernate.annotations.CascadeType.REFRESH,
-		org.hibernate.annotations.CascadeType.REPLICATE
 		
 	})
 	private List<Group> groups = new ArrayList<Group>();
@@ -107,6 +106,7 @@ public class User extends SalesManagerEntity<Long, User> implements Auditable {
 	private String firstName;
 	
 	@Column(name="ACTIVE")
+	@JdbcTypeCode(SqlTypes.TINYINT)
 	private boolean active = true;
 	
 	
@@ -139,13 +139,11 @@ public class User extends SalesManagerEntity<Long, User> implements Auditable {
 	@Embedded
 	private AuditSection auditSection = new AuditSection();
 	
-	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "LAST_ACCESS")
-	private Date lastAccess;
+	private LocalDateTime lastAccess;
 	
-	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "LOGIN_ACCESS")
-	private Date loginTime;
+	private LocalDateTime loginTime;
 	
 	@Embedded
 	private CredentialsReset credentialsResetRequest = null;
@@ -300,19 +298,19 @@ public class User extends SalesManagerEntity<Long, User> implements Auditable {
 		return active;
 	}
 
-	public void setLastAccess(Date lastAccess) {
+	public void setLastAccess(LocalDateTime lastAccess) {
 		this.lastAccess = lastAccess;
 	}
 
-	public Date getLastAccess() {
+	public LocalDateTime getLastAccess() {
 		return lastAccess;
 	}
 
-	public void setLoginTime(Date loginTime) {
+	public void setLoginTime(LocalDateTime loginTime) {
 		this.loginTime = loginTime;
 	}
 
-	public Date getLoginTime() {
+	public LocalDateTime getLoginTime() {
 		return loginTime;
 	}
 

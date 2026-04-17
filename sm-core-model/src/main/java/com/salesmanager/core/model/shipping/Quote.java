@@ -1,22 +1,22 @@
 package com.salesmanager.core.model.shipping;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDateTime;
 
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.TableGenerator;
 
 import com.salesmanager.core.constants.SchemaConstant;
 import com.salesmanager.core.model.common.Delivery;
 import com.salesmanager.core.model.generic.SalesManagerEntity;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 
 /**
@@ -35,7 +35,7 @@ public class Quote extends SalesManagerEntity<Long, Quote> {
 	private static final long serialVersionUID = 1L;
 	@Id
 	@Column(name = "SHIPPING_QUOTE_ID", unique=true, nullable=false)
-	@TableGenerator(name = "TABLE_GEN", table = "SM_SEQUENCER", pkColumnName = "SEQ_NAME", valueColumnName = "SEQ_COUNT", pkColumnValue = "SHIP_QUOTE_ID_NEXT_VALUE")
+	@TableGenerator(name = "TABLE_GEN", table = "SM_SEQUENCER", pkColumnName = "SEQ_NAME", valueColumnName = "SEQ_COUNT", pkColumnValue = "SHIP_QUOTE_ID_NEXT_VALUE", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.TABLE, generator = "TABLE_GEN")
 	Long id;
 
@@ -57,17 +57,14 @@ public class Quote extends SalesManagerEntity<Long, Quote> {
 	@Column(name = "OPTION_CODE", nullable = true)
 	private String optionCode = null;
 	
-	@Temporal(TemporalType.TIMESTAMP)
 	@Column (name ="OPTION_DELIVERY_DATE")
-	private Date optionDeliveryDate = null;
+	private LocalDateTime optionDeliveryDate = null;
 	
-	@Temporal(TemporalType.TIMESTAMP)
 	@Column (name ="OPTION_SHIPPING_DATE")
-	private Date optionShippingDate = null;
+	private LocalDateTime optionShippingDate = null;
 	
-	@Temporal(TemporalType.TIMESTAMP)
 	@Column (name ="QUOTE_DATE")
-	private Date quoteDate;
+	private LocalDateTime quoteDate;
 	
 	@Column(name = "SHIPPING_NUMBER_DAYS")
 	private Integer estimatedNumberOfDays;
@@ -79,6 +76,7 @@ public class Quote extends SalesManagerEntity<Long, Quote> {
 	private BigDecimal handling = null;
 	
 	@Column(name = "FREE_SHIPPING")
+	@JdbcTypeCode(SqlTypes.TINYINT)
 	private boolean freeShipping;
 	
 	@Column (name ="IP_ADDRESS")
@@ -127,27 +125,27 @@ public class Quote extends SalesManagerEntity<Long, Quote> {
 		this.optionCode = optionCode;
 	}
 
-	public Date getOptionDeliveryDate() {
+	public LocalDateTime getOptionDeliveryDate() {
 		return optionDeliveryDate;
 	}
 
-	public void setOptionDeliveryDate(Date optionDeliveryDate) {
+	public void setOptionDeliveryDate(LocalDateTime optionDeliveryDate) {
 		this.optionDeliveryDate = optionDeliveryDate;
 	}
 
-	public Date getOptionShippingDate() {
+	public LocalDateTime getOptionShippingDate() {
 		return optionShippingDate;
 	}
 
-	public void setOptionShippingDate(Date optionShippingDate) {
+	public void setOptionShippingDate(LocalDateTime optionShippingDate) {
 		this.optionShippingDate = optionShippingDate;
 	}
 
-	public Date getQuoteDate() {
+	public LocalDateTime getQuoteDate() {
 		return quoteDate;
 	}
 
-	public void setQuoteDate(Date quoteDate) {
+	public void setQuoteDate(LocalDateTime quoteDate) {
 		this.quoteDate = quoteDate;
 	}
 

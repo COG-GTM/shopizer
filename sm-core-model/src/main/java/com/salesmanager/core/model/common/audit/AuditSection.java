@@ -1,15 +1,12 @@
 package com.salesmanager.core.model.common.audit;
 
 import java.io.Serializable;
-import java.util.Date;
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import java.time.LocalDateTime;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.salesmanager.core.utils.CloneUtils;
 
 
 @Embeddable
@@ -18,33 +15,31 @@ public class AuditSection implements Serializable {
 
   private static final long serialVersionUID = 1L;
 
-  @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "DATE_CREATED")
-  private Date dateCreated;
+  private LocalDateTime dateCreated;
 
-  @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "DATE_MODIFIED")
-  private Date dateModified;
+  private LocalDateTime dateModified;
 
   @Column(name = "UPDT_ID", length = 60)
   private String modifiedBy;
 
   public AuditSection() {}
 
-  public Date getDateCreated() {
-    return CloneUtils.clone(dateCreated);
+  public LocalDateTime getDateCreated() {
+    return dateCreated;
   }
 
-  public void setDateCreated(Date dateCreated) {
-    this.dateCreated = CloneUtils.clone(dateCreated);
+  public void setDateCreated(LocalDateTime dateCreated) {
+    this.dateCreated = dateCreated;
   }
 
-  public Date getDateModified() {
-    return CloneUtils.clone(dateModified);
+  public LocalDateTime getDateModified() {
+    return dateModified;
   }
 
-  public void setDateModified(Date dateModified) {
-    this.dateModified = CloneUtils.clone(dateModified);
+  public void setDateModified(LocalDateTime dateModified) {
+    this.dateModified = dateModified;
   }
 
   public String getModifiedBy() {

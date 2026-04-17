@@ -1,8 +1,8 @@
 package com.salesmanager.core.model.common.audit;
 
-import java.util.Date;
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
+import java.time.LocalDateTime;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 
 public class AuditListener {
 
@@ -12,9 +12,9 @@ public class AuditListener {
       Auditable audit = (Auditable) o;
       AuditSection auditSection = audit.getAuditSection();
 
-      auditSection.setDateModified(new Date());
+      auditSection.setDateModified(LocalDateTime.now());
       if (auditSection.getDateCreated() == null) {
-        auditSection.setDateCreated(new Date());
+        auditSection.setDateCreated(LocalDateTime.now());
       }
       audit.setAuditSection(auditSection);
     }
@@ -26,9 +26,9 @@ public class AuditListener {
       Auditable audit = (Auditable) o;
       AuditSection auditSection = audit.getAuditSection();
 
-      auditSection.setDateModified(new Date());
+      auditSection.setDateModified(LocalDateTime.now());
       if (auditSection.getDateCreated() == null) {
-        auditSection.setDateCreated(new Date());
+        auditSection.setDateCreated(LocalDateTime.now());
       }
       audit.setAuditSection(auditSection);
     }

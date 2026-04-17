@@ -1,24 +1,22 @@
 package com.salesmanager.core.model.order.orderaccount;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.TableGenerator;
 
 import com.salesmanager.core.constants.SchemaConstant;
 import com.salesmanager.core.model.order.orderproduct.OrderProduct;
-import com.salesmanager.core.utils.CloneUtils;
 
 @Entity
 @Table (name="ORDER_ACCOUNT_PRODUCT" )
@@ -28,7 +26,7 @@ public class OrderAccountProduct implements Serializable {
 	@Id
 	@Column (name="ORDER_ACCOUNT_PRODUCT_ID")
 	@TableGenerator(name = "TABLE_GEN", table = "SM_SEQUENCER", pkColumnName = "SEQ_NAME", valueColumnName = "SEQ_COUNT",
-		pkColumnValue = "ORDERACCOUNTPRODUCT_SEQ_NEXT_VAL")
+		pkColumnValue = "ORDERACCOUNTPRODUCT_SEQ_NEXT_VAL", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.TABLE, generator = "TABLE_GEN")
 	private Long orderAccountProductId;
 
@@ -40,25 +38,20 @@ public class OrderAccountProduct implements Serializable {
 	@JoinColumn(name = "ORDER_PRODUCT_ID" , nullable=false)
 	private OrderProduct orderProduct;
 
-	@Temporal(TemporalType.DATE)
 	@Column (name="ORDER_ACCOUNT_PRODUCT_ST_DT" , length=0 , nullable=false)
-	private Date orderAccountProductStartDate;
+	private LocalDate orderAccountProductStartDate;
 
-	@Temporal(TemporalType.DATE)
 	@Column (name="ORDER_ACCOUNT_PRODUCT_END_DT", length=0)
-	private Date orderAccountProductEndDate;
+	private LocalDate orderAccountProductEndDate;
 
-	@Temporal(TemporalType.TIMESTAMP)
 	@Column (name="ORDER_ACCOUNT_PRODUCT_EOT"  , length=0 )
-	private Date orderAccountProductEot;
+	private LocalDateTime orderAccountProductEot;
 
-	@Temporal(TemporalType.DATE)
 	@Column (name="ORDER_ACCOUNT_PRODUCT_ACCNT_DT"  , length=0 )
-	private Date orderAccountProductAccountedDate;
+	private LocalDate orderAccountProductAccountedDate;
 
-	@Temporal(TemporalType.TIMESTAMP)
 	@Column (name="ORDER_ACCOUNT_PRODUCT_L_ST_DT"  , length=0 )
-	private Date orderAccountProductLastStatusDate;
+	private LocalDateTime orderAccountProductLastStatusDate;
 
 	@Column (name="ORDER_ACCOUNT_PRODUCT_L_TRX_ST" , nullable=false )
 	private Integer orderAccountProductLastTransactionStatus;
@@ -96,46 +89,46 @@ public class OrderAccountProduct implements Serializable {
 		this.orderProduct = orderProduct;
 	}
 
-	public Date getOrderAccountProductStartDate() {
-		return CloneUtils.clone(orderAccountProductStartDate);
+	public LocalDate getOrderAccountProductStartDate() {
+		return orderAccountProductStartDate;
 	}
 
-	public void setOrderAccountProductStartDate(Date orderAccountProductStartDate) {
-		this.orderAccountProductStartDate = CloneUtils.clone(orderAccountProductStartDate);
+	public void setOrderAccountProductStartDate(LocalDate orderAccountProductStartDate) {
+		this.orderAccountProductStartDate = orderAccountProductStartDate;
 	}
 
-	public Date getOrderAccountProductEndDate() {
-		return CloneUtils.clone(orderAccountProductEndDate);
+	public LocalDate getOrderAccountProductEndDate() {
+		return orderAccountProductEndDate;
 	}
 
-	public void setOrderAccountProductEndDate(Date orderAccountProductEndDate) {
-		this.orderAccountProductEndDate = CloneUtils.clone(orderAccountProductEndDate);
+	public void setOrderAccountProductEndDate(LocalDate orderAccountProductEndDate) {
+		this.orderAccountProductEndDate = orderAccountProductEndDate;
 	}
 
-	public Date getOrderAccountProductEot() {
-		return CloneUtils.clone(orderAccountProductEot);
+	public LocalDateTime getOrderAccountProductEot() {
+		return orderAccountProductEot;
 	}
 
-	public void setOrderAccountProductEot(Date orderAccountProductEot) {
-		this.orderAccountProductEot = CloneUtils.clone(orderAccountProductEot);
+	public void setOrderAccountProductEot(LocalDateTime orderAccountProductEot) {
+		this.orderAccountProductEot = orderAccountProductEot;
 	}
 
-	public Date getOrderAccountProductAccountedDate() {
-		return CloneUtils.clone(orderAccountProductAccountedDate);
+	public LocalDate getOrderAccountProductAccountedDate() {
+		return orderAccountProductAccountedDate;
 	}
 
 	public void setOrderAccountProductAccountedDate(
-			Date orderAccountProductAccountedDate) {
-		this.orderAccountProductAccountedDate = CloneUtils.clone(orderAccountProductAccountedDate);
+			LocalDate orderAccountProductAccountedDate) {
+		this.orderAccountProductAccountedDate = orderAccountProductAccountedDate;
 	}
 
-	public Date getOrderAccountProductLastStatusDate() {
-		return CloneUtils.clone(orderAccountProductLastStatusDate);
+	public LocalDateTime getOrderAccountProductLastStatusDate() {
+		return orderAccountProductLastStatusDate;
 	}
 
 	public void setOrderAccountProductLastStatusDate(
-			Date orderAccountProductLastStatusDate) {
-		this.orderAccountProductLastStatusDate = CloneUtils.clone(orderAccountProductLastStatusDate);
+			LocalDateTime orderAccountProductLastStatusDate) {
+		this.orderAccountProductLastStatusDate = orderAccountProductLastStatusDate;
 	}
 
 	public Integer getOrderAccountProductLastTransactionStatus() {

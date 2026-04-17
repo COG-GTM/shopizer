@@ -1,28 +1,24 @@
 package com.salesmanager.core.model.order.orderstatus;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.TableGenerator;
 
-import org.hibernate.annotations.Type;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.salesmanager.core.constants.SchemaConstant;
 import com.salesmanager.core.model.order.Order;
-import com.salesmanager.core.utils.CloneUtils;
 
 @Entity
 @Table (name="ORDER_STATUS_HISTORY" )
@@ -32,7 +28,7 @@ public class OrderStatusHistory implements Serializable {
 	@Id
 	@Column ( name="ORDER_STATUS_HISTORY_ID")
 	@TableGenerator(name = "TABLE_GEN", table = "SM_SEQUENCER", pkColumnName = "SEQ_NAME", valueColumnName = "SEQ_COUNT",
-		pkColumnValue = "STATUS_HIST_ID_NEXT_VALUE")
+		pkColumnValue = "STATUS_HIST_ID_NEXT_VALUE", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.TABLE, generator = "TABLE_GEN")
 	private Long id;
 	
@@ -44,15 +40,13 @@ public class OrderStatusHistory implements Serializable {
 	@Enumerated(value = EnumType.STRING)
 	private OrderStatus status;
 	
-	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "DATE_ADDED", nullable = false)
-	private Date dateAdded;
+	private LocalDateTime dateAdded;
 	
 	@Column(name = "CUSTOMER_NOTIFIED")
 	private java.lang.Integer customerNotified;
 	
-	@Column(name = "COMMENTS")
-	@Type(type = "org.hibernate.type.TextType")
+	@Column(name = "COMMENTS", columnDefinition = "text")
 	private String comments;
 	
 	public OrderStatusHistory() {
@@ -82,12 +76,12 @@ public class OrderStatusHistory implements Serializable {
 		this.status = status;
 	}
 
-	public Date getDateAdded() {
-		return CloneUtils.clone(dateAdded);
+	public LocalDateTime getDateAdded() {
+		return dateAdded;
 	}
 
-	public void setDateAdded(Date dateAdded) {
-		this.dateAdded = CloneUtils.clone(dateAdded);
+	public void setDateAdded(LocalDateTime dateAdded) {
+		this.dateAdded = dateAdded;
 	}
 
 	public java.lang.Integer getCustomerNotified() {

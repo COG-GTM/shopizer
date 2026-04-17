@@ -1,29 +1,27 @@
 package com.salesmanager.core.model.catalog.product.availability;
 
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import java.time.LocalDate;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
-import javax.persistence.UniqueConstraint;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.TableGenerator;
+import jakarta.persistence.Transient;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.salesmanager.core.constants.SchemaConstant;
@@ -35,7 +33,8 @@ import com.salesmanager.core.model.common.audit.AuditSection;
 import com.salesmanager.core.model.common.audit.Auditable;
 import com.salesmanager.core.model.generic.SalesManagerEntity;
 import com.salesmanager.core.model.merchant.MerchantStore;
-import com.salesmanager.core.utils.CloneUtils;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "PRODUCT_AVAILABILITY",
@@ -71,7 +70,7 @@ public class ProductAvailability extends SalesManagerEntity<Long, ProductAvailab
 
 	@Id
 	@Column(name = "PRODUCT_AVAIL_ID", unique = true, nullable = false)
-	@TableGenerator(name = "TABLE_GEN", table = "SM_SEQUENCER", pkColumnName = "SEQ_NAME", valueColumnName = "SEQ_COUNT", pkColumnValue = "PRODUCT_AVAIL_SEQ_NEXT_VAL")
+	@TableGenerator(name = "TABLE_GEN", table = "SM_SEQUENCER", pkColumnName = "SEQ_NAME", valueColumnName = "SEQ_COUNT", pkColumnValue = "PRODUCT_AVAIL_SEQ_NEXT_VAL", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.TABLE, generator = "TABLE_GEN")
 	private Long id;
 
@@ -103,9 +102,8 @@ public class ProductAvailability extends SalesManagerEntity<Long, ProductAvailab
 	@Column(name = "QUANTITY")
 	private Integer productQuantity = 0;
 
-	@Temporal(TemporalType.DATE)
 	@Column(name = "DATE_AVAILABLE")
-	private Date productDateAvailable;
+	private LocalDate productDateAvailable;
 
 	@Column(name = "REGION")
 	private String region = SchemaConstant.ALL_REGIONS;
@@ -117,12 +115,15 @@ public class ProductAvailability extends SalesManagerEntity<Long, ProductAvailab
 	private String owner;
 
 	@Column(name = "STATUS")
+	@JdbcTypeCode(SqlTypes.TINYINT)
 	private boolean productStatus = true; //can be used as flag for variant can be purchase or not
 
 	@Column(name = "FREE_SHIPPING")
+	@JdbcTypeCode(SqlTypes.TINYINT)
 	private boolean productIsAlwaysFreeShipping;
 
 	@Column(name = "AVAILABLE")
+	@JdbcTypeCode(SqlTypes.TINYINT)
 	private Boolean available;
 
 	@Column(name = "QUANTITY_ORD_MIN")
@@ -161,12 +162,12 @@ public class ProductAvailability extends SalesManagerEntity<Long, ProductAvailab
 		this.productQuantity = productQuantity;
 	}
 
-	public Date getProductDateAvailable() {
-		return CloneUtils.clone(productDateAvailable);
+	public LocalDate getProductDateAvailable() {
+		return productDateAvailable;
 	}
 
-	public void setProductDateAvailable(Date productDateAvailable) {
-		this.productDateAvailable = CloneUtils.clone(productDateAvailable);
+	public void setProductDateAvailable(LocalDate productDateAvailable) {
+		this.productDateAvailable = productDateAvailable;
 	}
 
 	public String getRegion() {

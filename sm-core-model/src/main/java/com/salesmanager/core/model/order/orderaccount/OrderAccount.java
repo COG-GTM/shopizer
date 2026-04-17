@@ -1,27 +1,24 @@
 package com.salesmanager.core.model.order.orderaccount;
 
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import java.time.LocalDate;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.TableGenerator;
 
 import com.salesmanager.core.constants.SchemaConstant;
 import com.salesmanager.core.model.generic.SalesManagerEntity;
 import com.salesmanager.core.model.order.Order;
-import com.salesmanager.core.utils.CloneUtils;
 
 @Entity
 @Table(name = "ORDER_ACCOUNT")
@@ -30,7 +27,7 @@ private static final long serialVersionUID = -2429388347536330540L;
 
 	@Id
 	@Column(name = "ORDER_ACCOUNT_ID", unique = true, nullable = false)
-	@TableGenerator(name = "TABLE_GEN", table = "SM_SEQUENCER", pkColumnName = "SEQ_NAME", valueColumnName = "SEQ_COUNT", pkColumnValue = "ORDER_ACCOUNT_ID_NEXT_VALUE")
+	@TableGenerator(name = "TABLE_GEN", table = "SM_SEQUENCER", pkColumnName = "SEQ_NAME", valueColumnName = "SEQ_COUNT", pkColumnValue = "ORDER_ACCOUNT_ID_NEXT_VALUE", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.TABLE, generator = "TABLE_GEN")
 	private Long id;
 
@@ -38,13 +35,11 @@ private static final long serialVersionUID = -2429388347536330540L;
 	@JoinColumn(name = "ORDER_ID", nullable = false)
 	private Order order;
 	
-	@Temporal(TemporalType.DATE)
 	@Column(name = "ORDER_ACCOUNT_START_DATE", nullable = false, length = 0)
-	private Date orderAccountStartDate;
+	private LocalDate orderAccountStartDate;
 	
-	@Temporal(TemporalType.DATE)
 	@Column(name = "ORDER_ACCOUNT_END_DATE", length = 0)
-	private Date orderAccountEndDate;
+	private LocalDate orderAccountEndDate;
 
 	@Column(name = "ORDER_ACCOUNT_BILL_DAY", nullable = false)
 	private Integer orderAccountBillDay;
@@ -71,20 +66,20 @@ private static final long serialVersionUID = -2429388347536330540L;
 		this.order = order;
 	}
 
-	public Date getOrderAccountStartDate() {
-		return CloneUtils.clone(orderAccountStartDate);
+	public LocalDate getOrderAccountStartDate() {
+		return orderAccountStartDate;
 	}
 
-	public void setOrderAccountStartDate(Date orderAccountStartDate) {
-		this.orderAccountStartDate = CloneUtils.clone(orderAccountStartDate);
+	public void setOrderAccountStartDate(LocalDate orderAccountStartDate) {
+		this.orderAccountStartDate = orderAccountStartDate;
 	}
 
-	public Date getOrderAccountEndDate() {
-		return CloneUtils.clone(orderAccountEndDate);
+	public LocalDate getOrderAccountEndDate() {
+		return orderAccountEndDate;
 	}
 
-	public void setOrderAccountEndDate(Date orderAccountEndDate) {
-		this.orderAccountEndDate = CloneUtils.clone(orderAccountEndDate);
+	public void setOrderAccountEndDate(LocalDate orderAccountEndDate) {
+		this.orderAccountEndDate = orderAccountEndDate;
 	}
 
 	public Integer getOrderAccountBillDay() {

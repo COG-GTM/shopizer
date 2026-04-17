@@ -1,11 +1,9 @@
 package com.salesmanager.core.model.common;
 
-import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import java.time.LocalDate;
 
 @Embeddable
 public class CredentialsReset {
@@ -13,9 +11,8 @@ public class CredentialsReset {
 	@Column (name ="RESET_CREDENTIALS_REQ", length=256)
 	private String credentialsRequest;
 
-	@Temporal(TemporalType.DATE)
 	@Column(name = "RESET_CREDENTIALS_EXP")
-	private Date credentialsRequestExpiry = new Date();
+	private LocalDate credentialsRequestExpiry = LocalDate.now();
 
 	public String getCredentialsRequest() {
 		return credentialsRequest;
@@ -25,11 +22,11 @@ public class CredentialsReset {
 		this.credentialsRequest = credentialsRequest;
 	}
 
-	public Date getCredentialsRequestExpiry() {
+	public LocalDate getCredentialsRequestExpiry() {
 		return credentialsRequestExpiry;
 	}
 
-	public void setCredentialsRequestExpiry(Date credentialsRequestExpiry) {
+	public void setCredentialsRequestExpiry(LocalDate credentialsRequestExpiry) {
 		this.credentialsRequestExpiry = credentialsRequestExpiry;
 	}
 

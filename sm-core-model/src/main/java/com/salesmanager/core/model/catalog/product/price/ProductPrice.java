@@ -1,33 +1,32 @@
 package com.salesmanager.core.model.catalog.product.price;
 
 import java.math.BigDecimal;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import java.time.LocalDate;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Pattern;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.TableGenerator;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Pattern;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.salesmanager.core.model.catalog.product.availability.ProductAvailability;
 import com.salesmanager.core.model.generic.SalesManagerEntity;
-import com.salesmanager.core.utils.CloneUtils;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "PRODUCT_PRICE")
@@ -38,7 +37,7 @@ public class ProductPrice extends SalesManagerEntity<Long, ProductPrice> {
 
 	@Id
 	@Column(name = "PRODUCT_PRICE_ID")
-	@TableGenerator(name = "TABLE_GEN", table = "SM_SEQUENCER", pkColumnName = "SEQ_NAME", valueColumnName = "SEQ_COUNT", pkColumnValue = "PRODUCT_PRICE_SEQ_NEXT_VAL")
+	@TableGenerator(name = "TABLE_GEN", table = "SM_SEQUENCER", pkColumnName = "SEQ_NAME", valueColumnName = "SEQ_COUNT", pkColumnValue = "PRODUCT_PRICE_SEQ_NEXT_VAL", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.TABLE, generator = "TABLE_GEN")
 	private Long id;
 
@@ -58,15 +57,14 @@ public class ProductPrice extends SalesManagerEntity<Long, ProductPrice> {
 	private ProductPriceType productPriceType = ProductPriceType.ONE_TIME;
 
 	@Column(name = "DEFAULT_PRICE")
+	@JdbcTypeCode(SqlTypes.TINYINT)
 	private boolean defaultPrice = false;
 
-	@Temporal(TemporalType.DATE)
 	@Column(name = "PRODUCT_PRICE_SPECIAL_ST_DATE")
-	private Date productPriceSpecialStartDate;
+	private LocalDate productPriceSpecialStartDate;
 
-	@Temporal(TemporalType.DATE)
 	@Column(name = "PRODUCT_PRICE_SPECIAL_END_DATE")
-	private Date productPriceSpecialEndDate;
+	private LocalDate productPriceSpecialEndDate;
 
 	@Column(name = "PRODUCT_PRICE_SPECIAL_AMOUNT")
 	private BigDecimal productPriceSpecialAmount;
@@ -100,20 +98,20 @@ public class ProductPrice extends SalesManagerEntity<Long, ProductPrice> {
 		this.productPriceAmount = productPriceAmount;
 	}
 
-	public Date getProductPriceSpecialStartDate() {
-		return CloneUtils.clone(productPriceSpecialStartDate);
+	public LocalDate getProductPriceSpecialStartDate() {
+		return productPriceSpecialStartDate;
 	}
 
-	public void setProductPriceSpecialStartDate(Date productPriceSpecialStartDate) {
-		this.productPriceSpecialStartDate = CloneUtils.clone(productPriceSpecialStartDate);
+	public void setProductPriceSpecialStartDate(LocalDate productPriceSpecialStartDate) {
+		this.productPriceSpecialStartDate = productPriceSpecialStartDate;
 	}
 
-	public Date getProductPriceSpecialEndDate() {
-		return CloneUtils.clone(productPriceSpecialEndDate);
+	public LocalDate getProductPriceSpecialEndDate() {
+		return productPriceSpecialEndDate;
 	}
 
-	public void setProductPriceSpecialEndDate(Date productPriceSpecialEndDate) {
-		this.productPriceSpecialEndDate = CloneUtils.clone(productPriceSpecialEndDate);
+	public void setProductPriceSpecialEndDate(LocalDate productPriceSpecialEndDate) {
+		this.productPriceSpecialEndDate = productPriceSpecialEndDate;
 	}
 
 	public BigDecimal getProductPriceSpecialAmount() {

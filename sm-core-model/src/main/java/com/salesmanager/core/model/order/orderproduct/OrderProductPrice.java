@@ -2,22 +2,22 @@ package com.salesmanager.core.model.order.orderproduct;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDateTime;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.TableGenerator;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.salesmanager.core.constants.SchemaConstant;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table (name="ORDER_PRODUCT_PRICE" )
@@ -27,7 +27,7 @@ public class OrderProductPrice implements Serializable {
 	@Id
 	@Column (name="ORDER_PRODUCT_PRICE_ID")
 	@TableGenerator(name = "TABLE_GEN", table = "SM_SEQUENCER", pkColumnName = "SEQ_NAME", valueColumnName = "SEQ_COUNT",
-		pkColumnValue = "ORDER_PRD_PRICE_ID_NEXT_VAL")
+		pkColumnValue = "ORDER_PRD_PRICE_ID_NEXT_VAL", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.TABLE, generator = "TABLE_GEN")
 	private Long id;
 
@@ -46,16 +46,15 @@ public class OrderProductPrice implements Serializable {
 	@Column(name = "PRODUCT_PRICE_SPECIAL")
 	private BigDecimal productPriceSpecial;
 	
-	@Temporal(TemporalType.TIMESTAMP)
 	@Column (name="PRD_PRICE_SPECIAL_ST_DT" , length=0)
-	private Date productPriceSpecialStartDate;
+	private LocalDateTime productPriceSpecialStartDate;
 	
-	@Temporal(TemporalType.TIMESTAMP)
 	@Column (name="PRD_PRICE_SPECIAL_END_DT" , length=0)
-	private Date productPriceSpecialEndDate;
+	private LocalDateTime productPriceSpecialEndDate;
 
 
 	@Column(name = "DEFAULT_PRICE", nullable = false)
+	@JdbcTypeCode(SqlTypes.TINYINT)
 	private Boolean defaultPrice;
 
 
@@ -106,19 +105,19 @@ public class OrderProductPrice implements Serializable {
 	}
 
 	public void setProductPriceSpecialStartDate(
-			Date productPriceSpecialStartDate) {
+			LocalDateTime productPriceSpecialStartDate) {
 		this.productPriceSpecialStartDate = productPriceSpecialStartDate;
 	}
 
-	public Date getProductPriceSpecialStartDate() {
+	public LocalDateTime getProductPriceSpecialStartDate() {
 		return productPriceSpecialStartDate;
 	}
 
-	public void setProductPriceSpecialEndDate(Date productPriceSpecialEndDate) {
+	public void setProductPriceSpecialEndDate(LocalDateTime productPriceSpecialEndDate) {
 		this.productPriceSpecialEndDate = productPriceSpecialEndDate;
 	}
 
-	public Date getProductPriceSpecialEndDate() {
+	public LocalDateTime getProductPriceSpecialEndDate() {
 		return productPriceSpecialEndDate;
 	}
 

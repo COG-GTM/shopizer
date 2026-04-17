@@ -1,24 +1,21 @@
 package com.salesmanager.core.model.system.optin;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.UniqueConstraint;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.TableGenerator;
+import jakarta.persistence.UniqueConstraint;
 
-import org.hibernate.annotations.Type;
 
 import com.salesmanager.core.constants.SchemaConstant;
 import com.salesmanager.core.model.common.audit.AuditListener;
@@ -46,13 +43,12 @@ public class CustomerOptin extends SalesManagerEntity<Long, CustomerOptin> imple
 
 	@Id
 	@Column(name = "CUSTOMER_OPTIN_ID")
-	@TableGenerator(name = "TABLE_GEN", table = "SM_SEQUENCER", pkColumnName = "SEQ_NAME", valueColumnName = "SEQ_COUNT", pkColumnValue = "CUST_OPT_SEQ_NEXT_VAL")
+	@TableGenerator(name = "TABLE_GEN", table = "SM_SEQUENCER", pkColumnName = "SEQ_NAME", valueColumnName = "SEQ_COUNT", pkColumnValue = "CUST_OPT_SEQ_NEXT_VAL", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.TABLE, generator = "TABLE_GEN")
 	private Long id;
 	
-	@Temporal(TemporalType.TIMESTAMP)
 	@Column (name ="OPTIN_DATE")
-	private Date optinDate;
+	private LocalDateTime optinDate;
 
 	
 	@ManyToOne(targetEntity = Optin.class)
@@ -72,8 +68,7 @@ public class CustomerOptin extends SalesManagerEntity<Long, CustomerOptin> imple
 	@Column(name="EMAIL", nullable=false)
 	private String email;
 	
-	@Column(name="VALUE")
-	@Type(type = "org.hibernate.type.TextType")
+	@Column(name="VALUE", columnDefinition = "text")
 	private String value;
 
 	@Override
@@ -86,11 +81,11 @@ public class CustomerOptin extends SalesManagerEntity<Long, CustomerOptin> imple
 		this.id = id;	
 	}
 
-	public Date getOptinDate() {
+	public LocalDateTime getOptinDate() {
 		return optinDate;
 	}
 
-	public void setOptinDate(Date optinDate) {
+	public void setOptinDate(LocalDateTime optinDate) {
 		this.optinDate = optinDate;
 	}
 
