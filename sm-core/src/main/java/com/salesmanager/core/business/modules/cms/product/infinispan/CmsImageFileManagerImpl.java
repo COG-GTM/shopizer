@@ -250,13 +250,15 @@ public class CmsImageFileManagerImpl implements ProductAssetsManager {
     try {
 
 
-      StringBuilder nodePath = new StringBuilder();
-      nodePath.append(productImage.getProduct().getMerchantStore().getCode())
-          .append(Constants.SLASH).append(productImage.getProduct().getSku());
-
-
-      String cacheKey = buildCacheKey(nodePath.toString(), productImage.getProductImage());
-      cacheManager.getCache().remove(cacheKey);
+      // Remove all size variants (SMALL/LARGE) for this product image.
+      // Add key is: rootName + storeCode/sku/SMALL/filename (or LARGE),
+      // but ProductImage doesn't carry size info at removal time,
+      // so we remove any key ending with /imageName under the product's path.
+      String pathPrefix = getRootName() + productImage.getProduct().getMerchantStore().getCode()
+          + Constants.SLASH + productImage.getProduct().getSku() + Constants.SLASH;
+      String imageName = productImage.getProductImage();
+      cacheManager.getCache().keySet().removeIf(k ->
+          k.startsWith(pathPrefix) && k.endsWith("/" + imageName));
 
 
 
