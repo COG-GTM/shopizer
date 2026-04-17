@@ -52,10 +52,36 @@ public class CacheUtils {
 	public List<String> getCacheKeys(MerchantStore store) throws Exception {
 		
 		  List<String> returnKeys = new ArrayList<String>();
-		  // Cache key enumeration is not supported with the generic Spring Cache API.
-		  // This method now returns an empty list. For full cache key enumeration,
-		  // consider using a CacheManager-specific approach.
-		  LOGGER.warn("getCacheKeys is not fully supported with the generic Spring Cache API");
+		  String storePrefix = String.valueOf(store.getId()) + KEY_DELIMITER;
+		  Object nativeCache = cache.getNativeCache();
+		  boolean enumerated = false;
+
+		  // ConcurrentMap-backed caches (e.g. Spring SimpleCacheManager)
+		  if (nativeCache instanceof java.util.concurrent.ConcurrentMap) {
+			  @SuppressWarnings("unchecked")
+			  java.util.concurrent.ConcurrentMap<Object, Object> map =
+					  (java.util.concurrent.ConcurrentMap<Object, Object>) nativeCache;
+			  for (Object key : map.keySet()) {
+				  extractStoreKey(key, storePrefix, returnKeys);
+			  }
+			  enumerated = true;
+		  }
+
+		  // JCache (JSR-107) backed caches (e.g. EhCache 3.x via JCache)
+		  if (!enumerated && nativeCache instanceof javax.cache.Cache) {
+			  @SuppressWarnings("unchecked")
+			  javax.cache.Cache<Object, Object> jcache =
+					  (javax.cache.Cache<Object, Object>) nativeCache;
+			  for (javax.cache.Cache.Entry<Object, Object> entry : jcache) {
+				  extractStoreKey(entry.getKey(), storePrefix, returnKeys);
+			  }
+			  enumerated = true;
+		  }
+
+		  if (!enumerated) {
+			  LOGGER.warn("getCacheKeys is not supported for native cache type {}",
+					  nativeCache.getClass().getName());
+		  }
 		return returnKeys;
 	}
 	
@@ -104,6 +130,17 @@ public class CacheUtils {
 					  + "Native cache type {} does not support key enumeration. Clearing entire cache.",
 					  store.getId(), nativeCache.getClass().getName());
 			  cache.clear();
+		  }
+	}
+
+	private void extractStoreKey(Object key, String storePrefix, List<String> returnKeys) {
+		  try {
+			  String sKey = (String) key;
+			  if (sKey.startsWith(storePrefix)) {
+				  returnKeys.add(sKey.substring(storePrefix.length()));
+			  }
+		  } catch (Exception e) {
+			  LOGGER.warn("key {} cannot be converted to a String or parsed", key);
 		  }
 	}
 

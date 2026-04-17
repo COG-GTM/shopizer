@@ -7,7 +7,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -123,18 +124,35 @@ public class MultipleEntryPointsSecurityConfig {
 	// --- Authentication Managers ---
 
 	@Bean("customerAuthenticationManager")
-	public AuthenticationManager customerAuthenticationManager(AuthenticationConfiguration authConfig) throws Exception {
-		return authConfig.getAuthenticationManager();
+	public AuthenticationManager customerAuthenticationManager() {
+		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+		provider.setUserDetailsService(customerDetailsService);
+		provider.setPasswordEncoder(passwordEncoder());
+		return new ProviderManager(provider);
+	}
+
+	@Bean("servicesAuthenticationManager")
+	public AuthenticationManager servicesAuthenticationManager() {
+		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+		provider.setUserDetailsService(webUserDetailsService);
+		provider.setPasswordEncoder(passwordEncoder());
+		return new ProviderManager(provider);
 	}
 
 	@Bean("jwtAdminAuthenticationManager")
 	public AuthenticationManager jwtAdminAuthenticationManager() {
-		return authentication -> jwtAdminAuthenticationProvider().authenticate(authentication);
+		DaoAuthenticationProvider daoProvider = new DaoAuthenticationProvider();
+		daoProvider.setUserDetailsService(jwtUserDetailsService);
+		daoProvider.setPasswordEncoder(passwordEncoder());
+		return new ProviderManager(jwtAdminAuthenticationProvider(), daoProvider);
 	}
 
 	@Bean("jwtCustomerAuthenticationManager")
 	public AuthenticationManager jwtCustomerAuthenticationManager() {
-		return authentication -> jwtCustomerAuthenticationProvider().authenticate(authentication);
+		DaoAuthenticationProvider daoProvider = new DaoAuthenticationProvider();
+		daoProvider.setUserDetailsService(jwtCustomerDetailsService);
+		daoProvider.setPasswordEncoder(passwordEncoder());
+		return new ProviderManager(jwtCustomerAuthenticationProvider(), daoProvider);
 	}
 
 	// --- Authentication Providers ---
@@ -193,6 +211,7 @@ public class MultipleEntryPointsSecurityConfig {
 	public SecurityFilterChain customerFilterChain(HttpSecurity http) throws Exception {
 		http
 			.securityMatcher("/shop/**")
+			.authenticationManager(customerAuthenticationManager())
 			.csrf(csrf -> csrf.disable())
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers("/shop/customer/logon*").permitAll()
@@ -230,6 +249,7 @@ public class MultipleEntryPointsSecurityConfig {
 	public SecurityFilterChain servicesFilterChain(HttpSecurity http) throws Exception {
 		http
 			.securityMatcher("/services/**")
+			.authenticationManager(servicesAuthenticationManager())
 			.csrf(csrf -> csrf.disable())
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers("/services/public/**").permitAll()
@@ -260,6 +280,7 @@ public class MultipleEntryPointsSecurityConfig {
 	public SecurityFilterChain userApiFilterChain(HttpSecurity http) throws Exception {
 		http
 			.securityMatcher(API_VERSION + "/private/**")
+			.authenticationManager(jwtAdminAuthenticationManager())
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers(API_VERSION + "/private/login*").permitAll()
 				.requestMatchers(API_VERSION + "/private/refresh").permitAll()
@@ -284,6 +305,7 @@ public class MultipleEntryPointsSecurityConfig {
 	public SecurityFilterChain customerApiFilterChain(HttpSecurity http) throws Exception {
 		http
 			.securityMatcher(API_VERSION + "/auth/**")
+			.authenticationManager(jwtCustomerAuthenticationManager())
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers(API_VERSION + "/auth/refresh").permitAll()
 				.requestMatchers(API_VERSION + "/auth/login").permitAll()
