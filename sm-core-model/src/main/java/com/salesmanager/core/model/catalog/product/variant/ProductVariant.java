@@ -70,6 +70,7 @@ public class ProductVariant extends SalesManagerEntity<Long, ProductVariant> imp
 	private boolean available = true;
 	
 	@Column(name = "DEFAULT_SELECTION")
+	@JdbcTypeCode(SqlTypes.TINYINT)
 	private boolean defaultSelection = true;
 
 	@ManyToOne(fetch = FetchType.LAZY)

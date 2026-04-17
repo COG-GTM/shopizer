@@ -77,6 +77,7 @@ public class Category extends SalesManagerEntity<Long, Category> implements Audi
     private boolean categoryStatus;
 
     @Column(name = "VISIBLE")
+    @JdbcTypeCode(SqlTypes.TINYINT)
     private boolean visible;
 
     @Column(name = "DEPTH")

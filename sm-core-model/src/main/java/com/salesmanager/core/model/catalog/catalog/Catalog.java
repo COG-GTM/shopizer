@@ -83,6 +83,7 @@ public class Catalog extends SalesManagerEntity<Long, Catalog> implements Audita
     private boolean visible;
     
     @Column(name="DEFAULT_CATALOG")
+    @JdbcTypeCode(SqlTypes.TINYINT)
     private boolean defaultCatalog;
     
     @NotEmpty

@@ -139,6 +139,7 @@ public class Product extends SalesManagerEntity<Long, Product> implements Audita
 	
 
 	@Column(name = "PREORDER")
+	@JdbcTypeCode(SqlTypes.TINYINT)
 	private boolean preOrder = false;
 	
 
@@ -159,6 +160,7 @@ public class Product extends SalesManagerEntity<Long, Product> implements Audita
 	private boolean productVirtual = false;
 	
 	@Column(name = "PRODUCT_SHIP")
+	@JdbcTypeCode(SqlTypes.TINYINT)
 	private boolean productShipeable = false;
 
 	@Column(name = "PRODUCT_FREE")

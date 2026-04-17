@@ -116,6 +116,7 @@ public class Order extends SalesManagerEntity<Long, Order> {
 	private Boolean customerAgreement = false;
 	
 	@Column(name = "CONFIRMED_ADDRESS")
+	@JdbcTypeCode(SqlTypes.TINYINT)
 	private Boolean confirmedAddress = false;
 
 	@Embedded

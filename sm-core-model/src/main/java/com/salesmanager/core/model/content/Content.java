@@ -72,6 +72,7 @@ public class Content extends SalesManagerEntity<Long, Content> implements Serial
 	private boolean visible;
 	
 	@Column(name = "LINK_TO_MENU")
+	@JdbcTypeCode(SqlTypes.TINYINT)
 	private boolean linkToMenu;
 
 	@Column(name = "CONTENT_POSITION", length=10, nullable=true)

@@ -123,6 +123,7 @@ public class ProductAvailability extends SalesManagerEntity<Long, ProductAvailab
 	private boolean productStatus = true; //can be used as flag for variant can be purchase or not
 
 	@Column(name = "FREE_SHIPPING")
+	@JdbcTypeCode(SqlTypes.TINYINT)
 	private boolean productIsAlwaysFreeShipping;
 
 	@Column(name = "AVAILABLE")

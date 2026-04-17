@@ -69,6 +69,7 @@ public class ProductAttribute extends SalesManagerEntity<Long, ProductAttribute>
 	private boolean attributeDefault=false;
 	
 	@Column(name="PRODUCT_ATTRIBUTE_REQUIRED")
+	@JdbcTypeCode(SqlTypes.TINYINT)
 	private boolean attributeRequired=false;
 	
 	/**
@@ -80,6 +81,7 @@ public class ProductAttribute extends SalesManagerEntity<Long, ProductAttribute>
 	
 
 	@Column(name="PRODUCT_ATTRIBUTE_DISCOUNTED")
+	@JdbcTypeCode(SqlTypes.TINYINT)
 	private boolean attributeDiscounted=false;
 	
 

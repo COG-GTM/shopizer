@@ -55,6 +55,7 @@ public class ProductType extends SalesManagerEntity<Long, ProductType> implement
   private Boolean allowAddToCart;
   
   @Column(name = "PRD_TYPE_VISIBLE")
+  @JdbcTypeCode(SqlTypes.TINYINT)
   private Boolean visible;
 
   @ManyToOne(fetch = FetchType.LAZY)

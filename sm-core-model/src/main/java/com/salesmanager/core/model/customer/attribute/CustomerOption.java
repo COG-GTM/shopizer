@@ -61,6 +61,7 @@ public class CustomerOption extends SalesManagerEntity<Long, CustomerOption> {
 	private boolean active;
 	
 	@Column(name="CUSTOMER_OPT_PUBLIC")
+	@JdbcTypeCode(SqlTypes.TINYINT)
 	private boolean publicOption;
 	
 	@Valid
