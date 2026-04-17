@@ -53,7 +53,6 @@ public class ProductInventoryFacadeImpl implements ProductInventoryFacade {
 	private PersistableInventoryMapper productInventoryMapper;
 
 
-
 	private void validateProductHasSameStore(MerchantStore store, Product product) {
 		if (!product.getMerchantStore().getId().equals(store.getId())) {
 			throw new ResourceNotFoundException("Product with id [" + product.getId() + "] not found for store id ["
@@ -212,7 +211,6 @@ public class ProductInventoryFacadeImpl implements ProductInventoryFacade {
 	}
 
 
-
 	@Override
 	public ReadableEntityList<ReadableInventory> get(String sku, MerchantStore store, Language language, int page, int count) {
 		Validate.notNull(sku, "Product sku cannot be null");
@@ -259,7 +257,6 @@ public class ProductInventoryFacadeImpl implements ProductInventoryFacade {
 		return createReadableList(availabilities, returnList);
 
 	}
-
 
 
 }

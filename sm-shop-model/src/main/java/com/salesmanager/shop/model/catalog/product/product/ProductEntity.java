@@ -172,5 +172,4 @@ public class ProductEntity extends Product implements Serializable {
 	}
 
 
-
 }

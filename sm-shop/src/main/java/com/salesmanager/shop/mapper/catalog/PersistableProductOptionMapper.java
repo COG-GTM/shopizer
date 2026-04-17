@@ -2,7 +2,7 @@ package com.salesmanager.shop.mapper.catalog;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.jsoup.helper.Validate;
+import org.apache.commons.lang3.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.salesmanager.core.business.services.reference.language.LanguageService;
@@ -19,7 +19,6 @@ public class PersistableProductOptionMapper implements Mapper<PersistableProduct
 
   @Autowired
   private LanguageService languageService;
-
 
 
   ProductOptionDescription description(com.salesmanager.shop.model.catalog.product.attribute.ProductOptionDescription description) throws Exception {

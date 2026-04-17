@@ -52,7 +52,6 @@ public class Attribute extends ShopEntity implements Serializable {
 	}
 
 
-
 	
 
 }

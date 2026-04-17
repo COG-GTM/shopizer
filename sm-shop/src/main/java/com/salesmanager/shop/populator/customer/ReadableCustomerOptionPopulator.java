@@ -12,7 +12,6 @@ import com.salesmanager.shop.model.customer.attribute.CustomerOption;
 import com.salesmanager.shop.model.customer.attribute.CustomerOptionValue;
 
 
-
 public class ReadableCustomerOptionPopulator {
 
 	/**

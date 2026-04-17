@@ -98,5 +98,4 @@ public class ShopOrder extends PersistableOrder implements Serializable {
 	}
 
 
-
 }

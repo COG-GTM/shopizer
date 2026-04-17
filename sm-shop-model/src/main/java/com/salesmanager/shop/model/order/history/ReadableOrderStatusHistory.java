@@ -1,7 +1,6 @@
 package com.salesmanager.shop.model.order.history;
 
 
-
 public class ReadableOrderStatusHistory extends OrderStatusHistory {
 
 	/**

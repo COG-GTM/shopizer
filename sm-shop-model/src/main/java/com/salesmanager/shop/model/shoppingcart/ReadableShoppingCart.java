@@ -38,11 +38,9 @@ public class ReadableShoppingCart extends ShoppingCartEntity {
 	private Long customer;
 
 
-
 	public Long getCustomer() {
 		return customer;
 	}
-
 
 
 	public void setCustomer(Long customer) {
@@ -50,11 +48,9 @@ public class ReadableShoppingCart extends ShoppingCartEntity {
 	}
 
 
-
 	public List<ReadableOrderTotal> getTotals() {
 		return totals;
 	}
-
 
 
 	public void setTotals(List<ReadableOrderTotal> totals) {
@@ -62,11 +58,9 @@ public class ReadableShoppingCart extends ShoppingCartEntity {
 	}
 
 
-
 	public List<ReadableShoppingCartItem> getProducts() {
 		return products;
 	}
-
 
 
 	public void setProducts(List<ReadableShoppingCartItem> products) {
@@ -74,11 +68,9 @@ public class ReadableShoppingCart extends ShoppingCartEntity {
 	}
 
 
-
 	public String getCode() {
 		return code;
 	}
-
 
 
 	public void setCode(String code) {
@@ -90,11 +82,9 @@ public class ReadableShoppingCart extends ShoppingCartEntity {
 	}
 
 
-
 	public void setSubtotal(BigDecimal subtotal) {
 		this.subtotal = subtotal;
 	}
-
 
 
 	public String getDisplaySubTotal() {
@@ -102,11 +92,9 @@ public class ReadableShoppingCart extends ShoppingCartEntity {
 	}
 
 
-
 	public void setDisplaySubTotal(String displaySubTotal) {
 		this.displaySubTotal = displaySubTotal;
 	}
-
 
 
 	public BigDecimal getTotal() {
@@ -114,11 +102,9 @@ public class ReadableShoppingCart extends ShoppingCartEntity {
 	}
 
 
-
 	public void setTotal(BigDecimal total) {
 		this.total = total;
 	}
-
 
 
 	public String getDisplayTotal() {
@@ -126,11 +112,9 @@ public class ReadableShoppingCart extends ShoppingCartEntity {
 	}
 
 
-
 	public void setDisplayTotal(String displayTotal) {
 		this.displayTotal = displayTotal;
 	}
-
 
 
 	public int getQuantity() {
@@ -138,11 +122,9 @@ public class ReadableShoppingCart extends ShoppingCartEntity {
 	}
 
 
-
 	public void setQuantity(int quantity) {
 		this.quantity = quantity;
 	}
-
 
 
 	public Long getOrder() {
@@ -150,11 +132,9 @@ public class ReadableShoppingCart extends ShoppingCartEntity {
 	}
 
 
-
 	public void setOrder(Long order) {
 		this.order = order;
 	}
-
 
 
 	public String getPromoCode() {
@@ -162,11 +142,9 @@ public class ReadableShoppingCart extends ShoppingCartEntity {
 	}
 
 
-
 	public void setPromoCode(String promoCode) {
 		this.promoCode = promoCode;
 	}
-
 
 
 	public ReadableProductVariant getVariant() {
@@ -174,12 +152,9 @@ public class ReadableShoppingCart extends ShoppingCartEntity {
 	}
 
 
-
 	public void setVariant(ReadableProductVariant variant) {
 		this.variant = variant;
 	}
-
-
 
 
 }

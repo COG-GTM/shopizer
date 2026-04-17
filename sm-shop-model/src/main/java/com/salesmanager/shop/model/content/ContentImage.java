@@ -3,7 +3,6 @@ package com.salesmanager.shop.model.content;
 public class ContentImage extends ContentPath {
 
 
-
 	/**
 	 * 
 	 */

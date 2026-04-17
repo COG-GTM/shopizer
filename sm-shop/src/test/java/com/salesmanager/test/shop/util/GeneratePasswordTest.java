@@ -1,7 +1,7 @@
 package com.salesmanager.test.shop.util;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -43,7 +43,6 @@ public class GeneratePasswordTest extends ServicesTestSupport {
       //To comply with sonarlint rule java:S2699
       Assert.assertNotNull(encoded);
   }
-
 
 
 }

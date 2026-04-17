@@ -52,5 +52,4 @@ public class Order extends Entity {
 	}
 
 
-
 }

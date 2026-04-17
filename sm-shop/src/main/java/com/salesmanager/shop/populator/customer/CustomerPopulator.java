@@ -49,7 +49,6 @@ public class CustomerPopulator extends
     private PasswordEncoder passwordEncoder;
 
 
-
 	/**
 	 * Creates a Customer entity ready to be saved
 	 */

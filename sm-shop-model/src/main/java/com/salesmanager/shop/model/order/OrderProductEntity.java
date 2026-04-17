@@ -30,6 +30,4 @@ public class OrderProductEntity extends OrderProduct implements Serializable {
 	}
 
 
-
-
 }

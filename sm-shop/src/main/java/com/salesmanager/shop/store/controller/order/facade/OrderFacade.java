@@ -45,7 +45,6 @@ public interface OrderFacade {
 	Order processOrder(com.salesmanager.shop.model.order.v1.PersistableOrder order, Customer customer, MerchantStore store, Language language, Locale locale) throws ServiceException;
 
 
-
 	/** creates a working copy of customer when the user is anonymous **/
 	Customer initEmptyCustomer(MerchantStore store);
 	List<Country> getShipToCountry(MerchantStore store, Language language)

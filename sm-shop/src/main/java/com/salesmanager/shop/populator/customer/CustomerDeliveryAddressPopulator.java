@@ -13,8 +13,6 @@ import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.shop.model.customer.address.Address;
 
 
-
-
 /**
  * @author Admin
  *

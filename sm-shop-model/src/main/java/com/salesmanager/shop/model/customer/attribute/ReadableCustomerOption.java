@@ -18,5 +18,4 @@ public class ReadableCustomerOption extends CustomerOptionEntity
 	}
 
 
-
 }

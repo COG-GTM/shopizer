@@ -11,7 +11,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -281,7 +281,6 @@ public class CustomerFacadeImpl implements CustomerFacade {
   }
 
 
-
   @Override
   //KEEP
   public Customer getCustomerByUserName(String userName, MerchantStore store){
@@ -393,7 +392,6 @@ public class CustomerFacadeImpl implements CustomerFacade {
   }
 
 
-
   @Override
   public void setCustomerModelDefaultProperties(Customer customer, MerchantStore store)
       throws Exception {
@@ -421,7 +419,6 @@ public class CustomerFacadeImpl implements CustomerFacade {
     }
 
   }
-
 
 
   public void authenticate(Customer customer, String userName, String password) throws Exception {
@@ -906,7 +903,6 @@ public class CustomerFacadeImpl implements CustomerFacade {
       email.setTo(customer.getEmailAddress());
       email.setTemplateName(RESET_PASSWORD_TPL);
       email.setTemplateTokens(templateTokens);
-
 
 
       emailService.sendHtmlEmail(store, email);

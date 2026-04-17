@@ -26,8 +26,6 @@ public class ReadableOrderTotalPopulator extends
 	private LabelUtils messages;
 
 
-
-
 	@Override
 	public ReadableOrderTotal populate(OrderTotal source,
 			ReadableOrderTotal target, MerchantStore store, Language language)

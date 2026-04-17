@@ -117,7 +117,6 @@ public interface ProductCommonFacade {
 	  void deleteProduct(Long id, MerchantStore store);
 
 
-
 	  /**
 	   * Adds a product to a category
 	   *
@@ -179,7 +178,6 @@ public interface ProductCommonFacade {
 	   * @return
 	   */
 	  public boolean exists(String sku, MerchantStore store);
-
 
 
 }

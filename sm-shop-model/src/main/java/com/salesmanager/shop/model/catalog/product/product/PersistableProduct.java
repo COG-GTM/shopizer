@@ -10,7 +10,6 @@ import com.salesmanager.shop.model.catalog.product.attribute.PersistableProductA
 import com.salesmanager.shop.model.catalog.product.product.variant.PersistableProductVariant;
 
 
-
 public class PersistableProduct extends ProductEntity implements Serializable {
 
 	/**

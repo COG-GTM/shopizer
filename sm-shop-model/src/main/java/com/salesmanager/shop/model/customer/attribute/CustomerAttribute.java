@@ -5,7 +5,6 @@ import java.io.Serializable;
 import com.salesmanager.shop.model.entity.Entity;
 
 
-
 public class CustomerAttribute extends Entity implements Serializable {
 	
 

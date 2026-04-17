@@ -21,7 +21,6 @@ import com.salesmanager.shop.model.catalog.product.PersistableProductReview;
 import com.salesmanager.shop.utils.DateUtil;
 
 
-
 public class PersistableProductReviewPopulator extends
 		AbstractDataPopulator<PersistableProductReview, ProductReview> {
 	

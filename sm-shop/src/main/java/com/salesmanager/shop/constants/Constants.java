@@ -74,8 +74,6 @@ public class Constants {
 	public final static String REDIRECT_PREFIX ="redirect:";
 
 
-
-
 	public final static String STORE_CONFIGURATION = "STORECONFIGURATION";
 
 	public final static String HTTP_SCHEME= "http";

@@ -18,7 +18,6 @@ public class PersistableOrderProduct extends OrderProductEntity implements
 	private List<ProductAttribute> attributes;//may have attributes
 
 
-
 	public void setAttributes(List<ProductAttribute> attributes) {
 		this.attributes = attributes;
 	}

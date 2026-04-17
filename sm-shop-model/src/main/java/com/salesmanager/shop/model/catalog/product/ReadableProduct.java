@@ -168,5 +168,4 @@ public class ReadableProduct extends ProductEntity implements Serializable {
 	}
 
 
-
 }

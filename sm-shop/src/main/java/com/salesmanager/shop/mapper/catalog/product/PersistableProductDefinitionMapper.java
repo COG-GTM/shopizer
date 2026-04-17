@@ -193,8 +193,6 @@ public class PersistableProductDefinitionMapper implements Mapper<PersistablePro
 		    }
 
 
-
-
 			if(defaultPrice == null) {
 				
 				BigDecimal defaultPriceAmount = new BigDecimal(0);

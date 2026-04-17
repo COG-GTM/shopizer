@@ -39,5 +39,4 @@ public class ReadableCatalog extends ReadableCatalogName {
 	}
 
 
-
 }

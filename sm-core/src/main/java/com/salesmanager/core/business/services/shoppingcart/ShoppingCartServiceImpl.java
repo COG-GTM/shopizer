@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -197,7 +197,7 @@ public class ShoppingCartServiceImpl extends SalesManagerEntityServiceImpl<Long,
 				return shoppingCart;
 			}
 
-		} catch (javax.persistence.NoResultException nre) {
+		} catch (jakarta.persistence.NoResultException nre) {
 			return null;
 		} catch (Throwable e) {
 			throw new ServiceException(e);

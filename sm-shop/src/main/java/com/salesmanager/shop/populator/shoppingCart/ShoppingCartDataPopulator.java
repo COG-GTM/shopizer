@@ -64,7 +64,6 @@ public class ShoppingCartDataPopulator extends AbstractDataPopulator<ShoppingCar
 			}
 
 
-
     @Override
     public ShoppingCartData createTarget()
     {
@@ -73,11 +72,9 @@ public class ShoppingCartDataPopulator extends AbstractDataPopulator<ShoppingCar
     }
 
 
-
     public ShoppingCartCalculationService getOrderService() {
         return shoppingCartCalculationService;
     }
-
 
 
     public PricingService getPricingService() {
@@ -212,23 +209,14 @@ public class ShoppingCartDataPopulator extends AbstractDataPopulator<ShoppingCar
     };
 
 
-
-
-
     public void setPricingService(final PricingService pricingService) {
         this.pricingService = pricingService;
     }
 
 
-
-
-
-
     public void setShoppingCartCalculationService(final ShoppingCartCalculationService shoppingCartCalculationService) {
         this.shoppingCartCalculationService = shoppingCartCalculationService;
     }
-
-
 
 
 }

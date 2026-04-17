@@ -18,7 +18,6 @@ import com.salesmanager.shop.model.catalog.product.ReadableProductPrice;
 import com.salesmanager.shop.model.catalog.product.ReadableProductPriceFull;
 
 
-
 public class ReadableProductPricePopulator extends
 		AbstractDataPopulator<ProductPrice, ReadableProductPrice> {
 	
