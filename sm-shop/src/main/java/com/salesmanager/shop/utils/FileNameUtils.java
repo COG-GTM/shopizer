@@ -21,6 +21,15 @@ public class FileNameUtils {
 		
 		boolean validName = true;
 		
+		if (fileName == null) {
+			return false;
+		}
+		
+		// Reject path traversal sequences
+		if (fileName.contains("..") || fileName.contains("/") || fileName.contains("\\")) {
+			validName = false;
+		}
+		
 		//has an extention
 		if(StringUtils.isEmpty(FilenameUtils.getExtension(fileName))) {
 			validName = false;
