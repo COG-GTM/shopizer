@@ -257,7 +257,7 @@ public class CmsStaticContentFileManagerImpl
 				ByteArrayOutputStream output = new ByteArrayOutputStream();
 				IOUtils.copy(input, output);
 
-				String contentType = fileNameMap.getContentTypeFor(key);
+				String contentType = fileNameMap.getContentTypeFor(fileName);
 
 				contentImage.setFile(output);
 				contentImage.setMimeType(contentType);
