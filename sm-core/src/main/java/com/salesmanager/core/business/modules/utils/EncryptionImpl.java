@@ -12,6 +12,7 @@ import com.salesmanager.core.modules.utils.Encryption;
 public final class EncryptionImpl implements Encryption {
 
 	private static final int IV_LENGTH = 16;
+	private static final String LEGACY_IV = "fedcba9876543210";
 	private final static String KEY_SPEC = "AES";
 	private final static String CYPHER_SPEC = "AES/CBC/PKCS5Padding";
 	private static final SecureRandom SECURE_RANDOM = new SecureRandom();
@@ -47,22 +48,32 @@ public final class EncryptionImpl implements Encryption {
 
 		byte[] combined = hexToBytes(value);
 
-		if (combined.length <= IV_LENGTH) {
+		if (combined == null || combined.length <= IV_LENGTH) {
 			throw new Exception("Invalid encrypted data: too short");
 		}
 
-		// Extract IV from first 16 bytes
+		// Try new format first: IV (16 bytes) prepended to ciphertext
 		byte[] iv = new byte[IV_LENGTH];
 		System.arraycopy(combined, 0, iv, 0, IV_LENGTH);
 		byte[] ciphertext = new byte[combined.length - IV_LENGTH];
 		System.arraycopy(combined, IV_LENGTH, ciphertext, 0, ciphertext.length);
 
-		Cipher cipher = Cipher.getInstance(CYPHER_SPEC);
-		SecretKeySpec keySpec = new SecretKeySpec(secretKey.getBytes(), KEY_SPEC);
-		IvParameterSpec ivSpec = new IvParameterSpec(iv);
-		cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec);
-		byte[] outText = cipher.doFinal(ciphertext);
-		return new String(outText);
+		try {
+			Cipher cipher = Cipher.getInstance(CYPHER_SPEC);
+			SecretKeySpec keySpec = new SecretKeySpec(secretKey.getBytes(), KEY_SPEC);
+			IvParameterSpec ivSpec = new IvParameterSpec(iv);
+			cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec);
+			byte[] outText = cipher.doFinal(ciphertext);
+			return new String(outText);
+		} catch (Exception e) {
+			// Fall back to legacy format: static IV, no prepended IV in ciphertext
+			Cipher cipher = Cipher.getInstance(CYPHER_SPEC);
+			SecretKeySpec keySpec = new SecretKeySpec(secretKey.getBytes(), KEY_SPEC);
+			IvParameterSpec ivSpec = new IvParameterSpec(LEGACY_IV.getBytes());
+			cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec);
+			byte[] outText = cipher.doFinal(combined);
+			return new String(outText);
+		}
 	}
 
 
