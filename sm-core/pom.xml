@@ -84,9 +84,10 @@
 			<artifactId>google-maps-services</artifactId>
 		</dependency>
 
+		<!-- kie-ci was removed in Drools 9.x; replaced with kie-api -->
 		<dependency>
 			<groupId>org.kie</groupId>
-			<artifactId>kie-ci</artifactId>
+			<artifactId>kie-api</artifactId>
 			<exclusions>
 				<exclusion>
 					<groupId>com.google.guava</groupId>
@@ -114,11 +115,11 @@
 			<artifactId>drools-compiler</artifactId>
 		</dependency>
 
-		<!--spring integration -->
-		<dependency>
+		<!-- kie-spring was removed in Drools 9.x -->
+		<!-- <dependency>
 			<groupId>org.kie</groupId>
 			<artifactId>kie-spring</artifactId>
-		</dependency>
+		</dependency> -->
 		<!-- end rules engine -->
 
 		<!-- Infinispan -->
@@ -127,10 +128,11 @@
 			<artifactId>infinispan-core</artifactId>
 		</dependency>
 
-		<dependency>
+		<!-- infinispan-tree was removed in Infinispan 15.x -->
+		<!-- <dependency>
 			<groupId>org.infinispan</groupId>
 			<artifactId>infinispan-tree</artifactId>
-		</dependency>
+		</dependency> -->
 
 		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-collections4 -->
 		<dependency>
