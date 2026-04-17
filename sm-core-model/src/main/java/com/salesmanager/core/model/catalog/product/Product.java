@@ -5,27 +5,27 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.UniqueConstraint;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Pattern;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.TableGenerator;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Pattern;
 
 import org.hibernate.annotations.Cascade;
 
@@ -45,6 +45,8 @@ import com.salesmanager.core.model.customer.Customer;
 import com.salesmanager.core.model.generic.SalesManagerEntity;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.tax.taxclass.TaxClass;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 
 @Entity
@@ -61,7 +63,7 @@ public class Product extends SalesManagerEntity<Long, Product> implements Audita
 		 table = "SM_SEQUENCER", 
 		 pkColumnName = "SEQ_NAME", 
 		 valueColumnName = "SEQ_COUNT", 
-		 pkColumnValue = "PRODUCT_SEQ_NEXT_VAL")
+		 pkColumnValue = "PRODUCT_SEQ_NEXT_VAL", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.TABLE, generator = "TABLE_GEN")
 	private Long id;
 
@@ -114,7 +116,6 @@ public class Product extends SalesManagerEntity<Long, Product> implements Audita
 		org.hibernate.annotations.CascadeType.DETACH,
 		org.hibernate.annotations.CascadeType.LOCK,
 		org.hibernate.annotations.CascadeType.REFRESH,
-		org.hibernate.annotations.CascadeType.REPLICATE
 		
 	})
 	private Set<Category> categories = new HashSet<Category>();
@@ -133,6 +134,7 @@ public class Product extends SalesManagerEntity<Long, Product> implements Audita
 	
 	
 	@Column(name = "AVAILABLE")
+	@JdbcTypeCode(SqlTypes.TINYINT)
 	private boolean available = true;
 	
 
@@ -153,12 +155,14 @@ public class Product extends SalesManagerEntity<Long, Product> implements Audita
 	private TaxClass taxClass;
 
 	@Column(name = "PRODUCT_VIRTUAL")
+	@JdbcTypeCode(SqlTypes.TINYINT)
 	private boolean productVirtual = false;
 	
 	@Column(name = "PRODUCT_SHIP")
 	private boolean productShipeable = false;
 
 	@Column(name = "PRODUCT_FREE")
+	@JdbcTypeCode(SqlTypes.TINYINT)
 	private boolean productIsFree;
 
 	@Column(name = "PRODUCT_LENGTH")

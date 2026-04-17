@@ -3,20 +3,22 @@ package com.salesmanager.core.model.shipping;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.TableGenerator;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 
 import com.salesmanager.core.constants.SchemaConstant;
 import com.salesmanager.core.model.common.Delivery;
 import com.salesmanager.core.model.generic.SalesManagerEntity;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 
 /**
@@ -35,7 +37,7 @@ public class Quote extends SalesManagerEntity<Long, Quote> {
 	private static final long serialVersionUID = 1L;
 	@Id
 	@Column(name = "SHIPPING_QUOTE_ID", unique=true, nullable=false)
-	@TableGenerator(name = "TABLE_GEN", table = "SM_SEQUENCER", pkColumnName = "SEQ_NAME", valueColumnName = "SEQ_COUNT", pkColumnValue = "SHIP_QUOTE_ID_NEXT_VALUE")
+	@TableGenerator(name = "TABLE_GEN", table = "SM_SEQUENCER", pkColumnName = "SEQ_NAME", valueColumnName = "SEQ_COUNT", pkColumnValue = "SHIP_QUOTE_ID_NEXT_VALUE", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.TABLE, generator = "TABLE_GEN")
 	Long id;
 
@@ -79,6 +81,7 @@ public class Quote extends SalesManagerEntity<Long, Quote> {
 	private BigDecimal handling = null;
 	
 	@Column(name = "FREE_SHIPPING")
+	@JdbcTypeCode(SqlTypes.TINYINT)
 	private boolean freeShipping;
 	
 	@Column (name ="IP_ADDRESS")

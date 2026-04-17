@@ -6,26 +6,25 @@ import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.validation.Valid;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.TableGenerator;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
+import jakarta.validation.Valid;
 
 import org.hibernate.annotations.OrderBy;
-import org.hibernate.annotations.Type;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.salesmanager.core.model.common.Billing;
@@ -40,6 +39,8 @@ import com.salesmanager.core.model.order.payment.CreditCard;
 import com.salesmanager.core.model.payments.PaymentType;
 import com.salesmanager.core.model.reference.currency.Currency;
 import com.salesmanager.core.utils.CloneUtils;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table (name="ORDERS")
@@ -54,7 +55,7 @@ public class Order extends SalesManagerEntity<Long, Order> {
 	@Id
 	@Column (name ="ORDER_ID" , unique=true , nullable=false )
 	@TableGenerator(name = "TABLE_GEN", table = "SM_SEQUENCER", pkColumnName = "SEQ_NAME", valueColumnName = "SEQ_COUNT",
-		pkColumnValue = "ORDER_ID_SEQ_NEXT_VAL")
+		pkColumnValue = "ORDER_ID_SEQ_NEXT_VAL", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.TABLE, generator = "TABLE_GEN")
 	private Long id;
 	
@@ -111,6 +112,7 @@ public class Order extends SalesManagerEntity<Long, Order> {
 	private String shippingModuleCode;
 	
 	@Column(name = "CUSTOMER_AGREED")
+	@JdbcTypeCode(SqlTypes.TINYINT)
 	private Boolean customerAgreement = false;
 	
 	@Column(name = "CONFIRMED_ADDRESS")
@@ -132,7 +134,6 @@ public class Order extends SalesManagerEntity<Long, Order> {
 	@JoinColumn(name = "CURRENCY_ID")
 	private Currency currency;
 	
-	@Type(type="locale")  
 	@Column (name ="LOCALE")
 	private Locale locale; 
 	

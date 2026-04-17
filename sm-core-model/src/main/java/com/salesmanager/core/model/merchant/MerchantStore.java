@@ -6,28 +6,28 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Pattern;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.TableGenerator;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
+import jakarta.persistence.Transient;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Pattern;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.salesmanager.core.constants.MeasureUnit;
@@ -39,6 +39,8 @@ import com.salesmanager.core.model.reference.currency.Currency;
 import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.core.model.reference.zone.Zone;
 import com.salesmanager.core.utils.CloneUtils;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "MERCHANT_STORE",
@@ -67,7 +69,7 @@ public class MerchantStore extends SalesManagerEntity<Integer, MerchantStore> im
 
 	@Id
 	@Column(name = "MERCHANT_ID", unique = true, nullable = false)
-	@TableGenerator(name = "TABLE_GEN", table = "SM_SEQUENCER", pkColumnName = "SEQ_NAME", valueColumnName = "SEQ_COUNT", pkColumnValue = "STORE_SEQ_NEXT_VAL")
+	@TableGenerator(name = "TABLE_GEN", table = "SM_SEQUENCER", pkColumnName = "SEQ_NAME", valueColumnName = "SEQ_COUNT", pkColumnValue = "STORE_SEQ_NEXT_VAL", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.TABLE, generator = "TABLE_GEN")
 	private Integer id;
 
@@ -84,6 +86,7 @@ public class MerchantStore extends SalesManagerEntity<Integer, MerchantStore> im
 	private Set<MerchantStore> stores = new HashSet<MerchantStore>();
 
 	@Column(name = "IS_RETAILER")
+	@JdbcTypeCode(SqlTypes.TINYINT)
 	private Boolean retailer = false;
 
 	@NotEmpty
@@ -151,6 +154,7 @@ public class MerchantStore extends SalesManagerEntity<Integer, MerchantStore> im
 	private List<Language> languages = new ArrayList<Language>();
 
 	@Column(name = "USE_CACHE")
+	@JdbcTypeCode(SqlTypes.TINYINT)
 	private boolean useCache = false;
 
 	@Column(name = "STORE_TEMPLATE", length = 25)
@@ -181,6 +185,7 @@ public class MerchantStore extends SalesManagerEntity<Integer, MerchantStore> im
 	private Currency currency;
 
 	@Column(name = "CURRENCY_FORMAT_NATIONAL")
+	@JdbcTypeCode(SqlTypes.TINYINT)
 	private boolean currencyFormatNational;
 
 	public MerchantStore() {
