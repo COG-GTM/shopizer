@@ -48,7 +48,7 @@ public class Description implements Auditable, Serializable {
 	@Column(name="TITLE", length=100)
 	private String title;
 	
-	@Column(name="DESCRIPTION")
+	@Column(name="DESCRIPTION", columnDefinition = "text")
 	private String description;
 	
 	public Description() {

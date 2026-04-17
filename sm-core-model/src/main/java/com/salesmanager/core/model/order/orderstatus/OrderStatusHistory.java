@@ -50,7 +50,7 @@ public class OrderStatusHistory implements Serializable {
 	@Column(name = "CUSTOMER_NOTIFIED")
 	private java.lang.Integer customerNotified;
 	
-	@Column(name = "COMMENTS")
+	@Column(name = "COMMENTS", columnDefinition = "text")
 	private String comments;
 	
 	public OrderStatusHistory() {

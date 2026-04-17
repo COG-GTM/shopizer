@@ -71,7 +71,7 @@ public class CustomerOptin extends SalesManagerEntity<Long, CustomerOptin> imple
 	@Column(name="EMAIL", nullable=false)
 	private String email;
 	
-	@Column(name="VALUE")
+	@Column(name="VALUE", columnDefinition = "text")
 	private String value;
 
 	@Override

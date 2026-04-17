@@ -65,7 +65,7 @@ public class MerchantConfiguration extends SalesManagerEntity<Long, MerchantConf
   private Boolean active = new Boolean(false);
 
 
-  @Column(name = "VALUE")
+  @Column(name = "VALUE", columnDefinition = "text")
   private String value;
 
   @Column(name = "TYPE")
