@@ -18,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 import com.salesmanager.shop.admin.security.UserAuthenticationSuccessHandler;
 import com.salesmanager.shop.admin.security.WebUserServices;
@@ -115,8 +116,10 @@ public class MultipleEntryPointsSecurityConfig {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			http
-			.antMatcher("/shop/**")
-			.csrf().disable()			
+				.antMatcher("/shop/**")
+			.csrf()
+				.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+			.and()
 			.authorizeRequests()
 					.antMatchers("/shop/").permitAll()
 					.antMatchers("/shop/**").permitAll()
