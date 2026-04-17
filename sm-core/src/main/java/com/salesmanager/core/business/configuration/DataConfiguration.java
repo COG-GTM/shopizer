@@ -109,7 +109,10 @@ public class DataConfiguration {
         hibernateProperties.setProperty("hibernate.connection.CharSet", "utf8");
         hibernateProperties.setProperty("hibernate.connection.characterEncoding", "utf8");
         hibernateProperties.setProperty("hibernate.connection.useUnicode", "true");
-        hibernateProperties.setProperty("hibernate.id.new_generator_mappings", "false"); //unless you run on a new schema
+        // Hibernate 6 removed hibernate.id.new_generator_mappings (silently ignored).
+        // Use legacy naming strategy to preserve backward-compatible TableGenerator ID allocation
+        // for existing databases populated under Hibernate 5 with new_generator_mappings=false.
+        hibernateProperties.setProperty("hibernate.id.db_structure_naming_strategy", "legacy");
         hibernateProperties.setProperty("hibernate.generate_statistics", "false");
         // hibernateProperties.setProperty("hibernate.globally_quoted_identifiers", "true");
         return hibernateProperties;
