@@ -27,7 +27,7 @@ public class OrderProductPrice implements Serializable {
 	@Id
 	@Column (name="ORDER_PRODUCT_PRICE_ID")
 	@TableGenerator(name = "TABLE_GEN", table = "SM_SEQUENCER", pkColumnName = "SEQ_NAME", valueColumnName = "SEQ_COUNT",
-		pkColumnValue = "ORDER_PRD_PRICE_ID_NEXT_VAL")
+		pkColumnValue = "ORDER_PRD_PRICE_ID_NEXT_VAL", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.TABLE, generator = "TABLE_GEN")
 	private Long id;
 

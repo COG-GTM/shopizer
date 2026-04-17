@@ -51,7 +51,7 @@ public class ProductVariant extends SalesManagerEntity<Long, ProductVariant> imp
 	table = "SM_SEQUENCER", 
 	pkColumnName = "SEQ_NAME", 
 	valueColumnName = "SEQ_COUNT", 
-	pkColumnValue = "PRODUCT_VAR_SEQ_NEXT_VAL")
+	pkColumnValue = "PRODUCT_VAR_SEQ_NEXT_VAL", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.TABLE, generator = "TABLE_GEN")
 	private Long id;
 

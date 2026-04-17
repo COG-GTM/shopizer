@@ -110,8 +110,9 @@ public class DataConfiguration {
         hibernateProperties.setProperty("hibernate.connection.characterEncoding", "utf8");
         hibernateProperties.setProperty("hibernate.connection.useUnicode", "true");
         // Hibernate 6 removed hibernate.id.new_generator_mappings (silently ignored).
-        // Use legacy naming strategy to preserve backward-compatible TableGenerator ID allocation
-        // for existing databases populated under Hibernate 5 with new_generator_mappings=false.
+        // Use legacy naming strategy for backward-compatible DB structure naming.
+        // Additionally, all @TableGenerator annotations now have explicit allocationSize = 1
+        // to match Hibernate 5's legacy one-at-a-time allocation behavior for existing databases.
         hibernateProperties.setProperty("hibernate.id.db_structure_naming_strategy", "legacy");
         hibernateProperties.setProperty("hibernate.generate_statistics", "false");
         // hibernateProperties.setProperty("hibernate.globally_quoted_identifiers", "true");

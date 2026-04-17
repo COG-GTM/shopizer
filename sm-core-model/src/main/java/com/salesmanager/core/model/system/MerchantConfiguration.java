@@ -44,7 +44,7 @@ public class MerchantConfiguration extends SalesManagerEntity<Long, MerchantConf
   @Id
   @Column(name = "MERCHANT_CONFIG_ID")
   @TableGenerator(name = "TABLE_GEN", table = "SM_SEQUENCER", pkColumnName = "SEQ_NAME",
-      valueColumnName = "SEQ_COUNT", pkColumnValue = "MERCH_CONF_SEQ_NEXT_VAL")
+      valueColumnName = "SEQ_COUNT", pkColumnValue = "MERCH_CONF_SEQ_NEXT_VAL", allocationSize = 1)
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "TABLE_GEN")
   private Long id;
 

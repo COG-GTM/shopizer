@@ -35,7 +35,7 @@ public class FileHistory implements Serializable {
 	@Id
 	@Column(name = "FILE_HISTORY_ID", unique = true, nullable = false)
 	@TableGenerator(name = "TABLE_GEN", table = "SM_SEQUENCER", pkColumnName = "SEQ_NAME", valueColumnName = "SEQ_COUNT",
-		pkColumnValue = "FILE_HISTORY_ID_NEXT_VALUE")
+		pkColumnValue = "FILE_HISTORY_ID_NEXT_VALUE", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.TABLE, generator = "TABLE_GEN")
 	private Long id;
 	
