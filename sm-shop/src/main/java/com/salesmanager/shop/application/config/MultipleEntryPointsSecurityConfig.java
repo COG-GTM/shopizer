@@ -17,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 import com.salesmanager.shop.admin.security.UserAuthenticationSuccessHandler;
@@ -62,6 +63,19 @@ public class MultipleEntryPointsSecurityConfig {
 	@Bean
 	public AuthenticationTokenFilter authenticationTokenFilter() {
 		return new AuthenticationTokenFilter();
+	}
+
+	/**
+	 * Prevent Spring Boot from auto-registering the AuthenticationTokenFilter
+	 * as a servlet filter. It is only used within specific SecurityFilterChains.
+	 */
+	@Bean
+	public FilterRegistrationBean<AuthenticationTokenFilter> authenticationTokenFilterRegistration(
+			AuthenticationTokenFilter filter) {
+		FilterRegistrationBean<AuthenticationTokenFilter> registration =
+				new FilterRegistrationBean<>(filter);
+		registration.setEnabled(false);
+		return registration;
 	}
 
 	@Bean

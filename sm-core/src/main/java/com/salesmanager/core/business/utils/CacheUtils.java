@@ -72,28 +72,49 @@ public class CacheUtils {
 		  // The generic Spring Cache API does not support key enumeration,
 		  // so we use the native cache to iterate and selectively evict
 		  // only entries belonging to the specified store (by key prefix).
+		  String storePrefix = String.valueOf(store.getId()) + KEY_DELIMITER;
 		  Object nativeCache = cache.getNativeCache();
+		  boolean evicted = false;
+
+		  // ConcurrentMap-backed caches (e.g. Spring SimpleCacheManager)
 		  if (nativeCache instanceof java.util.concurrent.ConcurrentMap) {
 			  @SuppressWarnings("unchecked")
 			  java.util.concurrent.ConcurrentMap<Object, Object> map =
 					  (java.util.concurrent.ConcurrentMap<Object, Object>) nativeCache;
-			  String storePrefix = String.valueOf(store.getId()) + KEY_DELIMITER;
 			  for (Object key : map.keySet()) {
-				  try {
-					  String sKey = (String) key;
-					  if (sKey.startsWith(storePrefix)) {
-						  cache.evict(key);
-					  }
-				  } catch (Exception e) {
-					  LOGGER.warn("key " + key + " cannot be converted to a String or parsed");
-				  }
+				  evictIfStoreKey(key, storePrefix);
 			  }
-		  } else {
+			  evicted = true;
+		  }
+
+		  // JCache (JSR-107) backed caches (e.g. EhCache 3.x via JCache)
+		  if (!evicted && nativeCache instanceof javax.cache.Cache) {
+			  @SuppressWarnings("unchecked")
+			  javax.cache.Cache<Object, Object> jcache =
+					  (javax.cache.Cache<Object, Object>) nativeCache;
+			  for (javax.cache.Cache.Entry<Object, Object> entry : jcache) {
+				  evictIfStoreKey(entry.getKey(), storePrefix);
+			  }
+			  evicted = true;
+		  }
+
+		  if (!evicted) {
 			  // Fallback: clear entire cache if native cache type is not supported
 			  LOGGER.warn("Cannot selectively evict cache entries for store {}. "
 					  + "Native cache type {} does not support key enumeration. Clearing entire cache.",
 					  store.getId(), nativeCache.getClass().getName());
 			  cache.clear();
+		  }
+	}
+
+	private void evictIfStoreKey(Object key, String storePrefix) {
+		  try {
+			  String sKey = (String) key;
+			  if (sKey.startsWith(storePrefix)) {
+				  cache.evict(key);
+			  }
+		  } catch (Exception e) {
+			  LOGGER.warn("key {} cannot be converted to a String or parsed", key);
 		  }
 	}
 	
