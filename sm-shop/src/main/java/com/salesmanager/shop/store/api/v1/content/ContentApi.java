@@ -44,6 +44,7 @@ import com.salesmanager.shop.model.entity.EntityExists;
 import com.salesmanager.shop.model.entity.ReadableEntityList;
 import com.salesmanager.shop.store.api.exception.ServiceRuntimeException;
 import com.salesmanager.shop.store.controller.content.facade.ContentFacade;
+import com.salesmanager.shop.utils.FileNameUtils;
 import com.salesmanager.shop.utils.ImageFilePath;
 
 import io.swagger.annotations.Api;
@@ -70,6 +71,9 @@ public class ContentApi {
 
 	@Inject
 	private ContentFacade contentFacade;
+
+	@Inject
+	private FileNameUtils fileNameUtils;
 
 	@Inject
 	@Qualifier("img")
@@ -416,9 +420,14 @@ public class ContentApi {
 	public void upload(@RequestParam("file") MultipartFile file, @ApiIgnore MerchantStore merchantStore,
 			@ApiIgnore Language language) {
 
+		String fileName = file.getOriginalFilename();
+		if (!fileNameUtils.validFileName(fileName)) {
+			throw new ServiceRuntimeException("Invalid filename: " + fileName);
+		}
+
 		ContentFile f = new ContentFile();
 		f.setContentType(file.getContentType());
-		f.setName(file.getOriginalFilename());
+		f.setName(fileName);
 		try {
 			f.setFile(file.getBytes());
 		} catch (IOException e) {
@@ -440,9 +449,14 @@ public class ContentApi {
 			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) {
 
 		for (MultipartFile f : files) {
+			String fileName = f.getOriginalFilename();
+			if (!fileNameUtils.validFileName(fileName)) {
+				throw new ServiceRuntimeException("Invalid filename: " + fileName);
+			}
+
 			ContentFile cf = new ContentFile();
 			cf.setContentType(f.getContentType());
-			cf.setName(f.getName());
+			cf.setName(fileName);
 			try {
 				cf.setFile(f.getBytes());
 				contentFacade.addContentFile(cf, merchantStore.getCode());
