@@ -96,15 +96,10 @@
 			<artifactId>jjwt</artifactId>
 		</dependency>
 
-		<!-- Swagger 2 documentation -->
+		<!-- SpringDoc OpenAPI 3 -->
 		<dependency>
-			<groupId>io.springfox</groupId>
-			<artifactId>springfox-swagger2</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>io.springfox</groupId>
-			<artifactId>springfox-swagger-ui</artifactId>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 		</dependency>
 
 		<dependency>

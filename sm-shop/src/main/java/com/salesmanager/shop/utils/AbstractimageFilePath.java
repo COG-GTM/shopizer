@@ -2,7 +2,7 @@ package com.salesmanager.shop.utils;
 
 import java.util.Properties;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
 
