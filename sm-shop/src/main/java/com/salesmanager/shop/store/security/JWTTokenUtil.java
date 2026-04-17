@@ -1,6 +1,7 @@
 package com.salesmanager.shop.store.security;
 
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -14,9 +15,11 @@ import org.springframework.stereotype.Component;
 import com.salesmanager.shop.store.security.user.JWTUser;
 import com.salesmanager.shop.utils.DateUtil;
 
+import javax.crypto.SecretKey;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 
 /**
  * Used for managing token based authentication for customer and user
@@ -33,9 +36,9 @@ public class JWTTokenUtil implements Serializable {
 	
 	
 	    static final int GRACE_PERIOD = 200;
-	
-	
-	
+
+
+
 	 	static final String CLAIM_KEY_USERNAME = "sub";
 	    static final String CLAIM_KEY_AUDIENCE = "aud";
 	    static final String CLAIM_KEY_CREATED = "iat";
@@ -53,6 +56,11 @@ public class JWTTokenUtil implements Serializable {
 	    @Value("${jwt.expiration}")
 	    private Long expiration;
 
+	    private SecretKey getSigningKey() {
+	        byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
+	        return Keys.hmacShaKeyFor(keyBytes);
+	    }
+
 	    public String getUsernameFromToken(String token) {
 	        return getClaimFromToken(token, Claims::getSubject);
 	    }
@@ -66,7 +74,10 @@ public class JWTTokenUtil implements Serializable {
 	    }
 
 	    public String getAudienceFromToken(String token) {
-	        return getClaimFromToken(token, Claims::getAudience);
+	        return getClaimFromToken(token, claims -> {
+	            java.util.Set<String> aud = claims.getAudience();
+	            return (aud != null && !aud.isEmpty()) ? aud.iterator().next() : null;
+	        });
 	    }
 
 	    public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
@@ -76,9 +87,10 @@ public class JWTTokenUtil implements Serializable {
 
 	    private Claims getAllClaimsFromToken(String token) {
 	        return Jwts.parser()
-	                .setSigningKey(secret)
-	                .parseClaimsJws(token)
-	                .getBody();
+	                .verifyWith(getSigningKey())
+	                .build()
+	                .parseSignedClaims(token)
+	                .getPayload();
 	    }
 
 	    private Boolean isTokenExpired(String token) {
@@ -127,14 +139,14 @@ public class JWTTokenUtil implements Serializable {
 
 	        System.out.println("doGenerateToken " + createdDate);
 
-	        return Jwts.builder()
-	                .setClaims(claims)
-	                .setSubject(subject)
-	                .setAudience(audience)
-	                .setIssuedAt(createdDate)
-	                .setExpiration(expirationDate)
-	                .signWith(SignatureAlgorithm.HS512, secret)
-	                .compact();
+	         return Jwts.builder()
+ 	                .claims(claims)
+ 	                .subject(subject)
+ 	                .audience().add(audience).and()
+ 	                .issuedAt(createdDate)
+ 	                .expiration(expirationDate)
+ 	                .signWith(getSigningKey(), Jwts.SIG.HS512)
+ 	                .compact();
 	    }
 	    
         public Boolean canTokenBeRefreshedWithGrace(String token, Date lastPasswordReset) {
@@ -160,14 +172,14 @@ public class JWTTokenUtil implements Serializable {
 	        final Date createdDate = DateUtil.getDate();
 	        final Date expirationDate = calculateExpirationDate(createdDate);
 
-	        final Claims claims = getAllClaimsFromToken(token);
-	        claims.setIssuedAt(createdDate);
-	        claims.setExpiration(expirationDate);
+	         final Claims claims = getAllClaimsFromToken(token);
 
-	        return Jwts.builder()
-	                .setClaims(claims)
-	                .signWith(SignatureAlgorithm.HS512, secret)
-	                .compact();
+ 	        return Jwts.builder()
+ 	                .claims(claims)
+ 	                .issuedAt(createdDate)
+ 	                .expiration(expirationDate)
+ 	                .signWith(getSigningKey(), Jwts.SIG.HS512)
+ 	                .compact();
 	    }
 
 	    public Boolean validateToken(String token, UserDetails userDetails) {

@@ -14,7 +14,6 @@ import com.salesmanager.shop.model.customer.CustomerEntity;
 import com.salesmanager.shop.model.customer.address.Address;
 
 
-
 /**
  * <p>
  * CustomerEntityPopulator will help to populate {@link CustomerEntity} from {@link Customer} CustomerEntity will be

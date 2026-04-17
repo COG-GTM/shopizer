@@ -195,7 +195,6 @@ public class ShoppingCartModelPopulator
     {
 
 
-
         Product product = productService.getBySku(shoppingCartItem.getSku(), store, store.getDefaultLanguage());
             if ( product == null )
             {
@@ -207,9 +206,6 @@ public class ShoppingCartModelPopulator
                 throw new Exception( "Item with sku " + shoppingCartItem.getSku() + " does not belong to merchant "
                     + store.getId() );
             }
-
-
-
 
 
         com.salesmanager.core.model.shoppingcart.ShoppingCartItem item =
@@ -250,8 +246,6 @@ public class ShoppingCartModelPopulator
         return item;
 
     }
-
-
 
 
     @Override

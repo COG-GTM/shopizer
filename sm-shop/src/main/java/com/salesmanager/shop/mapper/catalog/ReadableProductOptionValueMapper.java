@@ -64,7 +64,6 @@ public class ReadableProductOptionValueMapper implements Mapper<ProductOptionVal
   }
 
 
-
   com.salesmanager.shop.model.catalog.product.attribute.ProductOptionValueDescription description(ProductOptionValueDescription description) {
     com.salesmanager.shop.model.catalog.product.attribute.ProductOptionValueDescription desc = new com.salesmanager.shop.model.catalog.product.attribute.ProductOptionValueDescription();
     desc.setDescription(description.getDescription());

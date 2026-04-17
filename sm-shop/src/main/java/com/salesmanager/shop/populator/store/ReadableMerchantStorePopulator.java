@@ -55,7 +55,6 @@ public class ReadableMerchantStorePopulator extends
 	private LanguageService languageService;
 
 
-
 	@Override
 	public ReadableMerchantStore populate(MerchantStore source,
 			ReadableMerchantStore target, MerchantStore store, Language language)

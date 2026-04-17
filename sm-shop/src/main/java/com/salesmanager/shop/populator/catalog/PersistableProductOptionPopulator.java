@@ -16,8 +16,6 @@ import com.salesmanager.shop.model.catalog.product.attribute.PersistableProductO
 import com.salesmanager.shop.model.catalog.product.attribute.ProductOptionDescription;
 
 
-
-
 public class PersistableProductOptionPopulator extends
 		AbstractDataPopulator<PersistableProductOption, ProductOption> {
 	

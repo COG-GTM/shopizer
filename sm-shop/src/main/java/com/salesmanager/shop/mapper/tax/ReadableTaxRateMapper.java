@@ -68,5 +68,4 @@ public class ReadableTaxRateMapper implements Mapper<TaxRate, ReadableTaxRate> {
 	}
 
 
-
 }

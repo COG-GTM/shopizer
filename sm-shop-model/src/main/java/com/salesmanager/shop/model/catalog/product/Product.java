@@ -59,5 +59,4 @@ public class Product extends Entity implements Serializable {
 	}
 
 
-
 }

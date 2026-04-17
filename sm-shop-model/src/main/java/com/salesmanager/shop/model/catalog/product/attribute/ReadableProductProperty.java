@@ -26,5 +26,4 @@ public class ReadableProductProperty extends ProductPropertyOption {
 	}
 
 
-
 }

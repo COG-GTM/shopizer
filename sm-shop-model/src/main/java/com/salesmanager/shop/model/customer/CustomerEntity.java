@@ -2,15 +2,15 @@ package com.salesmanager.shop.model.customer;
 
 import java.io.Serializable;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotEmpty;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
 
 import org.springframework.validation.annotation.Validated;
 
 import com.salesmanager.shop.model.customer.address.Address;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 public class CustomerEntity extends Customer implements Serializable {
 
@@ -19,18 +19,18 @@ public class CustomerEntity extends Customer implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	@ApiModelProperty(notes = "Customer email address. Required for registration")
+	@Schema(description = "Customer email address. Required for registration")
 	@Email (message="{messages.invalid.email}")
     @NotEmpty(message="{NotEmpty.customer.emailAddress}")
 	private String emailAddress;
 	@Valid
-	@ApiModelProperty(notes = "Customer billing address")
+	@Schema(description = "Customer billing address")
 	private Address billing;
 	private Address delivery;
-	@ApiModelProperty(notes = "Customer gender M | F")
+	@Schema(description = "Customer gender M | F")
 	private String gender;
 
-	@ApiModelProperty(notes = "2 letters language code en | fr | ...")
+	@Schema(description = "2 letters language code en | fr | ...")
 	private String language;
 	private String firstName;
 	private String lastName;
@@ -40,7 +40,7 @@ public class CustomerEntity extends Customer implements Serializable {
 	
 	private String storeCode;
 	
-	//@ApiModelProperty(notes = "Username (use email address)")
+	//@Schema(description = "Username (use email address)")
 	//@NotEmpty(message="{NotEmpty.customer.userName}")
 	//can be email or anything else
 	private String userName;
@@ -148,7 +148,6 @@ public class CustomerEntity extends Customer implements Serializable {
 	public void setProvider(String provider) {
 		this.provider = provider;
 	}
-
 
 
     

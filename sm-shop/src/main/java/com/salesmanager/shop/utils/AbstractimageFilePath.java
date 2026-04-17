@@ -2,7 +2,7 @@ package com.salesmanager.shop.utils;
 
 import java.util.Properties;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -11,9 +11,6 @@ import com.salesmanager.core.model.catalog.product.manufacturer.Manufacturer;
 import com.salesmanager.core.model.content.FileContentType;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.shop.constants.Constants;
-
-
-
 
 
 public abstract class AbstractimageFilePath implements ImageFilePath {

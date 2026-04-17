@@ -11,8 +11,6 @@ import com.salesmanager.shop.constants.Constants;
 import com.salesmanager.shop.model.catalog.manufacturer.Manufacturer;
 
 
-
-
 @Component
 public class LocalImageFilePathUtils extends AbstractimageFilePath{
 	
@@ -164,7 +162,6 @@ public class LocalImageFilePathUtils extends AbstractimageFilePath{
 	}
 
 	
-
 
 
 }

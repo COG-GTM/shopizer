@@ -39,7 +39,6 @@ public class ReadableOrderProductPopulator extends
 	private ImageFilePath imageUtils;
 
 
-
 	public ImageFilePath getimageUtils() {
 		return imageUtils;
 	}

@@ -86,5 +86,4 @@ public class ShoppingCartData extends ShopEntity implements Serializable {
 	}
 
 
-
 }

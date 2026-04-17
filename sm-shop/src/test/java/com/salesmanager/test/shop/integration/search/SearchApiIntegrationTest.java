@@ -31,7 +31,6 @@ public class SearchApiIntegrationTest extends ServicesTestSupport {
     private TestRestTemplate testRestTemplate;
 
 
-
     /**
      * Add a product then search for it
      * This tests is disabled since it requires Elastic search server started

@@ -52,7 +52,6 @@ import com.salesmanager.shop.utils.DateUtil;
 import com.salesmanager.shop.utils.ImageFilePath;
 
 
-
 public class ReadableProductPopulator extends
 		AbstractDataPopulator<Product, ReadableProduct> {
 
@@ -473,7 +472,6 @@ public class ReadableProductPopulator extends
 			}
 
 
-
 			//remove products from invisible category -> set visible = false
 /*			Set<Category> categories = source.getCategories();
 			boolean isVisible = true;
@@ -552,8 +550,6 @@ public class ReadableProductPopulator extends
 			}
 
 
-
-
 		     if(target instanceof ReadableProductFull) {
 		          ((ReadableProductFull)target).setDescriptions(fulldescriptions);
 		      }
@@ -565,7 +561,6 @@ public class ReadableProductPopulator extends
 			throw new ConversionException(e);
 		}
 	}
-
 
 
 	private ReadableProductOption createOption(ProductAttribute productAttribute, Language language) {
@@ -668,8 +663,6 @@ public class ReadableProductPopulator extends
 		attr.setType(productAttribute.getProductOption().getProductOptionType());
 
 
-
-
 		List<ProductOptionDescription> descriptions = productAttribute.getProductOption().getDescriptionsSettoList();
 
 		ReadableProductPropertyValue propertyValue = new ReadableProductPropertyValue();
@@ -690,8 +683,6 @@ public class ReadableProductPopulator extends
 		return attr;
 
 	}
-
-
 
 
 	@Override

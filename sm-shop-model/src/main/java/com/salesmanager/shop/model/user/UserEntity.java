@@ -14,8 +14,6 @@ public class UserEntity extends User {
   private boolean active;
 
 
-
-
   public String getFirstName() {
     return firstName;
   }

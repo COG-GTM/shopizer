@@ -22,5 +22,4 @@ public class ReadableCustomerAttribute extends CustomerAttributeEntity {
 	}
 
 
-
 }

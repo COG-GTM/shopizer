@@ -12,7 +12,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.apache.commons.lang3.Validate;
 import org.springframework.stereotype.Service;
@@ -96,7 +96,6 @@ public class CategoryFacadeImpl implements CategoryFacade {
 				returnList.setTotalPages(pageable.getTotalPages());
 				returnList.setNumber(categories.size());
 			}
-
 
 
 			List<ReadableCategory> readableCategories = null;

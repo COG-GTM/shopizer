@@ -24,5 +24,4 @@ public class ReadableGroup extends GroupEntity {
   }
 
 
-
 }

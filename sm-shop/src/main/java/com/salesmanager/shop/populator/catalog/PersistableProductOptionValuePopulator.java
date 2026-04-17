@@ -16,7 +16,6 @@ import com.salesmanager.shop.model.catalog.product.attribute.PersistableProductO
 import com.salesmanager.shop.model.catalog.product.attribute.ProductOptionValueDescription;
 
 
-
 /**
  * Converts a PersistableProductOptionValue to
  * a ProductOptionValue model object

@@ -42,7 +42,6 @@ public class CategoryManagementAPIIntegrationTest extends ServicesTestSupport {
     private TestRestTemplate testRestTemplate;
 
 
-
     /**
      * Read - GET a category by id
      *
@@ -327,7 +326,6 @@ public class CategoryManagementAPIIntegrationTest extends ServicesTestSupport {
         final PersistableCategory cat = (PersistableCategory) response.getBody();
         assertThat(response.getStatusCode(), is(CREATED));
         assertNotNull(cat.getId());
-
 
 
     }
