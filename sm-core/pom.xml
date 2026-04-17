@@ -34,6 +34,13 @@
 			<artifactId>hibernate-jcache</artifactId>
 		</dependency>
 
+		<!-- EhCache 3 as JCache provider (replaces net.sf.ehcache:ehcache) -->
+		<dependency>
+			<groupId>org.ehcache</groupId>
+			<artifactId>ehcache</artifactId>
+			<classifier>jakarta</classifier>
+		</dependency>
+
 		<!-- sm-core-model -->
 		<dependency>
 			<groupId>com.shopizer</groupId>
