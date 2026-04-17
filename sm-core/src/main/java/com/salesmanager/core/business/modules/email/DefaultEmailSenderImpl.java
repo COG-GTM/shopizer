@@ -127,7 +127,7 @@ public class DefaultEmailSenderImpl implements EmailModule {
           public InputStream getInputStream() throws IOException {
             // return new StringBufferInputStream(htmlWriter
             // .toString());
-            return new ByteArrayInputStream(textWriter.toString().getBytes(CHARSET));
+            return new ByteArrayInputStream(htmlWriter.toString().getBytes(CHARSET));
           }
 
           public OutputStream getOutputStream() throws IOException {
