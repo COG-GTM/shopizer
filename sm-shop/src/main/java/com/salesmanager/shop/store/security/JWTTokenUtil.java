@@ -143,9 +143,8 @@ public class JWTTokenUtil implements Serializable {
 	    
         public Boolean canTokenBeRefreshedWithGrace(String token, Date lastPasswordReset) {
           final Date created = getIssuedAtDateFromToken(token);
-          //return !isCreatedBeforeLastPasswordResetWithGrace(created, lastPasswordReset)
-          //        && (!isTokenExpired(token) || ignoreTokenExpiration(token));
-          return true;
+          return !isCreatedBeforeLastPasswordResetWithGrace(created, lastPasswordReset)
+                  && (!isTokenExpiredWithGrace(token) || ignoreTokenExpiration(token));
         }	    
 
 	    public Boolean canTokenBeRefreshed(String token, Date lastPasswordReset) {
