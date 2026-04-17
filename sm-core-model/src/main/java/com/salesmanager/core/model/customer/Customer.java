@@ -2,10 +2,10 @@ package com.salesmanager.core.model.customer;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -24,8 +24,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.TableGenerator;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.Valid;
@@ -47,7 +45,6 @@ import com.salesmanager.core.model.generic.SalesManagerEntity;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.core.model.user.Group;
-import com.salesmanager.core.utils.CloneUtils;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -77,9 +74,8 @@ public class Customer extends SalesManagerEntity<Long, Customer> implements Audi
 	private CustomerGender gender;
 
 
-	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name="CUSTOMER_DOB")
-	private Date dateOfBirth;
+	private LocalDateTime dateOfBirth;
 	
 	@Email
 	@NotEmpty
@@ -175,12 +171,12 @@ public class Customer extends SalesManagerEntity<Long, Customer> implements Audi
 
 
 
-	public Date getDateOfBirth() {
-		return CloneUtils.clone(dateOfBirth);
+	public LocalDateTime getDateOfBirth() {
+		return dateOfBirth;
 	}
 
-	public void setDateOfBirth(Date dateOfBirth) {
-		this.dateOfBirth = CloneUtils.clone(dateOfBirth);
+	public void setDateOfBirth(LocalDateTime dateOfBirth) {
+		this.dateOfBirth = dateOfBirth;
 	}
 
 	public String getEmailAddress() {

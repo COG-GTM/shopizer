@@ -2,9 +2,9 @@ package com.salesmanager.core.model.payments;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -20,8 +20,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.TableGenerator;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import jakarta.persistence.Transient;
 
 import org.json.simple.JSONAware;
@@ -67,8 +65,7 @@ public class Transaction extends SalesManagerEntity<Long, Transaction> implement
 	private BigDecimal amount;
 	
 	@Column(name="TRANSACTION_DATE")
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date transactionDate;
+	private LocalDateTime transactionDate;
 	
 	@Column(name="TRANSACTION_TYPE")
 	@Enumerated(value = EnumType.STRING)
@@ -122,11 +119,11 @@ public class Transaction extends SalesManagerEntity<Long, Transaction> implement
 		this.amount = amount;
 	}
 
-	public Date getTransactionDate() {
+	public LocalDateTime getTransactionDate() {
 		return transactionDate;
 	}
 
-	public void setTransactionDate(Date transactionDate) {
+	public void setTransactionDate(LocalDateTime transactionDate) {
 		this.transactionDate = transactionDate;
 	}
 

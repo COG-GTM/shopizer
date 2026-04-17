@@ -1,7 +1,7 @@
 package com.salesmanager.core.model.system.optin;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,8 +15,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.TableGenerator;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import jakarta.persistence.UniqueConstraint;
 
 import com.salesmanager.core.constants.SchemaConstant;
@@ -49,13 +47,11 @@ public class Optin extends SalesManagerEntity<Long, Optin> implements Serializab
 	@GeneratedValue(strategy = GenerationType.TABLE, generator = "TABLE_GEN")
 	private Long id;
 	
-	@Temporal(TemporalType.TIMESTAMP)
 	@Column (name ="START_DATE")
-	private Date startDate;
+	private LocalDateTime startDate;
 	
-	@Temporal(TemporalType.TIMESTAMP)
 	@Column (name ="END_DATE")
-	private Date endDate;
+	private LocalDateTime endDate;
 	
 	@Column(name="TYPE", nullable=false)
 	@Enumerated(value = EnumType.STRING)
@@ -82,19 +78,19 @@ public class Optin extends SalesManagerEntity<Long, Optin> implements Serializab
 		this.id = id;	
 	}
 
-	public Date getStartDate() {
+	public LocalDateTime getStartDate() {
 		return startDate;
 	}
 
-	public void setStartDate(Date startDate) {
+	public void setStartDate(LocalDateTime startDate) {
 		this.startDate = startDate;
 	}
 
-	public Date getEndDate() {
+	public LocalDateTime getEndDate() {
 		return endDate;
 	}
 
-	public void setEndDate(Date endDate) {
+	public void setEndDate(LocalDateTime endDate) {
 		this.endDate = endDate;
 	}
 

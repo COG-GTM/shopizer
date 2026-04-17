@@ -1,7 +1,7 @@
 package com.salesmanager.core.model.system;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDate;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -15,8 +15,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.TableGenerator;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import jakarta.persistence.UniqueConstraint;
 
 import com.salesmanager.core.constants.SchemaConstant;
@@ -59,13 +57,11 @@ public class SystemNotification extends SalesManagerEntity<Long, SystemNotificat
 	@JoinColumn(name="USER_ID", nullable=true)
 	private User user;
 	
-	@Temporal(TemporalType.DATE)
 	@Column(name = "START_DATE")
-	private Date startDate;
+	private LocalDate startDate;
 	
-	@Temporal(TemporalType.DATE)
 	@Column(name = "END_DATE")
-	private Date endDate;
+	private LocalDate endDate;
 	
 	@Embedded
 	private AuditSection auditSection = new AuditSection();
@@ -104,11 +100,11 @@ public class SystemNotification extends SalesManagerEntity<Long, SystemNotificat
 		this.value = value;
 	}
 
-	public void setStartDate(Date startDate) {
+	public void setStartDate(LocalDate startDate) {
 		this.startDate = startDate;
 	}
 
-	public Date getStartDate() {
+	public LocalDate getStartDate() {
 		return startDate;
 	}
 
@@ -120,11 +116,11 @@ public class SystemNotification extends SalesManagerEntity<Long, SystemNotificat
 		return merchantStore;
 	}
 
-	public void setEndDate(Date endDate) {
+	public void setEndDate(LocalDate endDate) {
 		this.endDate = endDate;
 	}
 
-	public Date getEndDate() {
+	public LocalDate getEndDate() {
 		return endDate;
 	}
 

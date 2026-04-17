@@ -1,10 +1,11 @@
 package com.salesmanager.core.model.order;
 
 import java.math.BigDecimal;
-import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Set;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -20,8 +21,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.TableGenerator;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import jakarta.validation.Valid;
 
 import org.hibernate.annotations.OrderBy;
@@ -38,7 +37,6 @@ import com.salesmanager.core.model.order.orderstatus.OrderStatusHistory;
 import com.salesmanager.core.model.order.payment.CreditCard;
 import com.salesmanager.core.model.payments.PaymentType;
 import com.salesmanager.core.model.reference.currency.Currency;
-import com.salesmanager.core.utils.CloneUtils;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -63,22 +61,19 @@ public class Order extends SalesManagerEntity<Long, Order> {
 	@Enumerated(value = EnumType.STRING)
 	private OrderStatus status;
 	
-	@Temporal(TemporalType.TIMESTAMP)
 	@Column (name ="LAST_MODIFIED")
-	private Date lastModified;
+	private LocalDateTime lastModified;
 	
 	//the customer object can be detached. An order can exist and the customer deleted
 	@Column (name ="CUSTOMER_ID")
 	private Long customerId;
 	
-	@Temporal(TemporalType.DATE)
 	@Column (name ="DATE_PURCHASED")
-	private Date datePurchased;
+	private LocalDate datePurchased;
 	
 	//used for an order payable on multiple installment
-	@Temporal(TemporalType.TIMESTAMP)
 	@Column (name ="ORDER_DATE_FINISHED")
-	private Date orderDateFinished;
+	private LocalDateTime orderDateFinished;
 	
 	//What was the exchange rate
 	@Column (name ="CURRENCY_VALUE")
@@ -186,28 +181,28 @@ public class Order extends SalesManagerEntity<Long, Order> {
 		this.status = status;
 	}
 
-	public Date getLastModified() {
-		return CloneUtils.clone(lastModified);
+	public LocalDateTime getLastModified() {
+		return lastModified;
 	}
 
-	public void setLastModified(Date lastModified) {
-		this.lastModified = CloneUtils.clone(lastModified);
+	public void setLastModified(LocalDateTime lastModified) {
+		this.lastModified = lastModified;
 	}
 
-	public Date getDatePurchased() {
-		return CloneUtils.clone(datePurchased);
+	public LocalDate getDatePurchased() {
+		return datePurchased;
 	}
 
-	public void setDatePurchased(Date datePurchased) {
-		this.datePurchased = CloneUtils.clone(datePurchased);
+	public void setDatePurchased(LocalDate datePurchased) {
+		this.datePurchased = datePurchased;
 	}
 
-	public Date getOrderDateFinished() {
-		return CloneUtils.clone(orderDateFinished);
+	public LocalDateTime getOrderDateFinished() {
+		return orderDateFinished;
 	}
 
-	public void setOrderDateFinished(Date orderDateFinished) {
-		this.orderDateFinished = CloneUtils.clone(orderDateFinished);
+	public void setOrderDateFinished(LocalDateTime orderDateFinished) {
+		this.orderDateFinished = orderDateFinished;
 	}
 
 	public BigDecimal getCurrencyValue() {

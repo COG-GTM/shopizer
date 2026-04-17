@@ -3,9 +3,9 @@
  */
 package com.salesmanager.core.model.shoppingcart;
 
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -22,8 +22,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.TableGenerator;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import jakarta.persistence.Transient;
 
 import com.salesmanager.core.model.common.audit.AuditListener;
@@ -84,9 +82,8 @@ public class ShoppingCart extends SalesManagerEntity<Long, ShoppingCart> impleme
 	@Column (name ="PROMO_CODE")
 	private String promoCode;
 	
-	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "PROMO_ADDED")
-	private Date promoAdded;
+	private LocalDateTime promoAdded;
 
 	@Transient
 	private boolean obsolete = false;//when all items are obsolete
@@ -171,11 +168,11 @@ public class ShoppingCart extends SalesManagerEntity<Long, ShoppingCart> impleme
 		this.promoCode = promoCode;
 	}
 
-	public Date getPromoAdded() {
+	public LocalDateTime getPromoAdded() {
 		return promoAdded;
 	}
 
-	public void setPromoAdded(Date promoAdded) {
+	public void setPromoAdded(LocalDateTime promoAdded) {
 		this.promoAdded = promoAdded;
 	}
 	

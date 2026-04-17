@@ -1,8 +1,8 @@
 package com.salesmanager.core.model.catalog.product.variant;
 
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -19,8 +19,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.TableGenerator;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
@@ -62,8 +60,7 @@ public class ProductVariant extends SalesManagerEntity<Long, ProductVariant> imp
 	private AuditSection auditSection = new AuditSection();
 
 	@Column(name = "DATE_AVAILABLE")
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date dateAvailable = new Date();
+	private LocalDateTime dateAvailable = LocalDateTime.now();
 	
 	@Column(name = "AVAILABLE")
 	@JdbcTypeCode(SqlTypes.TINYINT)
@@ -126,11 +123,11 @@ public class ProductVariant extends SalesManagerEntity<Long, ProductVariant> imp
 
 	}
 
-	public Date getDateAvailable() {
+	public LocalDateTime getDateAvailable() {
 		return dateAvailable;
 	}
 
-	public void setDateAvailable(Date dateAvailable) {
+	public void setDateAvailable(LocalDateTime dateAvailable) {
 		this.dateAvailable = dateAvailable;
 	}
 

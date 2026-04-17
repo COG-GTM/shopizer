@@ -1,7 +1,7 @@
 package com.salesmanager.core.model.shipping;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -11,8 +11,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.TableGenerator;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 
 import com.salesmanager.core.constants.SchemaConstant;
 import com.salesmanager.core.model.common.Delivery;
@@ -59,17 +57,14 @@ public class Quote extends SalesManagerEntity<Long, Quote> {
 	@Column(name = "OPTION_CODE", nullable = true)
 	private String optionCode = null;
 	
-	@Temporal(TemporalType.TIMESTAMP)
 	@Column (name ="OPTION_DELIVERY_DATE")
-	private Date optionDeliveryDate = null;
+	private LocalDateTime optionDeliveryDate = null;
 	
-	@Temporal(TemporalType.TIMESTAMP)
 	@Column (name ="OPTION_SHIPPING_DATE")
-	private Date optionShippingDate = null;
+	private LocalDateTime optionShippingDate = null;
 	
-	@Temporal(TemporalType.TIMESTAMP)
 	@Column (name ="QUOTE_DATE")
-	private Date quoteDate;
+	private LocalDateTime quoteDate;
 	
 	@Column(name = "SHIPPING_NUMBER_DAYS")
 	private Integer estimatedNumberOfDays;
@@ -130,27 +125,27 @@ public class Quote extends SalesManagerEntity<Long, Quote> {
 		this.optionCode = optionCode;
 	}
 
-	public Date getOptionDeliveryDate() {
+	public LocalDateTime getOptionDeliveryDate() {
 		return optionDeliveryDate;
 	}
 
-	public void setOptionDeliveryDate(Date optionDeliveryDate) {
+	public void setOptionDeliveryDate(LocalDateTime optionDeliveryDate) {
 		this.optionDeliveryDate = optionDeliveryDate;
 	}
 
-	public Date getOptionShippingDate() {
+	public LocalDateTime getOptionShippingDate() {
 		return optionShippingDate;
 	}
 
-	public void setOptionShippingDate(Date optionShippingDate) {
+	public void setOptionShippingDate(LocalDateTime optionShippingDate) {
 		this.optionShippingDate = optionShippingDate;
 	}
 
-	public Date getQuoteDate() {
+	public LocalDateTime getQuoteDate() {
 		return quoteDate;
 	}
 
-	public void setQuoteDate(Date quoteDate) {
+	public void setQuoteDate(LocalDateTime quoteDate) {
 		this.quoteDate = quoteDate;
 	}
 

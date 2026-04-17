@@ -1,7 +1,7 @@
 package com.salesmanager.core.model.system.optin;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,8 +14,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.TableGenerator;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import jakarta.persistence.UniqueConstraint;
 
 
@@ -49,9 +47,8 @@ public class CustomerOptin extends SalesManagerEntity<Long, CustomerOptin> imple
 	@GeneratedValue(strategy = GenerationType.TABLE, generator = "TABLE_GEN")
 	private Long id;
 	
-	@Temporal(TemporalType.TIMESTAMP)
 	@Column (name ="OPTIN_DATE")
-	private Date optinDate;
+	private LocalDateTime optinDate;
 
 	
 	@ManyToOne(targetEntity = Optin.class)
@@ -84,11 +81,11 @@ public class CustomerOptin extends SalesManagerEntity<Long, CustomerOptin> imple
 		this.id = id;	
 	}
 
-	public Date getOptinDate() {
+	public LocalDateTime getOptinDate() {
 		return optinDate;
 	}
 
-	public void setOptinDate(Date optinDate) {
+	public void setOptinDate(LocalDateTime optinDate) {
 		this.optinDate = optinDate;
 	}
 

@@ -2,7 +2,7 @@ package com.salesmanager.core.model.order.orderproduct;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,8 +13,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.TableGenerator;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.salesmanager.core.constants.SchemaConstant;
@@ -48,13 +46,11 @@ public class OrderProductPrice implements Serializable {
 	@Column(name = "PRODUCT_PRICE_SPECIAL")
 	private BigDecimal productPriceSpecial;
 	
-	@Temporal(TemporalType.TIMESTAMP)
 	@Column (name="PRD_PRICE_SPECIAL_ST_DT" , length=0)
-	private Date productPriceSpecialStartDate;
+	private LocalDateTime productPriceSpecialStartDate;
 	
-	@Temporal(TemporalType.TIMESTAMP)
 	@Column (name="PRD_PRICE_SPECIAL_END_DT" , length=0)
-	private Date productPriceSpecialEndDate;
+	private LocalDateTime productPriceSpecialEndDate;
 
 
 	@Column(name = "DEFAULT_PRICE", nullable = false)
@@ -109,19 +105,19 @@ public class OrderProductPrice implements Serializable {
 	}
 
 	public void setProductPriceSpecialStartDate(
-			Date productPriceSpecialStartDate) {
+			LocalDateTime productPriceSpecialStartDate) {
 		this.productPriceSpecialStartDate = productPriceSpecialStartDate;
 	}
 
-	public Date getProductPriceSpecialStartDate() {
+	public LocalDateTime getProductPriceSpecialStartDate() {
 		return productPriceSpecialStartDate;
 	}
 
-	public void setProductPriceSpecialEndDate(Date productPriceSpecialEndDate) {
+	public void setProductPriceSpecialEndDate(LocalDateTime productPriceSpecialEndDate) {
 		this.productPriceSpecialEndDate = productPriceSpecialEndDate;
 	}
 
-	public Date getProductPriceSpecialEndDate() {
+	public LocalDateTime getProductPriceSpecialEndDate() {
 		return productPriceSpecialEndDate;
 	}
 

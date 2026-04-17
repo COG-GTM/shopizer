@@ -1,10 +1,10 @@
 package com.salesmanager.core.model.merchant;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.time.LocalDate;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -22,8 +22,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.TableGenerator;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
@@ -38,7 +36,6 @@ import com.salesmanager.core.model.reference.country.Country;
 import com.salesmanager.core.model.reference.currency.Currency;
 import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.core.model.reference.zone.Zone;
-import com.salesmanager.core.utils.CloneUtils;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -135,9 +132,8 @@ public class MerchantStore extends SalesManagerEntity<Integer, MerchantStore> im
 	@Column(name = "SEIZEUNITCODE", length = 5)
 	private String seizeunitcode = MeasureUnit.IN.name();
 
-	@Temporal(TemporalType.DATE)
 	@Column(name = "IN_BUSINESS_SINCE")
-	private Date inBusinessSince = new Date();
+	private LocalDate inBusinessSince = LocalDate.now();
 
 	@Transient
 	private String dateBusinessSince;
@@ -297,12 +293,12 @@ public class MerchantStore extends SalesManagerEntity<Integer, MerchantStore> im
 		this.seizeunitcode = seizeunitcode;
 	}
 
-	public Date getInBusinessSince() {
-		return CloneUtils.clone(inBusinessSince);
+	public LocalDate getInBusinessSince() {
+		return inBusinessSince;
 	}
 
-	public void setInBusinessSince(Date inBusinessSince) {
-		this.inBusinessSince = CloneUtils.clone(inBusinessSince);
+	public void setInBusinessSince(LocalDate inBusinessSince) {
+		this.inBusinessSince = inBusinessSince;
 	}
 
 	public Language getDefaultLanguage() {

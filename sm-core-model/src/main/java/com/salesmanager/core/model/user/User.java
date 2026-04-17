@@ -1,8 +1,8 @@
 package com.salesmanager.core.model.user;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -20,8 +20,6 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.TableGenerator;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
@@ -141,13 +139,11 @@ public class User extends SalesManagerEntity<Long, User> implements Auditable {
 	@Embedded
 	private AuditSection auditSection = new AuditSection();
 	
-	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "LAST_ACCESS")
-	private Date lastAccess;
+	private LocalDateTime lastAccess;
 	
-	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "LOGIN_ACCESS")
-	private Date loginTime;
+	private LocalDateTime loginTime;
 	
 	@Embedded
 	private CredentialsReset credentialsResetRequest = null;
@@ -302,19 +298,19 @@ public class User extends SalesManagerEntity<Long, User> implements Auditable {
 		return active;
 	}
 
-	public void setLastAccess(Date lastAccess) {
+	public void setLastAccess(LocalDateTime lastAccess) {
 		this.lastAccess = lastAccess;
 	}
 
-	public Date getLastAccess() {
+	public LocalDateTime getLastAccess() {
 		return lastAccess;
 	}
 
-	public void setLoginTime(Date loginTime) {
+	public void setLoginTime(LocalDateTime loginTime) {
 		this.loginTime = loginTime;
 	}
 
-	public Date getLoginTime() {
+	public LocalDateTime getLoginTime() {
 		return loginTime;
 	}
 

@@ -1,7 +1,7 @@
 package com.salesmanager.core.model.order.orderstatus;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,14 +14,11 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.TableGenerator;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.salesmanager.core.constants.SchemaConstant;
 import com.salesmanager.core.model.order.Order;
-import com.salesmanager.core.utils.CloneUtils;
 
 @Entity
 @Table (name="ORDER_STATUS_HISTORY" )
@@ -43,9 +40,8 @@ public class OrderStatusHistory implements Serializable {
 	@Enumerated(value = EnumType.STRING)
 	private OrderStatus status;
 	
-	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "DATE_ADDED", nullable = false)
-	private Date dateAdded;
+	private LocalDateTime dateAdded;
 	
 	@Column(name = "CUSTOMER_NOTIFIED")
 	private java.lang.Integer customerNotified;
@@ -80,12 +76,12 @@ public class OrderStatusHistory implements Serializable {
 		this.status = status;
 	}
 
-	public Date getDateAdded() {
-		return CloneUtils.clone(dateAdded);
+	public LocalDateTime getDateAdded() {
+		return dateAdded;
 	}
 
-	public void setDateAdded(Date dateAdded) {
-		this.dateAdded = CloneUtils.clone(dateAdded);
+	public void setDateAdded(LocalDateTime dateAdded) {
+		this.dateAdded = dateAdded;
 	}
 
 	public java.lang.Integer getCustomerNotified() {

@@ -1,7 +1,7 @@
 package com.salesmanager.core.model.order.filehistory;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,12 +12,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.TableGenerator;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import jakarta.persistence.UniqueConstraint;
 
 import com.salesmanager.core.model.merchant.MerchantStore;
-import com.salesmanager.core.utils.CloneUtils;
 
 @Entity
 @Table (name="FILE_HISTORY", uniqueConstraints={
@@ -49,17 +46,14 @@ public class FileHistory implements Serializable {
 	@Column ( name="FILESIZE", nullable=false )
 	private Integer filesize;
 	
-	@Temporal(TemporalType.TIMESTAMP )
 	@Column ( name="DATE_ADDED", length=0, nullable=false )
-	private Date dateAdded;
+	private LocalDateTime dateAdded;
 	
-	@Temporal(TemporalType.TIMESTAMP)
 	@Column ( name="DATE_DELETED", length=0 )
-	private Date dateDeleted;
+	private LocalDateTime dateDeleted;
 	
-	@Temporal(TemporalType.TIMESTAMP)
 	@Column ( name="ACCOUNTED_DATE", length=0 )
-	private Date accountedDate;
+	private LocalDateTime accountedDate;
 	
 	@Column ( name="DOWNLOAD_COUNT", nullable=false )
 	private Integer downloadCount;
@@ -99,28 +93,28 @@ public class FileHistory implements Serializable {
 		this.filesize = filesize;
 	}
 
-	public Date getDateAdded() {
-		return CloneUtils.clone(dateAdded);
+	public LocalDateTime getDateAdded() {
+		return dateAdded;
 	}
 
-	public void setDateAdded(Date dateAdded) {
-		this.dateAdded = CloneUtils.clone(dateAdded);
+	public void setDateAdded(LocalDateTime dateAdded) {
+		this.dateAdded = dateAdded;
 	}
 
-	public Date getDateDeleted() {
-		return CloneUtils.clone(dateDeleted);
+	public LocalDateTime getDateDeleted() {
+		return dateDeleted;
 	}
 
-	public void setDateDeleted(Date dateDeleted) {
-		this.dateDeleted = CloneUtils.clone(dateDeleted);
+	public void setDateDeleted(LocalDateTime dateDeleted) {
+		this.dateDeleted = dateDeleted;
 	}
 
-	public Date getAccountedDate() {
-		return CloneUtils.clone(accountedDate);
+	public LocalDateTime getAccountedDate() {
+		return accountedDate;
 	}
 
-	public void setAccountedDate(Date accountedDate) {
-		this.accountedDate = CloneUtils.clone(accountedDate);
+	public void setAccountedDate(LocalDateTime accountedDate) {
+		this.accountedDate = accountedDate;
 	}
 
 	public Integer getDownloadCount() {

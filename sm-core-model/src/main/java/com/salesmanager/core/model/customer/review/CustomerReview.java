@@ -1,8 +1,8 @@
 package com.salesmanager.core.model.customer.review;
 
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -19,8 +19,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.TableGenerator;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import jakarta.persistence.UniqueConstraint;
 
 import com.salesmanager.core.constants.SchemaConstant;
@@ -58,9 +56,8 @@ public class CustomerReview extends SalesManagerEntity<Long, CustomerReview> imp
 	@Column(name = "REVIEWS_READ")
 	private Long reviewRead;
 	
-	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "REVIEW_DATE")
-	private Date reviewDate;
+	private LocalDateTime reviewDate;
 	
 	@Column(name = "STATUS")
 	private Integer status;
@@ -148,11 +145,11 @@ public class CustomerReview extends SalesManagerEntity<Long, CustomerReview> imp
 		this.audit = audit;
 	}
 	
-	public Date getReviewDate() {
+	public LocalDateTime getReviewDate() {
 		return reviewDate;
 	}
 
-	public void setReviewDate(Date reviewDate) {
+	public void setReviewDate(LocalDateTime reviewDate) {
 		this.reviewDate = reviewDate;
 	}
 

@@ -1,8 +1,8 @@
 package com.salesmanager.core.model.catalog.product.availability;
 
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import java.time.LocalDate;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -18,8 +18,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.TableGenerator;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
@@ -35,7 +33,6 @@ import com.salesmanager.core.model.common.audit.AuditSection;
 import com.salesmanager.core.model.common.audit.Auditable;
 import com.salesmanager.core.model.generic.SalesManagerEntity;
 import com.salesmanager.core.model.merchant.MerchantStore;
-import com.salesmanager.core.utils.CloneUtils;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -105,9 +102,8 @@ public class ProductAvailability extends SalesManagerEntity<Long, ProductAvailab
 	@Column(name = "QUANTITY")
 	private Integer productQuantity = 0;
 
-	@Temporal(TemporalType.DATE)
 	@Column(name = "DATE_AVAILABLE")
-	private Date productDateAvailable;
+	private LocalDate productDateAvailable;
 
 	@Column(name = "REGION")
 	private String region = SchemaConstant.ALL_REGIONS;
@@ -166,12 +162,12 @@ public class ProductAvailability extends SalesManagerEntity<Long, ProductAvailab
 		this.productQuantity = productQuantity;
 	}
 
-	public Date getProductDateAvailable() {
-		return CloneUtils.clone(productDateAvailable);
+	public LocalDate getProductDateAvailable() {
+		return productDateAvailable;
 	}
 
-	public void setProductDateAvailable(Date productDateAvailable) {
-		this.productDateAvailable = CloneUtils.clone(productDateAvailable);
+	public void setProductDateAvailable(LocalDate productDateAvailable) {
+		this.productDateAvailable = productDateAvailable;
 	}
 
 	public String getRegion() {

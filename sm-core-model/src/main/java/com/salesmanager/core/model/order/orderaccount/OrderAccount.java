@@ -1,8 +1,8 @@
 package com.salesmanager.core.model.order.orderaccount;
 
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import java.time.LocalDate;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -15,13 +15,10 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.TableGenerator;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 
 import com.salesmanager.core.constants.SchemaConstant;
 import com.salesmanager.core.model.generic.SalesManagerEntity;
 import com.salesmanager.core.model.order.Order;
-import com.salesmanager.core.utils.CloneUtils;
 
 @Entity
 @Table(name = "ORDER_ACCOUNT")
@@ -38,13 +35,11 @@ private static final long serialVersionUID = -2429388347536330540L;
 	@JoinColumn(name = "ORDER_ID", nullable = false)
 	private Order order;
 	
-	@Temporal(TemporalType.DATE)
 	@Column(name = "ORDER_ACCOUNT_START_DATE", nullable = false, length = 0)
-	private Date orderAccountStartDate;
+	private LocalDate orderAccountStartDate;
 	
-	@Temporal(TemporalType.DATE)
 	@Column(name = "ORDER_ACCOUNT_END_DATE", length = 0)
-	private Date orderAccountEndDate;
+	private LocalDate orderAccountEndDate;
 
 	@Column(name = "ORDER_ACCOUNT_BILL_DAY", nullable = false)
 	private Integer orderAccountBillDay;
@@ -71,20 +66,20 @@ private static final long serialVersionUID = -2429388347536330540L;
 		this.order = order;
 	}
 
-	public Date getOrderAccountStartDate() {
-		return CloneUtils.clone(orderAccountStartDate);
+	public LocalDate getOrderAccountStartDate() {
+		return orderAccountStartDate;
 	}
 
-	public void setOrderAccountStartDate(Date orderAccountStartDate) {
-		this.orderAccountStartDate = CloneUtils.clone(orderAccountStartDate);
+	public void setOrderAccountStartDate(LocalDate orderAccountStartDate) {
+		this.orderAccountStartDate = orderAccountStartDate;
 	}
 
-	public Date getOrderAccountEndDate() {
-		return CloneUtils.clone(orderAccountEndDate);
+	public LocalDate getOrderAccountEndDate() {
+		return orderAccountEndDate;
 	}
 
-	public void setOrderAccountEndDate(Date orderAccountEndDate) {
-		this.orderAccountEndDate = CloneUtils.clone(orderAccountEndDate);
+	public void setOrderAccountEndDate(LocalDate orderAccountEndDate) {
+		this.orderAccountEndDate = orderAccountEndDate;
 	}
 
 	public Integer getOrderAccountBillDay() {
