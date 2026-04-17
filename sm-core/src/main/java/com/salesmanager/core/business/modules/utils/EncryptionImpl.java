@@ -1,5 +1,6 @@
 package com.salesmanager.core.business.modules.utils;
 
+import java.security.SecureRandom;
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
@@ -9,58 +10,81 @@ import org.apache.commons.lang3.StringUtils;
 import com.salesmanager.core.modules.utils.Encryption;
 
 public final class EncryptionImpl implements Encryption {
-	
-	private final static String IV_P = "fedcba9876543210";
+
+	private static final int IV_LENGTH = 16;
+	private static final String LEGACY_IV = "fedcba9876543210";
+	private static final String NEW_FORMAT_PREFIX = "v1:";
 	private final static String KEY_SPEC = "AES";
 	private final static String CYPHER_SPEC = "AES/CBC/PKCS5Padding";
-	
-
+	private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     private String  secretKey;
-
-
 
 	@Override
 	public String encrypt(String value) throws Exception {
 
-		
-		// value = StringUtils.rightPad(value, 16,"*");
-		// Cipher cipher = Cipher.getInstance("AES/CBC/NoPadding");
-		// NEED TO UNDERSTAND WHY PKCS5Padding DOES NOT WORK
+		// Generate a random IV for each encryption operation
+		byte[] iv = new byte[IV_LENGTH];
+		SECURE_RANDOM.nextBytes(iv);
+		IvParameterSpec ivSpec = new IvParameterSpec(iv);
+
 		Cipher cipher = Cipher.getInstance(CYPHER_SPEC);
 		SecretKeySpec keySpec = new SecretKeySpec(secretKey.getBytes(), KEY_SPEC);
-		IvParameterSpec ivSpec = new IvParameterSpec(IV_P
-				.getBytes());
 		cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivSpec);
-		byte[] inpbytes = value.getBytes();
-		byte[] encrypted = cipher.doFinal(inpbytes);
-		return bytesToHex(encrypted);
-		
-		
+		byte[] encrypted = cipher.doFinal(value.getBytes());
+
+		// Prepend IV to ciphertext
+		byte[] combined = new byte[IV_LENGTH + encrypted.length];
+		System.arraycopy(iv, 0, combined, 0, IV_LENGTH);
+		System.arraycopy(encrypted, 0, combined, IV_LENGTH, encrypted.length);
+
+		return NEW_FORMAT_PREFIX + bytesToHex(combined);
 	}
 
 	@Override
 	public String decrypt(String value) throws Exception {
 
-		
 		if (StringUtils.isBlank(value))
-			throw new Exception("Nothing to encrypt");
+			throw new Exception("Nothing to decrypt");
 
-		// NEED TO UNDERSTAND WHY PKCS5Padding DOES NOT WORK
-		// Cipher cipher = Cipher.getInstance("AES/CBC/NoPadding");
-		Cipher cipher = Cipher.getInstance(CYPHER_SPEC);
-		SecretKeySpec keySpec = new SecretKeySpec(secretKey.getBytes(), KEY_SPEC);
-		IvParameterSpec ivSpec = new IvParameterSpec(IV_P
-				.getBytes());
-		cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec);
-		byte[] outText;
-		outText = cipher.doFinal(hexToBytes(value));
-		return new String(outText);
-		
-		
+		if (value.startsWith(NEW_FORMAT_PREFIX)) {
+			// New format: "v1:" prefix + hex(IV + ciphertext)
+			String hexPayload = value.substring(NEW_FORMAT_PREFIX.length());
+			byte[] combined = hexToBytes(hexPayload);
+
+			if (combined == null || combined.length <= IV_LENGTH) {
+				throw new Exception("Invalid encrypted data: too short");
+			}
+
+			byte[] iv = new byte[IV_LENGTH];
+			System.arraycopy(combined, 0, iv, 0, IV_LENGTH);
+			byte[] ciphertext = new byte[combined.length - IV_LENGTH];
+			System.arraycopy(combined, IV_LENGTH, ciphertext, 0, ciphertext.length);
+
+			Cipher cipher = Cipher.getInstance(CYPHER_SPEC);
+			SecretKeySpec keySpec = new SecretKeySpec(secretKey.getBytes(), KEY_SPEC);
+			IvParameterSpec ivSpec = new IvParameterSpec(iv);
+			cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec);
+			byte[] outText = cipher.doFinal(ciphertext);
+			return new String(outText);
+		} else {
+			// Legacy format: static IV, no prepended IV in ciphertext
+			byte[] data = hexToBytes(value);
+
+			if (data == null || data.length == 0) {
+				throw new Exception("Invalid encrypted data");
+			}
+
+			Cipher cipher = Cipher.getInstance(CYPHER_SPEC);
+			SecretKeySpec keySpec = new SecretKeySpec(secretKey.getBytes(), KEY_SPEC);
+			IvParameterSpec ivSpec = new IvParameterSpec(LEGACY_IV.getBytes());
+			cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec);
+			byte[] outText = cipher.doFinal(data);
+			return new String(outText);
+		}
 	}
-	
-	
+
+
 	private String bytesToHex(byte[] data) {
 		if (data == null) {
 			return null;
@@ -95,7 +119,7 @@ public final class EncryptionImpl implements Encryption {
 			return buffer;
 		}
 	}
-	
+
 	public String getSecretKey() {
 		return secretKey;
 	}
