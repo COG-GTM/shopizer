@@ -3,7 +3,7 @@ package com.salesmanager.core.business.utils;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,31 +49,27 @@ public class CacheUtils {
 		
 	}
 	
+	@SuppressWarnings("unchecked")
 	public List<String> getCacheKeys(MerchantStore store) throws Exception {
-		
-		  net.sf.ehcache.Cache cacheImpl = (net.sf.ehcache.Cache) cache.getNativeCache();
-		  List<String> returnKeys = new ArrayList<String>();
-		  for (Object key: cacheImpl.getKeys()) {
-		    
-			  
+		List<String> returnKeys = new ArrayList<String>();
+		Object nativeCache = cache.getNativeCache();
+		if (nativeCache instanceof javax.cache.Cache) {
+			javax.cache.Cache<Object, Object> jcache = (javax.cache.Cache<Object, Object>) nativeCache;
+			for (javax.cache.Cache.Entry<Object, Object> entry : jcache) {
 				try {
-					String sKey = (String)key;
-					
-					// a key should be <storeId>_<rest of the key>
+					String sKey = (String) entry.getKey();
 					int delimiterPosition = sKey.indexOf(KEY_DELIMITER);
-					
-					if(delimiterPosition>0 && Character.isDigit(sKey.charAt(0))) {
-					
-						String keyRemaining = sKey.substring(delimiterPosition+1);
+					if (delimiterPosition > 0 && Character.isDigit(sKey.charAt(0))) {
+						String keyRemaining = sKey.substring(delimiterPosition + 1);
 						returnKeys.add(keyRemaining);
-					
 					}
-
 				} catch (Exception e) {
-					LOGGER.equals("key " + key + " cannot be converted to a String or parsed");
-				}  
-		  }
-
+					LOGGER.error("key cannot be converted to a String or parsed", e);
+				}
+			}
+		} else {
+			LOGGER.warn("getCacheKeys: native cache is not JCache, cannot iterate keys");
+		}
 		return returnKeys;
 	}
 	
@@ -85,26 +81,30 @@ public class CacheUtils {
 		cache.evict(keyName);
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void removeAllFromCache(MerchantStore store) throws Exception {
-		  net.sf.ehcache.Cache cacheImpl = (net.sf.ehcache.Cache) cache.getNativeCache();
-		  for (Object key: cacheImpl.getKeys()) {
+		Object nativeCache = cache.getNativeCache();
+		if (nativeCache instanceof javax.cache.Cache) {
+			javax.cache.Cache<Object, Object> jcache = (javax.cache.Cache<Object, Object>) nativeCache;
+			List<Object> keysToRemove = new ArrayList<>();
+			for (javax.cache.Cache.Entry<Object, Object> entry : jcache) {
 				try {
-					String sKey = (String)key;
-					
-					// a key should be <storeId>_<rest of the key>
+					String sKey = (String) entry.getKey();
 					int delimiterPosition = sKey.indexOf(KEY_DELIMITER);
-					
-					if(delimiterPosition>0 && Character.isDigit(sKey.charAt(0))) {
-					
-
-						cache.evict(key);
-					
+					if (delimiterPosition > 0 && Character.isDigit(sKey.charAt(0))) {
+						keysToRemove.add(sKey);
 					}
-
 				} catch (Exception e) {
-					LOGGER.equals("key " + key + " cannot be converted to a String or parsed");
-				}  
-		  }
+					LOGGER.error("key cannot be converted to a String or parsed", e);
+				}
+			}
+			for (Object key : keysToRemove) {
+				cache.evict(key);
+			}
+		} else {
+			LOGGER.warn("removeAllFromCache: native cache is not JCache, clearing entire cache as fallback");
+			cache.clear();
+		}
 	}
 	
 

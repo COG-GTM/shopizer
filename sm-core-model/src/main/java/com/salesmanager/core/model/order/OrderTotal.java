@@ -2,19 +2,18 @@ package com.salesmanager.core.model.order;
 
 import java.math.BigDecimal;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.TableGenerator;
 
-import org.hibernate.annotations.Type;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.salesmanager.core.constants.SchemaConstant;
@@ -34,7 +33,7 @@ public class OrderTotal extends SalesManagerEntity<Long, OrderTotal> {
 	
 	@Id
 	@Column(name = "ORDER_ACCOUNT_ID", unique=true, nullable=false)
-	@TableGenerator(name = "TABLE_GEN", table = "SM_SEQUENCER", pkColumnName = "SEQ_NAME", valueColumnName = "SEQ_COUNT", pkColumnValue = "ORDER_TOTAL_ID_NEXT_VALUE")
+	@TableGenerator(name = "TABLE_GEN", table = "SM_SEQUENCER", pkColumnName = "SEQ_NAME", valueColumnName = "SEQ_COUNT", pkColumnValue = "ORDER_TOTAL_ID_NEXT_VALUE", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.TABLE, generator = "TABLE_GEN")
 	private Long id;
 	
@@ -44,8 +43,7 @@ public class OrderTotal extends SalesManagerEntity<Long, OrderTotal> {
 	@Column (name ="TITLE", nullable=true)
 	private String title;
 	
-	@Column (name ="TEXT", nullable=true)
-	@Type(type = "org.hibernate.type.TextType")
+	@Column (name ="TEXT", nullable=true, columnDefinition = "text")
 	private String text;
 	
 	@Column (name ="VALUE", precision=15, scale=4, nullable=false )
