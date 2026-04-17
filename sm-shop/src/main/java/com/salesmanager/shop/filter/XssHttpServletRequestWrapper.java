@@ -1,5 +1,13 @@
 package com.salesmanager.shop.filter;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+
+import javax.servlet.ReadListener;
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 
@@ -11,6 +19,8 @@ import com.salesmanager.shop.utils.SanitizeUtils;
  *
  */
 public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
+
+	private byte[] sanitizedBody;
 
 	public XssHttpServletRequestWrapper(HttpServletRequest request) {
 		super(request);	
@@ -48,6 +58,58 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
 	            return null;
 	        }
 	        return cleanXSS(value);
+	    }
+
+	    @Override
+	    public ServletInputStream getInputStream() throws IOException {
+	        if (sanitizedBody == null) {
+	            sanitizedBody = sanitizeBody();
+	        }
+	        final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(sanitizedBody);
+	        return new ServletInputStream() {
+	            @Override
+	            public int read() throws IOException {
+	                return byteArrayInputStream.read();
+	            }
+
+	            @Override
+	            public boolean isFinished() {
+	                return byteArrayInputStream.available() == 0;
+	            }
+
+	            @Override
+	            public boolean isReady() {
+	                return true;
+	            }
+
+	            @Override
+	            public void setReadListener(ReadListener readListener) {
+	                throw new UnsupportedOperationException();
+	            }
+	        };
+	    }
+
+	    @Override
+	    public BufferedReader getReader() throws IOException {
+	        return new BufferedReader(new InputStreamReader(getInputStream(), StandardCharsets.UTF_8));
+	    }
+
+	    private byte[] sanitizeBody() throws IOException {
+	        StringBuilder sb = new StringBuilder();
+	        try (BufferedReader reader = new BufferedReader(
+	                new InputStreamReader(super.getInputStream(), StandardCharsets.UTF_8))) {
+	            char[] buffer = new char[1024];
+	            int bytesRead;
+	            while ((bytesRead = reader.read(buffer)) != -1) {
+	                sb.append(buffer, 0, bytesRead);
+	            }
+	        }
+	        String body = sb.toString();
+	        if (body.isEmpty()) {
+	            return body.getBytes(StandardCharsets.UTF_8);
+	        }
+	        String sanitized = cleanXSS(body);
+	        return sanitized.getBytes(StandardCharsets.UTF_8);
 	    }
 
 	    private String cleanXSS(String value) {
