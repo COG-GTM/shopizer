@@ -90,7 +90,7 @@ public class DefaultEmailSenderImpl implements EmailModule {
         } catch (TemplateException e) {
           throw new MailPreparationException("Can't generate text mail", e);
         }
-        textPart.setDataHandler(new javax.activation.DataHandler(new javax.activation.DataSource() {
+        textPart.setDataHandler(new jakarta.activation.DataHandler(new jakarta.activation.DataSource() {
           public InputStream getInputStream() throws IOException {
             // return new StringBufferInputStream(textWriter
             // .toString());
@@ -123,7 +123,7 @@ public class DefaultEmailSenderImpl implements EmailModule {
         } catch (TemplateException e) {
           throw new MailPreparationException("Can't generate HTML mail", e);
         }
-        htmlPage.setDataHandler(new javax.activation.DataHandler(new javax.activation.DataSource() {
+        htmlPage.setDataHandler(new jakarta.activation.DataHandler(new jakarta.activation.DataSource() {
           public InputStream getInputStream() throws IOException {
             // return new StringBufferInputStream(htmlWriter
             // .toString());

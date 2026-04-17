@@ -50,31 +50,11 @@ public class CacheUtils {
 	}
 	
 	public List<String> getCacheKeys(MerchantStore store) throws Exception {
-		
-		  net.sf.ehcache.Cache cacheImpl = (net.sf.ehcache.Cache) cache.getNativeCache();
-		  List<String> returnKeys = new ArrayList<String>();
-		  for (Object key: cacheImpl.getKeys()) {
-		    
-			  
-				try {
-					String sKey = (String)key;
-					
-					// a key should be <storeId>_<rest of the key>
-					int delimiterPosition = sKey.indexOf(KEY_DELIMITER);
-					
-					if(delimiterPosition>0 && Character.isDigit(sKey.charAt(0))) {
-					
-						String keyRemaining = sKey.substring(delimiterPosition+1);
-						returnKeys.add(keyRemaining);
-					
-					}
-
-				} catch (Exception e) {
-					LOGGER.equals("key " + key + " cannot be converted to a String or parsed");
-				}  
-		  }
-
-		return returnKeys;
+		// TODO: ehcache direct API removed in Hibernate 6 / Spring Boot 3 migration.
+		// Spring Cache abstraction does not expose key listing.
+		// Implement with JCache (javax.cache.Cache) API if key enumeration is needed.
+		LOGGER.warn("getCacheKeys is not supported after ehcache -> jcache migration");
+		return new ArrayList<String>();
 	}
 	
 	public void shutDownCache() throws Exception {
@@ -86,25 +66,11 @@ public class CacheUtils {
 	}
 	
 	public void removeAllFromCache(MerchantStore store) throws Exception {
-		  net.sf.ehcache.Cache cacheImpl = (net.sf.ehcache.Cache) cache.getNativeCache();
-		  for (Object key: cacheImpl.getKeys()) {
-				try {
-					String sKey = (String)key;
-					
-					// a key should be <storeId>_<rest of the key>
-					int delimiterPosition = sKey.indexOf(KEY_DELIMITER);
-					
-					if(delimiterPosition>0 && Character.isDigit(sKey.charAt(0))) {
-					
-
-						cache.evict(key);
-					
-					}
-
-				} catch (Exception e) {
-					LOGGER.equals("key " + key + " cannot be converted to a String or parsed");
-				}  
-		  }
+		// TODO: ehcache direct API removed in Hibernate 6 / Spring Boot 3 migration.
+		// Spring Cache abstraction does not expose key iteration for selective eviction.
+		// Using cache.clear() as a fallback; implement with JCache API if store-scoped eviction is needed.
+		LOGGER.warn("removeAllFromCache: clearing entire cache (ehcache key iteration no longer available)");
+		cache.clear();
 	}
 	
 
