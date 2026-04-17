@@ -61,6 +61,22 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
 	    }
 
 	    @Override
+	    public int getContentLength() {
+	        if (sanitizedBody != null) {
+	            return sanitizedBody.length;
+	        }
+	        return super.getContentLength();
+	    }
+
+	    @Override
+	    public long getContentLengthLong() {
+	        if (sanitizedBody != null) {
+	            return sanitizedBody.length;
+	        }
+	        return super.getContentLengthLong();
+	    }
+
+	    @Override
 	    public ServletInputStream getInputStream() throws IOException {
 	        if (sanitizedBody == null) {
 	            sanitizedBody = sanitizeBody();
