@@ -46,7 +46,7 @@ public class MerchantLog extends SalesManagerEntity<Long, MerchantLog> implement
 	private String module;
 	
 
-	@Column(name="LOG")
+	@Column(name="LOG", columnDefinition = "text")
 	private String log;
 	
 	public MerchantLog(MerchantStore store, String log) {

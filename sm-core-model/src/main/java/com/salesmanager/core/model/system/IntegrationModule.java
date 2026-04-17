@@ -54,7 +54,7 @@ public class IntegrationModule extends SalesManagerEntity<Long, IntegrationModul
 	@Column(name = "CONFIGURATION", length=4000)
 	private String configuration;
 
-	@Column(name = "DETAILS")
+	@Column(name = "DETAILS", columnDefinition = "text")
 	private String configDetails;
 
 	@Column(name = "TYPE")

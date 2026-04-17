@@ -43,7 +43,7 @@ public class OrderTotal extends SalesManagerEntity<Long, OrderTotal> {
 	@Column (name ="TITLE", nullable=true)
 	private String title;
 	
-	@Column (name ="TEXT", nullable=true)
+	@Column (name ="TEXT", nullable=true, columnDefinition = "text")
 	private String text;
 	
 	@Column (name ="VALUE", precision=15, scale=4, nullable=false )
