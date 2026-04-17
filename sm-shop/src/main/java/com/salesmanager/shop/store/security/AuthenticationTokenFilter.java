@@ -1,10 +1,13 @@
 package com.salesmanager.shop.store.security;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -29,6 +32,11 @@ public class AuthenticationTokenFilter extends OncePerRequestFilter {
     
     @Value("${authToken.header}")
     private String tokenHeader;
+
+    @Value("${cors.allowed.origins:}")
+    private String allowedOriginsConfig;
+
+    private Set<String> allowedOrigins = Collections.emptySet();
     
     private final static String BEARER_TOKEN ="Bearer ";
     
@@ -37,9 +45,17 @@ public class AuthenticationTokenFilter extends OncePerRequestFilter {
     //private final static String privateApiPatternString = "/api/v*/private";
     
     //private final static Pattern pattern = Pattern.compile(privateApiPatternString);
-    
 
-    
+    @PostConstruct
+    public void init() {
+        if (!StringUtils.isBlank(allowedOriginsConfig)) {
+            allowedOrigins = Arrays.stream(allowedOriginsConfig.split(","))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .collect(Collectors.toSet());
+        }
+    }
+
     @Inject
     private CustomAuthenticationManager jwtCustomCustomerAuthenticationManager;
     
@@ -50,15 +66,16 @@ public class AuthenticationTokenFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
         
 
-    	String origin = "*";
-    	if(!StringUtils.isBlank(request.getHeader("origin"))) {
-    		origin = request.getHeader("origin");
-    	}
     	//in flight
     	response.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, OPTIONS, DELETE, PATCH");
-    	response.setHeader("Access-Control-Allow-Origin", origin);
     	response.setHeader("Access-Control-Allow-Headers", "X-Auth-Token, Content-Type, Authorization, Cache-Control, X-Requested-With");
-    	response.setHeader("Access-Control-Allow-Credentials", "true");
+
+    	String requestOrigin = request.getHeader("origin");
+    	if (!StringUtils.isBlank(requestOrigin) && !allowedOrigins.isEmpty() && allowedOrigins.contains(requestOrigin)) {
+    		response.setHeader("Access-Control-Allow-Origin", requestOrigin);
+    		response.setHeader("Access-Control-Allow-Credentials", "true");
+    	}
+    	// If allowlist is empty or origin is not in allowlist, do not set Access-Control-Allow-Origin (secure by default)
 
     	try {
     		
