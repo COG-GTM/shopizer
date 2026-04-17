@@ -1,6 +1,7 @@
 package com.salesmanager.shop.store.security;
 
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -18,7 +19,6 @@ import javax.crypto.SecretKey;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
 /**
@@ -57,7 +57,7 @@ public class JWTTokenUtil implements Serializable {
 	    private Long expiration;
 
 	    private SecretKey getSigningKey() {
-	        byte[] keyBytes = Decoders.BASE64.decode(secret);
+	        byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
 	        return Keys.hmacShaKeyFor(keyBytes);
 	    }
 
@@ -145,7 +145,7 @@ public class JWTTokenUtil implements Serializable {
  	                .audience().add(audience).and()
  	                .issuedAt(createdDate)
  	                .expiration(expirationDate)
- 	                .signWith(getSigningKey())
+ 	                .signWith(getSigningKey(), Jwts.SIG.HS512)
  	                .compact();
 	    }
 	    
@@ -178,7 +178,7 @@ public class JWTTokenUtil implements Serializable {
  	                .claims(claims)
  	                .issuedAt(createdDate)
  	                .expiration(expirationDate)
- 	                .signWith(getSigningKey())
+ 	                .signWith(getSigningKey(), Jwts.SIG.HS512)
  	                .compact();
 	    }
 
