@@ -31,7 +31,7 @@ public class ProductVariantImage extends SalesManagerEntity<Long, ProductVariant
 	table = "SM_SEQUENCER", 
 	pkColumnName = "SEQ_NAME", 
 	valueColumnName = "SEQ_COUNT", 
-	pkColumnValue = "PRD_VAR_IMG_SEQ_NEXT_VAL")
+	pkColumnValue = "PRD_VAR_IMG_SEQ_NEXT_VAL", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.TABLE, generator = "TABLE_GEN")
 	private Long id;
 

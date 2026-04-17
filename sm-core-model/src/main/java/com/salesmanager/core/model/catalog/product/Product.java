@@ -61,7 +61,7 @@ public class Product extends SalesManagerEntity<Long, Product> implements Audita
 		 table = "SM_SEQUENCER", 
 		 pkColumnName = "SEQ_NAME", 
 		 valueColumnName = "SEQ_COUNT", 
-		 pkColumnValue = "PRODUCT_SEQ_NEXT_VAL")
+		 pkColumnValue = "PRODUCT_SEQ_NEXT_VAL", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.TABLE, generator = "TABLE_GEN")
 	private Long id;
 

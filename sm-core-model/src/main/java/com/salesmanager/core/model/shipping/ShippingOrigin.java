@@ -33,7 +33,7 @@ public class ShippingOrigin extends SalesManagerEntity<Long, ShippingOrigin> {
 	@Id
 	@Column(name = "SHIP_ORIGIN_ID", unique=true, nullable=false)
 	@TableGenerator(name = "TABLE_GEN", table = "SM_SEQUENCER", pkColumnName = "SEQ_NAME", valueColumnName = "SEQ_COUNT",
-		pkColumnValue = "SHP_ORIG_SEQ_NEXT_VAL")
+		pkColumnValue = "SHP_ORIG_SEQ_NEXT_VAL", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.TABLE, generator = "TABLE_GEN")
 	private Long id;
 	

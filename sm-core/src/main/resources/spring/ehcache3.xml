@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.ehcache.org/v3"
+        xsi:noNamespaceSchemaLocation="http://www.ehcache.org/schema/ehcache-core-3.0.xsd">
+
+    <cache alias="com.shopizer.OBJECT_CACHE">
+        <key-type>java.lang.Object</key-type>
+        <value-type>java.lang.Object</value-type>
+        <expiry>
+            <ttl unit="seconds">1200</ttl>
+        </expiry>
+        <heap unit="entries">10000</heap>
+    </cache>
+
+    <cache alias="store">
+        <key-type>java.lang.Object</key-type>
+        <value-type>java.lang.Object</value-type>
+        <heap unit="entries">1000</heap>
+    </cache>
+
+    <cache alias="countriesMap">
+        <key-type>java.lang.Object</key-type>
+        <value-type>java.lang.Object</value-type>
+        <heap unit="entries">500</heap>
+    </cache>
+
+    <cache alias="countrByCode">
+        <key-type>java.lang.Object</key-type>
+        <value-type>java.lang.Object</value-type>
+        <heap unit="entries">300</heap>
+    </cache>
+
+    <cache alias="zoneByCode">
+        <key-type>java.lang.Object</key-type>
+        <value-type>java.lang.Object</value-type>
+        <heap unit="entries">800</heap>
+    </cache>
+
+    <cache alias="languageByCode">
+        <key-type>java.lang.Object</key-type>
+        <value-type>java.lang.Object</value-type>
+        <heap unit="entries">50</heap>
+    </cache>
+
+</config>

@@ -28,7 +28,7 @@ public class OrderAccountProduct implements Serializable {
 	@Id
 	@Column (name="ORDER_ACCOUNT_PRODUCT_ID")
 	@TableGenerator(name = "TABLE_GEN", table = "SM_SEQUENCER", pkColumnName = "SEQ_NAME", valueColumnName = "SEQ_COUNT",
-		pkColumnValue = "ORDERACCOUNTPRODUCT_SEQ_NEXT_VAL")
+		pkColumnValue = "ORDERACCOUNTPRODUCT_SEQ_NEXT_VAL", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.TABLE, generator = "TABLE_GEN")
 	private Long orderAccountProductId;
 
