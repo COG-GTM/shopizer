@@ -70,24 +70,24 @@ public class CacheUtils {
 		  // Keys follow the pattern: <storeId>_<rest of the key>
 		  String storePrefix = String.valueOf(store.getId()) + KEY_DELIMITER;
 		  Object nativeCache = cache.getNativeCache();
-		  if (nativeCache instanceof java.util.concurrent.ConcurrentMap) {
+		  if (nativeCache instanceof javax.cache.Cache) {
+			  // JCache (JSR-107): iterate entries and remove matching keys
 			  @SuppressWarnings("unchecked")
-			  java.util.concurrent.ConcurrentMap<Object, Object> map = (java.util.concurrent.ConcurrentMap<Object, Object>) nativeCache;
-			  map.keySet().removeIf(key -> String.valueOf(key).startsWith(storePrefix));
-		  } else if (nativeCache instanceof org.ehcache.Cache) {
-			  // EHCache 3: iterate entries and remove matching keys
-			  @SuppressWarnings("unchecked")
-			  org.ehcache.Cache<Object, Object> ehCache = (org.ehcache.Cache<Object, Object>) nativeCache;
+			  javax.cache.Cache<Object, Object> jCache = (javax.cache.Cache<Object, Object>) nativeCache;
 			  java.util.List<Object> keysToRemove = new java.util.ArrayList<>();
-			  for (org.ehcache.Cache.Entry<Object, Object> entry : ehCache) {
+			  for (javax.cache.Cache.Entry<Object, Object> entry : jCache) {
 				  String sKey = String.valueOf(entry.getKey());
 				  if (sKey.startsWith(storePrefix)) {
 					  keysToRemove.add(entry.getKey());
 				  }
 			  }
 			  for (Object key : keysToRemove) {
-				  ehCache.remove(key);
+				  jCache.remove(key);
 			  }
+		  } else if (nativeCache instanceof java.util.concurrent.ConcurrentMap) {
+			  @SuppressWarnings("unchecked")
+			  java.util.concurrent.ConcurrentMap<Object, Object> map = (java.util.concurrent.ConcurrentMap<Object, Object>) nativeCache;
+			  map.keySet().removeIf(key -> String.valueOf(key).startsWith(storePrefix));
 		  } else {
 			  // Fallback: clear entire cache if native cache type is unknown
 			  LOGGER.warn("Cannot perform store-specific cache eviction, clearing entire cache");
