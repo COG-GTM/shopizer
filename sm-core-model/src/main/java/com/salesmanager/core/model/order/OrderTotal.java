@@ -14,6 +14,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.TableGenerator;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.salesmanager.core.constants.SchemaConstant;
@@ -44,6 +46,7 @@ public class OrderTotal extends SalesManagerEntity<Long, OrderTotal> {
 	private String title;
 	
 	@Column (name ="TEXT", nullable=true)
+	@JdbcTypeCode(SqlTypes.LONGVARCHAR)
 	private String text;
 	
 	@Column (name ="VALUE", precision=15, scale=4, nullable=false )
