@@ -66,9 +66,22 @@ public class CacheUtils {
 	}
 	
 	public void removeAllFromCache(MerchantStore store) throws Exception {
-		  // Spring Cache abstraction does not expose keys directly.
-		  // Clear the entire cache as a safe fallback.
-		  cache.clear();
+		  // Use native cache to iterate keys and evict only entries belonging to the given store.
+		  // Keys follow the pattern: <storeId>_<rest of the key>
+		  Object nativeCache = cache.getNativeCache();
+		  if (nativeCache instanceof java.util.concurrent.ConcurrentMap) {
+			  @SuppressWarnings("unchecked")
+			  java.util.concurrent.ConcurrentMap<Object, Object> map = (java.util.concurrent.ConcurrentMap<Object, Object>) nativeCache;
+			  String storePrefix = String.valueOf(store.getId()) + KEY_DELIMITER;
+			  map.keySet().removeIf(key -> {
+				  String sKey = String.valueOf(key);
+				  return sKey.startsWith(storePrefix);
+			  });
+		  } else {
+			  // Fallback: clear entire cache if native cache type is unknown
+			  LOGGER.warn("Cannot perform store-specific cache eviction, clearing entire cache");
+			  cache.clear();
+		  }
 	}
 	
 

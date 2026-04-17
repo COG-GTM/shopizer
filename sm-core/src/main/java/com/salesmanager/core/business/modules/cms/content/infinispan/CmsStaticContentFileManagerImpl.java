@@ -312,7 +312,7 @@ public class CmsStaticContentFileManagerImpl
 
 		try {
 
-			final String prefix = getRootName() + merchantStoreCode;
+			final String prefix = getRootName() + merchantStoreCode + "/";
 			cacheManager.getCache().keySet().removeIf(k -> k.startsWith(prefix));
 
 		} catch (final Exception e) {

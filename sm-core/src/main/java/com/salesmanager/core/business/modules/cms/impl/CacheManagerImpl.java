@@ -29,6 +29,11 @@ public abstract class CacheManagerImpl implements CacheManager {
       }
 
       Configuration config = new ConfigurationBuilder()
+               .persistence().passivation(false)
+               .addSoftIndexFileStore()
+               .dataLocation(location + "/data")
+               .indexLocation(location + "/index")
+               .preload(false).shared(false)
                .build();
 
       manager.getManager().defineConfiguration(namedCache, config);

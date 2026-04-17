@@ -225,7 +225,7 @@ public class CmsImageFileManagerImpl implements ProductAssetsManager {
     try {
 
 
-      final String prefix = getRootName() + merchantStoreCode;
+      final String prefix = getRootName() + merchantStoreCode + "/";
       cacheManager.getCache().keySet().removeIf(k -> k.startsWith(prefix));
 
 
@@ -279,7 +279,7 @@ public class CmsImageFileManagerImpl implements ProductAssetsManager {
     try {
 
 
-      String prefix = getRootName() + product.getMerchantStore().getCode() + "/" + product.getSku();
+      String prefix = getRootName() + product.getMerchantStore().getCode() + "/" + product.getSku() + "/";
       cacheManager.getCache().keySet().removeIf(k -> k.startsWith(prefix));
 
 
