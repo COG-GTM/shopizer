@@ -49,12 +49,28 @@ public class CacheUtils {
 		
 	}
 	
+	@SuppressWarnings("unchecked")
 	public List<String> getCacheKeys(MerchantStore store) throws Exception {
-		// TODO: ehcache direct API removed in Hibernate 6 / Spring Boot 3 migration.
-		// Spring Cache abstraction does not expose key listing.
-		// Implement with JCache (javax.cache.Cache) API if key enumeration is needed.
-		LOGGER.warn("getCacheKeys is not supported after ehcache -> jcache migration");
-		return new ArrayList<String>();
+		List<String> returnKeys = new ArrayList<String>();
+		Object nativeCache = cache.getNativeCache();
+		if (nativeCache instanceof javax.cache.Cache) {
+			javax.cache.Cache<Object, Object> jcache = (javax.cache.Cache<Object, Object>) nativeCache;
+			for (javax.cache.Cache.Entry<Object, Object> entry : jcache) {
+				try {
+					String sKey = (String) entry.getKey();
+					int delimiterPosition = sKey.indexOf(KEY_DELIMITER);
+					if (delimiterPosition > 0 && Character.isDigit(sKey.charAt(0))) {
+						String keyRemaining = sKey.substring(delimiterPosition + 1);
+						returnKeys.add(keyRemaining);
+					}
+				} catch (Exception e) {
+					LOGGER.error("key cannot be converted to a String or parsed", e);
+				}
+			}
+		} else {
+			LOGGER.warn("getCacheKeys: native cache is not JCache, cannot iterate keys");
+		}
+		return returnKeys;
 	}
 	
 	public void shutDownCache() throws Exception {
@@ -65,12 +81,30 @@ public class CacheUtils {
 		cache.evict(keyName);
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void removeAllFromCache(MerchantStore store) throws Exception {
-		// TODO: ehcache direct API removed in Hibernate 6 / Spring Boot 3 migration.
-		// Spring Cache abstraction does not expose key iteration for selective eviction.
-		// Using cache.clear() as a fallback; implement with JCache API if store-scoped eviction is needed.
-		LOGGER.warn("removeAllFromCache: clearing entire cache (ehcache key iteration no longer available)");
-		cache.clear();
+		Object nativeCache = cache.getNativeCache();
+		if (nativeCache instanceof javax.cache.Cache) {
+			javax.cache.Cache<Object, Object> jcache = (javax.cache.Cache<Object, Object>) nativeCache;
+			List<Object> keysToRemove = new ArrayList<>();
+			for (javax.cache.Cache.Entry<Object, Object> entry : jcache) {
+				try {
+					String sKey = (String) entry.getKey();
+					int delimiterPosition = sKey.indexOf(KEY_DELIMITER);
+					if (delimiterPosition > 0 && Character.isDigit(sKey.charAt(0))) {
+						keysToRemove.add(sKey);
+					}
+				} catch (Exception e) {
+					LOGGER.error("key cannot be converted to a String or parsed", e);
+				}
+			}
+			for (Object key : keysToRemove) {
+				cache.evict(key);
+			}
+		} else {
+			LOGGER.warn("removeAllFromCache: native cache is not JCache, clearing entire cache as fallback");
+			cache.clear();
+		}
 	}
 	
 
