@@ -103,6 +103,7 @@ public class MultipleEntryPointsSecurityConfig {
 	public AuthenticationManager customerAuthenticationManager() {
 		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
 		provider.setUserDetailsService(customerDetailsService);
+		provider.setPasswordEncoder(passwordEncoder());
 		return new ProviderManager(provider);
 	}
 
@@ -110,6 +111,7 @@ public class MultipleEntryPointsSecurityConfig {
 	public AuthenticationManager jwtAdminAuthenticationManager() {
 		DaoAuthenticationProvider daoProvider = new DaoAuthenticationProvider();
 		daoProvider.setUserDetailsService(jwtUserDetailsService);
+		daoProvider.setPasswordEncoder(passwordEncoder());
 		JWTAdminAuthenticationProvider jwtProvider = new JWTAdminAuthenticationProvider();
 		jwtProvider.setUserDetailsService(jwtUserDetailsService);
 		return new ProviderManager(daoProvider, jwtProvider);
@@ -119,6 +121,7 @@ public class MultipleEntryPointsSecurityConfig {
 	public AuthenticationManager jwtCustomerAuthenticationManager() {
 		DaoAuthenticationProvider daoProvider = new DaoAuthenticationProvider();
 		daoProvider.setUserDetailsService(jwtCustomerDetailsService);
+		daoProvider.setPasswordEncoder(passwordEncoder());
 		JWTCustomerAuthenticationProvider jwtProvider = new JWTCustomerAuthenticationProvider();
 		jwtProvider.setUserDetailsService(jwtCustomerDetailsService);
 		return new ProviderManager(daoProvider, jwtProvider);
