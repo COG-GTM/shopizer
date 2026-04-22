@@ -16,13 +16,11 @@ import com.salesmanager.shop.model.catalog.SearchProductRequest;
 import com.salesmanager.shop.model.entity.ValueList;
 import com.salesmanager.shop.store.controller.search.facade.SearchFacade;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.SwaggerDefinition;
-import io.swagger.annotations.Tag;
 import modules.commons.search.request.SearchItem;
-import springfox.documentation.annotations.ApiIgnore;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
 
 /**
  * Api for searching shopizer catalog based on search term when filtering products based on product
@@ -32,42 +30,38 @@ import springfox.documentation.annotations.ApiIgnore;
  */
 @RestController
 @RequestMapping("/api/v1")
-@Api(tags = {"Search products and search word/sentence completion functionality (Search Api)"})
-@SwaggerDefinition(tags = {
-    @Tag(name = "Search products resource", description = "Search products and search term completion functionality")
-})
+@Tag(name = "Search products and search word/sentence completion functionality (Search Api)")
 public class SearchApi {
 
   @Inject private SearchFacade searchFacade;
-
 
   /**
    * Search products from underlying elastic search
    */
   @PostMapping("/search")
-  @ApiImplicitParams({
-    @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-    @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en")
+  @Parameters({
+    @Parameter(name = "store", description = "Default: DEFAULT"),
+    @Parameter(name = "lang", description = "Default: en")
   })
   
   //TODO use total, count and page
   public @ResponseBody List<SearchItem> search(
       @RequestBody SearchProductRequest searchRequest,
-      @ApiIgnore MerchantStore merchantStore,
-      @ApiIgnore Language language) {
+      @Parameter(hidden = true) MerchantStore merchantStore,
+      @Parameter(hidden = true) Language language) {
 
     return searchFacade.search(merchantStore, language, searchRequest);
   }
 
   @PostMapping("/search/autocomplete")
-  @ApiImplicitParams({
-    @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-    @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en")
+  @Parameters({
+    @Parameter(name = "store", description = "Default: DEFAULT"),
+    @Parameter(name = "lang", description = "Default: en")
   })
   public @ResponseBody ValueList autocomplete(
       @RequestBody SearchProductRequest searchRequest,
-      @ApiIgnore MerchantStore merchantStore,
-      @ApiIgnore Language language) {
+      @Parameter(hidden = true) MerchantStore merchantStore,
+      @Parameter(hidden = true) Language language) {
     return searchFacade.autocompleteRequest(searchRequest.getQuery(), merchantStore, language);
   }
 }

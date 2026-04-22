@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.salesmanager.core.business.services.system.ModuleConfigurationService;
 import com.salesmanager.core.business.utils.ajax.AjaxResponse;
 
-
 /**
  * Rest services for the system configuration
  * @author Carl Samson
