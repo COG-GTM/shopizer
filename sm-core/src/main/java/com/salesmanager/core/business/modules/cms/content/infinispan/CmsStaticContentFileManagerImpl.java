@@ -247,6 +247,9 @@ public class CmsStaticContentFileManagerImpl
 			for (Map.Entry<String, Object> entry : cacheManager.getCache().entrySet()) {
 				if (entry.getKey().startsWith(keyPrefix)) {
 					byte[] imageBytes = (byte[]) entry.getValue();
+					if (imageBytes.length == 0) {
+						continue;
+					}
 					String fileName = entry.getKey().substring(entry.getKey().lastIndexOf(Constants.SLASH) + 1);
 
 					OutputContentFile contentImage = new OutputContentFile();
@@ -384,6 +387,10 @@ public class CmsStaticContentFileManagerImpl
 			List<String> fileNames = new ArrayList<String>();
 			for (String key : cacheManager.getCache().keySet()) {
 				if (key.startsWith(keyPrefix)) {
+					byte[] value = (byte[]) cacheManager.getCache().get(key);
+					if (value != null && value.length == 0) {
+						continue;
+					}
 					fileNames.add(key.substring(key.lastIndexOf(Constants.SLASH) + 1));
 				}
 			}
