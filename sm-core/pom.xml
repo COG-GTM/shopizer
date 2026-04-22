@@ -17,7 +17,7 @@
 	<properties>
 		<coverage.lines>.00</coverage.lines>
 		<coverage.branches>.00</coverage.branches>
-		<google-client-maps-services-version>0.1.6</google-client-maps-services-version>
+		<google-client-maps-services-version>2.2.0</google-client-maps-services-version>
 	</properties>
 
 	<dependencies>
@@ -28,10 +28,10 @@
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-ehcache -->
+		<!-- https://mvnrepository.com/artifact/org.hibernate.orm/hibernate-jcache -->
 		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-ehcache</artifactId>
+			<groupId>org.hibernate.orm</groupId>
+			<artifactId>hibernate-jcache</artifactId>
 		</dependency>
 
 		<!-- sm-core-model -->
@@ -114,11 +114,6 @@
 			<artifactId>drools-compiler</artifactId>
 		</dependency>
 
-		<!--spring integration -->
-		<dependency>
-			<groupId>org.kie</groupId>
-			<artifactId>kie-spring</artifactId>
-		</dependency>
 		<!-- end rules engine -->
 
 		<!-- Infinispan -->
@@ -127,10 +122,6 @@
 			<artifactId>infinispan-core</artifactId>
 		</dependency>
 
-		<dependency>
-			<groupId>org.infinispan</groupId>
-			<artifactId>infinispan-tree</artifactId>
-		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-collections4 -->
 		<dependency>
