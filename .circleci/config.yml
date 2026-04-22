@@ -25,7 +25,7 @@ jobs:
       - run:
           name: Build and test
           command: |
-            ./mvnw clean install -DskipTests
+            ./mvnw clean install
       - persist_to_workspace:
           root: .
           paths:
