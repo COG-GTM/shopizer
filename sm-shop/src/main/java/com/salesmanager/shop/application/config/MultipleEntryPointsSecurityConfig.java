@@ -7,7 +7,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -87,12 +87,11 @@ public class MultipleEntryPointsSecurityConfig {
 		@Autowired
 		private UserDetailsService customerDetailsService;
 
-		@Autowired
-		private AuthenticationConfiguration authenticationConfiguration;
-
 		@Bean("customerAuthenticationManager")
-		public AuthenticationManager customerAuthenticationManager() throws Exception {
-			return authenticationConfiguration.getAuthenticationManager();
+		public AuthenticationManager customerAuthenticationManager(HttpSecurity http) throws Exception {
+			AuthenticationManagerBuilder builder = http.getSharedObject(AuthenticationManagerBuilder.class);
+			builder.userDetailsService(customerDetailsService);
+			return builder.build();
 		}
 
 		@Bean
@@ -269,12 +268,13 @@ public class MultipleEntryPointsSecurityConfig {
 		@Autowired
 		JWTAdminServicesImpl jwtUserDetailsService;
 
-		@Autowired
-		private AuthenticationConfiguration authenticationConfiguration;
-
 		@Bean("jwtAdminAuthenticationManager")
-		public AuthenticationManager jwtAdminAuthenticationManager() throws Exception {
-			return authenticationConfiguration.getAuthenticationManager();
+		public AuthenticationManager jwtAdminAuthenticationManager(HttpSecurity http) throws Exception {
+			AuthenticationManagerBuilder builder = http.getSharedObject(AuthenticationManagerBuilder.class);
+			builder.userDetailsService(jwtUserDetailsService)
+				.and()
+				.authenticationProvider(authenticationProvider());
+			return builder.build();
 		}
 
 		@Bean
@@ -339,12 +339,11 @@ public class MultipleEntryPointsSecurityConfig {
 		@Autowired
 		private UserDetailsService jwtCustomerDetailsService;
 
-		@Autowired
-		private AuthenticationConfiguration authenticationConfiguration;
-
 		@Bean("jwtCustomerAuthenticationManager")
-		public AuthenticationManager jwtCustomerAuthenticationManager() throws Exception {
-			return authenticationConfiguration.getAuthenticationManager();
+		public AuthenticationManager jwtCustomerAuthenticationManager(HttpSecurity http) throws Exception {
+			AuthenticationManagerBuilder builder = http.getSharedObject(AuthenticationManagerBuilder.class);
+			builder.userDetailsService(jwtCustomerDetailsService);
+			return builder.build();
 		}
 
 		@Bean
