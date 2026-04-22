@@ -3,7 +3,7 @@ package com.salesmanager.core.model.catalog.marketplace;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.Embedded;
+import jakarta.persistence.Embedded;
 
 import com.salesmanager.core.model.catalog.catalog.Catalog;
 import com.salesmanager.core.model.common.audit.AuditSection;
