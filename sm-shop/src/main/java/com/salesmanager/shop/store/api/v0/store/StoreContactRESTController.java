@@ -1,6 +1,5 @@
 package com.salesmanager.shop.store.api.v0.store;
 
-
 import java.util.Locale;
 import java.util.Map;
 
@@ -32,7 +31,6 @@ import com.salesmanager.shop.constants.Constants;
 import com.salesmanager.shop.model.shop.ContactForm;
 import com.salesmanager.shop.utils.EmailTemplatesUtils;
 import com.salesmanager.shop.utils.LocaleUtils;
-
 
 /**
  * Rest services for sending contact

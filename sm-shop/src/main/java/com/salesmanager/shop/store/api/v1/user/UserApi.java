@@ -43,25 +43,18 @@ import com.salesmanager.shop.store.api.exception.ResourceNotFoundException;
 import com.salesmanager.shop.store.api.exception.UnauthorizedException;
 import com.salesmanager.shop.store.controller.user.facade.UserFacade;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import io.swagger.annotations.SwaggerDefinition;
-import io.swagger.annotations.Tag;
-import springfox.documentation.annotations.ApiIgnore;
-
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 /** Api for managing admin users */
 @RestController
 @RequestMapping(value = "/api/v1")
-@Api(tags = { "User management resource (User Management Api)" })
-@SwaggerDefinition(tags = { @Tag(name = "User management resource", description = "Manage administration users") })
+@Tag(name = "API")
 public class UserApi {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserApi.class);
-
 
 	@Inject
 	private UserFacade userFacade;
@@ -76,14 +69,12 @@ public class UserApi {
 	 */
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping({ "/private/users/{id}" })
-	@ApiOperation(httpMethod = "GET", value = "Get a specific user profile by user id", notes = "", produces = MediaType.APPLICATION_JSON_VALUE, response = ReadableUser.class)
+	@Operation(summary = "Get a specific user profile by user id")
 	@ApiResponses(value = {
-			@ApiResponse(code = 200, message = "Success", responseContainer = "User", response = ReadableUser.class),
-			@ApiResponse(code = 400, message = "Error while getting User"),
-			@ApiResponse(code = 401, message = "Login required") })
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "string", defaultValue = "en") })
-	public ReadableUser get(@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language, @PathVariable Long id,
+			@ApiResponse(responseCode = "200", description = "Success"),
+			@ApiResponse(responseCode = "400", description = "Error while getting User"),
+			@ApiResponse(responseCode = "401", description = "Login required") })
+	public ReadableUser get(@Parameter(hidden = true) MerchantStore merchantStore, @Parameter(hidden = true) Language language, @PathVariable Long id,
 			HttpServletRequest request) {
 
 		String authenticatedUser = userFacade.authenticatedUser();
@@ -105,12 +96,10 @@ public class UserApi {
 	 */
 	@ResponseStatus(HttpStatus.OK)
 	@PostMapping(value = { "/private/user/" }, produces = MediaType.APPLICATION_JSON_VALUE)
-	@ApiOperation(httpMethod = "POST", value = "Creates a new user", notes = "", response = ReadableUser.class)
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
+	@Operation(summary = "Creates a new user")
 	public ReadableUser create(
-			@ApiIgnore MerchantStore merchantStore, 
-			@ApiIgnore Language language,
+			@Parameter(hidden = true) MerchantStore merchantStore, 
+			@Parameter(hidden = true) Language language,
 			@Valid @RequestBody PersistableUser user, HttpServletRequest request) {
 		/** Must be superadmin or admin */
 		String authenticatedUser = userFacade.authenticatedUser();
@@ -133,11 +122,9 @@ public class UserApi {
 
 	@ResponseStatus(HttpStatus.OK)
 	@PutMapping(value = { "/private/user/{id}" }, produces = MediaType.APPLICATION_JSON_VALUE)
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
-	@ApiOperation(httpMethod = "PUT", value = "Updates a user", notes = "", response = ReadableUser.class)
+	@Operation(summary = "Updates a user")
 	public ReadableUser update(@Valid @RequestBody PersistableUser user, @PathVariable Long id,
-			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language
+			@Parameter(hidden = true) MerchantStore merchantStore, @Parameter(hidden = true) Language language
 
 	) {
 
@@ -153,7 +140,7 @@ public class UserApi {
 
 	@ResponseStatus(HttpStatus.OK)
 	@PatchMapping(value = { "/private/user/{id}/password" }, produces = MediaType.APPLICATION_JSON_VALUE)
-	@ApiOperation(httpMethod = "PATCH", value = "Updates a user password", notes = "", response = Void.class)
+	@Operation(summary = "Updates a user password")
 	public void password(@Valid @RequestBody UserPassword password, @PathVariable Long id) {
 
 		String authenticatedUser = userFacade.authenticatedUser();
@@ -165,13 +152,10 @@ public class UserApi {
 
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping(value = { "/private/users" }, produces = MediaType.APPLICATION_JSON_VALUE)
-	@ApiOperation(httpMethod = "GET", value = "Get list of user", notes = "", response = ReadableUserList.class)
-	@ApiImplicitParams({ 
-		@ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-		@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
+	@Operation(summary = "Get list of user")
 	public ReadableUserList list(
-			@ApiIgnore MerchantStore merchantStore, 
-			@ApiIgnore Language language,
+			@Parameter(hidden = true) MerchantStore merchantStore, 
+			@Parameter(hidden = true) Language language,
 			@RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
 			@RequestParam(value = "count", required = false, defaultValue = "20") Integer count,
 			@RequestParam(value = "emailAddress", required = false) String emailAddress) {
@@ -200,11 +184,10 @@ public class UserApi {
 	}
 	
 	@PatchMapping(value = "/private/user/{id}/enabled", produces = { APPLICATION_JSON_VALUE })
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT") })
 	public void updateEnabled(
 			@PathVariable Long id, 
 			@Valid @RequestBody PersistableUser user,
-			@ApiIgnore MerchantStore merchantStore
+			@Parameter(hidden = true) MerchantStore merchantStore
 			) {
 		
 		// superadmin, admin and retail_admin
@@ -221,10 +204,8 @@ public class UserApi {
 
 	@ResponseStatus(HttpStatus.OK)
 	@DeleteMapping(value = { "/private/user/{id}" })
-	@ApiOperation(httpMethod = "DELETE", value = "Deletes a user", notes = "", response = Void.class)
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "string", defaultValue = "en") })
-	public void delete(@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language, @PathVariable Long id,
+	@Operation(summary = "Deletes a user")
+	public void delete(@Parameter(hidden = true) MerchantStore merchantStore, @Parameter(hidden = true) Language language, @PathVariable Long id,
 			HttpServletRequest request) {
 
 		/** Must be superadmin or admin */
@@ -244,8 +225,8 @@ public class UserApi {
 
 	@ResponseStatus(HttpStatus.OK)
 	@PostMapping(value = { "/private/user/unique" }, produces = MediaType.APPLICATION_JSON_VALUE)
-	@ApiOperation(httpMethod = "POST", value = "Check if username already exists", notes = "", response = EntityExists.class)
-	public ResponseEntity<EntityExists> exists(@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language,
+	@Operation(summary = "Check if username already exists")
+	public ResponseEntity<EntityExists> exists(@Parameter(hidden = true) MerchantStore merchantStore, @Parameter(hidden = true) Language language,
 			@RequestBody UniqueEntity userName) {
 
 		boolean isUserExist = true;// default user exist
@@ -268,8 +249,7 @@ public class UserApi {
 	 * @return
 	 */
 	@GetMapping("/private/user/profile")
-	@ApiImplicitParams({ @ApiImplicitParam(name = "lang", dataType = "string", defaultValue = "en") })
-	public ReadableUser getAuthUser(@ApiIgnore Language language, HttpServletRequest request) {
+	public ReadableUser getAuthUser(@Parameter(hidden = true) Language language, HttpServletRequest request) {
 		Principal principal = request.getUserPrincipal();
 		String userName = principal.getName();
 		ReadableUser user = userFacade.findByUserName(userName, null, language);

@@ -1,6 +1,5 @@
 package com.salesmanager.shop.store.api.v0.system;
 
-
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.salesmanager.core.business.services.system.ModuleConfigurationService;
 import com.salesmanager.core.business.utils.ajax.AjaxResponse;
-
 
 /**
  * Rest services for the system configuration

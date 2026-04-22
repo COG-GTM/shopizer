@@ -12,11 +12,9 @@ import com.salesmanager.shop.model.system.Configs;
 import com.salesmanager.shop.store.controller.store.facade.StoreFacade;
 import com.salesmanager.shop.store.controller.system.MerchantConfigurationFacade;
 import com.salesmanager.shop.utils.LanguageUtils;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-import springfox.documentation.annotations.ApiIgnore;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 @RestController
 @RequestMapping("/api/v1")
 public class PublicConfigsApi {
@@ -35,17 +33,8 @@ public class PublicConfigsApi {
    * @return
    */
   @GetMapping("/config")
-  @ApiOperation(
-      httpMethod = "GET",
-      value = "Get public configuration for a given merchant store",
-      notes = "",
-      produces = "application/json",
-      response = Configs.class)
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-      @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en")
-  })
-  public Configs getConfig(@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) {
+  @Operation(summary = "Get public configuration for a given merchant store")
+    public Configs getConfig(@Parameter(hidden = true) MerchantStore merchantStore, @Parameter(hidden = true) Language language) {
     return configurationFacade.getMerchantConfig(merchantStore, language);
   }
 }

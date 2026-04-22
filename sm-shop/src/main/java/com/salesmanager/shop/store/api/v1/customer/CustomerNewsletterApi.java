@@ -21,15 +21,9 @@ import com.salesmanager.shop.model.customer.PersistableCustomer;
 import com.salesmanager.shop.model.customer.optin.PersistableCustomerOptin;
 import com.salesmanager.shop.store.controller.customer.facade.CustomerFacade;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.SwaggerDefinition;
-import io.swagger.annotations.Tag;
-import springfox.documentation.annotations.ApiIgnore;
-
-
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 /**
  * Optin a customer to newsletter
  * @author carlsamson
@@ -37,39 +31,24 @@ import springfox.documentation.annotations.ApiIgnore;
  */
 @RestController
 @RequestMapping(value = "/api/v1", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-@Api(tags = { "Optin Customer to newsletter" })
-@SwaggerDefinition(tags = { @Tag(name = "Manage customer subscription to newsletter", description = "Manage customer subscription to newsletter") })
+@Tag(name = "Optin Customer to newsletter")
 public class CustomerNewsletterApi {
 
 	@Inject
 	private CustomerFacade customerFacade;
 
-
   /** Create new optin */
   @PostMapping("/newsletter")
-  @ApiOperation(
-      httpMethod = "POST",
-      value = "Creates a newsletter optin",
-      notes = "",
-      produces = "application/json")
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT"),
-      @ApiImplicitParam(name = "lang", dataType = "string", defaultValue = "en")
-  })
-  public void create(
+  @Operation(summary = "Creates a newsletter optin")
+    public void create(
       @Valid @RequestBody PersistableCustomerOptin optin,
-      @ApiIgnore MerchantStore merchantStore,
-      @ApiIgnore Language language) {
+      @Parameter(hidden = true) MerchantStore merchantStore,
+      @Parameter(hidden = true) Language language) {
 		customerFacade.optinCustomer(optin, merchantStore);
 	}
 
   @PutMapping("/newsletter/{email}")
-  @ApiOperation(
-      httpMethod = "PUT",
-      value = "Updates a customer",
-      notes = "Requires administration access",
-      produces = "application/json",
-      response = PersistableCustomer.class)
+  @Operation(summary = "Updates a customer")
   public void update(
       @PathVariable String email,
       @Valid @RequestBody PersistableCustomer customer,
@@ -79,11 +58,7 @@ public class CustomerNewsletterApi {
   }
 
   @DeleteMapping("/newsletter/{email}")
-  @ApiOperation(
-      httpMethod = "DELETE",
-      value = "Deletes a customer",
-      notes = "Requires administration access",
-      response = Void.class)
+  @Operation(summary = "Deletes a customer")
   public ResponseEntity<Void> delete(
       @PathVariable String email, HttpServletRequest request, HttpServletResponse response) {
     throw new UnsupportedOperationException();

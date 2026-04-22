@@ -24,11 +24,8 @@ import com.salesmanager.shop.store.api.exception.UnauthorizedException;
 import com.salesmanager.shop.store.controller.search.facade.SearchFacade;
 import com.salesmanager.shop.store.controller.user.facade.UserFacade;
 
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-import springfox.documentation.annotations.ApiIgnore;
-
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 /**
  * Searching and indexing products
  * 
@@ -49,10 +46,8 @@ public class SearchToolsApi {
 	private UserFacade userFacade;
 
 	@PostMapping("/private/system/search/index")
-	@ApiOperation(httpMethod = "POST", value = "Indexes all products", notes = "", produces = "application/json")
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
-	public ResponseEntity<Void> contact(@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language, HttpServletRequest request) {
+	@Operation(summary = "Indexes all products")
+	public ResponseEntity<Void> contact(@Parameter(hidden = true) MerchantStore merchantStore, @Parameter(hidden = true) Language language, HttpServletRequest request) {
 
 		// superadmin, admin and admin_catalogue
 		String authenticatedUser = userFacade.authenticatedUser();

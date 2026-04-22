@@ -26,16 +26,11 @@ import com.salesmanager.shop.model.shipping.ExpeditionConfiguration;
 import com.salesmanager.shop.store.controller.shipping.facade.ShippingFacade;
 import com.salesmanager.shop.utils.AuthorizationUtils;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.SwaggerDefinition;
-import io.swagger.annotations.Tag;
-import springfox.documentation.annotations.ApiIgnore;
-
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Parameter;
 @RestController
 @RequestMapping("/api/v1")
-@Api(tags = { "Shipping - Expedition management resource (Shipping Management Api) - ship to country" })
-@SwaggerDefinition(tags = { @Tag(name = "Shipping - Expedition management resource", description = "Manage shipping expedition") })
+@Tag(name = "Shipping expedition - ship to country")
 public class ShippingExpeditionApi {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(ShippingExpeditionApi.class);
@@ -50,9 +45,8 @@ public class ShippingExpeditionApi {
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
 	public ExpeditionConfiguration expedition(
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
-
+			@Parameter(hidden = true) MerchantStore merchantStore,
+			@Parameter(hidden = true) Language language) {
 
 		String user = authorizationUtils.authenticatedUser();
 		authorizationUtils.authorizeUser(user, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN,
@@ -65,8 +59,8 @@ public class ShippingExpeditionApi {
 	 @GetMapping("/shipping/country")
 	  public List<ReadableCountry> 
 	 	getCountry(
-				@ApiIgnore MerchantStore merchantStore,
-				@ApiIgnore Language language) {
+				@Parameter(hidden = true) MerchantStore merchantStore,
+				@Parameter(hidden = true) Language language) {
 	    return shippingFacade.shipToCountry(merchantStore, language);
 	  }
 	
@@ -76,9 +70,8 @@ public class ShippingExpeditionApi {
 	@ResponseBody
 	public void saveExpedition(
 			@RequestBody ExpeditionConfiguration expedition,
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
-
+			@Parameter(hidden = true) MerchantStore merchantStore,
+			@Parameter(hidden = true) Language language) {
 
 		String user = authorizationUtils.authenticatedUser();
 		authorizationUtils.authorizeUser(user, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN,
