@@ -28,10 +28,10 @@
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-ehcache -->
+		<!-- JCache support for Hibernate 6.x (replaces hibernate-ehcache) -->
 		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-ehcache</artifactId>
+			<groupId>org.hibernate.orm</groupId>
+			<artifactId>hibernate-jcache</artifactId>
 		</dependency>
 
 		<!-- sm-core-model -->
