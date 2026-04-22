@@ -20,7 +20,7 @@ public class DocumentationConfiguration {
 				.info(new Info()
 						.title("Shopizer")
 						.description("Shopizer REST API")
-						.version("3.2.7")
+						.version("3.2.5")
 						.contact(new Contact()
 								.name("Shopizer")
 								.url("https://www.shopizer.com"))
