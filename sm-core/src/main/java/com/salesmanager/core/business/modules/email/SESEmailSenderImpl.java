@@ -2,7 +2,7 @@ package com.salesmanager.core.business.modules.email;
 
 import java.io.StringWriter;
 import jakarta.inject.Inject;
-import org.jsoup.helper.Validate;
+import org.apache.commons.lang3.Validate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailPreparationException;
 import org.springframework.stereotype.Component;

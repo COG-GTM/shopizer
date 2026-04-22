@@ -171,8 +171,7 @@ public class ProductApiV2 {
 	 */
 	@RequestMapping(value = { "/product/name/{friendlyUrl}",
 			"/product/friendly/{friendlyUrl}" }, method = RequestMethod.GET)
-	@Operation(summary = "") version 2", notes = "For shop purpose. Specifying ?merchant is "
-			+ "required otherwise it falls back to DEFAULT")
+	@Operation(summary = "Get a product by friendly URL version 2")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Single product found") })
 	@ResponseBody

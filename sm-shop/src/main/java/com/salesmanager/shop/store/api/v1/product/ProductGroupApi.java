@@ -27,8 +27,6 @@ import com.salesmanager.shop.model.catalog.product.ReadableProductList;
 import com.salesmanager.shop.model.catalog.product.group.ProductGroup;
 import com.salesmanager.shop.store.controller.items.facade.ProductItemsFacade;
 
-import antlr.collections.List;
-
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

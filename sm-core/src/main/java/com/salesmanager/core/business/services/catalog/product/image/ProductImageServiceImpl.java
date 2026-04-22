@@ -8,7 +8,7 @@ import java.util.Optional;
 import jakarta.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jsoup.helper.Validate;
+import org.apache.commons.lang3.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -58,7 +58,7 @@ public class ProductImageServiceImpl extends SalesManagerEntityServiceImpl<Long,
 		try {
 			for (ProductImage productImage : productImages) {
 
-				Assert.notNull(productImage.getImage());
+				Assert.notNull(productImage.getImage(), "ProductImage.image cannot be null");
 
 				InputStream inputStream = productImage.getImage();
 				ImageContentFile cmsContentImage = new ImageContentFile();

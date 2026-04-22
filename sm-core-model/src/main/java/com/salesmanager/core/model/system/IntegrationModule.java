@@ -18,8 +18,6 @@ import jakarta.persistence.Table;
 import jakarta.persistence.TableGenerator;
 import jakarta.persistence.Transient;
 
-import org.hibernate.annotations.Type;
-
 import com.salesmanager.core.model.common.audit.AuditListener;
 import com.salesmanager.core.model.common.audit.AuditSection;
 import com.salesmanager.core.model.common.audit.Auditable;
@@ -55,8 +53,7 @@ public class IntegrationModule extends SalesManagerEntity<Long, IntegrationModul
 	@Column(name = "CONFIGURATION", length=4000)
 	private String configuration;
 
-	@Column(name = "DETAILS")
-	@Type(type = "org.hibernate.type.TextType")
+	@Column(name = "DETAILS", columnDefinition = "TEXT")
 	private String configDetails;
 
 	@Column(name = "TYPE")

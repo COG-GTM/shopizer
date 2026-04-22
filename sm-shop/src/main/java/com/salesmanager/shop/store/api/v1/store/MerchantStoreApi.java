@@ -97,7 +97,7 @@ public class MerchantStoreApi {
 	}
 
 	@GetMapping(value = { "/private/merchant/{code}/stores" }, produces = MediaType.APPLICATION_JSON_VALUE)
-	@Operation(summary = "Get retailer child stores") can have multiple stores", response = ReadableMerchantStore.class)
+	@Operation(summary = "Get retailer child stores")
 	@Parameters({ @Parameter(name = "lang", description = "Default: en") })
 	public ReadableMerchantStoreList list(@PathVariable String code, @Parameter(hidden = true) Language language,
 			@RequestParam(value = "page", required = false, defaultValue = "0") Integer page,

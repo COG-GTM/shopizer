@@ -197,7 +197,7 @@ public class ShoppingCartServiceImpl extends SalesManagerEntityServiceImpl<Long,
 				return shoppingCart;
 			}
 
-		} catch (javax.persistence.NoResultException nre) {
+		} catch (jakarta.persistence.NoResultException nre) {
 			return null;
 		} catch (Throwable e) {
 			throw new ServiceException(e);

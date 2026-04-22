@@ -7,7 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import jakarta.inject.Inject;
 
-import org.jsoup.helper.Validate;
+import org.apache.commons.lang3.Validate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.salesmanager.core.business.exception.ServiceException;

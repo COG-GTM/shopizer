@@ -15,8 +15,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.validation.constraints.NotEmpty;
 
-import org.hibernate.annotations.Type;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.salesmanager.core.model.common.audit.AuditListener;
 import com.salesmanager.core.model.common.audit.AuditSection;
@@ -49,8 +47,7 @@ public class Description implements Auditable, Serializable {
 	@Column(name="TITLE", length=100)
 	private String title;
 	
-	@Column(name="DESCRIPTION")
-	@Type(type = "org.hibernate.type.TextType")
+	@Column(name="DESCRIPTION", columnDefinition = "TEXT")
 	private String description;
 	
 	public Description() {

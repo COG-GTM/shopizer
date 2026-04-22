@@ -16,7 +16,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.TableGenerator;
 import jakarta.persistence.UniqueConstraint;
-import org.hibernate.annotations.Type;
 import com.salesmanager.core.constants.SchemaConstant;
 import com.salesmanager.core.model.common.audit.AuditListener;
 import com.salesmanager.core.model.common.audit.AuditSection;
@@ -66,8 +65,7 @@ public class MerchantConfiguration extends SalesManagerEntity<Long, MerchantConf
   private Boolean active = new Boolean(false);
 
 
-  @Column(name = "VALUE")
-  @Type(type = "org.hibernate.type.TextType")
+  @Column(name = "VALUE", columnDefinition = "TEXT")
   private String value;
 
   @Column(name = "TYPE")

@@ -327,7 +327,7 @@ public class ContentApi {
 
 	@Deprecated
 	@GetMapping(value = "/private/contents/any", produces = MediaType.APPLICATION_JSON_VALUE)
-	@Operation(summary = "") for a given MerchantStore", notes = "", produces = "application/json", response = ReadableContentPage.class)
+	@Operation(summary = "Get contents for a given MerchantStore")
 	@Parameters({ @Parameter(name = "store", description = "Default: DEFAULT"),
 			@Parameter(name = "lang", description = "Default: en") })
 	public List<ReadableContentEntity> contents(@Parameter(hidden = true) MerchantStore merchantStore, @Parameter(hidden = true) Language language) {

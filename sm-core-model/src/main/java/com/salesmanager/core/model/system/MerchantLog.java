@@ -14,8 +14,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.TableGenerator;
 
-import org.hibernate.annotations.Type;
-
 import com.salesmanager.core.constants.SchemaConstant;
 import com.salesmanager.core.model.common.audit.AuditListener;
 import com.salesmanager.core.model.generic.SalesManagerEntity;
@@ -47,8 +45,7 @@ public class MerchantLog extends SalesManagerEntity<Long, MerchantLog> implement
 	private String module;
 	
 
-	@Column(name="LOG")
-	@Type(type = "org.hibernate.type.TextType")
+	@Column(name="LOG", columnDefinition = "TEXT")
 	private String log;
 	
 	public MerchantLog(MerchantStore store, String log) {
