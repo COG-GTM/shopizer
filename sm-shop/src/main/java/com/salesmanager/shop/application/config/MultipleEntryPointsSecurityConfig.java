@@ -167,6 +167,9 @@ public class MultipleEntryPointsSecurityConfig {
 		@Bean
 		@Order(2)
 		public SecurityFilterChain servicesFilterChain(HttpSecurity http) throws Exception {
+			AuthenticationManagerBuilder builder = http.getSharedObject(AuthenticationManagerBuilder.class);
+			builder.userDetailsService(userDetailsService);
+
 			http
 			.antMatcher("/services/**")
 			.csrf().disable()
