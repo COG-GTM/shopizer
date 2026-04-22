@@ -388,7 +388,7 @@ public class CmsStaticContentFileManagerImpl
 			for (String key : cacheManager.getCache().keySet()) {
 				if (key.startsWith(keyPrefix)) {
 					byte[] value = (byte[]) cacheManager.getCache().get(key);
-					if (value != null && value.length == 0) {
+					if (value == null || value.length == 0) {
 						continue;
 					}
 					fileNames.add(key.substring(key.lastIndexOf(Constants.SLASH) + 1));
