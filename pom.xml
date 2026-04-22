@@ -72,9 +72,6 @@
 		<jwt.version>0.8.0</jwt.version>
 
 
-		<!-- api documentation -->
-		<swagger.version>2.9.2</swagger.version>
-
 		<!-- jacoco coverage -->
 		<coverage.lines>.30</coverage.lines>
 		<coverage.branches>.37</coverage.branches>
@@ -347,18 +344,6 @@
 				<groupId>commons-fileupload</groupId>
 				<artifactId>commons-fileupload</artifactId>
 				<version>${commons-fileupload}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>io.springfox</groupId>
-				<artifactId>springfox-swagger2</artifactId>
-				<version>${swagger.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>io.springfox</groupId>
-				<artifactId>springfox-swagger-ui</artifactId>
-				<version>${swagger.version}</version>
 			</dependency>
 
 			<dependency>
