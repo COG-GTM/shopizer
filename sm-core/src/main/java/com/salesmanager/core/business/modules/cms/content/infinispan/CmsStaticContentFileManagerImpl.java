@@ -419,19 +419,31 @@ public class CmsStaticContentFileManagerImpl
 	@Override
 	public void addFolder(String merchantStoreCode, String folderName, Optional<String> path) throws ServiceException {
 
-		String nodePath = this.getNodePath(merchantStoreCode, FileContentType.IMAGE);
-
-		StringBuilder appender = new StringBuilder();
-		appender.append(nodePath);
-
-		if (path.isPresent()) {
-			appender.append(Constants.SLASH).append(path.get());
+		if (cacheManager.getCache() == null) {
+			LOGGER.error("Unable to find cacheManager.getCache() in Infinispan..");
+			throw new ServiceException(
+					"CmsStaticContentFileManagerInfinispanImpl has a null cacheManager.getCache()");
 		}
 
-		appender.append(Constants.SLASH).append(folderName);
+		try {
+			String nodePath = this.getNodePath(merchantStoreCode, FileContentType.IMAGE);
 
-		String folderKey = getRootName() + appender.toString();
-		cacheManager.getCache().putIfAbsent(folderKey, new byte[0]);
+			StringBuilder appender = new StringBuilder();
+			appender.append(nodePath);
+
+			if (path.isPresent()) {
+				appender.append(Constants.SLASH).append(path.get());
+			}
+
+			appender.append(Constants.SLASH).append(folderName);
+
+			String folderKey = getRootName() + appender.toString();
+			cacheManager.getCache().putIfAbsent(folderKey, new byte[0]);
+
+		} catch (final Exception e) {
+			LOGGER.error("Error while adding folder for {} merchant ", merchantStoreCode);
+			throw new ServiceException(e);
+		}
 
 	}
 
