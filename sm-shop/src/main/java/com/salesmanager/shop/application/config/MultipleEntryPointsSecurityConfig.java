@@ -314,7 +314,7 @@ public class MultipleEntryPointsSecurityConfig {
 		
 		@Override
 		public void configure(WebSecurity web) {
-			web.ignoring().antMatchers("/swagger-ui.html");
+			web.ignoring().antMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**");
 		}
 
 		
