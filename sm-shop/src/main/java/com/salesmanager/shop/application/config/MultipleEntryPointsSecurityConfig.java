@@ -9,9 +9,9 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -82,38 +82,35 @@ public class MultipleEntryPointsSecurityConfig {
 	 */
 	@Configuration
 	@Order(1)
-	public static class CustomerConfigurationAdapter extends WebSecurityConfigurerAdapter {
-
-		@Bean("customerAuthenticationManager")
-		@Override
-		public AuthenticationManager authenticationManagerBean() throws Exception {
-			return super.authenticationManagerBean();
-		}
+	public static class CustomerConfigurationAdapter {
 
 		@Autowired
 		private UserDetailsService customerDetailsService;
 
-		public CustomerConfigurationAdapter() {
-			super();
-		}
-		
-		@Override
-		public void configure(WebSecurity web) {
-			web.ignoring().antMatchers("/");
-			web.ignoring().antMatchers("/error");
-			web.ignoring().antMatchers("/resources/**");
-			web.ignoring().antMatchers("/static/**");
-			web.ignoring().antMatchers("/services/public/**");
+		@Bean("customerAuthenticationManager")
+		public AuthenticationManager customerAuthenticationManager(HttpSecurity http) throws Exception {
+			AuthenticationManagerBuilder builder = http.getSharedObject(AuthenticationManagerBuilder.class);
+			builder.userDetailsService(customerDetailsService);
+			return builder.build();
 		}
 
-
-		@Override
-		public void configure(AuthenticationManagerBuilder auth) throws Exception {
-			auth.userDetailsService(customerDetailsService);
+		@Bean
+		public WebSecurityCustomizer customerWebSecurityCustomizer() {
+			return (web) -> {
+				web.ignoring().antMatchers("/");
+				web.ignoring().antMatchers("/error");
+				web.ignoring().antMatchers("/resources/**");
+				web.ignoring().antMatchers("/static/**");
+				web.ignoring().antMatchers("/services/public/**");
+			};
 		}
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		@Order(1)
+		public SecurityFilterChain customerFilterChain(HttpSecurity http) throws Exception {
+			AuthenticationManagerBuilder builder = http.getSharedObject(AuthenticationManagerBuilder.class);
+			builder.userDetailsService(customerDetailsService);
+
 			http
 			.antMatcher("/shop/**")
 			.csrf().disable()			
@@ -141,6 +138,7 @@ public class MultipleEntryPointsSecurityConfig {
 					.and()
 					.exceptionHandling().accessDeniedPage("/shop/");
 
+			return http.build();
 		}
 
 		@Bean
@@ -161,7 +159,7 @@ public class MultipleEntryPointsSecurityConfig {
 	 */
 	@Configuration
 	@Order(2)
-	public static class ServicesApiConfigurationAdapter extends WebSecurityConfigurerAdapter {
+	public static class ServicesApiConfigurationAdapter {
 
 		@Autowired
 		private WebUserServices userDetailsService;
@@ -169,17 +167,12 @@ public class MultipleEntryPointsSecurityConfig {
 		@Autowired
 		private ServicesAuthenticationSuccessHandler servicesAuthenticationSuccessHandler;
 
-		public ServicesApiConfigurationAdapter() {
-			super();
-		}
+		@Bean
+		@Order(2)
+		public SecurityFilterChain servicesFilterChain(HttpSecurity http) throws Exception {
+			AuthenticationManagerBuilder builder = http.getSharedObject(AuthenticationManagerBuilder.class);
+			builder.userDetailsService(userDetailsService);
 
-		@Override
-		public void configure(AuthenticationManagerBuilder auth) throws Exception {
-			auth.userDetailsService(userDetailsService);
-		}
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
 			http
 			.antMatcher("/services/**")
 			.csrf().disable()
@@ -191,6 +184,7 @@ public class MultipleEntryPointsSecurityConfig {
 					.and().formLogin()
 					.successHandler(servicesAuthenticationSuccessHandler);
 
+			return http.build();
 		}
 
 		@Bean
@@ -208,10 +202,10 @@ public class MultipleEntryPointsSecurityConfig {
 	 * @author dur9213
 	 *
 	 */
-	/**
+	/*
 	@Configuration
 	@Order(3)
-	public static class AdminConfigurationAdapter extends WebSecurityConfigurerAdapter {
+	public static class AdminConfigurationAdapter {
 
 		@Autowired
 		private WebUserServices userDetailsService;
@@ -219,21 +213,9 @@ public class MultipleEntryPointsSecurityConfig {
 		@Autowired
 		private UserAuthenticationSuccessHandler userAuthenticationSuccessHandler;
 
-		public AdminConfigurationAdapter() {
-			super();
-		}
-
-		@Override
-		public void configure(AuthenticationManagerBuilder auth) throws Exception {
-			auth.userDetailsService(userDetailsService);
-		}
-		
-		@Override
-		public void configure(WebSecurity web) {
-		}
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		@Order(3)
+		public SecurityFilterChain adminFilterChain(HttpSecurity http) throws Exception {
 			http
 			.antMatcher("/admin/**")
 					.authorizeRequests()
@@ -262,8 +244,8 @@ public class MultipleEntryPointsSecurityConfig {
 					.csrf().disable()
 					.logout().logoutUrl("/admin/logout").logoutSuccessUrl("/admin/home.html")
 					.invalidateHttpSession(true).and().exceptionHandling().accessDeniedPage("/admin/denied.html");
-			
 
+			return http.build();
 		}
 
 		@Bean
@@ -274,7 +256,7 @@ public class MultipleEntryPointsSecurityConfig {
 		}
 
 	}
-	**/
+	*/
 
 	/**
 	 * api - private
@@ -284,7 +266,7 @@ public class MultipleEntryPointsSecurityConfig {
 	 */
 	@Configuration
 	@Order(5)
-	public static class UserApiConfigurationAdapter extends WebSecurityConfigurerAdapter {
+	public static class UserApiConfigurationAdapter {
 
 		@Autowired
 		private AuthenticationTokenFilter authenticationTokenFilter;
@@ -293,36 +275,30 @@ public class MultipleEntryPointsSecurityConfig {
 		JWTAdminServicesImpl jwtUserDetailsService;
 
 		@Bean("jwtAdminAuthenticationManager")
-		@Override
-		public AuthenticationManager authenticationManagerBean() throws Exception {
-			AuthenticationManager mgr = super.authenticationManagerBean();
-			return mgr;
-		}
-		
-		
-
-		public UserApiConfigurationAdapter() {
-			super();
+		public AuthenticationManager jwtAdminAuthenticationManager(HttpSecurity http) throws Exception {
+			AuthenticationManagerBuilder builder = http.getSharedObject(AuthenticationManagerBuilder.class);
+			builder.userDetailsService(jwtUserDetailsService)
+				.and()
+				.authenticationProvider(authenticationProvider());
+			return builder.build();
 		}
 
-		@Override
-		public void configure(AuthenticationManagerBuilder auth) throws Exception {
-		       auth.userDetailsService(jwtUserDetailsService)
-	            .and()
-	            .authenticationProvider(authenticationProvider());
-		}
-		
-		@Override
-		public void configure(WebSecurity web) {
-			web.ignoring().antMatchers("/swagger-ui.html");
+		@Bean
+		public WebSecurityCustomizer adminApiWebSecurityCustomizer() {
+			return (web) -> web.ignoring().antMatchers("/swagger-ui.html");
 		}
 
-		
 		/**
 		 * Admin user api
 		 */
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		@Order(5)
+		public SecurityFilterChain adminApiFilterChain(HttpSecurity http) throws Exception {
+			AuthenticationManagerBuilder amBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
+			amBuilder.userDetailsService(jwtUserDetailsService)
+				.and()
+				.authenticationProvider(authenticationProvider());
+
 			http
 					.antMatcher(API_VERSION + "/private/**")
 					.authorizeRequests()
@@ -337,6 +313,7 @@ public class MultipleEntryPointsSecurityConfig {
 					.addFilterAfter(authenticationTokenFilter, BasicAuthenticationFilter.class)
 					.csrf().disable();
 
+			return http.build();
 		}
 		
 	    @Bean
@@ -365,7 +342,7 @@ public class MultipleEntryPointsSecurityConfig {
 	 */
 	@Configuration
 	@Order(6)
-	public static class CustomeApiConfigurationAdapter extends WebSecurityConfigurerAdapter {
+	public static class CustomeApiConfigurationAdapter {
 
 		@Autowired
 		private AuthenticationTokenFilter authenticationTokenFilter;
@@ -373,23 +350,19 @@ public class MultipleEntryPointsSecurityConfig {
 		@Autowired
 		private UserDetailsService jwtCustomerDetailsService;
 
-		public CustomeApiConfigurationAdapter() {
-			super();
-		}
-		
 		@Bean("jwtCustomerAuthenticationManager")
-		@Override
-		public AuthenticationManager authenticationManagerBean() throws Exception {
-			return super.authenticationManagerBean();
+		public AuthenticationManager jwtCustomerAuthenticationManager(HttpSecurity http) throws Exception {
+			AuthenticationManagerBuilder builder = http.getSharedObject(AuthenticationManagerBuilder.class);
+			builder.userDetailsService(jwtCustomerDetailsService);
+			return builder.build();
 		}
 
-		@Override
-		public void configure(AuthenticationManagerBuilder auth) throws Exception {
-			auth.userDetailsService(jwtCustomerDetailsService);
-		}
+		@Bean
+		@Order(6)
+		public SecurityFilterChain customerApiFilterChain(HttpSecurity http) throws Exception {
+			AuthenticationManagerBuilder amBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
+			amBuilder.userDetailsService(jwtCustomerDetailsService);
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
 			http
 			
 				.antMatcher(API_VERSION + "/auth/**")
@@ -405,10 +378,11 @@ public class MultipleEntryPointsSecurityConfig {
 					.authenticationEntryPoint(apiCustomerAuthenticationEntryPoint()).and().csrf().disable()
 					.addFilterAfter(authenticationTokenFilter, BasicAuthenticationFilter.class);
 
+			return http.build();
 		}
 		
 	    @Bean
-	    public AuthenticationProvider authenticationProvider() {
+	    public AuthenticationProvider customerAuthenticationProvider() {
 	    	JWTCustomerAuthenticationProvider provider = new JWTCustomerAuthenticationProvider();
 	        provider.setUserDetailsService(jwtCustomerDetailsService);
 	        return provider;
