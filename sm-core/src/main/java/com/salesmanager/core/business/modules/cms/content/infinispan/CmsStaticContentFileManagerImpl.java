@@ -415,9 +415,11 @@ public class CmsStaticContentFileManagerImpl
 		String nodePath = this.getNodePath(merchantStoreCode, FileContentType.IMAGE);
 
 		StringBuilder appender = new StringBuilder();
-		appender.append(nodePath).append(Constants.SLASH);
+		appender.append(nodePath);
 
-		path.ifPresent(appender::append);
+		if (path.isPresent()) {
+			appender.append(Constants.SLASH).append(path.get());
+		}
 
 		appender.append(Constants.SLASH).append(folderName);
 
