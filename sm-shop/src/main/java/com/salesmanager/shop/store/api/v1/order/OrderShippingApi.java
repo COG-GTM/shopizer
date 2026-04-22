@@ -45,7 +45,6 @@ import io.swagger.v3.oas.annotations.Parameters;
 @Controller
 @RequestMapping("/api/v1")
 @Tag(name = "Shipping Quotes and Calculation resource (Shipping Api)")
-})
 public class OrderShippingApi {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OrderShippingApi.class);

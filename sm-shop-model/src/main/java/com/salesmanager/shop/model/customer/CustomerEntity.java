@@ -40,7 +40,7 @@ public class CustomerEntity extends Customer implements Serializable {
 	
 	private String storeCode;
 	
-	//@Schema(description = "")")
+	//@Schema(description = "Username (use email address)")
 	//@NotEmpty(message="{NotEmpty.customer.userName}")
 	//can be email or anything else
 	private String userName;

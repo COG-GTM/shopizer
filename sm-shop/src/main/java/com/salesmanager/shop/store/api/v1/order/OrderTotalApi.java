@@ -39,7 +39,6 @@ import io.swagger.v3.oas.annotations.Parameters;
 @Controller
 @RequestMapping("/api/v1")
 @Tag(name = "Order Total calculation for a given shopping cart (Order Total Api)")
-})
 public class OrderTotalApi {
 
   @Inject private ShoppingCartFacade shoppingCartFacade;

@@ -64,7 +64,6 @@ import io.swagger.v3.oas.annotations.Parameters;
 @Controller
 @RequestMapping("/api/v2")
 @Tag(name = "Product variation resource (Product variant Api)")
-})
 public class ProductVariationApi {
 
   @Inject private PricingService pricingService;

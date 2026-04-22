@@ -54,7 +54,6 @@ import io.swagger.v3.oas.annotations.Parameters;
 @RestController
 @RequestMapping("/api/v1")
 @Tag(name = "Customer authentication resource (Customer Authentication Api)")
-})
 public class AuthenticateCustomerApi {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticateCustomerApi.class);

@@ -36,17 +36,17 @@ public class Address extends AddressLocation implements Serializable {
 	
 
 	
-	@Schema(description = "")")
+	@Schema(description = "Customer billing or shipping state / province (if no 2 letter codes, example: North estate)")
 	private String stateProvince;
 	private boolean billingAddress;
 	
 	private String latitude;
 	private String longitude;
 	
-	@Schema(description = "")")
+	@Schema(description = "Customer billing or shipping state / province (2 letter code CA, ON...)")
 	private String zone;//code
 	
-	@Schema(description = "")")
+	@Schema(description = "Customer billing or shipping country code (2 letter code US, CA, UK, IT, IN, CN...)")
 	//@NotEmpty(message="{NotEmpty.customer.billing.country}")
 	private String country;//code
 	

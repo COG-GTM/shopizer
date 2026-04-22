@@ -31,7 +31,6 @@ import io.swagger.v3.oas.annotations.Parameters;
 @RestController
 @RequestMapping("/api/v1")
 @Tag(name = "Search products and search word/sentence completion functionality (Search Api)")
-})
 public class SearchApi {
 
   @Inject private SearchFacade searchFacade;

@@ -30,7 +30,6 @@ import io.swagger.v3.oas.annotations.Parameters;
 @RestController
 @RequestMapping(value = "/api/v1")
 @Tag(name = "Catalog management resource (Catalog Management Api)")
-})
 public class CatalogApi {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CatalogApi.class);
