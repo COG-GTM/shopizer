@@ -108,6 +108,9 @@ public class MultipleEntryPointsSecurityConfig {
 		@Bean
 		@Order(1)
 		public SecurityFilterChain customerFilterChain(HttpSecurity http) throws Exception {
+			AuthenticationManagerBuilder builder = http.getSharedObject(AuthenticationManagerBuilder.class);
+			builder.userDetailsService(customerDetailsService);
+
 			http
 			.antMatcher("/shop/**")
 			.csrf().disable()			
@@ -291,6 +294,11 @@ public class MultipleEntryPointsSecurityConfig {
 		@Bean
 		@Order(5)
 		public SecurityFilterChain adminApiFilterChain(HttpSecurity http) throws Exception {
+			AuthenticationManagerBuilder amBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
+			amBuilder.userDetailsService(jwtUserDetailsService)
+				.and()
+				.authenticationProvider(authenticationProvider());
+
 			http
 					.antMatcher(API_VERSION + "/private/**")
 					.authorizeRequests()
@@ -352,6 +360,9 @@ public class MultipleEntryPointsSecurityConfig {
 		@Bean
 		@Order(6)
 		public SecurityFilterChain customerApiFilterChain(HttpSecurity http) throws Exception {
+			AuthenticationManagerBuilder amBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
+			amBuilder.userDetailsService(jwtCustomerDetailsService);
+
 			http
 			
 				.antMatcher(API_VERSION + "/auth/**")
