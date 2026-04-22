@@ -310,7 +310,7 @@ public class CmsStaticContentFileManagerImpl
 
 		try {
 
-			String keyPrefix = getRootName() + merchantStoreCode;
+			String keyPrefix = getRootName() + merchantStoreCode + Constants.SLASH;
 			cacheManager.getCache().keySet().removeIf(key -> key.startsWith(keyPrefix));
 
 		} catch (final Exception e) {
