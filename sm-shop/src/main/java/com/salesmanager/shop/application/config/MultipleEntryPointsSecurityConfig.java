@@ -309,7 +309,7 @@ public class MultipleEntryPointsSecurityConfig {
 			.httpBasic(basic -> basic
 				.authenticationEntryPoint(apiAdminAuthenticationEntryPoint())
 			)
-			.addFilterBefore(authenticationTokenFilter(), BasicAuthenticationFilter.class)
+			.addFilterAfter(authenticationTokenFilter(), BasicAuthenticationFilter.class)
 			.csrf(csrf -> csrf.disable());
 		return http.build();
 	}
@@ -334,7 +334,7 @@ public class MultipleEntryPointsSecurityConfig {
 				.authenticationEntryPoint(apiCustomerAuthenticationEntryPoint())
 			)
 			.csrf(csrf -> csrf.disable())
-			.addFilterBefore(authenticationTokenFilter(), BasicAuthenticationFilter.class);
+			.addFilterAfter(authenticationTokenFilter(), BasicAuthenticationFilter.class);
 		return http.build();
 	}
 
