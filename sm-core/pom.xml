@@ -17,7 +17,7 @@
 	<properties>
 		<coverage.lines>.00</coverage.lines>
 		<coverage.branches>.00</coverage.branches>
-		<google-client-maps-services-version>0.1.6</google-client-maps-services-version>
+		<google-client-maps-services-version>2.2.0</google-client-maps-services-version>
 	</properties>
 
 	<dependencies>
@@ -28,10 +28,15 @@
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-ehcache -->
+		<!-- Hibernate JCache (replaces hibernate-ehcache for Hibernate 6.x) -->
 		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-ehcache</artifactId>
+			<groupId>org.hibernate.orm</groupId>
+			<artifactId>hibernate-jcache</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.ehcache</groupId>
+			<artifactId>ehcache</artifactId>
+			<classifier>jakarta</classifier>
 		</dependency>
 
 		<!-- sm-core-model -->
@@ -114,11 +119,7 @@
 			<artifactId>drools-compiler</artifactId>
 		</dependency>
 
-		<!--spring integration -->
-		<dependency>
-			<groupId>org.kie</groupId>
-			<artifactId>kie-spring</artifactId>
-		</dependency>
+		<!-- kie-spring removed in Drools 8.x -->
 		<!-- end rules engine -->
 
 		<!-- Infinispan -->
@@ -127,10 +128,7 @@
 			<artifactId>infinispan-core</artifactId>
 		</dependency>
 
-		<dependency>
-			<groupId>org.infinispan</groupId>
-			<artifactId>infinispan-tree</artifactId>
-		</dependency>
+
 
 		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-collections4 -->
 		<dependency>
