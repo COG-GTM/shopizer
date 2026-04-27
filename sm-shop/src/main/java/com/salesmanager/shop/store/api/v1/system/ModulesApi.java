@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import io.swagger.v3.oas.annotations.Operation;
 
 @RestController
 @RequestMapping("/api/v1/system")
@@ -34,11 +35,7 @@ public class ModulesApi {
    * @throws Exception
    */
 /*  @PostMapping(value = "/module", consumes = MediaType.TEXT_PLAIN)
-  @ApiOperation(
-      httpMethod = "POST",
-      value = "Creates a new module",
-      notes = "",
-      produces = "application/json")
+  @Operation(summary = "Creates a new module")
   public ReadableEntity createModule(@RequestBody String json, HttpServletRequest request) {
 
       LOGGER.debug("Creating an integration module : " + json);
