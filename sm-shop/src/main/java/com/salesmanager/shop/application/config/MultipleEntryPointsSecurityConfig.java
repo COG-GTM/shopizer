@@ -161,6 +161,7 @@ public class MultipleEntryPointsSecurityConfig {
 	public AuthenticationManager customerAuthenticationManager() {
 		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
 		provider.setUserDetailsService(customerDetailsService);
+		provider.setPasswordEncoder(passwordEncoder());
 		return new ProviderManager(provider);
 	}
 
@@ -168,6 +169,7 @@ public class MultipleEntryPointsSecurityConfig {
 	public AuthenticationManager jwtAdminAuthenticationManager() {
 		DaoAuthenticationProvider daoProvider = new DaoAuthenticationProvider();
 		daoProvider.setUserDetailsService(jwtUserDetailsService);
+		daoProvider.setPasswordEncoder(passwordEncoder());
 		return new ProviderManager(daoProvider, jwtAdminAuthenticationProvider());
 	}
 
@@ -175,6 +177,7 @@ public class MultipleEntryPointsSecurityConfig {
 	public AuthenticationManager jwtCustomerAuthenticationManager() {
 		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
 		provider.setUserDetailsService(jwtCustomerDetailsService);
+		provider.setPasswordEncoder(passwordEncoder());
 		return new ProviderManager(provider);
 	}
 
@@ -229,6 +232,7 @@ public class MultipleEntryPointsSecurityConfig {
 	public SecurityFilterChain servicesFilterChain(HttpSecurity http) throws Exception {
 		DaoAuthenticationProvider servicesProvider = new DaoAuthenticationProvider();
 		servicesProvider.setUserDetailsService(userDetailsService);
+		servicesProvider.setPasswordEncoder(passwordEncoder());
 		http
 			.authenticationManager(new ProviderManager(servicesProvider))
 			.securityMatcher("/services/**")
