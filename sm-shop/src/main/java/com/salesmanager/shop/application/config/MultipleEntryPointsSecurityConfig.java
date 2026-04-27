@@ -166,12 +166,16 @@ public class MultipleEntryPointsSecurityConfig {
 
 	@Bean("jwtAdminAuthenticationManager")
 	public AuthenticationManager jwtAdminAuthenticationManager() {
-		return new ProviderManager(jwtAdminAuthenticationProvider());
+		DaoAuthenticationProvider daoProvider = new DaoAuthenticationProvider();
+		daoProvider.setUserDetailsService(jwtUserDetailsService);
+		return new ProviderManager(daoProvider, jwtAdminAuthenticationProvider());
 	}
 
 	@Bean("jwtCustomerAuthenticationManager")
 	public AuthenticationManager jwtCustomerAuthenticationManager() {
-		return new ProviderManager(jwtCustomerAuthenticationProvider());
+		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+		provider.setUserDetailsService(jwtCustomerDetailsService);
+		return new ProviderManager(provider);
 	}
 
 	// ---------------------------------------------------------------
@@ -185,6 +189,7 @@ public class MultipleEntryPointsSecurityConfig {
 	@Order(1)
 	public SecurityFilterChain customerFilterChain(HttpSecurity http) throws Exception {
 		http
+			.authenticationManager(customerAuthenticationManager())
 			.securityMatcher("/shop/**")
 			.csrf(csrf -> csrf.disable())
 			.authorizeHttpRequests(auth -> auth
@@ -222,7 +227,10 @@ public class MultipleEntryPointsSecurityConfig {
 	@Bean
 	@Order(2)
 	public SecurityFilterChain servicesFilterChain(HttpSecurity http) throws Exception {
+		DaoAuthenticationProvider servicesProvider = new DaoAuthenticationProvider();
+		servicesProvider.setUserDetailsService(userDetailsService);
 		http
+			.authenticationManager(new ProviderManager(servicesProvider))
 			.securityMatcher("/services/**")
 			.csrf(csrf -> csrf.disable())
 			.authorizeHttpRequests(auth -> auth
@@ -298,6 +306,7 @@ public class MultipleEntryPointsSecurityConfig {
 	@Order(5)
 	public SecurityFilterChain adminApiFilterChain(HttpSecurity http) throws Exception {
 		http
+			.authenticationManager(jwtAdminAuthenticationManager())
 			.securityMatcher(API_VERSION + "/private/**")
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers(API_VERSION + "/private/login*").permitAll()
@@ -321,6 +330,7 @@ public class MultipleEntryPointsSecurityConfig {
 	@Order(6)
 	public SecurityFilterChain customerApiFilterChain(HttpSecurity http) throws Exception {
 		http
+			.authenticationManager(jwtCustomerAuthenticationManager())
 			.securityMatcher(API_VERSION + "/auth/**")
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers(API_VERSION + "/auth/refresh").permitAll()
