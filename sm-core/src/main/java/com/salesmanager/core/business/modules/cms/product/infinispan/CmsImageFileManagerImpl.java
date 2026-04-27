@@ -161,7 +161,7 @@ public class CmsImageFileManagerImpl implements ProductAssetsManager {
     try {
 
       FileNameMap fileNameMap = URLConnection.getFileNameMap();
-      String prefix = getRootName() + product.getMerchantStore().getCode() + Constants.SLASH;
+      String prefix = getRootName() + product.getMerchantStore().getCode() + Constants.SLASH + product.getSku() + Constants.SLASH;
 
       Cache<String, Object> cache = cacheManager.getCache();
 
