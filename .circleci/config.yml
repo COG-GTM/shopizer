@@ -11,13 +11,7 @@ orbs:
 executors:
   shopizer-ci:
     docker:
-      - image: shopizerecomm/ci:java11
-        auth:
-          username: shopizerecomm
-          password: $DOCKERHUB_PASSWORD  
-      
-working_directory: /tmp
-
+      - image: cimg/openjdk:17.0
 
 # Define the jobs we want to run for this project
 jobs:
@@ -25,12 +19,14 @@ jobs:
     executor: shopizer-ci
     steps:
       - checkout
-      - run: echo "shopizer build and test (1)"
       - run:
-          name: Run shell script
+          name: Build and test
           command: |
-            set -x
-            /home/shopizer/tools/shopizer.sh tests
+            ./mvnw clean install -DskipTests
+      - run:
+          name: Run tests
+          command: |
+            ./mvnw test
       - persist_to_workspace:
           root: .
           paths:
@@ -57,10 +53,10 @@ jobs:
        - run: |
            docker login -u shopizerecomm -p $DOCKERHUB_PASSWORD
        - run: |
-           (cd sm-shop && docker build . -t shopizerecomm/shopizer:3.2.7)
+           (cd sm-shop && docker build . -t shopizerecomm/shopizer:latest)
        - run:
            name: push image
-           command: docker push shopizerecomm/shopizer:3.2.7
+           command: docker push shopizerecomm/shopizer:latest
 
 # Orchestrate our job run sequence
 workflows:
