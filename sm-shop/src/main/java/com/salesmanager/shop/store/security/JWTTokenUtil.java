@@ -19,6 +19,7 @@ import com.salesmanager.shop.utils.DateUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
 /**
@@ -57,7 +58,7 @@ public class JWTTokenUtil implements Serializable {
 	    private Long expiration;
 
 	    private SecretKey getSigningKey() {
-	        return Keys.hmacShaKeyFor(secret.getBytes());
+	        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
 	    }
 
 	    public String getUsernameFromToken(String token) {

@@ -246,7 +246,7 @@ public class CmsStaticContentFileManagerImpl
 
 		try {
 
-			String prefix = getRootName() + merchantStoreCode;
+			String prefix = getRootName() + merchantStoreCode + "/";
 			Cache<String, Object> cache = cacheManager.getCache();
 			List<String> keysToRemove = cache.keySet().stream()
 					.filter(k -> k.startsWith(prefix))
