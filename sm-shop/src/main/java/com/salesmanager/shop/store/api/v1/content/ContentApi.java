@@ -289,7 +289,7 @@ public class ContentApi {
 
 	@Deprecated
 	@GetMapping(value = "/private/contents/any", produces = MediaType.APPLICATION_JSON_VALUE)
-	@Operation(summary = "")
+	@Operation(summary = "Get contents (page and box) for a given MerchantStore")
 	public List<ReadableContentEntity> contents(@Parameter(hidden = true) MerchantStore merchantStore, @Parameter(hidden = true) Language language) {
 
 		Optional<String> op = Optional.empty();
