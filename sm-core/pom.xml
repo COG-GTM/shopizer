@@ -93,8 +93,8 @@
 					<artifactId>guava</artifactId>
 				</exclusion>
 				<exclusion>
-					<groupId>jakarta.annotation</groupId>
-					<artifactId>jakarta.annotation-api</artifactId>
+					<groupId>javax.annotation</groupId>
+					<artifactId>jsr250-api</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
