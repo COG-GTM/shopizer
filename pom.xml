@@ -20,7 +20,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.5.12</version>
+		<version>3.2.5</version>
 	</parent>
 
 	<modules>
@@ -35,7 +35,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
 		<!--java version -->
-		<java.version>11</java.version>
+		<java.version>17</java.version>
 
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
@@ -51,7 +51,7 @@
 		<commons-collections4.version>4.1</commons-collections4.version>
 		<commons-validator.version>1.5.1</commons-validator.version>
 		<commons-fileupload>1.3.3</commons-fileupload>
-		<org.mapstruct.version>1.3.0.Final</org.mapstruct.version>
+		<org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
 
 		<org.apache.httpcomponent.version>4.5.2</org.apache.httpcomponent.version>
 		<javax.inject.version>1</javax.inject.version>
@@ -64,8 +64,8 @@
 		<oracle.version>18.3.0.0</oracle.version>
 		<postgresql.version>42.2.18</postgresql.version>
 		<simple-json-version>1.1.1</simple-json-version>
-		<jackson-version-databind>2.13.4.1</jackson-version-databind>
-		<jackson-version>2.13.4</jackson-version>
+		<jackson-version-databind>2.15.3</jackson-version-databind>
+		<jackson-version>2.15.3</jackson-version>
 		<geoip2.version>2.7.0</geoip2.version>
 		<drools.version>7.32.0.Final</drools.version>
 		<google-client-maps-services-version>0.1.6</google-client-maps-services-version>
@@ -112,6 +112,33 @@
 				<groupId>com.shopizer</groupId>
 				<artifactId>sm-shop-model</artifactId>
 				<version>3.2.5</version>
+			</dependency>
+
+			<!-- Dependencies no longer managed by Spring Boot 3.x — pinned for backward compatibility -->
+			<dependency>
+				<groupId>javax.validation</groupId>
+				<artifactId>validation-api</artifactId>
+				<version>2.0.1.Final</version>
+			</dependency>
+			<dependency>
+				<groupId>net.sf.ehcache</groupId>
+				<artifactId>ehcache</artifactId>
+				<version>2.10.9.2</version>
+			</dependency>
+			<dependency>
+				<groupId>javax.mail</groupId>
+				<artifactId>javax.mail-api</artifactId>
+				<version>1.6.2</version>
+			</dependency>
+			<dependency>
+				<groupId>org.hibernate</groupId>
+				<artifactId>hibernate-ehcache</artifactId>
+				<version>5.6.15.Final</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.httpcomponents</groupId>
+				<artifactId>httpclient</artifactId>
+				<version>4.5.14</version>
 			</dependency>
 
 			<!-- https://mvnrepository.com/artifact/javax.inject/javax.inject -->
@@ -367,6 +394,54 @@
 				<version>${javax.annotation}</version>
 			</dependency>
 
+			<!-- Jakarta EE dependencies for Spring Boot 3.x migration -->
+			<dependency>
+				<groupId>jakarta.persistence</groupId>
+				<artifactId>jakarta.persistence-api</artifactId>
+				<version>3.1.0</version>
+			</dependency>
+			<dependency>
+				<groupId>jakarta.validation</groupId>
+				<artifactId>jakarta.validation-api</artifactId>
+				<version>3.0.2</version>
+			</dependency>
+			<dependency>
+				<groupId>jakarta.servlet</groupId>
+				<artifactId>jakarta.servlet-api</artifactId>
+				<version>6.0.0</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>jakarta.inject</groupId>
+				<artifactId>jakarta.inject-api</artifactId>
+				<version>2.0.1</version>
+			</dependency>
+			<dependency>
+				<groupId>jakarta.mail</groupId>
+				<artifactId>jakarta.mail-api</artifactId>
+				<version>2.1.2</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.angus</groupId>
+				<artifactId>angus-mail</artifactId>
+				<version>2.0.2</version>
+			</dependency>
+			<dependency>
+				<groupId>jakarta.annotation</groupId>
+				<artifactId>jakarta.annotation-api</artifactId>
+				<version>2.1.1</version>
+			</dependency>
+			<dependency>
+				<groupId>jakarta.activation</groupId>
+				<artifactId>jakarta.activation-api</artifactId>
+				<version>2.1.2</version>
+			</dependency>
+			<dependency>
+				<groupId>jakarta.ws.rs</groupId>
+				<artifactId>jakarta.ws.rs-api</artifactId>
+				<version>3.1.0</version>
+			</dependency>
+
 		</dependencies>
 
 	</dependencyManagement>
@@ -504,6 +579,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.12.1</version>
 				<configuration>
 					<source>${maven.compiler.source}</source>
 					<target>${maven.compiler.target}</target>
@@ -521,13 +597,13 @@
 			<plugin>
 				<groupId>com.github.spotbugs</groupId>
 				<artifactId>spotbugs-maven-plugin</artifactId>
-				<version>3.1.8</version>
+				<version>4.8.3.1</version>
 			</plugin>
 			<!--OSSRH -->
 			<plugin>
 				<groupId>org.sonatype.plugins</groupId>
 				<artifactId>nexus-staging-maven-plugin</artifactId>
-				<version>1.6.7</version>
+				<version>1.6.13</version>
 				<extensions>true</extensions>
 				<configuration>
 					<serverId>ossrh</serverId>
@@ -539,7 +615,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-release-plugin</artifactId>
-				<version>2.5.3</version>
+				<version>3.0.1</version>
 				<configuration>
 					<autoVersionSubmodules>true</autoVersionSubmodules>
 					<useReleaseProfile>false</useReleaseProfile>
@@ -551,6 +627,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
+				<version>3.3.0</version>
 				<executions>
 					<execution>
 						<id>attach-sources</id>
