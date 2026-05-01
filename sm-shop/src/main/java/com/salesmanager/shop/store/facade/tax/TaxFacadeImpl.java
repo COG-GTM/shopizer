@@ -237,7 +237,6 @@ public class TaxFacadeImpl implements TaxFacade {
 		
 	}
 
-
 	@Override
 	public void deleteTaxRate(Long id, MerchantStore store, Language language) {
 		TaxRate model = taxRateById(id, store, language);

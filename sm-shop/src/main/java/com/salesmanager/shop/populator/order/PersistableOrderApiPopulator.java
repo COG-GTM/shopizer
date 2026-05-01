@@ -54,7 +54,6 @@ public class PersistableOrderApiPopulator extends AbstractDataPopulator<Persista
 
 	
 
-
 	@Override
 	public Order populate(PersistableOrder source, Order target, MerchantStore store, Language language)
 			throws ConversionException {
@@ -167,7 +166,6 @@ public class PersistableOrderApiPopulator extends AbstractDataPopulator<Persista
 		return null;
 	}
 
-
 /*	public CurrencyService getCurrencyService() {
 		return currencyService;
 	}
@@ -215,7 +213,5 @@ public class PersistableOrderApiPopulator extends AbstractDataPopulator<Persista
 	public void setDigitalProductService(DigitalProductService digitalProductService) {
 		this.digitalProductService = digitalProductService;
 	}*/
-
-
 
 }

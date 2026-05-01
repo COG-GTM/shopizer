@@ -11,17 +11,15 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.AmazonS3Exception;
-import com.amazonaws.services.s3.model.Bucket;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.ListObjectsV2Request;
-import com.amazonaws.services.s3.model.ListObjectsV2Result;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Object;
 import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.modules.cms.content.ContentAssetsManager;
 import com.salesmanager.core.business.modules.cms.impl.CMSManager;
@@ -29,12 +27,6 @@ import com.salesmanager.core.model.content.FileContentType;
 import com.salesmanager.core.model.content.InputContentFile;
 import com.salesmanager.core.model.content.OutputContentFile;
 
-/**
- * Static content management with S3
- * 
- * @author carlsamson
- *
- */
 public class S3StaticContentAssetsManagerImpl implements ContentAssetsManager {
 
 	private static final long serialVersionUID = 1L;
@@ -43,35 +35,34 @@ public class S3StaticContentAssetsManagerImpl implements ContentAssetsManager {
 
 	private static S3StaticContentAssetsManagerImpl fileManager = null;
 
+	private static final String DEFAULT_REGION_NAME = "us-east-1";
+
 	private CMSManager cmsManager;
 
 	public static S3StaticContentAssetsManagerImpl getInstance() {
-
 		if (fileManager == null) {
 			fileManager = new S3StaticContentAssetsManagerImpl();
 		}
-
 		return fileManager;
-
 	}
 
 	@Override
 	public OutputContentFile getFile(String merchantStoreCode, Optional<String> folderPath, FileContentType fileContentType, String contentName)
 			throws ServiceException {
 		try {
-			// get buckets
-			String bucketName = bucketName();
+			String bucket = bucketName();
+			final S3Client s3 = s3Client();
 
-			final AmazonS3 s3 = s3Client();
-
-			S3Object o = s3.getObject(bucketName, nodePath(merchantStoreCode, fileContentType) + contentName);
+			byte[] byteArray = s3.getObjectAsBytes(GetObjectRequest.builder()
+					.bucket(bucket)
+					.key(nodePath(merchantStoreCode, fileContentType) + contentName)
+					.build()).asByteArray();
 
 			LOGGER.info("Content getFile");
-			return getOutputContentFile(IOUtils.toByteArray(o.getObjectContent()));
+			return getOutputContentFile(byteArray);
 		} catch (final Exception e) {
 			LOGGER.error("Error while getting file", e);
 			throw new ServiceException(e);
-
 		}
 	}
 
@@ -79,27 +70,25 @@ public class S3StaticContentAssetsManagerImpl implements ContentAssetsManager {
 	public List<String> getFileNames(String merchantStoreCode, Optional<String> folderPath, FileContentType fileContentType)
 			throws ServiceException {
 		try {
-			// get buckets
-			String bucketName = bucketName();
+			String bucket = bucketName();
 
-			ListObjectsV2Request listObjectsRequest = new ListObjectsV2Request().withBucketName(bucketName)
-					.withPrefix(nodePath(merchantStoreCode, fileContentType));
+			ListObjectsV2Request listRequest = ListObjectsV2Request.builder()
+					.bucket(bucket).prefix(nodePath(merchantStoreCode, fileContentType)).build();
 
 			List<String> fileNames = null;
-
-			final AmazonS3 s3 = s3Client();
-			ListObjectsV2Result results = s3.listObjectsV2(listObjectsRequest);
-			List<S3ObjectSummary> objects = results.getObjectSummaries();
-			for (S3ObjectSummary os : objects) {
-				if (isInsideSubFolder(os.getKey())) {
+			final S3Client s3 = s3Client();
+			ListObjectsV2Response result = s3.listObjectsV2(listRequest);
+			List<S3Object> objects = result.contents();
+			for (S3Object os : objects) {
+				if (isInsideSubFolder(os.key())) {
 					continue;
 				}
 				if (fileNames == null) {
-					fileNames = new ArrayList<String>();
+					fileNames = new ArrayList<>();
 				}
-				String mimetype = URLConnection.guessContentTypeFromName(os.getKey());
+				String mimetype = java.net.URLConnection.guessContentTypeFromName(os.key());
 				if (!StringUtils.isBlank(mimetype)) {
-					fileNames.add(getName(os.getKey()));
+					fileNames.add(getName(os.key()));
 				}
 			}
 
@@ -108,7 +97,6 @@ public class S3StaticContentAssetsManagerImpl implements ContentAssetsManager {
 		} catch (final Exception e) {
 			LOGGER.error("Error while getting file names", e);
 			throw new ServiceException(e);
-
 		}
 	}
 
@@ -116,24 +104,23 @@ public class S3StaticContentAssetsManagerImpl implements ContentAssetsManager {
 	public List<OutputContentFile> getFiles(String merchantStoreCode, Optional<String> folderPath, FileContentType fileContentType)
 			throws ServiceException {
 		try {
-			// get buckets
-			String bucketName = bucketName();
+			String bucket = bucketName();
 
-			ListObjectsV2Request listObjectsRequest = new ListObjectsV2Request().withBucketName(bucketName)
-					.withPrefix(nodePath(merchantStoreCode, fileContentType));
+			ListObjectsV2Request listRequest = ListObjectsV2Request.builder()
+					.bucket(bucket).prefix(nodePath(merchantStoreCode, fileContentType)).build();
 
 			List<OutputContentFile> files = null;
-			final AmazonS3 s3 = s3Client();
-			ListObjectsV2Result results = s3.listObjectsV2(listObjectsRequest);
-			List<S3ObjectSummary> objects = results.getObjectSummaries();
-			for (S3ObjectSummary os : objects) {
+			final S3Client s3 = s3Client();
+			ListObjectsV2Response result = s3.listObjectsV2(listRequest);
+			List<S3Object> objects = result.contents();
+			for (S3Object os : objects) {
 				if (files == null) {
-					files = new ArrayList<OutputContentFile>();
+					files = new ArrayList<>();
 				}
-				String mimetype = URLConnection.guessContentTypeFromName(os.getKey());
+				String mimetype = URLConnection.guessContentTypeFromName(os.key());
 				if (!StringUtils.isBlank(mimetype)) {
-					S3Object o = s3.getObject(bucketName, os.getKey());
-					byte[] byteArray = IOUtils.toByteArray(o.getObjectContent());
+					byte[] byteArray = s3.getObjectAsBytes(GetObjectRequest.builder()
+							.bucket(bucket).key(os.key()).build()).asByteArray();
 					ByteArrayOutputStream baos = new ByteArrayOutputStream(byteArray.length);
 					baos.write(byteArray, 0, byteArray.length);
 					OutputContentFile ct = new OutputContentFile();
@@ -147,141 +134,82 @@ public class S3StaticContentAssetsManagerImpl implements ContentAssetsManager {
 		} catch (final Exception e) {
 			LOGGER.error("Error while getting files", e);
 			throw new ServiceException(e);
-
 		}
 	}
 
 	@Override
 	public void addFile(String merchantStoreCode, Optional<String> folderPath, InputContentFile inputStaticContentData) throws ServiceException {
-
 		try {
-			// get buckets
-			String bucketName = bucketName();
+			String bucket = bucketName();
+			String path = nodePath(merchantStoreCode, inputStaticContentData.getFileContentType());
+			final S3Client s3 = s3Client();
 
-			String nodePath = nodePath(merchantStoreCode, inputStaticContentData.getFileContentType());
+			String key = path + inputStaticContentData.getFileName();
 
-			final AmazonS3 s3 = s3Client();
+			PutObjectRequest putRequest = PutObjectRequest.builder()
+					.bucket(bucket)
+					.key(key)
+					.contentType(inputStaticContentData.getMimeType())
+					.acl("public-read")
+					.build();
 
-			ObjectMetadata metadata = new ObjectMetadata();
-			metadata.setContentType(inputStaticContentData.getMimeType());
-			PutObjectRequest request = new PutObjectRequest(bucketName, nodePath + inputStaticContentData.getFileName(),
-					inputStaticContentData.getFile(), metadata);
-			request.setCannedAcl(CannedAccessControlList.PublicRead);
-
-			s3.putObject(request);
+			byte[] bytes = IOUtils.toByteArray(inputStaticContentData.getFile());
+			s3.putObject(putRequest, RequestBody.fromBytes(bytes));
 
 			LOGGER.info("Content add file");
 		} catch (final Exception e) {
 			LOGGER.error("Error while adding file", e);
 			throw new ServiceException(e);
-
 		}
-
 	}
 
 	@Override
 	public void addFiles(String merchantStoreCode, Optional<String> folderPath, List<InputContentFile> inputStaticContentDataList)
 			throws ServiceException {
-
 		if (CollectionUtils.isNotEmpty(inputStaticContentDataList)) {
 			for (InputContentFile inputFile : inputStaticContentDataList) {
 				this.addFile(merchantStoreCode, folderPath, inputFile);
 			}
-
 		}
-
 	}
 
 	@Override
 	public void removeFile(String merchantStoreCode, FileContentType staticContentType, String fileName, Optional<String> folderPath)
 			throws ServiceException {
-
 		try {
-			// get buckets
-			String bucketName = bucketName();
-
-			final AmazonS3 s3 = s3Client();
-			s3.deleteObject(bucketName, nodePath(merchantStoreCode, staticContentType) + fileName);
-
+			String bucket = bucketName();
+			final S3Client s3 = s3Client();
+			s3.deleteObject(DeleteObjectRequest.builder()
+					.bucket(bucket)
+					.key(nodePath(merchantStoreCode, staticContentType) + fileName)
+					.build());
 			LOGGER.info("Remove file");
 		} catch (final Exception e) {
 			LOGGER.error("Error while removing file", e);
 			throw new ServiceException(e);
-
 		}
-
 	}
 
 	@Override
 	public void removeFiles(String merchantStoreCode, Optional<String> folderPath) throws ServiceException {
-
 		try {
-			// get buckets
-			String bucketName = bucketName();
-
-			final AmazonS3 s3 = s3Client();
-			s3.deleteObject(bucketName, nodePath(merchantStoreCode));
-
+			String bucket = bucketName();
+			final S3Client s3 = s3Client();
+			s3.deleteObject(DeleteObjectRequest.builder()
+					.bucket(bucket)
+					.key(nodePath(merchantStoreCode))
+					.build());
 			LOGGER.info("Remove folder");
 		} catch (final Exception e) {
 			LOGGER.error("Error while removing folder", e);
 			throw new ServiceException(e);
-
 		}
-
 	}
 
-	private Bucket getBucket(String bucket_name) {
-		final AmazonS3 s3 = s3Client();
-		Bucket named_bucket = null;
-		List<Bucket> buckets = s3.listBuckets();
-		for (Bucket b : buckets) {
-			if (b.getName().equals(bucket_name)) {
-				named_bucket = b;
-			}
-		}
-
-		if (named_bucket == null) {
-			named_bucket = createBucket(bucket_name);
-		}
-
-		return named_bucket;
-	}
-
-	private Bucket createBucket(String bucket_name) {
-		final AmazonS3 s3 = s3Client();
-		Bucket b = null;
-		if (s3.doesBucketExistV2(bucket_name)) {
-			System.out.format("Bucket %s already exists.\n", bucket_name);
-			b = getBucket(bucket_name);
-		} else {
-			try {
-				b = s3.createBucket(bucket_name);
-			} catch (AmazonS3Exception e) {
-				System.err.println(e.getErrorMessage());
-			}
-		}
-		return b;
-	}
-
-	/**
-	 * Builds an amazon S3 client
-	 * 
-	 * @return
-	 */
-	private AmazonS3 s3Client() {
+	private S3Client s3Client() {
 		String region = regionName();
 		LOGGER.debug("AWS CMS Using region " + region);
-
-		return AmazonS3ClientBuilder.standard().withRegion(region) // The
-																			// first
-																			// region
-																			// to
-																			// try
-																			// your
-																			// request
-																			// against
-				.build();
+		return S3Client.builder().region(Region.of(region)).build();
 	}
 
 	private String regionName() {
@@ -292,6 +220,7 @@ public class S3StaticContentAssetsManagerImpl implements ContentAssetsManager {
 		return regionName;
 	}
 
+	@Override
 	public CMSManager getCmsManager() {
 		return cmsManager;
 	}
@@ -302,21 +231,14 @@ public class S3StaticContentAssetsManagerImpl implements ContentAssetsManager {
 
 	@Override
 	public void addFolder(String merchantStoreCode, String folderName, Optional<String> folderPath) throws ServiceException {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void removeFolder(String merchantStoreCode, String folderName, Optional<String> folderPath) throws ServiceException {
-		// TODO Auto-generated method stub
-
 	}
-
 
 	@Override
 	public List<String> listFolders(String merchantStoreCode, Optional<String> path) throws ServiceException {
-		// TODO Auto-generated method stub
 		return null;
 	}
-
 }

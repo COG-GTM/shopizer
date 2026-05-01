@@ -48,5 +48,4 @@ public class PersistableShoppingCartItem implements Serializable {
 		this.product = product;
 	}
 
-
 }

@@ -97,7 +97,6 @@ public class ReadableProductMapper implements Mapper<Product, ReadableProduct> {
 		Validate.notNull(source, "Product cannot be null");
 		Validate.notNull(destination, "Product destination cannot be null");
 
-
 		// read only product values
 		// will contain options
 		TreeMap<Long, ReadableProductOption> selectableOptions = new TreeMap<Long, ReadableProductOption>();
@@ -596,10 +595,8 @@ public class ReadableProductMapper implements Mapper<Product, ReadableProduct> {
 	private void instanceToOption(TreeMap<Long, ReadableProductOption> selectableOptions, ProductVariant instance,
 			MerchantStore store, Language language) {
 
-
 		ReadableProductOption option = this.option(selectableOptions, instance.getVariation().getProductOption(), language);
 		option.setVariant(true);
-
 
 		// take care of option value
 		Optional<ReadableProductOptionValue> optionOptionValue = this
@@ -620,7 +617,6 @@ public class ReadableProductMapper implements Mapper<Product, ReadableProduct> {
 			// take care of option value
 			Optional<ReadableProductOptionValue> optionValueOptionValue = this
 					.optionValue(instance.getVariationValue().getProductOptionValue(), store, language);
-
 
 			if (optionValueOptionValue.isPresent()) {
 				optionValueOptionValue.get().setId(instance.getId());

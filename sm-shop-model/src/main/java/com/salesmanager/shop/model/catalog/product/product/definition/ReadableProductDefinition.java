@@ -69,5 +69,4 @@ public class ReadableProductDefinition extends ProductDefinition {
 		this.inventory = inventory;
 	}
 
-
 }

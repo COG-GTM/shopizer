@@ -2,7 +2,7 @@ package com.salesmanager.shop.populator.catalog;
 
 import java.util.HashSet;
 import java.util.Set;
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -26,7 +26,6 @@ public class PersistableCategoryPopulator extends
 	@Inject
 	private LanguageService languageService;
 
-
 	public void setCategoryService(CategoryService categoryService) {
 		this.categoryService = categoryService;
 	}
@@ -43,7 +42,6 @@ public class PersistableCategoryPopulator extends
 		return languageService;
 	}
 
-
 	@Override
 	public Category populate(PersistableCategory source, Category target,
 			MerchantStore store, Language language)
@@ -52,7 +50,6 @@ public class PersistableCategoryPopulator extends
 		try {
 
 		Validate.notNull(target, "Category target cannot be null");
-
 
 /*		Validate.notNull(categoryService, "Requires to set CategoryService");
 		Validate.notNull(languageService, "Requires to set LanguageService");*/
@@ -101,7 +98,6 @@ public class PersistableCategoryPopulator extends
 
 		}
 
-
 		if(!CollectionUtils.isEmpty(source.getChildren())) {
 
 			for(PersistableCategory cat : source.getChildren()) {
@@ -112,7 +108,6 @@ public class PersistableCategoryPopulator extends
 			}
 
 		}
-
 
 		if(!CollectionUtils.isEmpty(source.getDescriptions())) {
 			Set<com.salesmanager.core.model.catalog.category.CategoryDescription> descriptions = new HashSet<com.salesmanager.core.model.catalog.category.CategoryDescription>();
@@ -144,9 +139,7 @@ public class PersistableCategoryPopulator extends
 			target.setDescriptions(descriptions);
 		}
 
-
 		return target;
-
 
 		} catch(Exception e) {
 			throw new ConversionException(e);
@@ -170,7 +163,6 @@ public class PersistableCategoryPopulator extends
       target.setLanguage(lang);
       return target;
 	}
-
 
 	@Override
 	protected Category createTarget() {

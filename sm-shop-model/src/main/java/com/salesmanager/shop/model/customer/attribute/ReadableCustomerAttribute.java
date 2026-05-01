@@ -21,6 +21,4 @@ public class ReadableCustomerAttribute extends CustomerAttributeEntity {
 		return customerOptionValue;
 	}
 
-
-
 }

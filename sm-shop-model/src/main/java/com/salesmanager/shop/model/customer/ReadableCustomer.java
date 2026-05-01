@@ -7,7 +7,6 @@ import java.util.List;
 import com.salesmanager.shop.model.customer.attribute.ReadableCustomerAttribute;
 import com.salesmanager.shop.model.security.ReadableGroup;
 
-
 public class ReadableCustomer extends CustomerEntity implements Serializable {
 
 	/**

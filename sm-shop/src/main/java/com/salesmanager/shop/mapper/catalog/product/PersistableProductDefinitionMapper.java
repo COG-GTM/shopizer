@@ -113,7 +113,6 @@ public class PersistableProductDefinitionMapper implements Mapper<PersistablePro
 				destination.setDateAvailable(DateUtil.getDate(source.getDateAvailable()));
 			}
 
-
 			
 			destination.setMerchantStore(store);
 			
@@ -191,9 +190,6 @@ public class PersistableProductDefinitionMapper implements Mapper<PersistablePro
 			  productAvailability.setAvailable(Boolean.valueOf(destination.isAvailable()));
 			  productAvailability.setProductStatus(source.isCanBePurchased());
 		    }
-
-
-
 
 			if(defaultPrice == null) {
 				

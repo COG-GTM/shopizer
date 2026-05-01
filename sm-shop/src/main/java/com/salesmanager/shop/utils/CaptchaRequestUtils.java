@@ -18,7 +18,7 @@ import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -75,7 +75,6 @@ public class CaptchaRequestUtils {
             HttpEntity entity = httpResponse.getEntity();
             byte[] responseBody =EntityUtils.toByteArray(entity);
 
-
 	      // Deal with the response.
 	      // Use caution: ensure correct character encoding and is not binary data
 	      //System.out.println(new String(responseBody));
@@ -107,6 +106,5 @@ public class CaptchaRequestUtils {
 	      post.releaseConnection();
 	    }  
 	  }
-
 
 }

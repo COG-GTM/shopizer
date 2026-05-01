@@ -11,7 +11,6 @@ import com.salesmanager.shop.model.system.PersistableOptin;
 @Component
 public class PersistableOptinMapper implements Mapper<PersistableOptin, Optin> {
 
-
   @Override
   public Optin convert(PersistableOptin source, MerchantStore store, Language language) {
     Optin optinEntity = new Optin();

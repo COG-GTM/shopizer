@@ -35,5 +35,4 @@ public class ReadableProductAttributeValue extends ProductOptionValue {
 		this.description = description;
 	}
 
-
 }

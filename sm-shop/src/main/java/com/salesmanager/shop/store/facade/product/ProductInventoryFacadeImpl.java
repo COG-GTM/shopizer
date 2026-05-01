@@ -52,8 +52,6 @@ public class ProductInventoryFacadeImpl implements ProductInventoryFacade {
 	@Autowired
 	private PersistableInventoryMapper productInventoryMapper;
 
-
-
 	private void validateProductHasSameStore(MerchantStore store, Product product) {
 		if (!product.getMerchantStore().getId().equals(store.getId())) {
 			throw new ResourceNotFoundException("Product with id [" + product.getId() + "] not found for store id ["
@@ -85,7 +83,6 @@ public class ProductInventoryFacadeImpl implements ProductInventoryFacade {
 	 * getAvailabilityById(store, inventoryId); return
 	 * readableInventoryMapper.convert(availability, store, language); }
 	 */
-
 
 	//public ReadableInventory get(String child, Language language) {
 		/*
@@ -166,7 +163,6 @@ public class ProductInventoryFacadeImpl implements ProductInventoryFacade {
 	@Override
 	public ReadableInventory get(Long inventoryId, MerchantStore store, Language language) {
 
-
 		ProductAvailability availability = productAvailabilityService.getById(inventoryId, store)
 				.orElseThrow(() -> new ResourceNotFoundException("Inventory with id [" + inventoryId + "] not found"));
 		return readableInventoryMapper.convert(availability, store, language);
@@ -202,7 +198,6 @@ public class ProductInventoryFacadeImpl implements ProductInventoryFacade {
 					"Inventory with id [" + inventory.getId() + "] not found");
 		}
 
-
 		inventory.setProductId(product.getId());
 
 		avail = productInventoryMapper.merge(inventory, avail, store, language);
@@ -210,8 +205,6 @@ public class ProductInventoryFacadeImpl implements ProductInventoryFacade {
 		avail.setMerchantStore(store);
 		saveOrUpdate(avail);
 	}
-
-
 
 	@Override
 	public ReadableEntityList<ReadableInventory> get(String sku, MerchantStore store, Language language, int page, int count) {
@@ -259,7 +252,5 @@ public class ProductInventoryFacadeImpl implements ProductInventoryFacade {
 		return createReadableList(availabilities, returnList);
 
 	}
-
-
 
 }

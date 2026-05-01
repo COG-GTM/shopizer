@@ -10,7 +10,6 @@ import com.salesmanager.core.model.shipping.ShippingSummary;
 import com.salesmanager.core.model.shoppingcart.ShoppingCartItem;
 import com.salesmanager.shop.model.order.v0.PersistableOrder;
 
-
 /**
  * Orders saved on the website
  * @author Carl Samson
@@ -96,7 +95,5 @@ public class ShopOrder extends PersistableOrder implements Serializable {
 	public void setCartCode(String cartCode) {
 		this.cartCode = cartCode;
 	}
-
-
 
 }

@@ -8,17 +8,15 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.AmazonS3Exception;
-import com.amazonaws.services.s3.model.Bucket;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.ListObjectsV2Request;
-import com.amazonaws.services.s3.model.ListObjectsV2Result;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Object;
 import com.salesmanager.core.business.constants.Constants;
 import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.modules.cms.impl.CMSManager;
@@ -30,25 +28,11 @@ import com.salesmanager.core.model.content.FileContentType;
 import com.salesmanager.core.model.content.ImageContentFile;
 import com.salesmanager.core.model.content.OutputContentFile;
 
-/**
- * Product content file manager with AWS S3
- * 
- * @author carlsamson
- *
- */
-public class S3ProductContentFileManager
-    implements ProductAssetsManager {
+public class S3ProductContentFileManager implements ProductAssetsManager {
 
-  /**
-   * 
-   */
   private static final long serialVersionUID = 1L;
 
-
-
   private static final Logger LOGGER = LoggerFactory.getLogger(S3ProductContentFileManager.class);
-
-
 
   private static S3ProductContentFileManager fileManager = null;
 
@@ -59,46 +43,39 @@ public class S3ProductContentFileManager
   private static final char UNIX_SEPARATOR = '/';
   private static final char WINDOWS_SEPARATOR = '\\';
 
-
   private final static String SMALL = "SMALL";
   private final static String LARGE = "LARGE";
 
   private CMSManager cmsManager;
 
   public static S3ProductContentFileManager getInstance() {
-
     if (fileManager == null) {
       fileManager = new S3ProductContentFileManager();
     }
-
     return fileManager;
-
   }
 
   @Override
   public List<OutputContentFile> getImages(String merchantStoreCode,
       FileContentType imageContentType) throws ServiceException {
     try {
-      // get buckets
       String bucketName = bucketName();
 
-
-
-      ListObjectsV2Request listObjectsRequest = new ListObjectsV2Request()
-          .withBucketName(bucketName).withPrefix(nodePath(merchantStoreCode));
+      ListObjectsV2Request listRequest = ListObjectsV2Request.builder()
+          .bucket(bucketName).prefix(nodePath(merchantStoreCode)).build();
 
       List<OutputContentFile> files = null;
-      final AmazonS3 s3 = s3Client();
-      ListObjectsV2Result results = s3.listObjectsV2(listObjectsRequest);
-      List<S3ObjectSummary> objects = results.getObjectSummaries();
-      for (S3ObjectSummary os : objects) {
+      final S3Client s3 = s3Client();
+      ListObjectsV2Response result = s3.listObjectsV2(listRequest);
+      List<S3Object> objects = result.contents();
+      for (S3Object os : objects) {
         if (files == null) {
-          files = new ArrayList<OutputContentFile>();
+          files = new ArrayList<>();
         }
-        String mimetype = URLConnection.guessContentTypeFromName(os.getKey());
+        String mimetype = URLConnection.guessContentTypeFromName(os.key());
         if (!StringUtils.isBlank(mimetype)) {
-          S3Object o = s3.getObject(bucketName, os.getKey());
-          byte[] byteArray = IOUtils.toByteArray(o.getObjectContent());
+          byte[] byteArray = s3.getObjectAsBytes(GetObjectRequest.builder()
+              .bucket(bucketName).key(os.key()).build()).asByteArray();
           ByteArrayOutputStream baos = new ByteArrayOutputStream(byteArray.length);
           baos.write(byteArray, 0, byteArray.length);
           OutputContentFile ct = new OutputContentFile();
@@ -106,87 +83,74 @@ public class S3ProductContentFileManager
           files.add(ct);
         }
       }
-
       return files;
     } catch (final Exception e) {
       LOGGER.error("Error while getting files", e);
       throw new ServiceException(e);
-
     }
   }
 
   @Override
   public void removeImages(String merchantStoreCode) throws ServiceException {
     try {
-      // get buckets
       String bucketName = bucketName();
-
-      final AmazonS3 s3 = s3Client();
-      s3.deleteObject(bucketName, nodePath(merchantStoreCode));
-
+      final S3Client s3 = s3Client();
+      s3.deleteObject(DeleteObjectRequest.builder()
+          .bucket(bucketName).key(nodePath(merchantStoreCode)).build());
       LOGGER.info("Remove folder");
     } catch (final Exception e) {
       LOGGER.error("Error while removing folder", e);
       throw new ServiceException(e);
-
     }
-
   }
 
   @Override
   public void removeProductImage(ProductImage productImage) throws ServiceException {
     try {
-      // get buckets
       String bucketName = bucketName();
-
-      final AmazonS3 s3 = s3Client();
-      s3.deleteObject(bucketName, nodePath(productImage.getProduct().getMerchantStore().getCode(),
-          productImage.getProduct().getSku()) + productImage.getProductImage());
-
+      final S3Client s3 = s3Client();
+      s3.deleteObject(DeleteObjectRequest.builder()
+          .bucket(bucketName)
+          .key(nodePath(productImage.getProduct().getMerchantStore().getCode(),
+              productImage.getProduct().getSku()) + productImage.getProductImage())
+          .build());
       LOGGER.info("Remove file");
     } catch (final Exception e) {
       LOGGER.error("Error while removing file", e);
       throw new ServiceException(e);
-
     }
-
   }
 
   @Override
   public void removeProductImages(Product product) throws ServiceException {
     try {
-      // get buckets
       String bucketName = bucketName();
-
-      final AmazonS3 s3 = s3Client();
-      s3.deleteObject(bucketName, nodePath(product.getMerchantStore().getCode(), product.getSku()));
-
+      final S3Client s3 = s3Client();
+      s3.deleteObject(DeleteObjectRequest.builder()
+          .bucket(bucketName)
+          .key(nodePath(product.getMerchantStore().getCode(), product.getSku()))
+          .build());
       LOGGER.info("Remove file");
     } catch (final Exception e) {
       LOGGER.error("Error while removing file", e);
       throw new ServiceException(e);
-
     }
-
   }
 
   @Override
   public OutputContentFile getProductImage(String merchantStoreCode, String productCode,
       String imageName) throws ServiceException {
-    // TODO Auto-generated method stub
     return null;
   }
 
   @Override
   public OutputContentFile getProductImage(String merchantStoreCode, String productCode,
       String imageName, ProductImageSize size) throws ServiceException {
-    // TODO Auto-generated method stub
     return null;
   }
 
   @Override
   public OutputContentFile getProductImage(ProductImage productImage) throws ServiceException {
-    // TODO Auto-generated method stub
     return null;
   }
 
@@ -198,84 +162,34 @@ public class S3ProductContentFileManager
   @Override
   public void addProductImage(ProductImage productImage, ImageContentFile contentImage)
       throws ServiceException {
-
-
     try {
-      // get buckets
       String bucketName = bucketName();
-      final AmazonS3 s3 = s3Client();
+      final S3Client s3 = s3Client();
 
       String nodePath = this.nodePath(productImage.getProduct().getMerchantStore().getCode(),
           productImage.getProduct().getSku(), contentImage);
 
+      String key = nodePath + productImage.getProductImage();
 
-      ObjectMetadata metadata = new ObjectMetadata();
-      metadata.setContentType(contentImage.getMimeType());
+      PutObjectRequest putRequest = PutObjectRequest.builder()
+          .bucket(bucketName)
+          .key(key)
+          .contentType(contentImage.getMimeType())
+          .acl("public-read")
+          .build();
 
-      PutObjectRequest request = new PutObjectRequest(bucketName,
-          nodePath + productImage.getProductImage(), contentImage.getFile(), metadata);
-      request.setCannedAcl(CannedAccessControlList.PublicRead);
-
-
-      s3.putObject(request);
-
+      byte[] bytes = IOUtils.toByteArray(contentImage.getFile());
+      s3.putObject(putRequest, RequestBody.fromBytes(bytes));
 
       LOGGER.info("Product add file");
-
     } catch (final Exception e) {
-      LOGGER.error("Error while removing file", e);
+      LOGGER.error("Error while adding file", e);
       throw new ServiceException(e);
-
     }
-
-
   }
 
-
-  private Bucket getBucket(String bucket_name) {
-    final AmazonS3 s3 = s3Client();
-    Bucket named_bucket = null;
-    List<Bucket> buckets = s3.listBuckets();
-    for (Bucket b : buckets) {
-      if (b.getName().equals(bucket_name)) {
-        named_bucket = b;
-      }
-    }
-
-    if (named_bucket == null) {
-      named_bucket = createBucket(bucket_name);
-    }
-
-    return named_bucket;
-  }
-
-  private Bucket createBucket(String bucket_name) {
-    final AmazonS3 s3 = s3Client();
-    Bucket b = null;
-    if (s3.doesBucketExistV2(bucket_name)) {
-      System.out.format("Bucket %s already exists.\n", bucket_name);
-      b = getBucket(bucket_name);
-    } else {
-      try {
-        b = s3.createBucket(bucket_name);
-      } catch (AmazonS3Exception e) {
-        System.err.println(e.getErrorMessage());
-      }
-    }
-    return b;
-  }
-
-  /**
-   * Builds an amazon S3 client
-   * 
-   * @return
-   */
-  private AmazonS3 s3Client() {
-
-    return AmazonS3ClientBuilder.standard().withRegion(regionName()) // The first region to
-                                                                            // try your request
-                                                                            // against
-        .build();
+  private S3Client s3Client() {
+    return S3Client.builder().region(Region.of(regionName())).build();
   }
 
   private String bucketName() {
@@ -300,55 +214,24 @@ public class S3ProductContentFileManager
   }
 
   private String nodePath(String store, String product) {
-
     StringBuilder sb = new StringBuilder();
-    // node path
     String nodePath = nodePath(store);
     sb.append(nodePath);
-
-    // product path
     sb.append(product).append(Constants.SLASH);
     return sb.toString();
-
   }
 
   private String nodePath(String store, String product, ImageContentFile contentImage) {
-
     StringBuilder sb = new StringBuilder();
-    // node path
     String nodePath = nodePath(store, product);
     sb.append(nodePath);
-
-    // small large
     if (contentImage.getFileContentType().name().equals(FileContentType.PRODUCT.name())) {
       sb.append(SMALL);
     } else if (contentImage.getFileContentType().name().equals(FileContentType.PRODUCTLG.name())) {
       sb.append(LARGE);
     }
-
     return sb.append(Constants.SLASH).toString();
-
-
   }
-
-  public static String getName(String filename) {
-    if (filename == null) {
-      return null;
-    }
-    int index = indexOfLastSeparator(filename);
-    return filename.substring(index + 1);
-  }
-
-  public static int indexOfLastSeparator(String filename) {
-    if (filename == null) {
-      return -1;
-    }
-    int lastUnixPos = filename.lastIndexOf(UNIX_SEPARATOR);
-    int lastWindowsPos = filename.lastIndexOf(WINDOWS_SEPARATOR);
-    return Math.max(lastUnixPos, lastWindowsPos);
-  }
-
-
 
   public CMSManager getCmsManager() {
     return cmsManager;
@@ -357,6 +240,4 @@ public class S3ProductContentFileManager
   public void setCmsManager(CMSManager cmsManager) {
     this.cmsManager = cmsManager;
   }
-
-
 }

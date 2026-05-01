@@ -233,7 +233,6 @@ public class ProductOptionFacadeImpl implements ProductOptionFacade {
 
 		value = persistableOptionValueMapper.merge(optionValue, value, store, language);
 
-
 		try {
 			productOptionValueService.saveOrUpdate(value);
 		} catch (ServiceException e) {
@@ -368,7 +367,6 @@ public class ProductOptionFacadeImpl implements ProductOptionFacade {
 				attrList.setTotalPages(attr.getTotalPages());
 			}
 
-
 			List<ReadableProductAttributeEntity> values = attr.getContent().stream()
 					.map(attribute -> readableProductAttributeMapper.convert(attribute, store, language))
 					.collect(Collectors.toList());
@@ -412,8 +410,6 @@ public class ProductOptionFacadeImpl implements ProductOptionFacade {
 
 	}
 
-
-
 	@Override
 	public void addOptionValueImage(MultipartFile image, Long optionValueId,
 			MerchantStore store, Language language) {
@@ -441,7 +437,6 @@ public class ProductOptionFacadeImpl implements ProductOptionFacade {
 		} catch (Exception e) {
 			throw new ServiceRuntimeException("Exception while adding option value image", e);
 		}
-
 
 		
 		

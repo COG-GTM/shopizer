@@ -17,7 +17,6 @@ import com.salesmanager.shop.model.catalog.product.attribute.api.ReadableProduct
 import com.salesmanager.shop.model.catalog.product.attribute.api.ReadableProductOptionValueList;
 import com.salesmanager.shop.model.entity.CodeEntity;
 
-
 /*
  * Attributes, Options and Options values management independently from Product
  */

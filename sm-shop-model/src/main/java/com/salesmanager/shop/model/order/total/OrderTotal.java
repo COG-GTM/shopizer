@@ -5,7 +5,6 @@ import java.math.BigDecimal;
 
 import com.salesmanager.shop.model.entity.Entity;
 
-
 public class OrderTotal extends Entity implements Serializable {
 	
 	/**
@@ -56,6 +55,5 @@ public class OrderTotal extends Entity implements Serializable {
 	public void setText(String text) {
 		this.text = text;
 	}
-
 
 }

@@ -20,6 +20,4 @@ public class ReadableProductPriceFull extends ReadableProductPrice {
     this.descriptions = descriptions;
   }
 
-
-
 }

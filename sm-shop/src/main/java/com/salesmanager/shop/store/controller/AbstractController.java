@@ -3,7 +3,7 @@
  */
 package com.salesmanager.shop.store.controller;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.shop.constants.Constants;
@@ -14,7 +14,6 @@ import com.salesmanager.shop.store.model.paging.PaginationData;
  *
  */
 public abstract class AbstractController {
-
 
     /**
      * Method which will help to retrieving values from Session
@@ -51,7 +50,6 @@ public abstract class AbstractController {
     protected PaginationData calculatePaginaionData( final PaginationData paginationData, final int pageSize, final int resultCount){
         
     	int currentPage = paginationData.getCurrentPage();
-
 
     	int count = Math.min((currentPage * pageSize), resultCount);  
     	paginationData.setCountByPage(count);

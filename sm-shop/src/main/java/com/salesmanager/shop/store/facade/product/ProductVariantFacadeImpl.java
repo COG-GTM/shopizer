@@ -33,7 +33,6 @@ import com.salesmanager.shop.store.controller.product.facade.ProductCommonFacade
 import com.salesmanager.shop.store.controller.product.facade.ProductFacade;
 import com.salesmanager.shop.store.controller.product.facade.ProductVariantFacade;
 
-
 /**
  * Product instance management facade
  * @author carlsamson
@@ -152,7 +151,6 @@ public class ProductVariantFacadeImpl implements ProductVariantFacade {
 	private Optional<ProductVariant> getproductVariant(Long id, Long productId, MerchantStore store) {
 		return productVariantService.getById(id, productId, store);
 	}
-
 
 	@Override
 	public void delete(Long productVariant, Long productId, MerchantStore store) {

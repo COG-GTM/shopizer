@@ -21,5 +21,4 @@ public class PersistableCustomerAttribute extends CustomerAttributeEntity {
 		return customerOption;
 	}
 
-
 }

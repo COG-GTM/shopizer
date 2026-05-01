@@ -38,8 +38,6 @@ public class ReadableOrderProductPopulator extends
 	private PricingService pricingService;
 	private ImageFilePath imageUtils;
 
-
-
 	public ImageFilePath getimageUtils() {
 		return imageUtils;
 	}

@@ -1,7 +1,7 @@
 package com.salesmanager.shop.store.security;
 
 import java.util.Collection;
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
@@ -12,7 +12,6 @@ import com.salesmanager.core.business.services.user.GroupService;
 import com.salesmanager.core.business.services.user.PermissionService;
 import com.salesmanager.core.model.customer.Customer;
 import com.salesmanager.shop.store.security.user.CustomerDetails;
-
 
 /**
  * 
@@ -50,8 +49,5 @@ public class CustomerServicesImpl extends AbstractCustomerServices{
 		return authUser;
 	}
 	
-
-
-
 
 }

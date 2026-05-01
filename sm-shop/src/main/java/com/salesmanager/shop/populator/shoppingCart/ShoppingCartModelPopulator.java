@@ -48,24 +48,19 @@ public class ShoppingCartModelPopulator
 		return shoppingCartService;
 	}
 
-
 	public void setShoppingCartService(ShoppingCartService shoppingCartService) {
 		this.shoppingCartService = shoppingCartService;
 	}
 
-
 	private ProductService productService;
-
 
     public ProductService getProductService() {
 		return productService;
 	}
 
-
 	public void setProductService(ProductService productService) {
 		this.productService = productService;
 	}
-
 
 	private ProductAttributeService productAttributeService;
     
@@ -74,17 +69,14 @@ public class ShoppingCartModelPopulator
 		return productAttributeService;
 	}
 
-
 	public void setProductAttributeService(
 			ProductAttributeService productAttributeService) {
 		this.productAttributeService = productAttributeService;
 	}
 
-
 	@Override
     public ShoppingCart populate(ShoppingCartData shoppingCart,ShoppingCart cartMdel,final MerchantStore store, Language language)
     {
-
 
         // if id >0 get the original from the database, override products
        try{
@@ -194,8 +186,6 @@ public class ShoppingCartModelPopulator
     		MerchantStore store ) throws Exception
     {
 
-
-
         Product product = productService.getBySku(shoppingCartItem.getSku(), store, store.getDefaultLanguage());
             if ( product == null )
             {
@@ -207,10 +197,6 @@ public class ShoppingCartModelPopulator
                 throw new Exception( "Item with sku " + shoppingCartItem.getSku() + " does not belong to merchant "
                     + store.getId() );
             }
-
-
-
-
 
         com.salesmanager.core.model.shoppingcart.ShoppingCartItem item =
             new com.salesmanager.core.model.shoppingcart.ShoppingCartItem( cart, product );
@@ -251,9 +237,6 @@ public class ShoppingCartModelPopulator
 
     }
 
-
-
-
     @Override
     protected ShoppingCart createTarget()
     {
@@ -261,19 +244,15 @@ public class ShoppingCartModelPopulator
         return new ShoppingCart();
     }
 
-
 	public Customer getCustomer() {
 		return customer;
 	}
-
 
 	public void setCustomer(Customer customer) {
 		this.customer = customer;
 	}
 
-
    
-
 
    
 

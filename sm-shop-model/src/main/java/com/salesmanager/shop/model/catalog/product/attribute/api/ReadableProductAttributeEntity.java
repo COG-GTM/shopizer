@@ -44,5 +44,4 @@ public class ReadableProductAttributeEntity extends ProductAttributeEntity {
 		this.productAttributeUnformattedPrice = productAttributeUnformattedPrice;
 	}
 
-
 }

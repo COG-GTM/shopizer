@@ -2,7 +2,6 @@ package com.salesmanager.shop.model.content;
 
 import java.io.Serializable;
 
-
 /**
  * System configuration settings for content management
  * @author carlsamson

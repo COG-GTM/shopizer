@@ -12,7 +12,6 @@ import com.salesmanager.shop.model.entity.ListCriteria;
 
 public interface CategoryFacade {
 
-
     /**
      * Returns a list of ReadableCategory ordered and built according to a given depth
      * @param store
@@ -67,7 +66,6 @@ public interface CategoryFacade {
 	void deleteCategory(Long categoryId, MerchantStore store);
 
 	void deleteCategory(Category category);
-
 
 	/**
 	 * List product options variations for a given category

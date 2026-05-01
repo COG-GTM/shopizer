@@ -5,7 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.Validate;
@@ -122,7 +122,6 @@ public class ProductItemsFacadeImpl implements ProductItemsFacade {
 
 	@Override
 	public ReadableProductList listItemsByGroup(String group, MerchantStore store, Language language) throws Exception {
-
 
 		//get product group
 		List<ProductRelationship> groups = productRelationshipService.getByGroup(store, group, language);

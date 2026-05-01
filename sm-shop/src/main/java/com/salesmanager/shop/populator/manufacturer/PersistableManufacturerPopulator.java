@@ -16,12 +16,10 @@ import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.shop.model.catalog.manufacturer.ManufacturerDescription;
 import com.salesmanager.shop.model.catalog.manufacturer.PersistableManufacturer;
 
-
 /**
  * @author Carl Samson
  *
  */
-
 
 public class PersistableManufacturerPopulator extends AbstractDataPopulator<PersistableManufacturer, Manufacturer>
 {
@@ -91,6 +89,5 @@ public class PersistableManufacturerPopulator extends AbstractDataPopulator<Pers
 	public LanguageService getLanguageService() {
 		return languageService;
 	}
-
 
 }

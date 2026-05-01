@@ -1,6 +1,5 @@
 package com.salesmanager.shop.populator.store;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,8 +52,6 @@ public class ReadableMerchantStorePopulator extends
 	private ImageFilePath filePath;
 	@Autowired
 	private LanguageService languageService;
-
-
 
 	@Override
 	public ReadableMerchantStore populate(MerchantStore source,
@@ -182,6 +179,5 @@ public class ReadableMerchantStorePopulator extends
 		// TODO Auto-generated method stub
 		return null;
 	}
-
 
 }

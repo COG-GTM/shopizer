@@ -1,7 +1,5 @@
 package com.salesmanager.shop.model.references;
 
-
-
 public class PersistableAddress extends Address {
 
 	/**

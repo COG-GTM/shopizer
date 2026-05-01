@@ -37,5 +37,4 @@ public class Content extends Entity {
 		this.contentType = contentType;
 	}
 
-
 }

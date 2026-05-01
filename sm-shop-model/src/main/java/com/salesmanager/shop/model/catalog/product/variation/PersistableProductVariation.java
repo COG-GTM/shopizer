@@ -27,5 +27,4 @@ public class PersistableProductVariation extends ProductVariationEntity {
 	}
 	
 
-
 }

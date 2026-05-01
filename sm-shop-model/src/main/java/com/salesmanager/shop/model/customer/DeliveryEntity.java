@@ -2,9 +2,7 @@ package com.salesmanager.shop.model.customer;
 
 import java.io.Serializable;
 
-
 import com.salesmanager.shop.model.customer.address.Address;
-
 
 public class DeliveryEntity extends Address implements Serializable {
 	
@@ -18,7 +16,6 @@ public class DeliveryEntity extends Address implements Serializable {
 	private String countryName;
 
 	private String provinceName;
-
 
 	public String getCountryName() {
 		return countryName;

@@ -11,11 +11,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-import org.jgroups.util.UUID;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,7 +88,6 @@ import com.salesmanager.shop.utils.ImageFilePath;
 import com.salesmanager.shop.utils.LabelUtils;
 import com.salesmanager.shop.utils.LocaleUtils;
 
-
 /**
  * Customer Facade work as an abstraction layer between Controller and Service layer. It work as an
  * entry point to service layer.
@@ -108,7 +107,6 @@ public class CustomerFacadeImpl implements CustomerFacade {
   private final static String RESET_PASSWORD_TPL = "email_template_password_reset_customer.ftl";
 
   public final static String ROLE_PREFIX = "ROLE_";// Spring Security 4
-
 
   @Inject
   private CustomerService customerService;
@@ -198,7 +196,6 @@ public class CustomerFacadeImpl implements CustomerFacade {
 
   }
 
-
   /*
    * (non-Javadoc)
    * 
@@ -262,7 +259,6 @@ public class CustomerFacadeImpl implements CustomerFacade {
               }
             }
 
-
           }
         }
       } else {
@@ -279,8 +275,6 @@ public class CustomerFacadeImpl implements CustomerFacade {
     return null;
 
   }
-
-
 
   @Override
   //KEEP
@@ -307,7 +301,6 @@ public class CustomerFacadeImpl implements CustomerFacade {
     return Optional.ofNullable(customerService.getByNick(userName, merchantStore.getId()))
         .orElseThrow(() -> new ResourceNotFoundException("No Customer found for ID : " + userName));
   }
-
 
   /**
    * <p>
@@ -340,7 +333,6 @@ public class CustomerFacadeImpl implements CustomerFacade {
     LOG.info("Either userName is empty or we have not found any value for store");
     return false;
   }
-
 
   @Override
   public PersistableCustomer registerCustomer(final PersistableCustomer customer,
@@ -387,12 +379,9 @@ public class CustomerFacadeImpl implements CustomerFacade {
       setCustomerModelDefaultProperties(customerModel, merchantStore);
     }
 
-
     return customerModel;
 
   }
-
-
 
   @Override
   public void setCustomerModelDefaultProperties(Customer customer, MerchantStore store)
@@ -404,7 +393,7 @@ public class CustomerFacadeImpl implements CustomerFacade {
         customer.setNick(userName);
       }
       if (StringUtils.isBlank(customer.getPassword())) {
-        String password = new String(UUID.generateRandomBytes());
+        String password = UUID.randomUUID().toString().substring(0, 12);
         String encodedPassword = passwordEncoder.encode(password);
         customer.setPassword(encodedPassword);
       }
@@ -421,8 +410,6 @@ public class CustomerFacadeImpl implements CustomerFacade {
     }
 
   }
-
-
 
   public void authenticate(Customer customer, String userName, String password) throws Exception {
 
@@ -459,7 +446,6 @@ public class CustomerFacadeImpl implements CustomerFacade {
 
   }
 
-
   @Override
   public Address getAddress(Long userId, final MerchantStore merchantStore,
       boolean isBillingAddress) throws Exception {
@@ -490,7 +476,6 @@ public class CustomerFacadeImpl implements CustomerFacade {
         merchantStore.getDefaultLanguage());
 
   }
-
 
   @Override
   public void updateAddress(Long userId, MerchantStore merchantStore, Address address,
@@ -547,7 +532,6 @@ public class CustomerFacadeImpl implements CustomerFacade {
 
     }
 
-
     // same update address with customer model
     this.customerService.saveOrUpdate(customerModel);
 
@@ -563,12 +547,10 @@ public class CustomerFacadeImpl implements CustomerFacade {
     return convertCustomerToReadableCustomer(customerModel, merchantStore, language);
   }
 
-
   @Override
   public Customer populateCustomerModel(Customer customerModel, PersistableCustomer customer,
       MerchantStore merchantStore, Language language) throws Exception {
       LOG.info("Starting to populate customer model from customer data");
-
 
     customerModel = customerPopulator.populate(customer, customerModel, merchantStore, language);
 
@@ -576,7 +558,6 @@ public class CustomerFacadeImpl implements CustomerFacade {
     customerService.saveOrUpdate(customerModel);
     return customerModel;
   }
-
 
   @Override
   public ReadableCustomer create(PersistableCustomer customer, MerchantStore store, Language language) {
@@ -640,16 +621,14 @@ public class CustomerFacadeImpl implements CustomerFacade {
       throw new ConversionRuntimeException(e);
     }
 
-
     List<Group> groups = getListOfGroups(GroupType.CUSTOMER);
     cust.setGroups(groups);
 
     String password = customer.getPassword();
     if (StringUtils.isBlank(password)) {
-      password = new String(UUID.generateRandomBytes());
+      password = UUID.randomUUID().toString().substring(0, 12);
       customer.setPassword(password);
     }
-
 
     return cust;
 
@@ -688,7 +667,6 @@ public class CustomerFacadeImpl implements CustomerFacade {
 	    return customer;
 	  }
 
-
   @Override
   public PersistableCustomer update(PersistableCustomer customer, MerchantStore store) {
 
@@ -706,7 +684,7 @@ public class CustomerFacadeImpl implements CustomerFacade {
 
     String password = customer.getPassword();
     if (StringUtils.isBlank(password)) {
-      password = new String(UUID.generateRandomBytes());
+      password = UUID.randomUUID().toString().substring(0, 12);
       customer.setPassword(password);
     }
 
@@ -715,7 +693,6 @@ public class CustomerFacadeImpl implements CustomerFacade {
 
     return customer;
   }
-
 
   @Override
   public PersistableCustomerReview saveOrUpdateCustomerReview(PersistableCustomerReview reviewTO, MerchantStore store,
@@ -746,7 +723,6 @@ public class CustomerFacadeImpl implements CustomerFacade {
       throw new ConversionRuntimeException(e);
     }
   }
-
 
   @Override
   public List<ReadableCustomerReview> getAllCustomerReviewsByReviewed(Long customerId,
@@ -779,7 +755,6 @@ public class CustomerFacadeImpl implements CustomerFacade {
           .orElseThrow(() -> new ResourceNotFoundException("Customer id " + customerId + " does not exists"));
   }
 
-
   @Override
   public void deleteCustomerReview(Long customerId, Long reviewId, MerchantStore store, Language language) {
 
@@ -803,7 +778,6 @@ public class CustomerFacadeImpl implements CustomerFacade {
       throw new ServiceRuntimeException(e);
     }
   }
-
 
   @Override
   public void optinCustomer(PersistableCustomerOptin optin, MerchantStore store) {
@@ -856,12 +830,10 @@ public class CustomerFacadeImpl implements CustomerFacade {
 
   }
 
-
   @Override
   public void resetPassword(Customer customer, MerchantStore store, Language language) {
 
-
-    String password = new String(UUID.generateRandomBytes());
+    String password = UUID.randomUUID().toString().substring(0, 12);
     String encodedPassword = passwordEncoder.encode(password);
 
     customer.setPassword(encodedPassword);
@@ -872,7 +844,6 @@ public class CustomerFacadeImpl implements CustomerFacade {
         throw new ServiceRuntimeException(e);
     }
 
-
     Locale locale = languageService.toLocale(language, store);
 
     // send email
@@ -881,7 +852,6 @@ public class CustomerFacadeImpl implements CustomerFacade {
 
       // creation of a user, send an email
       String[] storeEmail = {store.getStoreEmailAddress()};
-
 
       Map<String, String> templateTokens =
           emailUtils.createEmailObjectsMap(imageUtils.getContextPath(), store, messages, locale);
@@ -898,7 +868,6 @@ public class CustomerFacadeImpl implements CustomerFacade {
           messages.getMessage("label.generic.password", locale));
       templateTokens.put(EmailConstants.EMAIL_CUSTOMER_PASSWORD, password);
 
-
       Email email = new Email();
       email.setFrom(store.getStorename());
       email.setFromEmail(store.getStoreEmailAddress());
@@ -907,14 +876,11 @@ public class CustomerFacadeImpl implements CustomerFacade {
       email.setTemplateName(RESET_PASSWORD_TPL);
       email.setTemplateTokens(templateTokens);
 
-
-
       emailService.sendHtmlEmail(store, email);
 
     } catch (Exception e) {
       LOG.error("Cannot send email to customer", e);
     }
-
 
   }
 
@@ -1021,7 +987,6 @@ public class CustomerFacadeImpl implements CustomerFacade {
     return review;
   }
 
-
   @Override
   public void deleteById(Long id) {
     Customer customer = getCustomerById(id);
@@ -1029,10 +994,8 @@ public class CustomerFacadeImpl implements CustomerFacade {
     
   }
 
-
   @Override
   public void updateAddress(PersistableCustomer customer, MerchantStore store) {
-
 
     if(customer.getBilling() != null) {
         Validate.notNull(customer.getBilling(), "Billing address can not be null");
@@ -1080,7 +1043,6 @@ public class CustomerFacadeImpl implements CustomerFacade {
 
   }
 
-
   @Override
   public void updateAddress(String userName, PersistableCustomer customer, MerchantStore store) {
     
@@ -1091,7 +1053,6 @@ public class CustomerFacadeImpl implements CustomerFacade {
     
   }
 
-
   @Override
   public PersistableCustomer update(String userName, PersistableCustomer customer,
       MerchantStore store) {
@@ -1101,12 +1062,10 @@ public class CustomerFacadeImpl implements CustomerFacade {
     return updateAuthCustomer(customer, store);
   }
 
-
   @Override
   public boolean passwordMatch(String rawPassword, Customer customer) {
     return passwordEncoder.matches(rawPassword, customer.getPassword());
   }
-
 
   @Override
   public void changePassword(Customer customer, String newPassword) {

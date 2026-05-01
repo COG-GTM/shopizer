@@ -80,5 +80,4 @@ public class ProductDefinition extends Entity {
 		this.sku = sku;
 	}
 
-
 }

@@ -17,6 +17,4 @@ public class CustomerAttributeEntity extends CustomerAttribute implements
 		return textValue;
 	}
 
-
-
 }

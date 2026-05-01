@@ -17,5 +17,4 @@ public abstract class ShopEntity extends Entity implements Serializable {
 		return language;
 	}
 
-
 }

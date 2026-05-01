@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.salesmanager.shop.model.catalog.category.ReadableCategory;
 
-
 /**
  * Object representing the results of a search query
  * @author Carl Samson
@@ -22,6 +21,5 @@ public class SearchProductList extends ProductList {
 	public void setCategoryFacets(List<ReadableCategory> categoryFacets) {
 		this.categoryFacets = categoryFacets;
 	}
-
 
 }

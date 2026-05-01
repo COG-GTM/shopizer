@@ -26,5 +26,4 @@ public class ListCriteria {
 		this.name = name;
 	}
 
-
 }

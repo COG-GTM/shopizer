@@ -16,8 +16,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-import javax.persistence.NoResultException;
+import jakarta.inject.Inject;
+import jakarta.persistence.NoResultException;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -77,7 +77,6 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 
 	@Inject
 	private ShoppingCartCalculationService shoppingCartCalculationService;
-
 
 	@Inject
 	private ProductService productService;

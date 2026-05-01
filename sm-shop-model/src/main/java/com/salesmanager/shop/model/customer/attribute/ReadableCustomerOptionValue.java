@@ -17,6 +17,4 @@ public class ReadableCustomerOptionValue extends CustomerOptionValueEntity
 		return description;
 	}
 
-
-
 }

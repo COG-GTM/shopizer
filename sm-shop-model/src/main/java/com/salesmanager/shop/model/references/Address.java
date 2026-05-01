@@ -55,5 +55,4 @@ public class Address implements Serializable {
 		this.stateProvince = stateProvince;
 	}
 
-
 }

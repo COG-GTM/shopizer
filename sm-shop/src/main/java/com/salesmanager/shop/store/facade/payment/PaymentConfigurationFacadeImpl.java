@@ -17,7 +17,6 @@ import com.salesmanager.shop.model.configuration.ReadableConfiguration;
 import com.salesmanager.shop.store.api.exception.ServiceRuntimeException;
 import com.salesmanager.shop.store.controller.configurations.ConfigurationsFacade;
 
-
 @Service("paymentConfigurationFacade")
 public class PaymentConfigurationFacadeImpl implements ConfigurationsFacade {
 	
@@ -90,6 +89,5 @@ public class PaymentConfigurationFacadeImpl implements ConfigurationsFacade {
 		
 		return config;
 	}
-
 
 }

@@ -9,7 +9,6 @@ import com.salesmanager.core.business.constants.Constants;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
 
-
 public class LocaleUtils {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(LocaleUtils.class);
@@ -45,6 +44,5 @@ public class LocaleUtils {
 		return defaultLocale;
 
 	}
-
 
 }

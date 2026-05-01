@@ -3,7 +3,7 @@ package com.salesmanager.shop.populator.store;
 import java.util.Date;
 import java.util.List;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -193,6 +193,5 @@ public class PersistableMerchantStorePopulator extends AbstractDataPopulator<Per
 	public void setCurrencyService(CurrencyService currencyService) {
 		this.currencyService = currencyService;
 	}
-
 
 }

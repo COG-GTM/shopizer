@@ -73,7 +73,6 @@ public interface ImageFilePath {
 	 */
 	public String buildLargeProductImageUtils(MerchantStore store, String sku, String imageName);
 
-
 	
 	/**
 	 * Builds a merchant store logo path
@@ -107,6 +106,5 @@ public interface ImageFilePath {
 	 * @return
 	 */
 	public String buildStaticContentFilePath(MerchantStore store, String fileName);
-
 
 }

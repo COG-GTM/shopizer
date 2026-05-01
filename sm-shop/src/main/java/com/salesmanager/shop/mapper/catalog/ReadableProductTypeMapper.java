@@ -36,7 +36,6 @@ public class ReadableProductTypeMapper implements Mapper<ProductType, ReadablePr
 	private ReadableProductType type (ProductType type, Language language) {
 		ReadableProductType readableType = null;
 
-
 		if(language != null) {
 			readableType = new ReadableProductType();
 			if(!CollectionUtils.isEmpty(type.getDescriptions())) {

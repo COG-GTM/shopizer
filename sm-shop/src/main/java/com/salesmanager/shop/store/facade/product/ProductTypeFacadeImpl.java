@@ -79,7 +79,6 @@ public class ProductTypeFacadeImpl implements ProductTypeFacade {
 					
 			ReadableProductType readableType = readableProductTypeMapper.convert(type, store, language);
 
-
 			return readableType;
 
 		} catch(Exception e) {
@@ -158,7 +157,6 @@ public class ProductTypeFacadeImpl implements ProductTypeFacade {
 
 			productTypeService.delete(t);
 
-
 		} catch(Exception e) {
 			throw new ServiceRuntimeException(
 					"An exception occured while saving product type",e);
@@ -197,6 +195,5 @@ public class ProductTypeFacadeImpl implements ProductTypeFacade {
 		return readableType;
 
 	}
-
 
 }

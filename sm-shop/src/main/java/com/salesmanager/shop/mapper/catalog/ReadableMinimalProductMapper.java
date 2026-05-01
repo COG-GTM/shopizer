@@ -50,7 +50,6 @@ public class ReadableMinimalProductMapper implements Mapper<Product, ReadableMin
 		Validate.notNull(source, "Product cannot be null");
 		Validate.notNull(destination, "ReadableMinimalProduct cannot be null");
 
-
 		for (ProductDescription desc : source.getDescriptions()) {
 			if (language != null && desc.getLanguage() != null
 					&& desc.getLanguage().getId().intValue() == language.getId().intValue()) {

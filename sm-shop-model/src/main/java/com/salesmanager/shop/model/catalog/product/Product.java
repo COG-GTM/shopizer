@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 import com.salesmanager.shop.model.entity.Entity;
 
-
 public class Product extends Entity implements Serializable {
 
 	/**
@@ -57,7 +56,5 @@ public class Product extends Entity implements Serializable {
 	public void setVisible(boolean visible) {
 		this.visible = visible;
 	}
-
-
 
 }

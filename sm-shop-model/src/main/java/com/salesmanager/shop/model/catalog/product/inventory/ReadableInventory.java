@@ -59,5 +59,4 @@ public class ReadableInventory extends InventoryEntity {
 		this.price = price;
 	}
 
-
 }

@@ -5,7 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.Validate;
@@ -55,7 +55,6 @@ public class ProductFacadeImpl implements ProductFacade {
 
 	@Inject
 	private ProductRelationshipService productRelationshipService;
-
 
 	@Inject
 	@Qualifier("img")
@@ -201,8 +200,6 @@ public class ProductFacadeImpl implements ProductFacade {
 		return null;
 	}
 
-
-
 	@Override
 	public ReadableProduct getProductBySeUrl(MerchantStore store, String friendlyUrl, Language language) throws Exception {
 
@@ -267,7 +264,5 @@ public class ProductFacadeImpl implements ProductFacade {
 	public Product getProduct(Long id, MerchantStore store) {
 		return productService.findOne(id, store);
 	}
-
-
 
 }

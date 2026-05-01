@@ -19,5 +19,4 @@ public class ConstraintException extends GenericRuntimeException {
         super(CONSTRAINT_ERROR_CODE,message, exception);
     }
 
-
 }

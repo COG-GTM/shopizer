@@ -15,7 +15,6 @@ public class ProductAttributeEntity extends ProductAttribute implements Serializ
 	private boolean attributeDefault=false;
 	private boolean attributeDisplayOnly = false;
 
-
 	public void setSortOrder(int sortOrder) {
 		this.sortOrder = sortOrder;
 	}

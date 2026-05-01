@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 import com.salesmanager.shop.model.entity.ShopEntity;
 import com.salesmanager.shop.model.order.total.OrderTotal;
 
-
 @Component
 @Scope(value = "prototype")
 public class ShoppingCartData extends ShopEntity implements Serializable {
@@ -84,7 +83,5 @@ public class ShoppingCartData extends ShopEntity implements Serializable {
 	public void setOrderId(Long orderId) {
 		this.orderId = orderId;
 	}
-
-
 
 }

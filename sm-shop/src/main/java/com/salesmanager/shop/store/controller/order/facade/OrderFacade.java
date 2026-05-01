@@ -27,7 +27,6 @@ import com.salesmanager.shop.model.order.history.PersistableOrderStatusHistory;
 import com.salesmanager.shop.model.order.history.ReadableOrderStatusHistory;
 import com.salesmanager.shop.model.order.transaction.ReadableTransaction;
 
-
 public interface OrderFacade {
 
 	ShopOrder initializeOrder(MerchantStore store, Customer customer, ShoppingCart shoppingCart, Language language) throws Exception;
@@ -43,8 +42,6 @@ public interface OrderFacade {
 	Order processOrder(ShopOrder order, Customer customer, Transaction transaction, MerchantStore store, Language language) throws ServiceException;
 	/** process a valid order submitted from the API **/
 	Order processOrder(com.salesmanager.shop.model.order.v1.PersistableOrder order, Customer customer, MerchantStore store, Language language, Locale locale) throws ServiceException;
-
-
 
 	/** creates a working copy of customer when the user is anonymous **/
 	Customer initEmptyCustomer(MerchantStore store);
@@ -110,7 +107,6 @@ public interface OrderFacade {
 	 */
 	List<ReadableOrderStatusHistory> getReadableOrderHistory(Long orderId, MerchantStore store, Language language);
 
-
 	/**
      * <p>Method used to fetch all orders associated with customer customer.
      * It will used current customer ID to fetch all orders which has been
@@ -125,7 +121,6 @@ public interface OrderFacade {
 	com.salesmanager.shop.model.order.v0.ReadableOrderList getReadableOrderList(MerchantStore store, Customer customer, int start,
 			int maxCount, Language language) throws Exception;
 
-
 	/**
 	 * <p>Method used to fetch all orders associated with customer customer.
 	 * It will used current customer ID to fetch all orders which has been
@@ -136,7 +131,6 @@ public interface OrderFacade {
 	 */
 
 	com.salesmanager.shop.model.order.v0.ReadableOrderList getReadableOrderList(OrderCriteria criteria, MerchantStore store);
-
 
 	/**
 	 * Get a list of Order on which payment capture must be done

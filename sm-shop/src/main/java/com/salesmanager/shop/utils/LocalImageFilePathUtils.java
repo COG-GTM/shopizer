@@ -10,9 +10,6 @@ import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.shop.constants.Constants;
 import com.salesmanager.shop.model.catalog.manufacturer.Manufacturer;
 
-
-
-
 @Component
 public class LocalImageFilePathUtils extends AbstractimageFilePath{
 	
@@ -125,7 +122,6 @@ public class LocalImageFilePathUtils extends AbstractimageFilePath{
 				.append(sku).append("/").append("LARGE").append("/").append(imageName).toString();
 	}
 
-
 	
 	/**
 	 * Builds a merchant store logo path
@@ -164,7 +160,5 @@ public class LocalImageFilePathUtils extends AbstractimageFilePath{
 	}
 
 	
-
-
 
 }

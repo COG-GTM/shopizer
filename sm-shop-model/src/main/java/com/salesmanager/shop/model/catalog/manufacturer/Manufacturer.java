@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 import com.salesmanager.shop.model.entity.Entity;
 
-
 public class Manufacturer extends Entity implements Serializable {
 
 	/**

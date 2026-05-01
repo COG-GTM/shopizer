@@ -1,6 +1,5 @@
 package com.salesmanager.shop.model.content;
 
-
 /**
  * Model object used in webservice
  * when creatin files
@@ -22,6 +21,5 @@ public class ContentFile extends ContentPath {
 	public void setFile(byte[] file) {
 		this.file = file;
 	}
-
 
 }
