@@ -18,7 +18,6 @@ public class Order extends Entity {
 	private String currency;
 	private List<OrderAttribute> attributes = new ArrayList<OrderAttribute>();
 
-
 	public boolean isCustomerAgreement() {
 		return customerAgreement;
 	}
@@ -50,7 +49,5 @@ public class Order extends Entity {
 	public void setAttributes(List<OrderAttribute> attributes) {
 		this.attributes = attributes;
 	}
-
-
 
 }

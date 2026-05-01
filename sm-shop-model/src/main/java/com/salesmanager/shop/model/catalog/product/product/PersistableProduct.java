@@ -9,8 +9,6 @@ import com.salesmanager.shop.model.catalog.product.ProductDescription;
 import com.salesmanager.shop.model.catalog.product.attribute.PersistableProductAttribute;
 import com.salesmanager.shop.model.catalog.product.product.variant.PersistableProductVariant;
 
-
-
 public class PersistableProduct extends ProductEntity implements Serializable {
 
 	/**

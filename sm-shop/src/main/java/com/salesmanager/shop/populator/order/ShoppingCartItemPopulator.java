@@ -20,7 +20,6 @@ import com.salesmanager.shop.store.api.exception.ServiceRuntimeException;
 public class ShoppingCartItemPopulator extends
 		AbstractDataPopulator<PersistableOrderProduct, ShoppingCartItem> {
 
-
 	private ProductService productService;
 	private ProductAttributeService productAttributeService;
 	private ShoppingCartService shoppingCartService;

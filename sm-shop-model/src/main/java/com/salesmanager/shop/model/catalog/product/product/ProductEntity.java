@@ -34,7 +34,6 @@ public class ProductEntity extends Product implements Serializable {
 	private int sortOrder;
 	private String refSku;
 
-
 	/**
 	 * RENTAL additional fields
 	 * 
@@ -73,7 +72,6 @@ public class ProductEntity extends Product implements Serializable {
 	public void setSku(String sku) {
 		this.sku = sku;
 	}
-
 
 	public boolean isProductIsFree() {
 		return productIsFree;
@@ -170,7 +168,5 @@ public class ProductEntity extends Product implements Serializable {
 	public void setProductSpecifications(ProductSpecification productSpecifications) {
 		this.productSpecifications = productSpecifications;
 	}
-
-
 
 }

@@ -5,7 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.Validate;
@@ -42,7 +42,6 @@ import com.salesmanager.shop.store.controller.product.facade.ProductFacade;
 import com.salesmanager.shop.utils.ImageFilePath;
 import com.salesmanager.shop.utils.LocaleUtils;
 
-
 @Service("productFacadeV2")
 @Profile({ "default", "cloud", "gcp", "aws", "mysql" , "local" })
 public class ProductFacadeV2Impl implements ProductFacade {
@@ -78,7 +77,6 @@ public class ProductFacadeV2Impl implements ProductFacade {
 	@Inject
 	@Qualifier("img")
 	private ImageFilePath imageUtils;
-
 
 	@Override
 	public Product getProduct(Long id, MerchantStore store) {
@@ -197,7 +195,6 @@ public class ProductFacadeV2Impl implements ProductFacade {
 		List<ReadableProduct> readableProducts = products.stream().map(p -> readableProductMapper.convert(p, store, language))
 				.sorted(Comparator.comparing(ReadableProduct::getSortOrder)).collect(Collectors.toList());
 
-
 		productList.setRecordsTotal(modelProductList.getTotalElements());
 		productList.setNumber(modelProductList.getNumberOfElements());
 		productList.setProducts(readableProducts);
@@ -228,7 +225,6 @@ public class ProductFacadeV2Impl implements ProductFacade {
 		}
 		return null;
 	}
-
 
 	/**
 	@Override

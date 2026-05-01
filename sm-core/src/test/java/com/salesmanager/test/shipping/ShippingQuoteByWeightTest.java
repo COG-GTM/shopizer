@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.junit.Ignore;
 import org.springframework.util.Assert;
@@ -259,7 +259,7 @@ public class ShippingQuoteByWeightTest extends com.salesmanager.test.common.Abst
 	    
 	    ShippingQuote shippingQuote = shippingService.getShippingQuote(dummyCartId, store, delivery, shippingProducts, en);
 
-	    Assert.notNull(shippingQuote);
+	    Assert.notNull(shippingQuote, "ShippingQuote cannot be null");
 	    
 	}
 

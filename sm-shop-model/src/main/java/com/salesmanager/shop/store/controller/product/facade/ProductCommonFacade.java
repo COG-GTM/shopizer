@@ -75,7 +75,6 @@ public interface ProductCommonFacade {
 	  ReadableProduct getProductByCode(MerchantStore store, String uniqueCode, Language language)
 	      throws Exception;
 
-
 	  /**
 	   * Sets a new price to an existing product
 	   *
@@ -116,8 +115,6 @@ public interface ProductCommonFacade {
 	   */
 	  void deleteProduct(Long id, MerchantStore store);
 
-
-
 	  /**
 	   * Adds a product to a category
 	   *
@@ -138,7 +135,6 @@ public interface ProductCommonFacade {
 	   */
 	  ReadableProduct removeProductFromCategory(Category category, Product product, Language language)
 	      throws Exception;
-
 
 	  /**
 	   * Saves or updates a Product review
@@ -179,7 +175,5 @@ public interface ProductCommonFacade {
 	   * @return
 	   */
 	  public boolean exists(String sku, MerchantStore store);
-
-
 
 }

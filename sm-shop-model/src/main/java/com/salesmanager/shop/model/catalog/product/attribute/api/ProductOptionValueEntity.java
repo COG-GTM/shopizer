@@ -19,5 +19,4 @@ public class ProductOptionValueEntity extends ProductOptionValue implements Seri
 		return order;
 	}
 
-
 }

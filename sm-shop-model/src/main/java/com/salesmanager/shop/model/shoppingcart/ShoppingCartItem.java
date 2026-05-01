@@ -6,7 +6,6 @@ import java.util.List;
 
 import com.salesmanager.shop.model.entity.ShopEntity;
 
-
 public class ShoppingCartItem extends ShopEntity implements Serializable {
 	
 	public String getSku() {
@@ -54,7 +53,6 @@ public class ShoppingCartItem extends ShopEntity implements Serializable {
 		this.quantity = quantity;
 	}
 
-
 	public String getCode() {
 		return code;
 	}
@@ -91,6 +89,5 @@ public class ShoppingCartItem extends ShopEntity implements Serializable {
 	public void setProductVirtual(boolean productVirtual) {
 		this.productVirtual = productVirtual;
 	}
-
 
 }

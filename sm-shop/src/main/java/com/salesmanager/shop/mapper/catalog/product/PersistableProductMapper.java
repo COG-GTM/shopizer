@@ -46,14 +46,12 @@ import com.salesmanager.shop.model.catalog.product.product.variant.PersistablePr
 import com.salesmanager.shop.store.api.exception.ConversionRuntimeException;
 import com.salesmanager.shop.utils.DateUtil;
 
-
 /**
  * Transforms a fully configured PersistableProduct
  * to a Product with inventory and Variants if any
  * @author carlsamson
  *
  */
-
 
 @Component
 public class PersistableProductMapper implements Mapper<PersistableProduct, Product> {
@@ -286,7 +284,6 @@ public class PersistableProductMapper implements Mapper<PersistableProduct, Prod
 				}
 			}
 
-
 			return destination;
 		
 		} catch (Exception e) {
@@ -306,6 +303,5 @@ public class PersistableProductMapper implements Mapper<PersistableProduct, Prod
 		return availabilityList.stream().filter(a -> a.getRegion() != null && a.getRegion().equals(Constants.ALL_REGIONS)).findFirst().get();
 	}
 	
-
 
 }

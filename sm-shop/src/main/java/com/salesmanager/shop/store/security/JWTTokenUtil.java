@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import javax.crypto.SecretKey;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -16,26 +18,15 @@ import com.salesmanager.shop.utils.DateUtil;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 
-/**
- * Used for managing token based authentication for customer and user
- * @author c.samson
- *
- */
 @Component
 public class JWTTokenUtil implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
-	
-	
+
 	    static final int GRACE_PERIOD = 200;
-	
-	
-	
+
 	 	static final String CLAIM_KEY_USERNAME = "sub";
 	    static final String CLAIM_KEY_AUDIENCE = "aud";
 	    static final String CLAIM_KEY_CREATED = "iat";
@@ -46,12 +37,15 @@ public class JWTTokenUtil implements Serializable {
 	    static final String AUDIENCE_MOBILE = "mobile";
 	    static final String AUDIENCE_TABLET = "tablet";
 
-
 	    @Value("${jwt.secret}")
 	    private String secret;
 
 	    @Value("${jwt.expiration}")
 	    private Long expiration;
+
+	    private SecretKey getSigningKey() {
+	        return Keys.hmacShaKeyFor(secret.getBytes());
+	    }
 
 	    public String getUsernameFromToken(String token) {
 	        return getClaimFromToken(token, Claims::getSubject);
@@ -66,7 +60,8 @@ public class JWTTokenUtil implements Serializable {
 	    }
 
 	    public String getAudienceFromToken(String token) {
-	        return getClaimFromToken(token, Claims::getAudience);
+	        Claims claims = getAllClaimsFromToken(token);
+	        return claims.getAudience().iterator().next();
 	    }
 
 	    public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
@@ -76,9 +71,10 @@ public class JWTTokenUtil implements Serializable {
 
 	    private Claims getAllClaimsFromToken(String token) {
 	        return Jwts.parser()
-	                .setSigningKey(secret)
-	                .parseClaimsJws(token)
-	                .getBody();
+	                .verifyWith(getSigningKey())
+	                .build()
+	                .parseSignedClaims(token)
+	                .getPayload();
 	    }
 
 	    private Boolean isTokenExpired(String token) {
@@ -125,28 +121,18 @@ public class JWTTokenUtil implements Serializable {
 	        final Date createdDate = DateUtil.getDate();
 	        final Date expirationDate = calculateExpirationDate(createdDate);
 
-	        System.out.println("doGenerateToken " + createdDate);
-
 	        return Jwts.builder()
-	                .setClaims(claims)
-	                .setSubject(subject)
-	                .setAudience(audience)
-	                .setIssuedAt(createdDate)
-	                .setExpiration(expirationDate)
-	                .signWith(SignatureAlgorithm.HS512, secret)
+	                .claims(claims)
+	                .subject(subject)
+	                .audience().add(audience).and()
+	                .issuedAt(createdDate)
+	                .expiration(expirationDate)
+	                .signWith(getSigningKey())
 	                .compact();
 	    }
 	    
         public Boolean canTokenBeRefreshedWithGrace(String token, Date lastPasswordReset) {
           final Date created = getIssuedAtDateFromToken(token);
-          boolean t = isCreatedBeforeLastPasswordResetWithGrace(created, lastPasswordReset);
-          boolean u = isTokenExpiredWithGrace(token);
-          boolean v =  ignoreTokenExpiration(token);
-          System.out.println(t + " " +  u + " " + v);
-          System.out.println(!isCreatedBeforeLastPasswordResetWithGrace(created, lastPasswordReset)
-                  && (!isTokenExpiredWithGrace(token) || ignoreTokenExpiration(token)));
-          //return !isCreatedBeforeLastPasswordResetWithGrace(created, lastPasswordReset)
-          //        && (!isTokenExpired(token) || ignoreTokenExpiration(token));
           return true;
         }	    
 
@@ -161,12 +147,12 @@ public class JWTTokenUtil implements Serializable {
 	        final Date expirationDate = calculateExpirationDate(createdDate);
 
 	        final Claims claims = getAllClaimsFromToken(token);
-	        claims.setIssuedAt(createdDate);
-	        claims.setExpiration(expirationDate);
 
 	        return Jwts.builder()
-	                .setClaims(claims)
-	                .signWith(SignatureAlgorithm.HS512, secret)
+	                .claims(claims)
+	                .issuedAt(createdDate)
+	                .expiration(expirationDate)
+	                .signWith(getSigningKey())
 	                .compact();
 	    }
 
@@ -174,14 +160,12 @@ public class JWTTokenUtil implements Serializable {
 	        JWTUser user = (JWTUser) userDetails;
 	        final String username = getUsernameFromToken(token);
 	        final Date created = getIssuedAtDateFromToken(token);
-	        //final Date expiration = getExpirationDateFromToken(token);
 	        
 	        boolean usernameEquals = username.equals(user.getUsername());
 	        boolean isTokenExpired = isTokenExpired(token);
 	        boolean isTokenCreatedBeforeLastPasswordReset = isCreatedBeforeLastPasswordReset(created, user.getLastPasswordResetDate());
 	        
 	        return (
-
 	        		usernameEquals && !isTokenExpired && !isTokenCreatedBeforeLastPasswordReset
 	        );
 	    }

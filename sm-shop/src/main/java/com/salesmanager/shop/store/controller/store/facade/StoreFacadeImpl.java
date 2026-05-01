@@ -6,12 +6,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.Validate;
-import org.drools.core.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -153,7 +153,6 @@ public class StoreFacadeImpl implements StoreFacade {
 	private ReadableMerchantStore convertMerchantStoreToReadableMerchantStoreWithFullDetails(Language language, MerchantStore store) {
 		ReadableMerchantStore readable = new ReadableMerchantStore();
 
-
 		/**
 		 * Language is not important for this conversion using default language
 		 */
@@ -252,8 +251,6 @@ public class StoreFacadeImpl implements StoreFacade {
 		return  getMerchantStoresByCriteria(criteria, lang);
 
 	}
-
-
 
 	private ReadableMerchantStoreList getMerchantStoresByCriteria(MerchantStoreCriteria criteria, Language language) {
 		try {
@@ -499,7 +496,6 @@ public class StoreFacadeImpl implements StoreFacade {
 				}
 			}
 
-
 			if (!CollectionUtils.isEmpty(stores.getContent())) {
 				for (MerchantStore store : stores)
 					readableStores.add(convertMerchantStoreToReadableMerchantStore(language, store));
@@ -514,7 +510,6 @@ public class StoreFacadeImpl implements StoreFacade {
 		} catch (ServiceException e) {
 			throw new ServiceRuntimeException("Error while finding all merchant", e);
 		}
-
 
 	}
 	

@@ -1,6 +1,5 @@
 package com.salesmanager.shop.populator.customer;
 
-
 import java.math.BigDecimal;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
@@ -47,8 +46,6 @@ public class CustomerPopulator extends
     private CustomerOptionValueService customerOptionValueService;
     @Autowired
     private PasswordEncoder passwordEncoder;
-
-
 
 	/**
 	 * Creates a Customer entity ready to be saved
@@ -263,6 +260,5 @@ public class CustomerPopulator extends
 	protected Customer createTarget() {
 		return new Customer();
 	}
-
 
 }

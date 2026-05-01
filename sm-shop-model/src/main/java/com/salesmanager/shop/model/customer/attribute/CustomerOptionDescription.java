@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 import com.salesmanager.shop.model.catalog.NamedEntity;
 
-
 public class CustomerOptionDescription extends NamedEntity implements
 		Serializable {
 

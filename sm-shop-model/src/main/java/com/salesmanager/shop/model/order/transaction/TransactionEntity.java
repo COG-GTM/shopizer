@@ -46,5 +46,4 @@ public class TransactionEntity extends Entity implements Serializable {
 		this.amount = amount;
 	}
 
-
 }

@@ -55,5 +55,4 @@ public class ReadableOrderProduct extends OrderProductEntity implements
 		this.attributes = attributes;
 	}
 
-
 }

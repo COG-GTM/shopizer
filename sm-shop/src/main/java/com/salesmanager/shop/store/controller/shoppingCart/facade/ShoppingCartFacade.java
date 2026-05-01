@@ -28,7 +28,6 @@ import java.util.Optional;
  *
  */
 
-
 public interface ShoppingCartFacade {
 
     public ShoppingCartData addItemsToShoppingCart(ShoppingCartData shoppingCart,final ShoppingCartItem item, final MerchantStore store,final Language language,final Customer customer) throws Exception;
@@ -156,7 +155,6 @@ public interface ShoppingCartFacade {
 	 * @throws Exception
 	 */
 	ReadableShoppingCart getByCode(String code, MerchantStore store, Language language) throws Exception;
-
 
 	/**
 	 * Set an order id to a shopping cart

@@ -43,5 +43,4 @@ public class ProductList implements Serializable {
 		this.maxPrice = maxPrice;
 	}
 
-
 }

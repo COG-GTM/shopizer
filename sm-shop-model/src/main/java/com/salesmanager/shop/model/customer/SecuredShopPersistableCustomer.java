@@ -1,6 +1,5 @@
 package com.salesmanager.shop.model.customer;
 
-
 public class SecuredShopPersistableCustomer extends SecuredCustomer {
 
 	/**
@@ -19,6 +18,5 @@ public class SecuredShopPersistableCustomer extends SecuredCustomer {
 		this.checkPassword = checkPassword;
 	}
 	
-
 
 }

@@ -5,11 +5,11 @@ import java.util.Enumeration;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.inject.Inject;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.inject.Inject;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,9 +20,7 @@ import com.salesmanager.core.model.common.UserContext;
 import com.salesmanager.shop.store.security.common.CustomAuthenticationManager;
 import com.salesmanager.shop.utils.GeoLocationUtils;
 
-
 public class AuthenticationTokenFilter extends OncePerRequestFilter {
-
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationTokenFilter.class);
 
@@ -72,7 +70,6 @@ public class AuthenticationTokenFilter extends OncePerRequestFilter {
     	}
     	
     	String requestUrl = request.getRequestURL().toString();
-
 
     	if(requestUrl.contains("/api/v1/auth")) {
     		//setHeader(request,response);   	
@@ -140,6 +137,5 @@ public class AuthenticationTokenFilter extends OncePerRequestFilter {
     	}
     	
     }
-
 
 }

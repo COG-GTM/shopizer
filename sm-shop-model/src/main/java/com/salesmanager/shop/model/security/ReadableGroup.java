@@ -23,6 +23,4 @@ public class ReadableGroup extends GroupEntity {
     return id;
   }
 
-
-
 }

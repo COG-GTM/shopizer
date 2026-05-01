@@ -14,5 +14,4 @@ public class ReadableCustomerReview extends CustomerReviewEntity {
 		this.reviewedCustomer = reviewedCustomer;
 	}
 
-
 }

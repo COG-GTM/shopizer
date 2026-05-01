@@ -28,7 +28,6 @@ public class ReadableShopOrderPopulator extends
 			ReadableCustomer customer = new ReadableCustomer();
 			PersistableCustomer persistableCustomer = source.getCustomer();
 
-
 			customer.setEmailAddress(persistableCustomer.getEmailAddress());
 			if(persistableCustomer.getBilling()!=null) {
 				Address address = new Address();

@@ -58,5 +58,4 @@ public class ReadableMinimalProduct extends ProductEntity implements Serializabl
 		this.images = images;
 	}
 
-
 }

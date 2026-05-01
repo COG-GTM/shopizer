@@ -13,9 +13,6 @@ public class UserEntity extends User {
   private String userName;
   private boolean active;
 
-
-
-
   public String getFirstName() {
     return firstName;
   }
@@ -40,7 +37,6 @@ public class UserEntity extends User {
     this.emailAddress = emailAddress;
   }
 
-
   public String getDefaultLanguage() {
     return defaultLanguage;
   }
@@ -64,6 +60,5 @@ public String getUserName() {
 public void setUserName(String userName) {
 	this.userName = userName;
 }
-
 
 }

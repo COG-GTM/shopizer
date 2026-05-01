@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 import com.salesmanager.shop.model.customer.ReadableCustomer;
 
-
 public class ReadableProductReview extends ProductReviewEntity implements Serializable {
 
 	/**

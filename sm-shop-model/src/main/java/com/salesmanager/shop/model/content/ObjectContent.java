@@ -52,5 +52,4 @@ public class ObjectContent extends ContentPath implements ResourceUrlAccess {
     this.language = language;
   }
 
-
 }

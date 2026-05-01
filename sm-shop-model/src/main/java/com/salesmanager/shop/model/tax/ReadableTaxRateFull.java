@@ -18,5 +18,4 @@ public class ReadableTaxRateFull extends TaxRateEntity {
 	}
 	
 
-
 }

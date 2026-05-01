@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -48,7 +48,6 @@ import com.salesmanager.shop.store.controller.product.facade.ProductCommonFacade
 import com.salesmanager.shop.utils.DateUtil;
 import com.salesmanager.shop.utils.ImageFilePath;
 
-
 /**
  * Version 1 Product management
  * Version 2 Recommends using productVariant
@@ -57,7 +56,6 @@ import com.salesmanager.shop.utils.ImageFilePath;
  */
 @Service("productCommonFacade")
 public class ProductCommonFacadeImpl implements ProductCommonFacade {
-
 
 	@Inject
 	private LanguageService languageService;
@@ -104,7 +102,6 @@ public class ProductCommonFacadeImpl implements ProductCommonFacade {
 			target = persistableProductMapper.merge(product, target, store, language);
 			target = productService.saveProduct(target);
 
-
 			return target.getId();
 		} catch (Exception e) {
 			throw new ServiceRuntimeException(e);
@@ -119,7 +116,6 @@ public class ProductCommonFacadeImpl implements ProductCommonFacade {
 
 		// get original product
 		Product productModel = productService.getById(product.getId());
-
 
 	}
 
@@ -147,7 +143,6 @@ public class ProductCommonFacadeImpl implements ProductCommonFacade {
 
 		return readableProduct;
 	}
-
 
 	@Override
 	public ReadableProduct updateProductPrice(ReadableProduct product, ProductPriceEntity price, Language language)
@@ -222,7 +217,6 @@ public class ProductCommonFacadeImpl implements ProductCommonFacade {
 		productService.delete(product);
 
 	}
-
 
 	@Override
 	public ReadableProduct addProductToCategory(Category category, Product product, Language language) {
@@ -344,7 +338,6 @@ public class ProductCommonFacadeImpl implements ProductCommonFacade {
 		return productReviews;
 	}
 
-
 	@Override
 	public void update(Long productId, LightPersistableProduct product, MerchantStore merchant, Language language) {
 		// Get product
@@ -383,7 +376,6 @@ public class ProductCommonFacadeImpl implements ProductCommonFacade {
 		return productService.exists(sku, store);
 	}
 
-
 	@Override
 	public void deleteProduct(Long id, MerchantStore store) {
 
@@ -408,8 +400,6 @@ public class ProductCommonFacadeImpl implements ProductCommonFacade {
 		}
 
 	}
-
-
 
 	@Override
 	public Product getProduct(Long id, MerchantStore store) {
@@ -472,6 +462,5 @@ public class ProductCommonFacadeImpl implements ProductCommonFacade {
 			}
 		}
 	}
-
 
 }

@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 import com.salesmanager.shop.model.entity.ShopEntity;
 
-
 public abstract class NamedEntity extends ShopEntity implements Serializable {
 	
 	/**
@@ -62,6 +61,5 @@ public abstract class NamedEntity extends ShopEntity implements Serializable {
 	public void setTitle(String title) {
 		this.title = title;
 	}
-
 
 }

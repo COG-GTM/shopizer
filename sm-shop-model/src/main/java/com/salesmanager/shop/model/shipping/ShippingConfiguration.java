@@ -11,11 +11,8 @@ public class ShippingConfiguration implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
-
-
 	private boolean taxOnShipping = false;
 	private List<BoxConfiguration> boxConfigurations = new ArrayList<BoxConfiguration>();
-
 
 	public boolean isTaxOnShipping() {
 		return taxOnShipping;

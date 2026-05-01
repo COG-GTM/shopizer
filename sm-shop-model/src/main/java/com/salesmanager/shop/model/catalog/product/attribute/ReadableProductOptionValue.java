@@ -11,7 +11,6 @@ public class ReadableProductOptionValue extends ProductOptionValue {
 	private String image;
 	private String description;
 
-
 	public String getPrice() {
 		return price;
 	}

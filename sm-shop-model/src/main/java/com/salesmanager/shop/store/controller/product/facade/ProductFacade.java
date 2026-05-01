@@ -13,7 +13,6 @@ import com.salesmanager.shop.model.catalog.product.ReadableProductPrice;
 
 public interface ProductFacade {
 
-
   
   
   /**

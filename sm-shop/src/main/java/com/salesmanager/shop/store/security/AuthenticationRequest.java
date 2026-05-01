@@ -2,7 +2,7 @@ package com.salesmanager.shop.store.security;
 
 import java.io.Serializable;
 
-import javax.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 
 public class AuthenticationRequest implements Serializable {
 
@@ -20,7 +20,6 @@ public class AuthenticationRequest implements Serializable {
 	@NotEmpty(message="{message.password.required}")
     private String password;
     
-
 
     public AuthenticationRequest() {
         super();
@@ -46,6 +45,5 @@ public class AuthenticationRequest implements Serializable {
     public void setPassword(String password) {
         this.password = password;
     }
-
 
 }

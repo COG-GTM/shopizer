@@ -1,6 +1,5 @@
 package com.salesmanager.shop.model.customer;
 
-
 import com.salesmanager.shop.model.customer.address.Address;
 
 public class BillingEntity extends Address {

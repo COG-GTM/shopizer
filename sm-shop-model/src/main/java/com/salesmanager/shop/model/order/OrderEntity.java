@@ -112,5 +112,4 @@ public class OrderEntity extends Order implements Serializable {
 		this.attributes = attributes;
 	}
 
-
 }

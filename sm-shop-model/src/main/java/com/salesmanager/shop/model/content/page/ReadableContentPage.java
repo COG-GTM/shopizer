@@ -13,7 +13,6 @@ public class ReadableContentPage extends ContentPage {
 	private ContentDescription description ;
 	private String path;
 
-
 	public ContentDescription getDescription() {
 		return description;
 	}

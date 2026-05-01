@@ -25,6 +25,4 @@ public class ReadableProductProperty extends ProductPropertyOption {
 		this.propertyValue = propertyValue;
 	}
 
-
-
 }

@@ -73,5 +73,4 @@ public class ReadableMerchantStore extends MerchantStoreEntity implements Readab
 		this.supportedLanguages = supportedLanguages;
 	}
 
-
 }

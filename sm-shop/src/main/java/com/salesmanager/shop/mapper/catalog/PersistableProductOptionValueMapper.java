@@ -94,7 +94,6 @@ public class PersistableProductOptionValueMapper
 			destination.setMerchantStore(store);
 			destination.setProductOptionValueSortOrder(source.getSortOrder());
 
-
 			return destination;
 		} catch (Exception e) {
 			throw new ServiceRuntimeException("Error while converting product option", e);
@@ -107,6 +106,5 @@ public class PersistableProductOptionValueMapper
 		ProductOptionValue destination = new ProductOptionValue();
 		return merge(source, destination, store, language);
 	}
-
 
 }

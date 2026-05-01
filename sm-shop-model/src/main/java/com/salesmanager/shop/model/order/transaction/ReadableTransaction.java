@@ -27,5 +27,4 @@ public class ReadableTransaction extends TransactionEntity implements Serializab
 		this.transactionType = transactionType;
 	}
 
-
 }

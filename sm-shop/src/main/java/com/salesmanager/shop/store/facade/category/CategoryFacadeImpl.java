@@ -12,7 +12,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.apache.commons.lang3.Validate;
 import org.springframework.stereotype.Service;
@@ -74,12 +74,10 @@ public class CategoryFacadeImpl implements CategoryFacade {
 
 		Validate.notNull(store,"MerchantStore can not be null");
 
-
 		//get parent store
 		try {
 
 			MerchantStore parent = merchantStoreService.getParent(store.getCode());
-
 
 			List<Category> categories = null;
 			ReadableCategoryList returnList = new ReadableCategoryList();
@@ -96,8 +94,6 @@ public class CategoryFacadeImpl implements CategoryFacade {
 				returnList.setTotalPages(pageable.getTotalPages());
 				returnList.setNumber(categories.size());
 			}
-
-
 
 			List<ReadableCategory> readableCategories = null;
 			if (filter != null && filter.contains(VISIBLE_CATEGORY)) {
@@ -327,7 +323,6 @@ public class CategoryFacadeImpl implements CategoryFacade {
 	public ReadableCategory getCategoryByFriendlyUrl(MerchantStore store, String friendlyUrl, Language language) throws Exception {
 		Validate.notNull(friendlyUrl, "Category search friendly URL must not be null");
 
-
 		Category category = categoryService.getBySeUrl(store, friendlyUrl, language);
 		
 		if(category == null) {
@@ -459,7 +454,6 @@ public class CategoryFacadeImpl implements CategoryFacade {
 				}
 			}
 
-
 			return variants;
 		} catch (Exception e) {
 			throw new ServiceRuntimeException("An error occured while retrieving ProductAttributes", e);
@@ -472,7 +466,6 @@ public class CategoryFacadeImpl implements CategoryFacade {
 		Validate.notNull(child, "Child category must not be null");
 		Validate.notNull(parent, "Parent category must not be null");
 		Validate.notNull(store, "Merhant must not be null");
-
 
 		try {
 

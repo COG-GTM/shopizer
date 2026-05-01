@@ -6,7 +6,6 @@ import java.util.List;
 
 import com.salesmanager.shop.model.catalog.product.attribute.ProductAttribute;
 
-
 public class PersistableOrderProduct extends OrderProductEntity implements
 		Serializable {
 
@@ -16,8 +15,6 @@ public class PersistableOrderProduct extends OrderProductEntity implements
 	private static final long serialVersionUID = 1L;
 	private BigDecimal price;//specify final price
 	private List<ProductAttribute> attributes;//may have attributes
-
-
 
 	public void setAttributes(List<ProductAttribute> attributes) {
 		this.attributes = attributes;

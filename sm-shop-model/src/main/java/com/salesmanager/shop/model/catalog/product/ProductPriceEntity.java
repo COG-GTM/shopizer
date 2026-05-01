@@ -75,5 +75,4 @@ public class ProductPriceEntity extends ProductPrice implements Serializable {
 	
 	
 
-
 }

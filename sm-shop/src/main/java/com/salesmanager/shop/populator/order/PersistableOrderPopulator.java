@@ -42,7 +42,6 @@ public class PersistableOrderPopulator extends
 	private CountryService countryService;
 	private CurrencyService currencyService;
 
-
 	private ZoneService zoneService;
 	private ProductService productService;
 	private DigitalProductService digitalProductService;
@@ -81,7 +80,6 @@ public class PersistableOrderPopulator extends
 					target.setBilling(modelCustomer.getBilling());
 					target.setDelivery(modelCustomer.getDelivery());
 					target.setCustomerEmailAddress(source.getCustomer().getEmailAddress());
-
 
 					
 				} 

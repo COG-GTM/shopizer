@@ -39,5 +39,4 @@ public class ProductTypeEntity extends Entity implements Serializable {
 		this.visible = visible;
 	}
 
-
 }

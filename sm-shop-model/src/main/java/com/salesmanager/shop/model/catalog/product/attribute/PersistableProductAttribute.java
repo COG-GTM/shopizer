@@ -15,7 +15,6 @@ public class PersistableProductAttribute extends ProductAttributeEntity
 	private ProductPropertyOption option;
 	private PersistableProductOptionValue optionValue;
 
-
 	public void setOption(ProductPropertyOption option) {
 		this.option = option;
 	}

@@ -38,6 +38,4 @@ public class ReadableCatalog extends ReadableCatalogName {
 		this.category = category;
 	}
 
-
-
 }

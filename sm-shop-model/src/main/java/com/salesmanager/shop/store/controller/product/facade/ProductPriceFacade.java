@@ -7,7 +7,6 @@ import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.shop.model.catalog.product.PersistableProductPrice;
 import com.salesmanager.shop.model.catalog.product.ReadableProductPrice;
 
-
 /**
  * Product price management api
  * @author carlsamson

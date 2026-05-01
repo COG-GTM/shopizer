@@ -1,7 +1,7 @@
 package com.salesmanager.shop.model.shop;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
 
 public class ContactForm {
 	
@@ -40,6 +40,5 @@ public class ContactForm {
 	public void setSubject(String subject) {
 		this.subject = subject;
 	}
-
 
 }

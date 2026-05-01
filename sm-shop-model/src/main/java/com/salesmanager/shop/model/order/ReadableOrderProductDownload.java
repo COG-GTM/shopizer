@@ -57,5 +57,4 @@ public class ReadableOrderProductDownload extends Entity implements Serializable
 		this.fileName = fileName;
 	}
 
-
 }

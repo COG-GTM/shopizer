@@ -45,5 +45,4 @@ public class PersistableOrder extends OrderEntity implements Serializable {
 		this.shipToDeliveryAddress = shipToDeliveryAddress;
 	}
 
-
 }

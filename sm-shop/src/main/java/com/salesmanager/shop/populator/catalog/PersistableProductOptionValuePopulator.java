@@ -15,8 +15,6 @@ import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.shop.model.catalog.product.attribute.PersistableProductOptionValue;
 import com.salesmanager.shop.model.catalog.product.attribute.ProductOptionValueDescription;
 
-
-
 /**
  * Converts a PersistableProductOptionValue to
  * a ProductOptionValue model object

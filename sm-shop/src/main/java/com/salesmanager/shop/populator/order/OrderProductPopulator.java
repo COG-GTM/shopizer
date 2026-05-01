@@ -34,7 +34,6 @@ public class OrderProductPopulator extends
 	private DigitalProductService digitalProductService;
 	private ProductAttributeService productAttributeService;
 
-
 	public ProductAttributeService getProductAttributeService() {
 		return productAttributeService;
 	}
@@ -186,6 +185,5 @@ public class OrderProductPopulator extends
 		
 		return orderProductPrice;
 	}
-
 
 }

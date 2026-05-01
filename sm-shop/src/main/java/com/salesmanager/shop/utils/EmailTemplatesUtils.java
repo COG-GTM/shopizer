@@ -27,11 +27,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
-
 
 @Component
 public class EmailTemplatesUtils {
@@ -327,8 +326,6 @@ public class EmailTemplatesUtils {
 		           templateTokens.put(EmailConstants.EMAIL_CONTACT_NAME_LABEL, messages.getMessage("label.entity.name",storeLocale));
 		           templateTokens.put(EmailConstants.EMAIL_CONTACT_EMAIL_LABEL, messages.getMessage("label.generic.email",storeLocale));
 
-
-
 		           Email email = new Email();
 		           email.setFrom(contact.getName());
 		           //since shopizer sends email to store email, sender is store email
@@ -363,7 +360,6 @@ public class EmailTemplatesUtils {
 		   /** issue with putting that elsewhere **/ 
 	       LOGGER.info( "Sending order status email to customer" );
 	       try {
-
 
 				Map<String, String> templateTokens = emailUtils.createEmailObjectsMap(contextPath, merchantStore, messages, customerLocale);
 				
@@ -464,7 +460,6 @@ public class EmailTemplatesUtils {
 			Locale customerLocale, String contextPath) {
 	       LOGGER.debug( "Sending change password email" );
 	       try {
-
 
 				Map<String, String> templateTokens = emailUtils.createEmailObjectsMap(contextPath, merchantStore, messages, customerLocale);
 				

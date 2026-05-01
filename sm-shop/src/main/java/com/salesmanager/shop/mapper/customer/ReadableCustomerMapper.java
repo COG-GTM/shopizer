@@ -134,7 +134,6 @@ public class ReadableCustomerMapper implements Mapper<Customer, ReadableCustomer
 				optionValue.setCode(attribute.getCustomerOptionValue().getCode());
 				optionValue.setDescription(vd);
 
-
 				readableAttribute.setCustomerOptionValue(optionValue);
 				target.getAttributes().add(readableAttribute);
 			}

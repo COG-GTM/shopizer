@@ -15,8 +15,8 @@
 	<url>http://www.shopizer.com</url>
 
 	<properties>
-		<coverage.lines>.00</coverage.lines>
-		<coverage.branches>.00</coverage.branches>
+		<coverage.lines>.10</coverage.lines>
+		<coverage.branches>.05</coverage.branches>
 		<google-client-maps-services-version>0.1.6</google-client-maps-services-version>
 	</properties>
 
@@ -28,11 +28,7 @@
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-ehcache -->
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-ehcache</artifactId>
-		</dependency>
+
 
 		<!-- sm-core-model -->
 		<dependency>
@@ -114,22 +110,27 @@
 			<artifactId>drools-compiler</artifactId>
 		</dependency>
 
-		<!--spring integration -->
 		<dependency>
 			<groupId>org.kie</groupId>
-			<artifactId>kie-spring</artifactId>
+			<artifactId>kie-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.drools</groupId>
+			<artifactId>drools-mvel</artifactId>
 		</dependency>
 		<!-- end rules engine -->
 
-		<!-- Infinispan -->
+
+
 		<dependency>
-			<groupId>org.infinispan</groupId>
-			<artifactId>infinispan-core</artifactId>
+			<groupId>org.jsoup</groupId>
+			<artifactId>jsoup</artifactId>
+			<version>1.17.2</version>
 		</dependency>
 
 		<dependency>
-			<groupId>org.infinispan</groupId>
-			<artifactId>infinispan-tree</artifactId>
+			<groupId>jakarta.activation</groupId>
+			<artifactId>jakarta.activation-api</artifactId>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-collections4 -->
@@ -166,18 +167,17 @@
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
+			<version>4.5.14</version>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-s3 -->
 		<dependency>
-			<groupId>com.amazonaws</groupId>
-			<artifactId>aws-java-sdk-s3</artifactId>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>s3</artifactId>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-ses -->
 		<dependency>
-			<groupId>com.amazonaws</groupId>
-			<artifactId>aws-java-sdk-ses</artifactId>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>ses</artifactId>
 		</dependency>
 
 		<!-- google cloud storage -->

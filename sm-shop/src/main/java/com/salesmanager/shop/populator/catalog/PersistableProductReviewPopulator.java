@@ -20,8 +20,6 @@ import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.shop.model.catalog.product.PersistableProductReview;
 import com.salesmanager.shop.utils.DateUtil;
 
-
-
 public class PersistableProductReviewPopulator extends
 		AbstractDataPopulator<PersistableProductReview, ProductReview> {
 	
@@ -36,7 +34,6 @@ public class PersistableProductReviewPopulator extends
 
 	private LanguageService languageService;
 	
-
 
 	public LanguageService getLanguageService() {
 		return languageService;
@@ -135,6 +132,5 @@ public class PersistableProductReviewPopulator extends
 	public void setProductService(ProductService productService) {
 		this.productService = productService;
 	}
-
 
 }

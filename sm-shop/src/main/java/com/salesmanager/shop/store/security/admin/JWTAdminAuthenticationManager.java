@@ -1,8 +1,8 @@
 package com.salesmanager.shop.store.security.admin;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -50,7 +50,6 @@ public class JWTAdminAuthenticationManager extends CustomAuthenticationManager {
     } catch (ExpiredJwtException e) {
       logger.warn("the token is expired and not valid anymore", e);
     }
-
 
     UsernamePasswordAuthenticationToken authentication = null;
 

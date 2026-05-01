@@ -36,8 +36,6 @@ public class ProductVariationFacadeImpl implements ProductVariationFacade {
 	@Autowired
 	private ProductVariationService productVariationService;
 
-
-
 	@Override
 	public ReadableProductVariation get(Long variationId, MerchantStore store, Language language) {
 		Validate.notNull(store, "MerchantStore cannot be null");

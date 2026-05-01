@@ -17,7 +17,6 @@ public class ReadableProductOption extends ProductPropertyOption {
 	private boolean variant;
 	private List<ReadableProductOptionValue> optionValues = new ArrayList<ReadableProductOptionValue>();
 
-
 	public String getName() {
 		return name;
 	}
@@ -49,7 +48,5 @@ public class ReadableProductOption extends ProductPropertyOption {
 	public void setVariant(boolean variant) {
 		this.variant = variant;
 	}
-
-
 
 }

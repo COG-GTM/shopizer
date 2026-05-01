@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 import com.salesmanager.shop.model.entity.Entity;
 
-
 public class ProductOptionValue extends Entity implements Serializable {
 
 	/**
@@ -47,6 +46,5 @@ public class ProductOptionValue extends Entity implements Serializable {
 	public void setName(String name) {
 		this.name = name;
 	}
-
 
 }

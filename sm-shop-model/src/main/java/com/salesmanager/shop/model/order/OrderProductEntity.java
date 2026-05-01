@@ -13,7 +13,6 @@ public class OrderProductEntity extends OrderProduct implements Serializable {
 	private int orderedQuantity;
 	private ReadableProduct product;
 
-
 	
 	
 	public void setOrderedQuantity(int orderedQuantity) {
@@ -28,8 +27,5 @@ public class OrderProductEntity extends OrderProduct implements Serializable {
 	public void setProduct(ReadableProduct product) {
 		this.product = product;
 	}
-
-
-
 
 }
