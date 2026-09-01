@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -197,6 +198,52 @@ public class MultipleEntryPointsSecurityConfig {
 		public AuthenticationEntryPoint servicesAuthenticationEntryPoint() {
 			BasicAuthenticationEntryPoint entryPoint = new BasicAuthenticationEntryPoint();
 			entryPoint.setRealmName("rest-customer-realm");
+			return entryPoint;
+		}
+
+	}
+
+	/**
+	 * actuator - health and info are public, everything else requires an
+	 * authenticated administrator (ROLE_AUTH)
+	 *
+	 */
+	@Configuration
+	@Order(3)
+	public static class ActuatorConfigurationAdapter extends WebSecurityConfigurerAdapter {
+
+		@Autowired
+		private WebUserServices userDetailsService;
+
+		public ActuatorConfigurationAdapter() {
+			super();
+		}
+
+		@Override
+		public void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth.userDetailsService(userDetailsService);
+		}
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+			.antMatcher("/actuator/**")
+			.csrf().disable()
+					.authorizeRequests()
+					.antMatchers(HttpMethod.GET, "/actuator", "/actuator/").permitAll()
+					.antMatchers(HttpMethod.GET, "/actuator/health", "/actuator/health/**").permitAll()
+					.antMatchers(HttpMethod.GET, "/actuator/info").permitAll()
+					.antMatchers("/actuator/**").hasRole("AUTH")
+					.anyRequest().authenticated()
+					.and().httpBasic().authenticationEntryPoint(actuatorAuthenticationEntryPoint())
+					.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+
+		}
+
+		@Bean
+		public AuthenticationEntryPoint actuatorAuthenticationEntryPoint() {
+			BasicAuthenticationEntryPoint entryPoint = new BasicAuthenticationEntryPoint();
+			entryPoint.setRealmName("actuator-realm");
 			return entryPoint;
 		}
 
