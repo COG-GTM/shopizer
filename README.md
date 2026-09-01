@@ -38,8 +38,10 @@ Headless demo Available soon
 From the command line:
 
 ```
-docker run -p 8080:8080 shopizerecomm/shopizer:latest
+docker run -e "JWT_SECRET=$(openssl rand -base64 48)" -p 8080:8080 shopizerecomm/shopizer:latest
 ```
+
+⋅⋅⋅ `JWT_SECRET` (a random value of at least 32 bytes) is required: it signs the admin and customer API tokens and the backend refuses to start without it.
        
 2. Run the administration tool
 

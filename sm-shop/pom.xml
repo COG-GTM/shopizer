@@ -150,6 +150,16 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<systemPropertyVariables>
+						<!-- test-only JWT signing key; production deployments must set the JWT_SECRET environment variable -->
+						<JWT_SECRET>shopizer-integration-test-only-jwt-signing-key-not-for-production</JWT_SECRET>
+					</systemPropertyVariables>
+				</configuration>
+			</plugin>
 		</plugins>
 		<finalName>shopizer</finalName>
 	</build>
