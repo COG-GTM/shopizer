@@ -3,6 +3,9 @@ package com.salesmanager.shop.model.shoppingcart;
 import java.io.Serializable;
 import java.util.List;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+
 import com.salesmanager.shop.model.catalog.product.attribute.ProductAttribute;
 
 /**
@@ -16,7 +19,10 @@ public class PersistableShoppingCartItem implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	public static final int MAX_QUANTITY = 1000;
 	private String product;// or product sku (instance or product)
+	@Min(0)
+	@Max(MAX_QUANTITY)
 	private int quantity;
 	private String promoCode;
 	private List<ProductAttribute> attributes;
