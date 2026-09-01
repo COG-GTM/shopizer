@@ -177,6 +177,10 @@ public class ShippingConfigurationApi {
 	public List<IntegrationModuleSummaryEntity> shippingModules(@ApiIgnore MerchantStore merchantStore,
 			@ApiIgnore Language language) {
 
+		String user = authorizationUtils.authenticatedUser();
+		authorizationUtils.authorizeUser(user, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN,
+				Constants.GROUP_SHIPPING, Constants.GROUP_ADMIN_RETAIL).collect(Collectors.toList()), merchantStore);
+
 		try {
 			List<IntegrationModule> modules = shippingService.getShippingMethods(merchantStore);
 
@@ -205,6 +209,10 @@ public class ShippingConfigurationApi {
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT") })
 	public IntegrationConfiguration shippingModule(@PathVariable String code,
 			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) {
+
+		String user = authorizationUtils.authenticatedUser();
+		authorizationUtils.authorizeUser(user, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN,
+				Constants.GROUP_SHIPPING, Constants.GROUP_ADMIN_RETAIL).collect(Collectors.toList()), merchantStore);
 
 		try {
 
@@ -246,6 +254,10 @@ public class ShippingConfigurationApi {
 	@PostMapping(value = "/private/modules/shipping")
 	public void configure(@RequestBody IntegrationModuleConfiguration configuration,
 			@ApiIgnore MerchantStore merchantStore) {
+
+		String user = authorizationUtils.authenticatedUser();
+		authorizationUtils.authorizeUser(user, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN,
+				Constants.GROUP_SHIPPING, Constants.GROUP_ADMIN_RETAIL).collect(Collectors.toList()), merchantStore);
 
 		try {
 
