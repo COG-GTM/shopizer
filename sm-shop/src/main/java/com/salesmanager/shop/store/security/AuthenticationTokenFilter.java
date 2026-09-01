@@ -10,7 +10,6 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -49,17 +48,6 @@ public class AuthenticationTokenFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
         
-
-    	String origin = "*";
-    	if(!StringUtils.isBlank(request.getHeader("origin"))) {
-    		origin = request.getHeader("origin");
-    	}
-    	//in flight
-    	response.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, OPTIONS, DELETE, PATCH");
-    	response.setHeader("Access-Control-Allow-Origin", origin);
-    	response.setHeader("Access-Control-Allow-Headers", "X-Auth-Token, Content-Type, Authorization, Cache-Control, X-Requested-With");
-    	response.setHeader("Access-Control-Allow-Credentials", "true");
-
     	try {
     		
     		String ipAddress = GeoLocationUtils.getClientIpAddress(request);
