@@ -416,9 +416,26 @@ public class UserFacadeImpl implements UserFacade {
 				}
 			}
 			boolean isActive = userModel.isActive();
+			String originalPassword = userModel.getAdminPassword();
 			List<Group> originalGroups = userModel.getGroups();
 			Group superadmin = originalGroups.stream()
 					.filter(group -> Constants.GROUP_SUPERADMIN.equals(group.getGroupName())).findAny().orElse(null);
+
+			boolean authIsSuperadmin = auth.getGroups().stream()
+					.anyMatch(group -> Constants.GROUP_SUPERADMIN.equals(group.getGroupName()));
+			boolean isSelf = auth.getId().longValue() == userModel.getId().longValue();
+
+			if (!authIsSuperadmin) {
+				// only a superadmin can edit a superadmin account
+				if (superadmin != null && !isSelf) {
+					throw new UnauthorizedException("User [" + authenticatedUser + "] cannot update user [" + id + "]");
+				}
+				// target must belong to the store the caller is authorized for
+				if (!userModel.getMerchantStore().getCode().equals(store.getCode())) {
+					throw new UnauthorizedException("User [" + authenticatedUser + "] cannot update user [" + id
+							+ "] of store [" + userModel.getMerchantStore().getCode() + "]");
+				}
+			}
 
 			// changing store ?
 			/**
@@ -427,7 +444,7 @@ public class UserFacadeImpl implements UserFacade {
 			 */
 
 			// i'm i editing my own profile ?
-			if (authenticatedUser.equals(adminName)) {
+			if (isSelf) {
 
 				if (!userModel.getMerchantStore().getCode().equals(store.getCode())) {
 					throw new OperationNotAllowedException("User [" + adminName + "] cannot change owning store");
@@ -449,23 +466,21 @@ public class UserFacadeImpl implements UserFacade {
 
 			userModel = converPersistabletUserToUser(store, languageService.defaultLanguage(), userModel, user);
 
+			// password changes only go through changePassword / resetPassword
+			userModel.setAdminPassword(originalPassword);
+
 			// if superadmin set original permissions, prevent removing super
 			// admin
 			if (superadmin != null) {
 				userModel.setGroups(originalGroups);
 			}
 
-			Group adminGroup = auth.getGroups().stream()
-					.filter((group) -> Constants.GROUP_SUPERADMIN.equals(group.getGroupName())
-							|| Constants.GROUP_SUPERADMIN.equals(group.getGroupName()))
-					.findAny().orElse(null);
-
-			if (adminGroup == null) {
+			if (!authIsSuperadmin) {
 				userModel.setGroups(originalGroups);
 				userModel.setActive(isActive);
 			}
 
-			user.setPassword(userModel.getAdminPassword());
+			user.setPassword(null);
 			userService.update(userModel);
 			return this.convertUserToReadableUser(languageService.defaultLanguage(), userModel);
 		} catch (ServiceException e) {
