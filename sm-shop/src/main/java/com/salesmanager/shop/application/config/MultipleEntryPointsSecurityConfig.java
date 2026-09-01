@@ -181,6 +181,7 @@ public class MultipleEntryPointsSecurityConfig {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			http
+			.cors().and()
 			.antMatcher("/services/**")
 			.csrf().disable()
 					.authorizeRequests()
@@ -324,6 +325,7 @@ public class MultipleEntryPointsSecurityConfig {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			http
+					.cors().and()
 					.antMatcher(API_VERSION + "/private/**")
 					.authorizeRequests()
 					.antMatchers(API_VERSION + "/private/login*").permitAll()
@@ -391,7 +393,7 @@ public class MultipleEntryPointsSecurityConfig {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			http
-			
+				.cors().and()
 				.antMatcher(API_VERSION + "/auth/**")
 				.authorizeRequests()
 					.antMatchers(API_VERSION + "/auth/refresh").permitAll()
