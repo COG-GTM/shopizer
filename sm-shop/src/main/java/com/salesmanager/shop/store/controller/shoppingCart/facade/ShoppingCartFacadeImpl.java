@@ -156,7 +156,12 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 					if (CollectionUtils.isEmpty(cartItem.getAttributes())) {
 						if (!duplicateFound) {
 							if (!shoppingCartItem.isProductVirtual()) {
-								cartItem.setQuantity(cartItem.getQuantity() + shoppingCartItem.getQuantity());
+								long quantity = (long) cartItem.getQuantity() + shoppingCartItem.getQuantity();
+								if (quantity > PersistableShoppingCartItem.MAX_QUANTITY) {
+									throw new Exception("Invalid quantity " + quantity + " for product "
+											+ shoppingCartItem.getProduct().getId());
+								}
+								cartItem.setQuantity((int) quantity);
 							}
 							duplicateFound = true;
 							break;
@@ -253,6 +258,12 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 	// KEEP -- ENTRY
 	private com.salesmanager.core.model.shoppingcart.ShoppingCartItem createCartItem(ShoppingCart cartModel,
 			PersistableShoppingCartItem shoppingCartItem, MerchantStore store) throws Exception {
+		return createCartItem(cartModel, shoppingCartItem, store, false);
+	}
+
+	private com.salesmanager.core.model.shoppingcart.ShoppingCartItem createCartItem(ShoppingCart cartModel,
+			PersistableShoppingCartItem shoppingCartItem, MerchantStore store, boolean validateQuantity)
+			throws Exception {
 
 		// USE Product sku
 		Product product = null;
@@ -312,7 +323,12 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 		com.salesmanager.core.model.shoppingcart.ShoppingCartItem item = shoppingCartService
 				.populateShoppingCartItem(product, store);
 
-		item.setQuantity(shoppingCartItem.getQuantity());
+		int quantity = shoppingCartItem.getQuantity();
+		if (validateQuantity
+				&& (quantity < 1 || quantity > PersistableShoppingCartItem.MAX_QUANTITY)) {
+			throw new Exception("Invalid quantity " + quantity + " for product " + product.getId());
+		}
+		item.setQuantity(quantity);
 		item.setShoppingCart(cartModel);
 		item.setSku(product.getSku());
 
@@ -830,7 +846,8 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 	private ReadableShoppingCart readableShoppingCart(ShoppingCart cartModel, PersistableShoppingCartItem item,
 			MerchantStore store, Language language) throws Exception {
 
-		com.salesmanager.core.model.shoppingcart.ShoppingCartItem itemModel = createCartItem(cartModel, item, store);
+		com.salesmanager.core.model.shoppingcart.ShoppingCartItem itemModel = createCartItem(cartModel, item, store,
+				true);
 
 		// need to check if the item is already in the cart
 		boolean duplicateFound = false;
@@ -843,7 +860,12 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 					if (CollectionUtils.isEmpty(cartItem.getAttributes())) {
 						if (!duplicateFound) {
 							if (!itemModel.isProductVirtual()) {
-								cartItem.setQuantity(cartItem.getQuantity() + item.getQuantity());
+								long quantity = (long) cartItem.getQuantity() + item.getQuantity();
+								if (quantity > PersistableShoppingCartItem.MAX_QUANTITY) {
+									throw new Exception("Invalid quantity " + quantity + " for product "
+											+ itemModel.getProduct().getId());
+								}
+								cartItem.setQuantity((int) quantity);
 							}
 							duplicateFound = true;
 							break;

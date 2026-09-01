@@ -33,6 +33,8 @@ public class DefaultPackagingImpl implements Packaging {
 	private final static Double defaultHeight = 4D;
 	private final static Double defaultLength = 4D;
 	private final static Double defaultWidth = 4D;
+	private final static int MAX_PACKAGES = 1000;
+	private final static int MAX_BOXES = 100;
 	
 	@Override
 	public List<PackageDetails> getBoxPackagesDetails(
@@ -43,6 +45,7 @@ public class DefaultPackagingImpl implements Packaging {
 		if (products == null) {
 			throw new ServiceException("Product list cannot be null !!");
 		}
+		validateQuantities(products);
 
 		double width = 0;
 		double length = 0;
@@ -68,8 +71,6 @@ public class DefaultPackagingImpl implements Packaging {
 
 		List<PackageDetails> boxes = new ArrayList<PackageDetails>();
 
-		// maximum number of boxes
-		int maxBox = 100;
 		int iterCount = 0;
 
 		List<Product> individualProducts = new ArrayList<Product>();
@@ -255,7 +256,6 @@ public class DefaultPackagingImpl implements Packaging {
 					w = w + productWeight;
 					pbox.setWeight(w);
 					productAssigned = true;
-					maxBox--;
 					break;
 
 				}
@@ -269,6 +269,9 @@ public class DefaultPackagingImpl implements Packaging {
 				box.setVolumeLeft(maxVolume);
 				box.setWeightLeft(maxweight);
 
+				if (boxesList.size() >= MAX_BOXES) {
+					throw new ServiceException("Number of shipping boxes exceeds maximum of " + MAX_BOXES);
+				}
 				boxesList.add(box);
 
 				double volumeLeft = box.getVolumeLeft() - productVolume;
@@ -280,7 +283,6 @@ public class DefaultPackagingImpl implements Packaging {
 				double w = box.getWeight();
 				w = w + productWeight;
 				box.setWeight(w);
-				maxBox--;
 			}
 
 		}
@@ -314,7 +316,11 @@ public class DefaultPackagingImpl implements Packaging {
 			List<ShippingProduct> products, MerchantStore store)
 			throws ServiceException {
 		
-		
+		if (products == null) {
+			throw new ServiceException("Product list cannot be null !!");
+		}
+		validateQuantities(products);
+
 		List<PackageDetails> packages = new ArrayList<PackageDetails>();
 		for(ShippingProduct shippingProduct : products) {
 			Product product = shippingProduct.getProduct();
@@ -398,6 +404,20 @@ public class DefaultPackagingImpl implements Packaging {
 		
 	}
 
+	private void validateQuantities(List<ShippingProduct> products) throws ServiceException {
+		long totalQuantity = 0;
+		for (ShippingProduct shippingProduct : products) {
+			if (shippingProduct.getProduct().isProductVirtual()) {
+				continue;
+			}
+
+			int quantity = shippingProduct.getQuantity();
+			if (quantity < 0 || (totalQuantity += quantity) > MAX_PACKAGES) {
+				throw new ServiceException("Shipping quantity exceeds maximum of " + MAX_PACKAGES + " units");
+			}
+		}
+	}
+
 
 }
 
@@ -433,4 +453,3 @@ class PackingBox {
 	}
 
 }
-
