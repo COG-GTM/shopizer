@@ -106,33 +106,21 @@ public class CmsStaticContentFileManagerImpl implements ContentAssetsManager {
 		try {
 
 			// base path
-			String rootPath = this.buildRootPath();
-			Path confDir = Paths.get(rootPath);
+			Path confDir = this.rootDir();
 			this.createDirectoryIfNorExist(confDir);
 
 			// node path
-			StringBuilder nodePath = new StringBuilder();
-			nodePath.append(rootPath).append(merchantStoreCode);
-			Path merchantPath = Paths.get(nodePath.toString());
+			Path merchantPath = this.resolveWithinRoot(confDir, merchantStoreCode);
 			this.createDirectoryIfNorExist(merchantPath);
 
 			// file path
-			nodePath.append(Constants.SLASH).append(inputStaticContentData.getFileContentType())
-					.append(Constants.SLASH);
-			Path dirPath = Paths.get(nodePath.toString());
+			Path dirPath = this.resolveWithinRoot(confDir, merchantStoreCode,
+					inputStaticContentData.getFileContentType().name());
 			this.createDirectoryIfNorExist(dirPath);
 
-			// folder path
-
 			// file creation
-			nodePath.append(inputStaticContentData.getFileName());
-
-			Path path = Paths.get(nodePath.toString());
-
-			// file creation
-			// nodePath.append(Constants.SLASH).append(contentImage.getFileName());
-
-			// Path path = Paths.get(nodePath.toString());
+			Path path = this.resolveWithinRoot(confDir, merchantStoreCode,
+					inputStaticContentData.getFileContentType().name(), inputStaticContentData.getFileName());
 
 			Files.copy(inputStaticContentData.getFile(), path, StandardCopyOption.REPLACE_EXISTING);
 
@@ -189,28 +177,23 @@ public class CmsStaticContentFileManagerImpl implements ContentAssetsManager {
 		try {
 
 			// base path
-			String rootPath = this.buildRootPath();
-			Path confDir = Paths.get(rootPath);
+			Path confDir = this.rootDir();
 			this.createDirectoryIfNorExist(confDir);
 
 			// node path
-			StringBuilder nodePath = new StringBuilder();
-			nodePath.append(rootPath).append(merchantStoreCode);
-			Path merchantPath = Paths.get(nodePath.toString());
+			Path merchantPath = this.resolveWithinRoot(confDir, merchantStoreCode);
 			this.createDirectoryIfNorExist(merchantPath);
 
 			for (final InputContentFile inputStaticContentData : inputStaticContentDataList) {
 
 				// file path
-				nodePath.append(Constants.SLASH).append(inputStaticContentData.getFileContentType())
-						.append(Constants.SLASH);
-				Path dirPath = Paths.get(nodePath.toString());
+				Path dirPath = this.resolveWithinRoot(confDir, merchantStoreCode,
+						inputStaticContentData.getFileContentType().name());
 				this.createDirectoryIfNorExist(dirPath);
 
 				// file creation
-				nodePath.append(Constants.SLASH).append(inputStaticContentData.getFileName());
-
-				Path path = Paths.get(nodePath.toString());
+				Path path = this.resolveWithinRoot(confDir, merchantStoreCode,
+						inputStaticContentData.getFileContentType().name(), inputStaticContentData.getFileName());
 
 				Files.copy(inputStaticContentData.getFile(), path, StandardCopyOption.REPLACE_EXISTING);
 
@@ -269,11 +252,8 @@ public class CmsStaticContentFileManagerImpl implements ContentAssetsManager {
 
 		try {
 
-			StringBuilder merchantPath = new StringBuilder();
-			merchantPath.append(buildRootPath()).append(Constants.SLASH).append(merchantStoreCode)
-					.append(Constants.SLASH).append(staticContentType).append(Constants.SLASH).append(fileName);
-
-			Path path = Paths.get(merchantPath.toString());
+			Path path = this.resolveWithinRoot(this.rootDir(), merchantStoreCode, staticContentType.name(),
+					fileName);
 
 			Files.deleteIfExists(path);
 
@@ -294,10 +274,7 @@ public class CmsStaticContentFileManagerImpl implements ContentAssetsManager {
 
 		try {
 
-			StringBuilder merchantPath = new StringBuilder();
-			merchantPath.append(buildRootPath()).append(Constants.SLASH).append(merchantStoreCode);
-
-			Path path = Paths.get(merchantPath.toString());
+			Path path = this.resolveWithinRoot(this.rootDir(), merchantStoreCode);
 
 			Files.deleteIfExists(path);
 
@@ -322,11 +299,7 @@ public class CmsStaticContentFileManagerImpl implements ContentAssetsManager {
 
 		try {
 
-			StringBuilder merchantPath = new StringBuilder();
-			merchantPath.append(buildRootPath()).append(merchantStoreCode).append(Constants.SLASH)
-					.append(staticContentType);
-
-			Path path = Paths.get(merchantPath.toString());
+			Path path = this.resolveWithinRoot(this.rootDir(), merchantStoreCode, staticContentType.name());
 
 			List<String> fileNames = null;
 
@@ -379,6 +352,39 @@ public class CmsStaticContentFileManagerImpl implements ContentAssetsManager {
 		return new StringBuilder().append(getRootName()).append(Constants.SLASH).append(ROOT_CONTAINER)
 				.append(Constants.SLASH).toString();
 
+	}
+
+	private Path rootDir() {
+		return Paths.get(buildRootPath()).toAbsolutePath().normalize();
+	}
+
+	/**
+	 * Resolves the given path segments under the content root. Each segment must
+	 * be a single plain path element (no separators, no "." / "..", no NUL) and
+	 * the normalized result must remain inside the root.
+	 */
+	private Path resolveWithinRoot(Path root, String... segments) throws ServiceException {
+		Path resolved = root;
+		for (String segment : segments) {
+			resolved = resolved.resolve(safeSegment(segment));
+		}
+		resolved = resolved.normalize();
+		if (!resolved.startsWith(root)) {
+			throw new ServiceException("Resolved path escapes the content root");
+		}
+		return resolved;
+	}
+
+	private static String safeSegment(String segment) throws ServiceException {
+		if (StringUtils.isBlank(segment) || segment.indexOf('/') >= 0 || segment.indexOf('\\') >= 0
+				|| segment.indexOf('\0') >= 0 || ".".equals(segment) || "..".equals(segment)) {
+			throw new ServiceException("Invalid path element [" + segment + "]");
+		}
+		Path p = Paths.get(segment);
+		if (p.getNameCount() != 1 || p.isAbsolute() || p.getRoot() != null) {
+			throw new ServiceException("Invalid path element [" + segment + "]");
+		}
+		return segment;
 	}
 
 	private void createDirectoryIfNorExist(Path path) throws IOException {
