@@ -87,38 +87,35 @@ public class CmsImageFileManagerImpl
     try {
 
       // base path
-      String rootPath = this.buildRootPath();
-      Path confDir = Paths.get(rootPath);
-      this.createDirectoryIfNorExist(confDir);
+      Path root = Paths.get(buildRootPath()).toAbsolutePath().normalize();
+      this.createDirectoryIfNorExist(root);
 
       // node path
-      StringBuilder nodePath = new StringBuilder();
-      nodePath.append(rootPath).append(productImage.getProduct().getMerchantStore().getCode());
-      Path merchantPath = Paths.get(nodePath.toString());
+      String merchantCode = productImage.getProduct().getMerchantStore().getCode();
+      Path merchantPath = resolveWithinRoot(root, merchantCode);
       this.createDirectoryIfNorExist(merchantPath);
 
       // product path
-      nodePath.append(Constants.SLASH).append(productImage.getProduct().getSku())
-          .append(Constants.SLASH);
-      Path dirPath = Paths.get(nodePath.toString());
+      String sku = productImage.getProduct().getSku();
+      Path dirPath = resolveWithinRoot(root, merchantCode, sku);
       this.createDirectoryIfNorExist(dirPath);
 
       // small large
+      String sizeFolder;
       if (contentImage.getFileContentType().name().equals(FileContentType.PRODUCT.name())) {
-        nodePath.append(SMALL);
+        sizeFolder = SMALL;
       } else if (contentImage.getFileContentType().name()
           .equals(FileContentType.PRODUCTLG.name())) {
-        nodePath.append(LARGE);
+        sizeFolder = LARGE;
+      } else {
+        throw new IOException("Unsupported content type");
       }
-      Path sizePath = Paths.get(nodePath.toString());
+      Path sizePath = resolveWithinRoot(root, merchantCode, sku, sizeFolder);
       this.createDirectoryIfNorExist(sizePath);
 
 
       // file creation
-      nodePath.append(Constants.SLASH).append(contentImage.getFileName());
-
-
-      Path path = Paths.get(nodePath.toString());
+      Path path = resolveWithinRoot(root, merchantCode, sku, sizeFolder, contentImage.getFileName());
       InputStream isFile = contentImage.getFile();
 
       Files.copy(isFile, path, StandardCopyOption.REPLACE_EXISTING);
@@ -165,12 +162,8 @@ public class CmsImageFileManagerImpl
 
     try {
 
-
-      StringBuilder merchantPath = new StringBuilder();
-      merchantPath.append(buildRootPath()).append(Constants.SLASH).append(merchantStoreCode);
-
-      Path path = Paths.get(merchantPath.toString());
-
+      Path root = Paths.get(buildRootPath()).toAbsolutePath().normalize();
+      Path path = resolveWithinRoot(root, merchantStoreCode);
       Files.deleteIfExists(path);
 
 
@@ -188,31 +181,17 @@ public class CmsImageFileManagerImpl
 
     try {
 
-
-      StringBuilder nodePath = new StringBuilder();
-      nodePath.append(buildRootPath()).append(Constants.SLASH)
-          .append(productImage.getProduct().getMerchantStore().getCode()).append(Constants.SLASH)
-          .append(productImage.getProduct().getSku());
-
       // delete small
-      StringBuilder smallPath = new StringBuilder(nodePath);
-      smallPath.append(Constants.SLASH).append(SMALL).append(Constants.SLASH)
-          .append(productImage.getProductImage());
-
-
-      Path path = Paths.get(smallPath.toString());
-
-      Files.deleteIfExists(path);
+      Path root = Paths.get(buildRootPath()).toAbsolutePath().normalize();
+      String merchantCode = productImage.getProduct().getMerchantStore().getCode();
+      String sku = productImage.getProduct().getSku();
+      String imageName = productImage.getProductImage();
+      Path smallPath = resolveWithinRoot(root, merchantCode, sku, SMALL, imageName);
+      Files.deleteIfExists(smallPath);
 
       // delete large
-      StringBuilder largePath = new StringBuilder(nodePath);
-      largePath.append(Constants.SLASH).append(LARGE).append(Constants.SLASH)
-          .append(productImage.getProductImage());
-
-
-      path = Paths.get(largePath.toString());
-
-      Files.deleteIfExists(path);
+      Path largePath = resolveWithinRoot(root, merchantCode, sku, LARGE, imageName);
+      Files.deleteIfExists(largePath);
 
     } catch (Exception e) {
       throw new ServiceException(e);
@@ -226,15 +205,8 @@ public class CmsImageFileManagerImpl
 
     try {
 
-
-      StringBuilder nodePath = new StringBuilder();
-      nodePath.append(buildRootPath()).append(Constants.SLASH)
-          .append(product.getMerchantStore().getCode()).append(Constants.SLASH)
-          .append(product.getSku());
-
-
-      Path path = Paths.get(nodePath.toString());
-
+      Path root = Paths.get(buildRootPath()).toAbsolutePath().normalize();
+      Path path = resolveWithinRoot(root, product.getMerchantStore().getCode(), product.getSku());
       Files.deleteIfExists(path);
 
     } catch (Exception e) {
@@ -271,6 +243,34 @@ public class CmsImageFileManagerImpl
 
     return null;
 
+  }
+
+  private static String safeSegment(String value) throws IOException {
+    if (value == null || value.trim().isEmpty()) {
+      throw new IOException("Empty path segment");
+    }
+    if (value.contains("/") || value.contains("\\") || value.contains("\0")
+        || ".".equals(value) || "..".equals(value)) {
+      throw new IOException("Invalid path segment: " + value);
+    }
+    Path p = Paths.get(value);
+    if (p.isAbsolute() || p.getNameCount() != 1) {
+      throw new IOException("Invalid path segment: " + value);
+    }
+    return value;
+  }
+
+  private Path resolveWithinRoot(Path root, String... segments) throws IOException {
+    Path normalizedRoot = root.toAbsolutePath().normalize();
+    Path resolved = normalizedRoot;
+    for (String segment : segments) {
+      resolved = resolved.resolve(safeSegment(segment));
+    }
+    Path normalized = resolved.toAbsolutePath().normalize();
+    if (!normalized.startsWith(normalizedRoot)) {
+      throw new IOException("Path escapes content root: " + normalized);
+    }
+    return normalized;
   }
 
 
