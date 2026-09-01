@@ -1,11 +1,16 @@
 package com.salesmanager.shop.store.security;
 
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+
+import javax.annotation.PostConstruct;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -46,12 +51,37 @@ public class JWTTokenUtil implements Serializable {
 	    static final String AUDIENCE_MOBILE = "mobile";
 	    static final String AUDIENCE_TABLET = "tablet";
 
+	    static final int MIN_SECRET_BYTES = 32;
+	    static final String PLACEHOLDER_SECRET = "aSecret";
 
 	    @Value("${jwt.secret}")
 	    private String secret;
 
+	    private transient SecretKey signingKey;
+
 	    @Value("${jwt.expiration}")
 	    private Long expiration;
+
+	    @PostConstruct
+	    void initSigningKey() {
+	        if (secret == null || secret.trim().isEmpty()) {
+	            throw new IllegalStateException(
+	                "jwt.secret is not configured. Set the JWT_SECRET environment variable to a random value of at least "
+	                    + MIN_SECRET_BYTES + " bytes");
+	        }
+	        if (PLACEHOLDER_SECRET.equals(secret)) {
+	            throw new IllegalStateException(
+	                "jwt.secret is set to the publicly known placeholder value; set JWT_SECRET to a random value of at least "
+	                    + MIN_SECRET_BYTES + " bytes");
+	        }
+	        byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
+	        if (keyBytes.length < MIN_SECRET_BYTES) {
+	            throw new IllegalStateException(
+	                "jwt.secret is too short (" + keyBytes.length + " bytes); it must be at least " + MIN_SECRET_BYTES
+	                    + " bytes");
+	        }
+	        signingKey = new SecretKeySpec(keyBytes, SignatureAlgorithm.HS512.getJcaName());
+	    }
 
 	    public String getUsernameFromToken(String token) {
 	        return getClaimFromToken(token, Claims::getSubject);
@@ -76,7 +106,7 @@ public class JWTTokenUtil implements Serializable {
 
 	    private Claims getAllClaimsFromToken(String token) {
 	        return Jwts.parser()
-	                .setSigningKey(secret)
+	                .setSigningKey(signingKey)
 	                .parseClaimsJws(token)
 	                .getBody();
 	    }
@@ -133,7 +163,7 @@ public class JWTTokenUtil implements Serializable {
 	                .setAudience(audience)
 	                .setIssuedAt(createdDate)
 	                .setExpiration(expirationDate)
-	                .signWith(SignatureAlgorithm.HS512, secret)
+	                .signWith(SignatureAlgorithm.HS512, signingKey)
 	                .compact();
 	    }
 	    
@@ -166,7 +196,7 @@ public class JWTTokenUtil implements Serializable {
 
 	        return Jwts.builder()
 	                .setClaims(claims)
-	                .signWith(SignatureAlgorithm.HS512, secret)
+	                .signWith(SignatureAlgorithm.HS512, signingKey)
 	                .compact();
 	    }
 
