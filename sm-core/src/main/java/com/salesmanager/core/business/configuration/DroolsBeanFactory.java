@@ -106,7 +106,7 @@ public class DroolsBeanFactory {
 
         DecisionTableProviderImpl decisionTableProvider = new DecisionTableProviderImpl();
 
-        return decisionTableProvider.loadFromResource(dt, null);
+        return decisionTableProvider.loadFromResource(dt, configuration);
     }
 
 }
