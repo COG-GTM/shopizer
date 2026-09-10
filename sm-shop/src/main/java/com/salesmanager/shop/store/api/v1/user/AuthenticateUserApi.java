@@ -17,7 +17,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -34,7 +34,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
  * @author c.samson
  *
  */
-@Controller
+@RestController
 @RequestMapping("/api/v1")
 @Tag(name = "User authentication Api")
 public class AuthenticateUserApi {

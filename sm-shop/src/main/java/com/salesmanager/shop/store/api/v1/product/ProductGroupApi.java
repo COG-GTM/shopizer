@@ -7,7 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -37,7 +37,7 @@ import io.swagger.v3.oas.annotations.Parameters;
  *
  * @author carlsamson
  */
-@Controller
+@RestController
 @RequestMapping("/api/v1")
 @Tag(name = "Product groups management resource (Product Groups Management Api)")
 public class ProductGroupApi {

@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -40,7 +40,7 @@ import io.swagger.v3.oas.annotations.Parameters;
  *
  * @author c.samson
  */
-@Controller
+@RestController
 @RequestMapping("/api/v1")
 @Tag(name = "Manufacturer / Brand management resource (Manufacturer / Brand Management Api)")
 public class ProductManufacturerApi {
