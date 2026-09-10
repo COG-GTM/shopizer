@@ -1,13 +1,12 @@
 package com.salesmanager.shop.store.api.v0.store;
 
-
 import java.util.Locale;
 import java.util.Map;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -32,7 +31,6 @@ import com.salesmanager.shop.constants.Constants;
 import com.salesmanager.shop.model.shop.ContactForm;
 import com.salesmanager.shop.utils.EmailTemplatesUtils;
 import com.salesmanager.shop.utils.LocaleUtils;
-
 
 /**
  * Rest services for sending contact

@@ -1,6 +1,6 @@
 package com.salesmanager.shop.application.config;
 
-import org.drools.core.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

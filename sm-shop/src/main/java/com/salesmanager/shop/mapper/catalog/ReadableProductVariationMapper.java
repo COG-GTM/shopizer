@@ -2,7 +2,7 @@ package com.salesmanager.shop.mapper.catalog;
 
 import java.util.Set;
 
-import org.jsoup.helper.Validate;
+import org.apache.commons.lang3.Validate;
 import org.springframework.stereotype.Component;
 
 import com.salesmanager.core.model.catalog.product.attribute.ProductOption;

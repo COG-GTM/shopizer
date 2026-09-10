@@ -3,9 +3,10 @@ package com.salesmanager.shop.store.api.v1.customer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 
 import org.apache.commons.lang3.Validate;
 import org.apache.http.auth.AuthenticationException;
@@ -46,20 +47,14 @@ import com.salesmanager.shop.store.security.PasswordRequest;
 import com.salesmanager.shop.store.security.user.JWTUser;
 import com.salesmanager.shop.utils.AuthorizationUtils;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.SwaggerDefinition;
-import io.swagger.annotations.Tag;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
 
 @RestController
 @RequestMapping("/api/v1")
-@Api(tags = {"Customer authentication resource (Customer Authentication Api)"})
-@SwaggerDefinition(tags = {
-    @Tag(name = "Customer authentication resource", description = "Authenticates customer, register customer and reset customer password")
-})
+@Tag(name = "Customer authentication resource (Customer Authentication Api)")
 public class AuthenticateCustomerApi {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticateCustomerApi.class);
@@ -68,6 +63,7 @@ public class AuthenticateCustomerApi {
     private String tokenHeader;
 
     @Inject
+    @Named("jwtCustomerAuthenticationManager")
     private AuthenticationManager jwtCustomerAuthenticationManager;
 
     @Inject
@@ -93,15 +89,14 @@ public class AuthenticateCustomerApi {
      */
     @RequestMapping( value={"/customer/register"}, method=RequestMethod.POST, produces ={ "application/json" })
     @ResponseStatus(HttpStatus.CREATED)
-    @ApiOperation(httpMethod = "POST", value = "Registers a customer to the application", notes = "Used as self-served operation",response = AuthenticationResponse.class)
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT"),
-		@ApiImplicitParam(name = "lang", dataType = "string", defaultValue = "en") })
+    @Operation(summary = "Registers a customer to the application")
+	@Parameters({ @Parameter(name = "store", description = "Default: DEFAULT"),
+		@Parameter(name = "lang", description = "Default: en") })
     @ResponseBody
     public ResponseEntity<?> register(
     		@Valid @RequestBody PersistableCustomer customer, 
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) throws Exception {
-
+			@Parameter(hidden = true) MerchantStore merchantStore,
+			@Parameter(hidden = true) Language language) throws Exception {
 
             customer.setUserName(customer.getEmailAddress());
             
@@ -155,7 +150,7 @@ public class AuthenticateCustomerApi {
      * @throws AuthenticationException
      */
     @RequestMapping(value = "/customer/login", method = RequestMethod.POST, produces ={ "application/json" })
-    @ApiOperation(httpMethod = "POST", value = "Authenticates a customer to the application", notes = "Customer can authenticate after registration, request is {\"username\":\"admin\",\"password\":\"password\"}",response = ResponseEntity.class)
+    @Operation(summary = "Authenticates a customer to the application")
     @ResponseBody
     public ResponseEntity<?> authenticate(@RequestBody @Valid AuthenticationRequest authenticationRequest) throws AuthenticationException {
 
@@ -213,9 +208,8 @@ public class AuthenticateCustomerApi {
     
 
     @RequestMapping(value = "/auth/customer/password", method = RequestMethod.POST, produces ={ "application/json" })
-    @ApiOperation(httpMethod = "POST", value = "Sends a request to reset password", notes = "Password reset request is {\"username\":\"test@email.com\"}",response = ResponseEntity.class)
+    @Operation(summary = "Sends a request to reset password")
     public ResponseEntity<?> changePassword(@RequestBody @Valid PasswordRequest passwordRequest, HttpServletRequest request) {
-
 
         try {
             

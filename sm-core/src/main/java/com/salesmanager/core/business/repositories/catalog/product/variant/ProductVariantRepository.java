@@ -24,7 +24,7 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
 			+ "left join fetch pvv.productOption pvvpo "
 			+ "left join fetch pvv.productOptionValue pvvpov "
 			+ "left join fetch pvvpo.descriptions povvpod "
-			+ "left join fetch pvpov.descriptions povvpovd "			
+			+ "left join fetch pvvpov.descriptions povvpovd "			
 			
 			+ "left join fetch pv.merchantStore pvm "
 			+ "where p.id = ?1 and pvm.id = ?2")
@@ -41,7 +41,7 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
 			+ "left join fetch pvv.productOption pvvpo "
 			+ "left join fetch pvv.productOptionValue pvvpov "
 			+ "left join fetch pvvpo.descriptions povvpod "
-			+ "left join fetch pvpov.descriptions povvpovd "			
+			+ "left join fetch pvvpov.descriptions povvpovd "			
 			
 			+ "left join fetch pv.merchantStore pvm "
 			+ "where p.id in (?1) and pvm.id = ?2")
@@ -59,7 +59,7 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
 			+ "left join fetch pvv.productOption pvvpo "
 			+ "left join fetch pvv.productOptionValue pvvpov "
 			+ "left join fetch pvvpo.descriptions povvpod "
-			+ "left join fetch pvpov.descriptions povvpovd "			
+			+ "left join fetch pvvpov.descriptions povvpovd "			
 			
 			+ "left join fetch pr.merchantStore prm "
 			+ "where p.id = ?1 and pr.id = ?2 and prm.id = ?3")
@@ -78,7 +78,7 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
 			+ "left join fetch pvv.productOption pvvpo "
 			+ "left join fetch pvv.productOptionValue pvvpov "
 			+ "left join fetch pvvpo.descriptions povvpod "
-			+ "left join fetch pvpov.descriptions povvpovd "			
+			+ "left join fetch pvvpov.descriptions povvpovd "			
 			
 			+ "left join fetch pr.merchantStore prm "
 			+ "where pvpod.language.id = ?4 "
@@ -107,7 +107,7 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
 			+ "left join fetch pvv.productOption pvvpo "
 			+ "left join fetch pvv.productOptionValue pvvpov " 
 			+ "left join fetch pvvpo.descriptions povvpod "
-			+ "left join fetch pvpov.descriptions pvpovd "
+			+ "left join fetch pvvpov.descriptions povvpovd "
 			+ "left join fetch p.productVariantGroup pig "
 			+ "left join fetch pig.images pigi "
 			+ "left join fetch pigi.descriptions pigid "

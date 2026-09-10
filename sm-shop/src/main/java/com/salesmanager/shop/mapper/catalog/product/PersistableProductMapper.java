@@ -95,7 +95,11 @@ public class PersistableProductMapper implements Mapper<PersistableProduct, Prod
 		try {
 
 			//core properties
-			destination.setSku(source.getSku());
+			String sku = source.getSku();
+			if (StringUtils.isBlank(sku) && source.getInventory() != null) {
+				sku = source.getInventory().getSku();
+			}
+			destination.setSku(sku);
 
 			destination.setAvailable(source.isVisible());
 			destination.setDateAvailable(new Date());

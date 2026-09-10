@@ -36,7 +36,6 @@ public class RestErrorHandler {
         return errorEntity;
     }
 
-
     /**
      * Generic exception serviceException handler
      */

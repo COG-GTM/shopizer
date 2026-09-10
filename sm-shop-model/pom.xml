@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.shopizer</groupId>
     <artifactId>shopizer</artifactId>
-    <version>3.2.5</version>
+    <version>3.5.16</version>
   </parent>
 
   <artifactId>sm-shop-model</artifactId>
@@ -66,14 +66,12 @@
 	</dependency>
 
     <dependency>
-      <groupId>javax.annotation</groupId>
-      <artifactId>javax.annotation-api</artifactId>
+      <groupId>jakarta.annotation</groupId>
+      <artifactId>jakarta.annotation-api</artifactId>
     </dependency>
-
-    <!-- Swagger 2 documentation -->
     <dependency>
-      <groupId>io.springfox</groupId>
-      <artifactId>springfox-swagger2</artifactId>
+      <groupId>io.swagger.core.v3</groupId>
+      <artifactId>swagger-annotations-jakarta</artifactId>
     </dependency>
 
   </dependencies>

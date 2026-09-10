@@ -1,18 +1,17 @@
 package com.salesmanager.shop.controller;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.io.InputStream;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.annotation.PostConstruct;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.ResourceUtils;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -46,14 +45,8 @@ public class ImagesController {
 	
 	@PostConstruct
 	public void init() {
-		try {
-			File file = ResourceUtils.getFile("classpath:static/not-found.png");
-			if(file != null) {
-				byte[] bFile = Files.readAllBytes(file.toPath());
-				this.tempImage = bFile;
-			}
-
-			
+		try (InputStream inputStream = new ClassPathResource("static/not-found.png").getInputStream()) {
+			this.tempImage = inputStream.readAllBytes();
 		} catch (Exception e) {
 			LOGGER.error("Can't load temporary default image", e);
 		}

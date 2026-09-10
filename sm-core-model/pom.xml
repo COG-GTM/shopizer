@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>com.shopizer</groupId>
 		<artifactId>shopizer</artifactId>
-		<version>3.2.5</version>
+		<version>3.5.16</version>
 	</parent>
 
 
@@ -13,15 +13,7 @@
 	<description>sm-core-modules is used for create new external modules implementation deployed in maven.</description>
 	<name>sm-core-model</name>
 	<url>http://www.shopizer.com</url>
-
-	<properties>
-		<java.version>11</java.version>
-		<maven.compiler.source>${java.version}</maven.compiler.source>
-		<maven.compiler.target>${java.version}</maven.compiler.target>
-	</properties>
-
-
-	<scm>
+<scm>
 		<connection>scm:git:git://github.com:shopizer-ecommerce/shopizer-sm-core-model.git</connection>
 		<developerConnection>scm:git:ssh://github.com:shopizer-ecommerce/shopizer-sm-core-model.git</developerConnection>
 		<url>https://github.com/shopizer-ecommerce/shopizer-sm-core-model</url>
@@ -65,8 +57,8 @@
 		</dependency>
 
 		<dependency>
-			<groupId>javax.validation</groupId>
-			<artifactId>validation-api</artifactId>
+			<groupId>jakarta.validation</groupId>
+			<artifactId>jakarta.validation-api</artifactId>
 		</dependency>
 
 		<dependency>
@@ -111,12 +103,6 @@
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
-		</dependency>
-
-		<!-- http://mvnrepository.com/artifact/commons-fileupload/commons-fileupload -->
-		<dependency>
-			<groupId>commons-fileupload</groupId>
-			<artifactId>commons-fileupload</artifactId>
 		</dependency>
 
 	</dependencies>

@@ -4,9 +4,9 @@ import java.security.Principal;
 import java.util.List;
 import java.util.Locale;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -38,19 +38,13 @@ import com.salesmanager.shop.store.controller.order.facade.OrderFacade;
 import com.salesmanager.shop.store.controller.shoppingCart.facade.ShoppingCartFacade;
 import com.salesmanager.shop.utils.LabelUtils;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.SwaggerDefinition;
-import io.swagger.annotations.Tag;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
 
 @Controller
 @RequestMapping("/api/v1")
-@Api(tags = {"Shipping Quotes and Calculation resource (Shipping Api)"})
-@SwaggerDefinition(tags = {
-    @Tag(name = "Shipping Quotes and Calculation resource", description = "Get shipping quotes for public api and loged in customers")
-})
+@Tag(name = "Shipping Quotes and Calculation resource (Shipping Api)")
 public class OrderShippingApi {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OrderShippingApi.class);
@@ -80,14 +74,14 @@ public class OrderShippingApi {
       value = {"/auth/cart/{code}/shipping"},
       method = RequestMethod.GET)
   @ResponseBody
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-      @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en")
+  @Parameters({
+      @Parameter(name = "store", description = "Default: DEFAULT"),
+      @Parameter(name = "lang", description = "Default: en")
   })
   public ReadableShippingSummary shipping(
       @PathVariable final String code,
-      @ApiIgnore MerchantStore merchantStore,
-      @ApiIgnore Language language,
+      @Parameter(hidden = true) MerchantStore merchantStore,
+      @Parameter(hidden = true) Language language,
       HttpServletRequest request,
       HttpServletResponse response) {
 
@@ -191,15 +185,15 @@ public class OrderShippingApi {
       value = {"/cart/{code}/shipping"},
       method = RequestMethod.POST)
   @ResponseBody
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-      @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en")
+  @Parameters({
+      @Parameter(name = "store", description = "Default: DEFAULT"),
+      @Parameter(name = "lang", description = "Default: en")
   })
   public ReadableShippingSummary shipping(
       @PathVariable final String code,
       @RequestBody AddressLocation address,
-      @ApiIgnore MerchantStore merchantStore,
-      @ApiIgnore Language language,
+      @Parameter(hidden = true) MerchantStore merchantStore,
+      @Parameter(hidden = true) Language language,
       HttpServletRequest request,
       HttpServletResponse response)
       throws Exception {

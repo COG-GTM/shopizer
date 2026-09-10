@@ -126,7 +126,7 @@ public class ShippingDistancePreProcessorImpl implements ShippingQuotePrePostPro
 		
 		Validate.notNull(apiKey, "Requires the configuration of google apiKey");
 		
-		GeoApiContext context = new GeoApiContext().setApiKey(apiKey);
+		GeoApiContext context = new GeoApiContext.Builder().apiKey(apiKey).build();
 		
 		//build origin address
 		StringBuilder originAddress = new StringBuilder();

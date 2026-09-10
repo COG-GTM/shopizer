@@ -12,14 +12,14 @@ public interface PageableMerchantRepository extends PagingAndSortingRepository<M
 	/*
 	 * List by parent store
 	 */
-	@Query(value = "select distinct m from MerchantStore m left join fetch m.parent mp left join fetch m.country mc left join fetch m.currency mc left join fetch m.zone mz left join fetch m.defaultLanguage md left join fetch m.languages mls where mp.code = ?1", countQuery = "select count(distinct m) from MerchantStore m join m.parent mp where mp.code = ?1")
+	@Query(value = "select distinct m from MerchantStore m left join fetch m.parent mp left join fetch m.country mc left join fetch m.currency mcy left join fetch m.zone mz left join fetch m.defaultLanguage md left join fetch m.languages mls where mp.code = ?1", countQuery = "select count(distinct m) from MerchantStore m join m.parent mp where mp.code = ?1")
 	Page<MerchantStore> listByStore(String code, Pageable pageable);
 
-	@Query(value = "select distinct m from MerchantStore m left join fetch m.parent mp left join fetch m.country mc left join fetch m.currency mc left join fetch m.zone mz left join fetch m.defaultLanguage md left join fetch m.languages mls where (?1 is null or m.storename like %?1%)", countQuery = "select count(distinct m) from MerchantStore m where (?1 is null or m.storename like %?1%)")
+	@Query(value = "select distinct m from MerchantStore m left join fetch m.parent mp left join fetch m.country mc left join fetch m.currency mcy left join fetch m.zone mz left join fetch m.defaultLanguage md left join fetch m.languages mls where (?1 is null or m.storename like %?1%)", countQuery = "select count(distinct m) from MerchantStore m where (?1 is null or m.storename like %?1%)")
 	Page<MerchantStore> listAll(String storeName, Pageable pageable);
 
 	@Query(value = "select distinct m from MerchantStore m left join fetch m.parent mp "
-			+ "left join fetch m.country mc " + "left join fetch m.currency mc left " + "join fetch m.zone mz "
+			+ "left join fetch m.country mc " + "left join fetch m.currency mcy left " + "join fetch m.zone mz "
 			+ "left join fetch m.defaultLanguage md " + "left join fetch m.languages mls "
 			+ "where m.retailer = true and (?1 is null or m.storename like %?1%)", countQuery = "select count(distinct m) from MerchantStore m join m.parent "
 					+ "where m.retailer = true and (?1 is null or m.storename like %?1%)")

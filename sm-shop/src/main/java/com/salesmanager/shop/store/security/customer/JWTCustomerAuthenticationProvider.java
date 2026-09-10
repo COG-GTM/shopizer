@@ -1,6 +1,6 @@
 package com.salesmanager.shop.store.security.customer;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -38,7 +38,7 @@ public class JWTCustomerAuthenticationProvider extends DaoAuthenticationProvider
         String pass = credentials.toString();
         String usr = name;
         
-        if(!passwordMatch(pass, usr)) {
+        if(!passwordMatch(pass, customer.getPassword())) {
         	throw new BadCredentialsException("Username/Password does not match for " + auth.getPrincipal());
         }
         
@@ -52,8 +52,8 @@ public class JWTCustomerAuthenticationProvider extends DaoAuthenticationProvider
     }
 	
 	
-    private boolean passwordMatch(String rawPassword, String user) {
-		    return passwordEncoder.matches(rawPassword, user);
+    private boolean passwordMatch(String rawPassword, String encodedPassword) {
+		    return passwordEncoder.matches(rawPassword, encodedPassword);
 	}
 	
     @Override

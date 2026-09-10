@@ -17,7 +17,7 @@ public class VendorCacheManager {
     try {
       manager = new DefaultCacheManager();
     } catch (Exception e) {
-      LOGGER.error("Cannot start manager " + e.toString());
+      LOGGER.error("Cannot start manager", e);
     }
 
   }
