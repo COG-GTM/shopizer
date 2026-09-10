@@ -11,12 +11,12 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import jakarta.annotation.PostConstruct;
 import org.apache.commons.io.IOUtils;
+import org.infinispan.tree.Fqn;
+import org.infinispan.tree.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,17 +108,18 @@ public class CmsStaticContentFileManagerImpl
 	@Override
 	public void addFile(final String merchantStoreCode, Optional<String>path, final InputContentFile inputStaticContentData)
 			throws ServiceException {
-		if (cacheManager.getCache() == null) {
-			LOGGER.error("Unable to find cacheManager.getCache() in Infinispan..");
+		if (cacheManager.getTreeCache() == null) {
+			LOGGER.error("Unable to find cacheManager.getTreeCache() in Infinispan..");
 			throw new ServiceException(
-					"CmsStaticContentFileManagerInfinispanImpl has a null cacheManager.getCache()");
+					"CmsStaticContentFileManagerInfinispanImpl has a null cacheManager.getTreeCache()");
 		}
 		try {
 
 			String nodePath = this.getNodePath(merchantStoreCode, inputStaticContentData.getFileContentType());
-			String cacheKey = buildCacheKey(nodePath, inputStaticContentData.getFileName());
 
-			cacheManager.getCache().put(cacheKey,
+			final Node<String, Object> merchantNode = this.getNode(nodePath);
+
+			merchantNode.put(inputStaticContentData.getFileName(),
 					IOUtils.toByteArray(inputStaticContentData.getFile()));
 
 			LOGGER.info("Content data added successfully.");
@@ -155,18 +156,18 @@ public class CmsStaticContentFileManagerImpl
 	@Override
 	public void addFiles(final String merchantStoreCode, Optional<String> path, final List<InputContentFile> inputStaticContentDataList)
 			throws ServiceException {
-		if (cacheManager.getCache() == null) {
-			LOGGER.error("Unable to find cacheManager.getCache() in Infinispan..");
+		if (cacheManager.getTreeCache() == null) {
+			LOGGER.error("Unable to find cacheManager.getTreeCache() in Infinispan..");
 			throw new ServiceException(
-					"CmsStaticContentFileManagerInfinispanImpl has a null cacheManager.getCache()");
+					"CmsStaticContentFileManagerInfinispanImpl has a null cacheManager.getTreeCache()");
 		}
 		try {
 
 			for (final InputContentFile inputStaticContentData : inputStaticContentDataList) {
 
 				String nodePath = this.getNodePath(merchantStoreCode, inputStaticContentData.getFileContentType());
-				String cacheKey = buildCacheKey(nodePath, inputStaticContentData.getFileName());
-				cacheManager.getCache().put(cacheKey,
+				final Node<String, Object> merchantNode = this.getNode(nodePath);
+				merchantNode.put(inputStaticContentData.getFileName(),
 						IOUtils.toByteArray(inputStaticContentData.getFile()));
 
 			}
@@ -197,17 +198,18 @@ public class CmsStaticContentFileManagerImpl
 	public OutputContentFile getFile(final String merchantStoreCode, Optional<String> path, final FileContentType fileContentType,
 			final String contentFileName) throws ServiceException {
 
-		if (cacheManager.getCache() == null) {
-			throw new ServiceException("CmsStaticContentFileManagerInfinispan has a null cacheManager.getCache()");
+		if (cacheManager.getTreeCache() == null) {
+			throw new ServiceException("CmsStaticContentFileManagerInfinispan has a null cacheManager.getTreeCache()");
 		}
 		OutputContentFile outputStaticContentData = new OutputContentFile();
 		InputStream input = null;
 		try {
 
 			String nodePath = this.getNodePath(merchantStoreCode, fileContentType);
-			String cacheKey = buildCacheKey(nodePath, contentFileName);
 
-			final byte[] fileBytes = (byte[]) cacheManager.getCache().get(cacheKey);
+			final Node<String, Object> merchantNode = this.getNode(nodePath);
+
+			final byte[] fileBytes = (byte[]) merchantNode.get(contentFileName);
 
 			if (fileBytes == null) {
 				LOGGER.warn("file byte is null, no file found");
@@ -235,22 +237,20 @@ public class CmsStaticContentFileManagerImpl
 	public List<OutputContentFile> getFiles(final String merchantStoreCode, Optional<String> path, final FileContentType staticContentType)
 			throws ServiceException {
 
-		if (cacheManager.getCache() == null) {
-			throw new ServiceException("CmsStaticContentFileManagerInfinispan has a null cacheManager.getCache()");
+		if (cacheManager.getTreeCache() == null) {
+			throw new ServiceException("CmsStaticContentFileManagerInfinispan has a null cacheManager.getTreeCache()");
 		}
 		List<OutputContentFile> images = new ArrayList<OutputContentFile>();
 		try {
 
 			FileNameMap fileNameMap = URLConnection.getFileNameMap();
 			String nodePath = this.getNodePath(merchantStoreCode, staticContentType);
-			String prefix = buildNodePrefix(nodePath);
 
-			Map<String, Object> entries = getEntriesByPrefix(prefix);
+			final Node<String, Object> merchantNode = this.getNode(nodePath);
 
-			for (Map.Entry<String, Object> entry : entries.entrySet()) {
+			for (String key : merchantNode.getKeys()) {
 
-				byte[] imageBytes = (byte[]) entry.getValue();
-				String fileName = extractFileName(entry.getKey());
+				byte[] imageBytes = (byte[]) merchantNode.get(key);
 
 				OutputContentFile contentImage = new OutputContentFile();
 
@@ -258,11 +258,11 @@ public class CmsStaticContentFileManagerImpl
 				ByteArrayOutputStream output = new ByteArrayOutputStream();
 				IOUtils.copy(input, output);
 
-				String contentType = fileNameMap.getContentTypeFor(fileName);
+				String contentType = fileNameMap.getContentTypeFor(key);
 
 				contentImage.setFile(output);
 				contentImage.setMimeType(contentType);
-				contentImage.setFileName(fileName);
+				contentImage.setFileName(key);
 
 				images.add(contentImage);
 
@@ -281,15 +281,16 @@ public class CmsStaticContentFileManagerImpl
 	public void removeFile(final String merchantStoreCode, final FileContentType staticContentType,
 			final String fileName, Optional<String> path) throws ServiceException {
 
-		if (cacheManager.getCache() == null) {
-			throw new ServiceException("CmsStaticContentFileManagerInfinispan has a null cacheManager.getCache()");
+		if (cacheManager.getTreeCache() == null) {
+			throw new ServiceException("CmsStaticContentFileManagerInfinispan has a null cacheManager.getTreeCache()");
 		}
 
 		try {
 
 			String nodePath = this.getNodePath(merchantStoreCode, staticContentType);
-			String cacheKey = buildCacheKey(nodePath, fileName);
-			cacheManager.getCache().remove(cacheKey);
+			final Node<String, Object> merchantNode = this.getNode(nodePath);
+
+			merchantNode.remove(fileName);
 
 		} catch (final Exception e) {
 			LOGGER.error("Error while fetching file for {} merchant ", merchantStoreCode);
@@ -298,24 +299,50 @@ public class CmsStaticContentFileManagerImpl
 
 	}
 
+	/**
+	 * Removes the data in a given merchant node
+	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public void removeFiles(final String merchantStoreCode, Optional<String> path) throws ServiceException {
 
 		LOGGER.info("Removing all images for {} merchant ", merchantStoreCode);
-		if (cacheManager.getCache() == null) {
-			LOGGER.error("Unable to find cacheManager.getCache() in Infinispan..");
-			throw new ServiceException("CmsImageFileManagerInfinispan has a null cacheManager.getCache()");
+		if (cacheManager.getTreeCache() == null) {
+			LOGGER.error("Unable to find cacheManager.getTreeCache() in Infinispan..");
+			throw new ServiceException("CmsImageFileManagerInfinispan has a null cacheManager.getTreeCache()");
 		}
 
 		try {
 
-			String prefix = buildNodePrefix(merchantStoreCode);
-			removeEntriesByPrefix(prefix);
+			final StringBuilder merchantPath = new StringBuilder();
+			merchantPath.append(getRootName()).append(merchantStoreCode);
+			cacheManager.getTreeCache().getRoot().remove(merchantPath.toString());
 
 		} catch (final Exception e) {
 			LOGGER.error("Error while deleting content image for {} merchant ", merchantStoreCode);
 			throw new ServiceException(e);
 		}
+
+	}
+
+	@SuppressWarnings({ "unchecked" })
+	private Node<String, Object> getNode(final String node) {
+		LOGGER.debug("Fetching node for store {} from Infinispan", node);
+		final StringBuilder merchantPath = new StringBuilder();
+		merchantPath.append(getRootName()).append(node);
+
+		Fqn contentFilesFqn = Fqn.fromString(merchantPath.toString());
+
+		Node<String, Object> nd = cacheManager.getTreeCache().getRoot().getChild(contentFilesFqn);
+
+		if (nd == null) {
+
+			cacheManager.getTreeCache().getRoot().addChild(contentFilesFqn);
+			nd = cacheManager.getTreeCache().getRoot().getChild(contentFilesFqn);
+
+		}
+
+		return nd;
 
 	}
 
@@ -327,6 +354,25 @@ public class CmsStaticContentFileManagerImpl
 		return nodePath.toString();
 
 	}
+	
+	
+	/**
+	 * Returns a folder path so it can be used as base node
+	 * @param storeCode
+	 * @param folder
+	 * @return
+	 */
+	private String getFolder(final String storeCode, String folder) {
+
+/*		StringBuilder nodePath = new StringBuilder();
+		nodePath.append(storeCode).append("/").append(contentType.name());
+
+		return nodePath.toString();*/
+		
+		
+		return null;
+
+	}
 
 	public CacheManager getCacheManager() {
 		return cacheManager;
@@ -336,27 +382,32 @@ public class CmsStaticContentFileManagerImpl
 		this.cacheManager = cacheManager;
 	}
 
+	/**
+	 * Queries the CMS to retrieve all static content files. Only the name of
+	 * the file will be returned to the client
+	 * 
+	 * @param merchantStoreCode
+	 * @return
+	 * @throws ServiceException
+	 */
 	@Override
 	public List<String> getFileNames(final String merchantStoreCode, Optional<String> path, final FileContentType staticContentType)
 			throws ServiceException {
 
-		if (cacheManager.getCache() == null) {
-			throw new ServiceException("CmsStaticContentFileManagerInfinispan has a null cacheManager.getCache()");
+		if (cacheManager.getTreeCache() == null) {
+			throw new ServiceException("CmsStaticContentFileManagerInfinispan has a null cacheManager.getTreeCache()");
 		}
 
 		try {
 
 			String nodePath = this.getNodePath(merchantStoreCode, staticContentType);
-			String prefix = buildNodePrefix(nodePath);
-			Map<String, Object> entries = getEntriesByPrefix(prefix);
+			final Node<String, Object> objectNode = this.getNode(nodePath);
 
-			if (entries.isEmpty()) {
+			if (objectNode.getKeys().isEmpty()) {
 				LOGGER.warn("Unable to find content attribute for given merchant");
 				return Collections.emptyList();
 			}
-			return entries.keySet().stream()
-					.map(this::extractFileName)
-					.collect(Collectors.toList());
+			return new ArrayList<String>(objectNode.getKeys());
 
 		} catch (final Exception e) {
 			LOGGER.error("Error while fetching file for {} merchant ", merchantStoreCode);
@@ -373,20 +424,36 @@ public class CmsStaticContentFileManagerImpl
 		return rootName;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void addFolder(String merchantStoreCode, String folderName, Optional<String> path) throws ServiceException {
-
+		
+		
 		String nodePath = this.getNodePath(merchantStoreCode, FileContentType.IMAGE);
-
+		
 		StringBuilder appender = new StringBuilder();
 		appender.append(nodePath).append(Constants.SLASH);
 
 		path.ifPresent(appender::append);
+		
+		
+		//Put logic in a method
+		
+		Fqn folderFqn = Fqn.fromString(appender.toString());
 
+		Node<String, Object> nd = cacheManager.getTreeCache().getRoot().getChild(folderFqn);
+
+		if (nd == null) {
+
+			cacheManager.getTreeCache().getRoot().addChild(folderFqn);
+			nd = cacheManager.getTreeCache().getRoot().getChild(folderFqn);
+
+		}
+		
 		appender.append(Constants.SLASH).append(folderName);
-
-		String folderKey = getRootName() + appender.toString();
-		cacheManager.getCache().putIfAbsent(folderKey, Boolean.TRUE);
+		
+		Fqn newFolderFqn = Fqn.fromString(appender.toString());
+		cacheManager.getTreeCache().getRoot().addChild(newFolderFqn);
 
 	}
 
@@ -406,30 +473,5 @@ public class CmsStaticContentFileManagerImpl
 	public CMSManager getCmsManager() {
     	return null;
   	}
-
-	private String buildNodePrefix(String path) {
-		return getRootName() + path + "/";
-	}
-
-	private String buildCacheKey(String nodePath, String fileName) {
-		return getRootName() + nodePath + "/" + fileName;
-	}
-
-	private String extractFileName(String cacheKey) {
-		int lastSlash = cacheKey.lastIndexOf("/");
-		return lastSlash >= 0 ? cacheKey.substring(lastSlash + 1) : cacheKey;
-	}
-
-	private Map<String, Object> getEntriesByPrefix(String prefix) {
-		return cacheManager.getCache().entrySet().stream()
-				.filter(e -> e.getKey().startsWith(prefix))
-				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-	}
-
-	private void removeEntriesByPrefix(String prefix) {
-		cacheManager.getCache().keySet().stream()
-				.filter(k -> k.startsWith(prefix))
-				.forEach(k -> cacheManager.getCache().remove(k));
-	}
 
 }

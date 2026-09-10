@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>com.shopizer</groupId>
 		<artifactId>shopizer</artifactId>
-		<version>3.5.16</version>
+		<version>3.2.5</version>
 	</parent>
 
 	<artifactId>sm-core</artifactId>
@@ -39,7 +39,6 @@
 		<dependency>
 			<groupId>org.ehcache</groupId>
 			<artifactId>ehcache</artifactId>
-			<classifier>jakarta</classifier>
 		</dependency>
 		<dependency>
 			<groupId>jakarta.mail</groupId>
