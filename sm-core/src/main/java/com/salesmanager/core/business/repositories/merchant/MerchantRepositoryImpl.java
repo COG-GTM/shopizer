@@ -2,9 +2,9 @@ package com.salesmanager.core.business.repositories.merchant;
 
 import java.util.List;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -30,7 +30,7 @@ public class MerchantRepositoryImpl implements MerchantRepositoryCustom {
     try {
       StringBuilder req = new StringBuilder();
       req.append(
-          "select distinct m from MerchantStore m left join fetch m.country mc left join fetch m.parent cp left join fetch m.currency mc left join fetch m.zone mz left join fetch m.defaultLanguage md left join fetch m.languages mls");
+          "select distinct m from MerchantStore m left join fetch m.country mc left join fetch m.parent cp left join fetch m.currency mcy left join fetch m.zone mz left join fetch m.defaultLanguage md left join fetch m.languages mls");
       StringBuilder countBuilder = new StringBuilder();
       countBuilder.append("select count(distinct m) from MerchantStore m");
       if (criteria.getCode() != null) {
@@ -85,7 +85,7 @@ public class MerchantRepositoryImpl implements MerchantRepositoryCustom {
 
 
 
-    } catch (javax.persistence.NoResultException ers) {
+    } catch (jakarta.persistence.NoResultException ers) {
     } catch (Exception e) {
       LOGGER.error(e.getMessage());
       throw new ServiceException(e);

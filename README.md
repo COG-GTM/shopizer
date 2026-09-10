@@ -1,4 +1,4 @@
-# Shopizer 3 (for java 17 +) (tested with Java 11, 17)
+# Shopizer 3 (Java 21, Spring Boot 3.5.16)
 
 3.2.7
 
@@ -26,7 +26,24 @@ Headless commerce and Rest api for ecommerce
 Shopizer Headless commerce consists of the following components:
 
 
-Access the headless api: http://localhost:8080/swagger-ui.html
+Access the headless api: http://localhost:8080/swagger-ui/index.html
+
+## Java 11 → 21 migration (Spring Boot 3.5.16)
+
+- Java 11 → 21
+- Spring Boot 2.5.12 → 3.5.16 (Spring Framework 6.2, Spring Security 6.5, Hibernate 6.6, Jakarta EE 10)
+- Springfox 2.9.2 → springdoc-openapi 2.8.x (`/swagger-ui/index.html`, `/v3/api-docs`)
+- Ehcache 2 → Ehcache 3 through JCache
+- Caffeine remains at 2.9.3 because Infinispan 9.4 requires the Caffeine 2.x `CacheWriter` API
+- Drools 7.32 → 8.44 (`kie-ci` dropped)
+- Infinispan 9.4.18 → 9.4.24
+- jjwt 0.8 → 0.9.1
+- MapStruct 1.3 → 1.6.3
+- H2 1.4 → 2.x (`mv_store=false` removed and the shipped database regenerated)
+- MySQL dialect renamed for Hibernate 6
+- Java EE `javax` packages migrated to Jakarta EE `jakarta`
+- `WebSecurityConfigurerAdapter` replaced with `SecurityFilterChain` beans
+- External starters wired through `AutoConfiguration.imports`
 
 
 See the demo: [**New demo on the way 2025]
@@ -144,5 +161,3 @@ Push your changes to Shopizer
 -------------------
 
 Please open a PR (pull request) in order to have your changes merged to the upstream
-
-

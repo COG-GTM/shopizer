@@ -3,7 +3,7 @@ package com.salesmanager.core.business.utils;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,30 +50,20 @@ public class CacheUtils {
 	}
 	
 	public List<String> getCacheKeys(MerchantStore store) throws Exception {
-		
-		  net.sf.ehcache.Cache cacheImpl = (net.sf.ehcache.Cache) cache.getNativeCache();
-		  List<String> returnKeys = new ArrayList<String>();
-		  for (Object key: cacheImpl.getKeys()) {
-		    
-			  
-				try {
-					String sKey = (String)key;
-					
-					// a key should be <storeId>_<rest of the key>
-					int delimiterPosition = sKey.indexOf(KEY_DELIMITER);
-					
-					if(delimiterPosition>0 && Character.isDigit(sKey.charAt(0))) {
-					
-						String keyRemaining = sKey.substring(delimiterPosition+1);
-						returnKeys.add(keyRemaining);
-					
-					}
-
-				} catch (Exception e) {
-					LOGGER.equals("key " + key + " cannot be converted to a String or parsed");
-				}  
-		  }
-
+		javax.cache.Cache<Object, Object> nativeCache =
+				(javax.cache.Cache<Object, Object>) cache.getNativeCache();
+		List<String> returnKeys = new ArrayList<String>();
+		for (javax.cache.Cache.Entry<Object, Object> entry : nativeCache) {
+			try {
+				String sKey = (String) entry.getKey();
+				int delimiterPosition = sKey.indexOf(KEY_DELIMITER);
+				if (delimiterPosition > 0 && Character.isDigit(sKey.charAt(0))) {
+					returnKeys.add(sKey.substring(delimiterPosition + 1));
+				}
+			} catch (Exception e) {
+				LOGGER.warn("Cache key cannot be converted to a String or parsed", e);
+			}
+		}
 		return returnKeys;
 	}
 	
@@ -86,25 +76,19 @@ public class CacheUtils {
 	}
 	
 	public void removeAllFromCache(MerchantStore store) throws Exception {
-		  net.sf.ehcache.Cache cacheImpl = (net.sf.ehcache.Cache) cache.getNativeCache();
-		  for (Object key: cacheImpl.getKeys()) {
-				try {
-					String sKey = (String)key;
-					
-					// a key should be <storeId>_<rest of the key>
-					int delimiterPosition = sKey.indexOf(KEY_DELIMITER);
-					
-					if(delimiterPosition>0 && Character.isDigit(sKey.charAt(0))) {
-					
-
-						cache.evict(key);
-					
-					}
-
-				} catch (Exception e) {
-					LOGGER.equals("key " + key + " cannot be converted to a String or parsed");
-				}  
-		  }
+		javax.cache.Cache<Object, Object> nativeCache =
+				(javax.cache.Cache<Object, Object>) cache.getNativeCache();
+		for (javax.cache.Cache.Entry<Object, Object> entry : nativeCache) {
+			try {
+				String sKey = (String) entry.getKey();
+				int delimiterPosition = sKey.indexOf(KEY_DELIMITER);
+				if (delimiterPosition > 0 && Character.isDigit(sKey.charAt(0))) {
+					cache.evict(entry.getKey());
+				}
+			} catch (Exception e) {
+				LOGGER.warn("Cache key cannot be converted to a String or parsed", e);
+			}
+		}
 	}
 	
 

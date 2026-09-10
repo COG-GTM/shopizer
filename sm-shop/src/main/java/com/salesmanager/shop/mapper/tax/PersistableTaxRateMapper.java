@@ -2,7 +2,7 @@ package com.salesmanager.shop.mapper.tax;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.jsoup.helper.Validate;
+import org.apache.commons.lang3.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -45,7 +45,9 @@ public class PersistableTaxRateMapper implements Mapper<PersistableTaxRate, TaxR
 		Validate.notNull(destination, "destination TaxRate cannot be null");
 		Validate.notNull(source, "source TaxRate cannot be null");
 		try {
-			destination.setId(source.getId());
+			if (source.getId() != null && source.getId().longValue() > 0) {
+				destination.setId(source.getId());
+			}
 			destination.setCode(source.getCode());
 			destination.setTaxPriority(source.getPriority());
 			

@@ -7,15 +7,15 @@ import java.io.OutputStream;
 import java.io.StringWriter;
 import java.util.Map;
 import java.util.Properties;
-import javax.inject.Inject;
-import javax.mail.BodyPart;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
+import jakarta.inject.Inject;
+import jakarta.mail.BodyPart;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Multipart;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMultipart;
 import org.springframework.mail.MailPreparationException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
@@ -90,7 +90,7 @@ public class DefaultEmailSenderImpl implements EmailModule {
         } catch (TemplateException e) {
           throw new MailPreparationException("Can't generate text mail", e);
         }
-        textPart.setDataHandler(new javax.activation.DataHandler(new javax.activation.DataSource() {
+        textPart.setDataHandler(new jakarta.activation.DataHandler(new jakarta.activation.DataSource() {
           public InputStream getInputStream() throws IOException {
             // return new StringBufferInputStream(textWriter
             // .toString());
@@ -123,7 +123,7 @@ public class DefaultEmailSenderImpl implements EmailModule {
         } catch (TemplateException e) {
           throw new MailPreparationException("Can't generate HTML mail", e);
         }
-        htmlPage.setDataHandler(new javax.activation.DataHandler(new javax.activation.DataSource() {
+        htmlPage.setDataHandler(new jakarta.activation.DataHandler(new jakarta.activation.DataSource() {
           public InputStream getInputStream() throws IOException {
             // return new StringBufferInputStream(htmlWriter
             // .toString());

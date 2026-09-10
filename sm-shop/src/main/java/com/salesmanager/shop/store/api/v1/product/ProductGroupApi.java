@@ -1,13 +1,13 @@
 package com.salesmanager.shop.store.api.v1.product;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -27,25 +27,19 @@ import com.salesmanager.shop.model.catalog.product.ReadableProductList;
 import com.salesmanager.shop.model.catalog.product.group.ProductGroup;
 import com.salesmanager.shop.store.controller.items.facade.ProductItemsFacade;
 
-import antlr.collections.List;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.SwaggerDefinition;
-import io.swagger.annotations.Tag;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
 
 /**
  * Used for product grouping such as featured items
  *
  * @author carlsamson
  */
-@Controller
+@RestController
 @RequestMapping("/api/v1")
-@Api(tags = { "Product groups management resource (Product Groups Management Api)" })
-@SwaggerDefinition(tags = {
-		@Tag(name = "Product groups management resource", description = "Product groups management") })
+@Tag(name = "Product groups management resource (Product Groups Management Api)")
 public class ProductGroupApi {
 
   @Inject private ProductService productService;
@@ -56,15 +50,15 @@ public class ProductGroupApi {
 
   @ResponseStatus(HttpStatus.OK)
   @PostMapping("/private/products/group")
-  @ApiOperation(httpMethod = "POST", value = "Create product group", notes = "", response = ProductGroup.class)
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-      @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en")
+  @Operation(summary = "Create product group")
+  @Parameters({
+      @Parameter(name = "store", description = "Default: DEFAULT"),
+      @Parameter(name = "lang", description = "Default: en")
   })
   public @ResponseBody ProductGroup creteGroup(
       @RequestBody ProductGroup group,
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language,
+			@Parameter(hidden = true) MerchantStore merchantStore,
+			@Parameter(hidden = true) Language language,
       HttpServletResponse response)
       throws Exception {
 	  
@@ -74,16 +68,16 @@ public class ProductGroupApi {
   
   @ResponseStatus(HttpStatus.OK)
   @PatchMapping("/private/products/group/{code}")
-  @ApiOperation(httpMethod = "PATCH", value = "Update product group visible flag", notes = "", response = ProductGroup.class)
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-      @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en")
+  @Operation(summary = "Update product group visible flag")
+  @Parameters({
+      @Parameter(name = "store", description = "Default: DEFAULT"),
+      @Parameter(name = "lang", description = "Default: en")
   })
   public void updateGroup(
       @RequestBody ProductGroup group,
       @PathVariable String code,
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language,
+			@Parameter(hidden = true) MerchantStore merchantStore,
+			@Parameter(hidden = true) Language language,
       HttpServletResponse response)
       throws Exception {
 	  
@@ -92,14 +86,14 @@ public class ProductGroupApi {
   }
   
   @GetMapping("/private/product/groups")
-  @ApiOperation(httpMethod = "GET", value = "Get products groups for a given merchant", notes = "", response = List.class)
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-      @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en")
+  @Operation(summary = "Get products groups for a given merchant")
+  @Parameters({
+      @Parameter(name = "store", description = "Default: DEFAULT"),
+      @Parameter(name = "lang", description = "Default: en")
   })
   public @ResponseBody java.util.List<ProductGroup> list(
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language,
+			@Parameter(hidden = true) MerchantStore merchantStore,
+			@Parameter(hidden = true) Language language,
       HttpServletResponse response)
       throws Exception {
 	  
@@ -123,15 +117,15 @@ public class ProductGroupApi {
    */
   @ResponseStatus(HttpStatus.OK)
   @GetMapping("/products/group/{code}")
-  @ApiOperation(httpMethod = "GET", value = "Get products by group code", notes = "", response = ReadableProductList.class)
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-      @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en")
+  @Operation(summary = "Get products by group code")
+  @Parameters({
+      @Parameter(name = "store", description = "Default: DEFAULT"),
+      @Parameter(name = "lang", description = "Default: en")
   })
   public @ResponseBody ReadableProductList getProductItemsByGroup(
       @PathVariable final String code,
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language,
+			@Parameter(hidden = true) MerchantStore merchantStore,
+			@Parameter(hidden = true) Language language,
       HttpServletResponse response)
       throws Exception {
     try {
@@ -154,15 +148,15 @@ public class ProductGroupApi {
 
   @ResponseStatus(HttpStatus.CREATED)
   @RequestMapping(value = "/private/products/{productId}/group/{code}", method = RequestMethod.POST)
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-      @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en")
+  @Parameters({
+      @Parameter(name = "store", description = "Default: DEFAULT"),
+      @Parameter(name = "lang", description = "Default: en")
   })
   public @ResponseBody ReadableProductList addProductToGroup(
       @PathVariable Long productId,
       @PathVariable String code,
-      @ApiIgnore MerchantStore merchantStore,
-      @ApiIgnore Language language,
+      @Parameter(hidden = true) MerchantStore merchantStore,
+      @Parameter(hidden = true) Language language,
       HttpServletResponse response) {
 
 	  
@@ -191,22 +185,21 @@ public class ProductGroupApi {
 
       return list;
 
-
   }
 
   @ResponseStatus(HttpStatus.OK)
   @RequestMapping(
       value = "/private/products/{productId}/group/{code}",
       method = RequestMethod.DELETE)
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-      @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en")
+  @Parameters({
+      @Parameter(name = "store", description = "Default: DEFAULT"),
+      @Parameter(name = "lang", description = "Default: en")
   })
   public @ResponseBody ReadableProductList removeProductFromGroup(
       @PathVariable Long productId,
       @PathVariable String code,
-      @ApiIgnore MerchantStore merchantStore,
-      @ApiIgnore Language language,
+      @Parameter(hidden = true) MerchantStore merchantStore,
+      @Parameter(hidden = true) Language language,
       HttpServletRequest request,
       HttpServletResponse response) {
 
@@ -237,15 +230,15 @@ public class ProductGroupApi {
   
   @ResponseStatus(HttpStatus.OK)
   @DeleteMapping("/products/group/{code}")
-  @ApiOperation(httpMethod = "DELETE", value = "Delete product group by group code", notes = "", response = Void.class)
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-      @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en")
+  @Operation(summary = "Delete product group by group code")
+  @Parameters({
+      @Parameter(name = "store", description = "Default: DEFAULT"),
+      @Parameter(name = "lang", description = "Default: en")
   })
   public void deleteGroup(
       @PathVariable final String code,
-	  @ApiIgnore MerchantStore merchantStore,
-	  @ApiIgnore Language language,
+	  @Parameter(hidden = true) MerchantStore merchantStore,
+	  @Parameter(hidden = true) Language language,
       HttpServletResponse response) {
 	  
 	  productItemsFacade.deleteGroup(code, merchantStore);

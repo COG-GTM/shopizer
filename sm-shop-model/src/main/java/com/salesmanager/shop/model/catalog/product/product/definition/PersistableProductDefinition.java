@@ -7,6 +7,7 @@ import java.util.List;
 import com.salesmanager.shop.model.catalog.category.Category;
 import com.salesmanager.shop.model.catalog.product.ProductDescription;
 import com.salesmanager.shop.model.catalog.product.attribute.PersistableProductAttribute;
+import com.salesmanager.shop.model.catalog.product.product.PersistableProductInventory;
 
 public class PersistableProductDefinition extends ProductDefinition {
 
@@ -22,6 +23,7 @@ public class PersistableProductDefinition extends ProductDefinition {
 	private String manufacturer;
 	private BigDecimal price;
 	private int quantity;
+	private PersistableProductInventory inventory;
 	public List<ProductDescription> getDescriptions() {
 		return descriptions;
 	}
@@ -63,6 +65,12 @@ public class PersistableProductDefinition extends ProductDefinition {
 	}
 	public void setQuantity(int quantity) {
 		this.quantity = quantity;
+	}
+	public PersistableProductInventory getInventory() {
+		return inventory;
+	}
+	public void setInventory(PersistableProductInventory inventory) {
+		this.inventory = inventory;
 	}
 
 }

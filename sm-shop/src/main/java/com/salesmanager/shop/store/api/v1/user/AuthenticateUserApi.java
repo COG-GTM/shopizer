@@ -1,8 +1,9 @@
 package com.salesmanager.shop.store.api.v1.user;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 
 import org.apache.http.auth.AuthenticationException;
 import org.slf4j.Logger;
@@ -16,7 +17,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -26,20 +27,16 @@ import com.salesmanager.shop.store.security.AuthenticationResponse;
 import com.salesmanager.shop.store.security.JWTTokenUtil;
 import com.salesmanager.shop.store.security.user.JWTUser;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.SwaggerDefinition;
-import io.swagger.annotations.Tag;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 /**
  * Authenticates a User (Administration purpose)
  * @author c.samson
  *
  */
-@Controller
+@RestController
 @RequestMapping("/api/v1")
-@Api(tags = { "User authentication Api" })
-@SwaggerDefinition(tags = {
-		@Tag(name = "User authentication resource", description = "Login for administrator users") })
+@Tag(name = "User authentication Api")
 public class AuthenticateUserApi {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticateUserApi.class);
@@ -48,6 +45,7 @@ public class AuthenticateUserApi {
     private String tokenHeader;
 
     @Inject
+    @Named("jwtAdminAuthenticationManager")
     private AuthenticationManager jwtAdminAuthenticationManager;
     
     @Inject
@@ -123,6 +121,5 @@ public class AuthenticateUserApi {
         }
     }
     
-
 
 }

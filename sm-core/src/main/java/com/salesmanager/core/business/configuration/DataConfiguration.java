@@ -2,11 +2,17 @@ package com.salesmanager.core.business.configuration;
 
 import java.util.Properties;
 
-import javax.persistence.EntityManagerFactory;
+import javax.cache.CacheManager;
+import javax.cache.Caching;
+
+import jakarta.persistence.EntityManagerFactory;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.Cache;
+import org.springframework.cache.jcache.JCacheCacheManager;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.orm.jpa.JpaTransactionManager;
@@ -82,6 +88,25 @@ public class DataConfiguration {
     	return dataSource;
     }
 
+    @Bean(name = "springCacheManager")
+    public CacheManager springCacheManager() throws Exception {
+        ClassPathResource configuration = new ClassPathResource("spring/ehcache.xml");
+        return Caching.getCachingProvider().getCacheManager(
+                configuration.getURL().toURI(), configuration.getClassLoader());
+    }
+
+    @Bean(name = "serviceCacheManager")
+    public JCacheCacheManager serviceCacheManager(CacheManager springCacheManager) {
+        JCacheCacheManager cacheManager = new JCacheCacheManager();
+        cacheManager.setCacheManager(springCacheManager);
+        return cacheManager;
+    }
+
+    @Bean(name = "serviceCache")
+    public Cache serviceCache(JCacheCacheManager serviceCacheManager) {
+        return serviceCacheManager.getCache("com.shopizer.OBJECT_CACHE");
+    }
+
 	@Bean
 	public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
 
@@ -105,11 +130,13 @@ public class DataConfiguration {
         hibernateProperties.setProperty("hibernate.show_sql", showSql);
         hibernateProperties.setProperty("hibernate.cache.use_second_level_cache", "true");
         hibernateProperties.setProperty("hibernate.cache.use_query_cache", "true");
-        hibernateProperties.setProperty("hibernate.cache.region.factory_class", "org.hibernate.cache.ehcache.EhCacheRegionFactory");
+        hibernateProperties.setProperty("hibernate.cache.region.factory_class", "jcache");
+        hibernateProperties.setProperty("hibernate.javax.cache.provider", "org.ehcache.jsr107.EhcacheCachingProvider");
+        hibernateProperties.setProperty("hibernate.javax.cache.uri", "spring/ehcache.xml");
+        hibernateProperties.setProperty("hibernate.javax.cache.missing_cache_strategy", "create");
         hibernateProperties.setProperty("hibernate.connection.CharSet", "utf8");
         hibernateProperties.setProperty("hibernate.connection.characterEncoding", "utf8");
         hibernateProperties.setProperty("hibernate.connection.useUnicode", "true");
-        hibernateProperties.setProperty("hibernate.id.new_generator_mappings", "false"); //unless you run on a new schema
         hibernateProperties.setProperty("hibernate.generate_statistics", "false");
         // hibernateProperties.setProperty("hibernate.globally_quoted_identifiers", "true");
         return hibernateProperties;
