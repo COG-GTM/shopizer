@@ -43,6 +43,9 @@ public class OrderProduct extends SalesManagerEntity<Long, OrderProduct> {
 	@Column (name="ONETIME_CHARGE" , nullable=false )
 	private BigDecimal oneTimeCharge;
 
+	@Column (name="RETURNED_QUANTITY")
+	private int returnedQuantity;
+
 	@JsonIgnore
 	@ManyToOne(targetEntity = Order.class)
 	@JoinColumn(name = "ORDER_ID", nullable = false)
@@ -135,6 +138,14 @@ public class OrderProduct extends SalesManagerEntity<Long, OrderProduct> {
 
 	public BigDecimal getOneTimeCharge() {
 		return oneTimeCharge;
+	}
+
+	public int getReturnedQuantity() {
+		return returnedQuantity;
+	}
+
+	public void setReturnedQuantity(int returnedQuantity) {
+		this.returnedQuantity = returnedQuantity;
 	}
 	
 }

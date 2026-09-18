@@ -6,6 +6,8 @@ public enum OrderStatus {
 	PROCESSED("processed"),
 	DELIVERED("delivered"),
 	REFUNDED("refunded"),
+	RETURNED("returned"),
+	PARTIALLY_RETURNED("partially_returned"),
 	CANCELED("canceled"),
 	;
 	
