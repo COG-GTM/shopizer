@@ -22,6 +22,8 @@ import com.salesmanager.core.model.shipping.ShippingQuote;
 import com.salesmanager.core.model.shipping.ShippingSummary;
 import com.salesmanager.core.model.shoppingcart.ShoppingCart;
 import com.salesmanager.shop.model.customer.PersistableCustomer;
+import com.salesmanager.shop.model.order.PersistableOrderReturn;
+import com.salesmanager.shop.model.order.ReadableOrderReturn;
 import com.salesmanager.shop.model.order.ShopOrder;
 import com.salesmanager.shop.model.order.history.PersistableOrderStatusHistory;
 import com.salesmanager.shop.model.order.history.ReadableOrderStatusHistory;
@@ -202,4 +204,15 @@ public interface OrderFacade {
 	 * Update Order status and create order_status_history record
 	 */
 	void updateOrderStatus(Order order, OrderStatus newStatus, MerchantStore store);
+
+	/**
+	 * Returns the requested order products quantities, refunds the corresponding amount
+	 * and updates the order status
+	 * @param orderId
+	 * @param orderReturn
+	 * @param store
+	 * @param language
+	 * @return ReadableOrderReturn
+	 */
+	ReadableOrderReturn returnOrder(Long orderId, PersistableOrderReturn orderReturn, MerchantStore store, Language language);
 }

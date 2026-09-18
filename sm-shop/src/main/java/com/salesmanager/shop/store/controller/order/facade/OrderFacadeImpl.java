@@ -1,6 +1,7 @@
 package com.salesmanager.shop.store.controller.order.facade;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -40,6 +41,8 @@ import com.salesmanager.core.business.services.catalog.pricing.PricingService;
 import com.salesmanager.core.business.services.catalog.product.ProductService;
 import com.salesmanager.core.business.services.catalog.product.attribute.ProductAttributeService;
 import com.salesmanager.core.business.services.catalog.product.file.DigitalProductService;
+import com.salesmanager.core.business.services.customer.CustomerService;
+import com.salesmanager.core.business.services.order.OrderReturnService;
 import com.salesmanager.core.business.services.order.OrderService;
 import com.salesmanager.core.business.services.payments.PaymentService;
 import com.salesmanager.core.business.services.payments.TransactionService;
@@ -60,6 +63,7 @@ import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.order.Order;
 import com.salesmanager.core.model.order.OrderCriteria;
 import com.salesmanager.core.model.order.OrderList;
+import com.salesmanager.core.model.order.OrderReturnResult;
 import com.salesmanager.core.model.order.OrderSummary;
 import com.salesmanager.core.model.order.OrderTotalSummary;
 import com.salesmanager.core.model.order.attributes.OrderAttribute;
@@ -85,7 +89,11 @@ import com.salesmanager.shop.model.customer.ReadableCustomer;
 import com.salesmanager.shop.model.customer.address.Address;
 import com.salesmanager.shop.model.order.OrderEntity;
 import com.salesmanager.shop.model.order.PersistableOrderProduct;
+import com.salesmanager.shop.model.order.PersistableOrderReturn;
+import com.salesmanager.shop.model.order.PersistableOrderReturnItem;
 import com.salesmanager.shop.model.order.ReadableOrderProduct;
+import com.salesmanager.shop.model.order.ReadableOrderReturn;
+import com.salesmanager.shop.model.order.ReadableOrderReturnItem;
 import com.salesmanager.shop.model.order.ShopOrder;
 import com.salesmanager.shop.model.order.history.PersistableOrderStatusHistory;
 import com.salesmanager.shop.model.order.history.ReadableOrderStatusHistory;
@@ -101,6 +109,7 @@ import com.salesmanager.shop.populator.order.ShoppingCartItemPopulator;
 import com.salesmanager.shop.populator.order.transaction.PersistablePaymentPopulator;
 import com.salesmanager.shop.populator.order.transaction.ReadableTransactionPopulator;
 import com.salesmanager.shop.store.api.exception.ResourceNotFoundException;
+import com.salesmanager.shop.store.api.exception.RestApiException;
 import com.salesmanager.shop.store.api.exception.ServiceRuntimeException;
 import com.salesmanager.shop.store.controller.customer.facade.CustomerFacade;
 import com.salesmanager.shop.store.controller.shoppingCart.facade.ShoppingCartFacade;
@@ -117,6 +126,10 @@ public class OrderFacadeImpl implements OrderFacade {
 
 	@Inject
 	private OrderService orderService;
+	@Inject
+	private OrderReturnService orderReturnService;
+	@Inject
+	private CustomerService customerService;
 	@Inject
 	private ProductService productService;
 	@Inject
@@ -1643,6 +1656,110 @@ public class OrderFacadeImpl implements OrderFacade {
 		} catch (ServiceException e) {
 			e.printStackTrace();
 		}
+
+	}
+
+	@Override
+	public ReadableOrderReturn returnOrder(Long orderId, PersistableOrderReturn orderReturn, MerchantStore store,
+			Language language) {
+
+		Validate.notNull(orderId, "orderId must not be null");
+		Validate.notNull(orderReturn, "PersistableOrderReturn must not be null");
+		Validate.notNull(store, "MerchantStore must not be null");
+
+		Order modelOrder = orderService.getOrder(orderId, store);
+
+		if (modelOrder == null) {
+			throw new ResourceNotFoundException(
+					"Order id [" + orderId + "] not found for store [" + store.getCode() + "]");
+		}
+
+		Map<Long, Integer> quantities = returnedQuantities(orderReturn);
+
+		Customer customer = modelOrder.getCustomerId() != null ? customerService.getById(modelOrder.getCustomerId())
+				: null;
+
+		if (customer == null) {
+			throw new ResourceNotFoundException(
+					"Customer id [" + modelOrder.getCustomerId() + "] not found for order id [" + orderId + "]");
+		}
+
+		try {
+
+			OrderReturnResult result = orderReturnService.returnOrderProducts(modelOrder, customer, store, quantities,
+					orderReturn.getReason());
+
+			return readableOrderReturn(modelOrder, result);
+
+		} catch (ServiceException e) {
+			throw new ServiceRuntimeException("400", "Error while returning products for order id [" + orderId + "]",
+					e);
+		}
+
+	}
+
+	private Map<Long, Integer> returnedQuantities(PersistableOrderReturn orderReturn) {
+
+		if (CollectionUtils.isEmpty(orderReturn.getItems())) {
+			throw new RestApiException("400", "At least one item is required for a return request");
+		}
+
+		Map<Long, Integer> quantities = new HashMap<Long, Integer>();
+
+		for (PersistableOrderReturnItem item : orderReturn.getItems()) {
+
+			if (item.getOrderProductId() == null) {
+				throw new RestApiException("400", "Order product id is required for a return request item");
+			}
+
+			if (item.getQuantity() <= 0) {
+				throw new RestApiException("400",
+						"Returned quantity must be greater than 0 for order product id [" + item.getOrderProductId()
+								+ "]");
+			}
+
+			Integer quantity = quantities.get(item.getOrderProductId());
+			quantities.put(item.getOrderProductId(),
+					quantity == null ? item.getQuantity() : quantity + item.getQuantity());
+
+		}
+
+		return quantities;
+
+	}
+
+	private ReadableOrderReturn readableOrderReturn(Order order, OrderReturnResult result) {
+
+		Map<Long, OrderProduct> orderProducts = new HashMap<Long, OrderProduct>();
+		for (OrderProduct orderProduct : order.getOrderProducts()) {
+			orderProducts.put(orderProduct.getId(), orderProduct);
+		}
+
+		ReadableOrderReturn readable = new ReadableOrderReturn();
+		readable.setRefundedAmount(result.getRefundedAmount());
+		readable.setOrderStatus(result.getOrderStatus() != null ? result.getOrderStatus().name() : null);
+
+		List<ReadableOrderReturnItem> items = new ArrayList<ReadableOrderReturnItem>();
+
+		for (Map.Entry<Long, Integer> entry : result.getReturnedQuantities().entrySet()) {
+
+			ReadableOrderReturnItem item = new ReadableOrderReturnItem();
+			item.setOrderProductId(entry.getKey());
+			item.setQuantity(entry.getValue());
+
+			OrderProduct orderProduct = orderProducts.get(entry.getKey());
+			if (orderProduct != null && orderProduct.getOneTimeCharge() != null) {
+				item.setAmount(orderProduct.getOneTimeCharge().multiply(new BigDecimal(entry.getValue()))
+						.setScale(2, RoundingMode.HALF_UP));
+			}
+
+			items.add(item);
+
+		}
+
+		readable.setItems(items);
+
+		return readable;
 
 	}
 }

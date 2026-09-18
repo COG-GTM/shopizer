@@ -34,18 +34,22 @@ import com.salesmanager.core.business.services.payments.PaymentService;
 import com.salesmanager.core.business.services.shoppingcart.ShoppingCartService;
 import com.salesmanager.core.model.customer.Customer;
 import com.salesmanager.core.model.merchant.MerchantStore;
+import com.salesmanager.core.model.order.Order;
 import com.salesmanager.core.model.payments.Payment;
 import com.salesmanager.core.model.payments.Transaction;
 import com.salesmanager.core.model.payments.TransactionType;
 import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.core.model.shoppingcart.ShoppingCart;
 import com.salesmanager.shop.constants.Constants;
+import com.salesmanager.shop.model.order.PersistableOrderReturn;
+import com.salesmanager.shop.model.order.ReadableOrderReturn;
 import com.salesmanager.shop.model.order.transaction.PersistablePayment;
 import com.salesmanager.shop.model.order.transaction.ReadableTransaction;
 import com.salesmanager.shop.model.order.v0.ReadableOrderList;
 import com.salesmanager.shop.populator.order.transaction.PersistablePaymentPopulator;
 import com.salesmanager.shop.populator.order.transaction.ReadableTransactionPopulator;
 import com.salesmanager.shop.store.api.exception.ResourceNotFoundException;
+import com.salesmanager.shop.store.api.exception.ServiceRuntimeException;
 import com.salesmanager.shop.store.controller.order.facade.OrderFacade;
 import com.salesmanager.shop.utils.AuthorizationUtils;
 
@@ -339,7 +343,69 @@ public class OrderPaymentApi {
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public ReadableTransaction refundPayment(@PathVariable Long id, @ApiIgnore MerchantStore merchantStore,
 			@ApiIgnore Language language) {
-		return null;
+
+		String user = authorizationUtils.authenticatedUser();
+		authorizationUtils.authorizeUser(user, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN,
+				Constants.GROUP_ADMIN_ORDER, Constants.GROUP_ADMIN_RETAIL).collect(Collectors.toList()), merchantStore);
+
+		Order order = orderService.getOrder(id, merchantStore);
+
+		if (order == null) {
+			throw new ResourceNotFoundException(
+					"Order id [" + id + "] not found for store [" + merchantStore.getCode() + "]");
+		}
+
+		Customer customer = order.getCustomerId() != null ? customerService.getById(order.getCustomerId()) : null;
+
+		if (customer == null) {
+			throw new ResourceNotFoundException(
+					"Customer id [" + order.getCustomerId() + "] not found for order id [" + id + "]");
+		}
+
+		try {
+
+			Transaction transactionModel = paymentService.processRefund(order, customer, merchantStore,
+					order.getTotal());
+
+			ReadableTransaction transaction = new ReadableTransaction();
+			ReadableTransactionPopulator trxPopulator = new ReadableTransactionPopulator();
+			trxPopulator.setOrderService(orderService);
+			trxPopulator.setPricingService(pricingService);
+
+			trxPopulator.populate(transactionModel, transaction, merchantStore, language);
+
+			return transaction;
+
+		} catch (Exception e) {
+			LOGGER.error("Error while refunding order id [" + id + "]", e);
+			throw new ServiceRuntimeException("400", "Error while refunding order id [" + id + "]", e);
+		}
+
+	}
+
+	/**
+	 * Returns specific order products quantities and refunds the corresponding amount
+	 *
+	 * @param id
+	 * @param orderReturn
+	 * @param merchantStore
+	 * @param language
+	 * @return ReadableOrderReturn
+	 */
+	@RequestMapping(value = { "/private/orders/{id}/return" }, method = RequestMethod.POST)
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
+			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
+	public ReadableOrderReturn returnOrder(@PathVariable Long id, @RequestBody PersistableOrderReturn orderReturn,
+			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) {
+
+		String user = authorizationUtils.authenticatedUser();
+		authorizationUtils.authorizeUser(user, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN,
+				Constants.GROUP_ADMIN_ORDER, Constants.GROUP_ADMIN_RETAIL).collect(Collectors.toList()), merchantStore);
+
+		return orderFacade.returnOrder(id, orderReturn, merchantStore, language);
+
 	}
 
 	/**
