@@ -227,6 +227,12 @@
 			<artifactId>guava</artifactId>
 		</dependency>
 
+		<!-- Snowflake data warehouse jdbc driver -->
+		<dependency>
+			<groupId>net.snowflake</groupId>
+			<artifactId>snowflake-jdbc</artifactId>
+		</dependency>
+
 		<!-- tests dependencies -->
 		<!-- http://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-test -->
 		<dependency>
