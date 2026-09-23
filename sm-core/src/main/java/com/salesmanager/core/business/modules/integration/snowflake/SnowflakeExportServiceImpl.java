@@ -49,7 +49,7 @@ public class SnowflakeExportServiceImpl implements SnowflakeExportService {
 	public SnowflakeExportServiceImpl() {
 	}
 
-	SnowflakeExportServiceImpl(DataSource snowflakeDataSource, boolean exportEnabled) {
+	public SnowflakeExportServiceImpl(DataSource snowflakeDataSource, boolean exportEnabled) {
 		this.snowflakeDataSource = snowflakeDataSource;
 		this.exportEnabled = exportEnabled;
 	}
