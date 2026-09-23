@@ -27,12 +27,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 
+import com.salesmanager.core.business.configuration.events.order.OrderStatusChangedEvent;
 import com.salesmanager.core.business.constants.Constants;
 import com.salesmanager.core.business.exception.ConversionException;
 import com.salesmanager.core.business.exception.ServiceException;
@@ -115,6 +117,8 @@ public class OrderFacadeImpl implements OrderFacade {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(OrderFacadeImpl.class);
 
+	@Inject
+	private ApplicationEventPublisher eventPublisher;
 	@Inject
 	private OrderService orderService;
 	@Inject
@@ -1642,6 +1646,12 @@ public class OrderFacadeImpl implements OrderFacade {
 			orderService.addOrderStatusHistory(order, history);
 		} catch (ServiceException e) {
 			e.printStackTrace();
+		}
+
+		try {
+			eventPublisher.publishEvent(new OrderStatusChangedEvent(this, order, oldStatus, newStatus, store));
+		} catch (Exception e) {
+			LOGGER.error("Cannot publish order status changed event for order [" + order.getId() + "]", e);
 		}
 
 	}

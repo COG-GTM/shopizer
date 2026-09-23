@@ -17,8 +17,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
+import com.salesmanager.core.business.configuration.events.order.OrderStatusChangedEvent;
 import com.salesmanager.core.business.constants.Constants;
 import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.services.order.OrderService;
@@ -77,6 +79,9 @@ public class PaymentServiceImpl implements PaymentService {
 	
 	@Inject
 	private Encryption encryption;
+	
+	@Inject
+	private ApplicationEventPublisher eventPublisher;
 	
 	@Override
 	public List<IntegrationModule> getPaymentMethods(MerchantStore store) throws ServiceException {
@@ -461,8 +466,16 @@ public class PaymentServiceImpl implements PaymentService {
 		
 		orderService.addOrderStatusHistory(order, orderHistory);
 		
+		OrderStatus previousStatus = order.getStatus();
 		order.setStatus(OrderStatus.PROCESSED);
 		orderService.saveOrUpdate(order);
+		
+		try {
+			eventPublisher.publishEvent(
+					new OrderStatusChangedEvent(this, order, previousStatus, OrderStatus.PROCESSED, store));
+		} catch (Exception e) {
+			LOGGER.error("Cannot publish order status changed event for order id " + order.getId(), e);
+		}
 
 		return transaction;
 
