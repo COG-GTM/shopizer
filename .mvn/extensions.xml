@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extensions xmlns="http://maven.apache.org/EXTENSIONS/1.1.0"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="http://maven.apache.org/EXTENSIONS/1.1.0 https://maven.apache.org/xsd/core-extensions-1.1.0.xsd">
+    <!-- Incremental build cache: unchanged modules are restored from ~/.m2/build-cache instead of rebuilt/retested.
+         Disable for a single run with -Dmaven.build.cache.enabled=false -->
+    <extension>
+        <groupId>org.apache.maven.extensions</groupId>
+        <artifactId>maven-build-cache-extension</artifactId>
+        <version>1.2.0</version>
+    </extension>
+</extensions>

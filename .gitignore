@@ -2,6 +2,7 @@
 *.class
 *.jar
 *.lst
+/target/
 */target/
 *.class
 *.idea/

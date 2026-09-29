@@ -87,6 +87,13 @@ From the command line:
 	$ cd sm-shop
 	$ mvnw spring-boot:run
 
+Build performance notes:
+
+* `.mvn/maven.config` builds modules in parallel (`-T1C`) and uses the parallel (BF) dependency collector.
+* `.mvn/extensions.xml` enables the Maven build cache: modules whose sources, POM and upstream modules are unchanged are restored from `~/.m2/build-cache` (including test results) instead of being recompiled and retested. Force a full rebuild with `-Dmaven.build.cache.enabled=false`.
+* Compile-only build: `./mvnw install -DskipTests` (a cached build without tests is never reused for a build that runs tests).
+* Source jars and Sonatype staging only run for releases: `./mvnw -Prelease deploy` (also activated by `maven-release-plugin`).
+
 2. Shopizer admin
 
 Form compiling and running Shopizer admin consult the repo README file
