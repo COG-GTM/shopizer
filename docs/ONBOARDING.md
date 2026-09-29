@@ -340,6 +340,9 @@ and need no external services. Result on `3.2.7`: `sm-core` 28 tests (13
 skipped), `sm-shop` 33 tests (8 skipped), `BUILD SUCCESS` in under a minute
 once dependencies are cached.
 
+The test run modifies the tracked file `sm-shop/files/store/DownlaodRepository.dat`;
+don't commit it (reset with `git restore sm-shop/files/store/DownlaodRepository.dat`).
+
 Single module / single test class (after `./mvnw install -DskipTests`):
 
 ```bash
