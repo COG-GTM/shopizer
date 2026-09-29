@@ -67,6 +67,13 @@ API documentation:
 -------------------
 
 
+Developer onboarding:
+-------------------
+
+New to the codebase? Start with the [developer onboarding guide](docs/ONBOARDING.md):
+module map, clean-machine setup, and how to run, test and debug `sm-shop`.
+
+
 Get the source code:
 -------------------
 Clone the repository:
