@@ -109,6 +109,8 @@ Please read the instructions on how to connect to MySQL, configure an email serv
 ### Documentation:
 -------------------
 
+REST API integration tests (catalog browse, cart, checkout): see [sm-shop/INTEGRATION_TESTS.md](sm-shop/INTEGRATION_TESTS.md)
+
 Documentation available [<https://shopizer-ecommerce.github.io/documentation/>](http://localhost:8080/swagger-ui/index.html)
 
 ChatOps <https://shopizer.slack.com>  - Join our Slack channel <https://communityinviter.com/apps/shopizer/shopizer>
