@@ -19,7 +19,6 @@ public class PersistableTaxClassMapper implements Mapper<PersistableTaxClass, Ta
 		TaxClass taxClass = new TaxClass();
 		taxClass.setMerchantStore(store);
 		taxClass.setTitle(source.getName());
-		taxClass.setId(source.getId());
 		return this.merge(source, taxClass, store, language);
 	}
 

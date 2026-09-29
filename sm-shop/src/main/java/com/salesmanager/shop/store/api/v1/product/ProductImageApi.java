@@ -261,7 +261,7 @@ public class ProductImageApi {
 
 	@ResponseStatus(HttpStatus.OK)
 	@RequestMapping(value = { "/private/product/{id}/image/{imageId}",
-			"/auth/product/{id}/image/{id}" }, method = RequestMethod.PATCH)
+			"/auth/product/{id}/image/{imageId}" }, method = RequestMethod.PATCH)
 	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, example = "DEFAULT"),
 			@Parameter(name = "lang", in = ParameterIn.QUERY, example = "en") })
 	public void imageDetails(@PathVariable Long id, @PathVariable Long imageId,

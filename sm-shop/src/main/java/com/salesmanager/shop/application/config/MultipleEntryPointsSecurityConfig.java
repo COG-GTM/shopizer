@@ -3,6 +3,7 @@ package com.salesmanager.shop.application.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -112,6 +113,7 @@ public class MultipleEntryPointsSecurityConfig {
 		private PasswordEncoder passwordEncoder;
 
 		@Bean("customerAuthenticationManager")
+		@Primary
 		public AuthenticationManager customerAuthenticationManager() {
 			return new ProviderManager(daoProvider(customerDetailsService, passwordEncoder));
 		}

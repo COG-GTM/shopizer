@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import org.apache.http.auth.AuthenticationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,6 +45,8 @@ public class AuthenticateUserApi {
     private String tokenHeader;
 
     @Inject
+
+    @Qualifier("jwtAdminAuthenticationManager")
     private AuthenticationManager jwtAdminAuthenticationManager;
     
     @Inject

@@ -32,6 +32,8 @@
 	</modules>
 
 	<properties>
+		<!-- Infinispan 9.4 (CMS) requires Caffeine 2.x; Spring Boot 3 manages 3.x -->
+		<caffeine.version>2.9.3</caffeine.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
 		<!--java version -->

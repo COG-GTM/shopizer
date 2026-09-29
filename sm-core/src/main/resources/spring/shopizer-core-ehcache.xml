@@ -13,7 +13,7 @@
 
 
 	<bean id="springCacheManager" class="org.springframework.cache.jcache.JCacheManagerFactoryBean">
-		<property name="cacheManagerUri" value="classpath:/spring/ehcache.xml" />
+		<property name="cacheManagerUri" value="#{T(org.springframework.util.ResourceUtils).getURL('classpath:spring/ehcache.xml').toURI()}" />
 	</bean>
 
 	<bean id="serviceCacheManager" class="org.springframework.cache.jcache.JCacheCacheManager">

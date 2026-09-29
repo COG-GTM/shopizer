@@ -105,10 +105,10 @@ public class Product extends SalesManagerEntity<Long, Product> implements Audita
 	 */
 	@ManyToMany(fetch=FetchType.LAZY, cascade = {CascadeType.REFRESH})
 	@JoinTable(name = "PRODUCT_CATEGORY", joinColumns = { 
-			@JoinColumn(name = "PRODUCT_ID", nullable = false, updatable = false) }
+			@JoinColumn(name = "PRODUCT_ID", nullable = false) }
 			, 
 			inverseJoinColumns = { @JoinColumn(name = "CATEGORY_ID", 
-					nullable = false, updatable = false) }
+					nullable = false) }
 	)
 	@Cascade({
 		org.hibernate.annotations.CascadeType.DETACH,

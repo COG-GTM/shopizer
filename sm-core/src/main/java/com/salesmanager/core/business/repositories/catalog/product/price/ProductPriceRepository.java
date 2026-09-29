@@ -25,7 +25,7 @@ public interface ProductPriceRepository extends JpaRepository<ProductPrice, Long
 	// ORDER BY pp.PRODUCT_PRICE_AMOUNT;
 
 	// @Query("select p from ProductPrice p join fetch p.productAvailability pd
-	// inner join fetch p.productAvailability pa inner join fetch pa.product pap
+	// inner join fetch pd.product pap
 	// inner join fetch pap.merchantStore papm where p.id = ?1")
 	// List<ProductPrice> priceListByCategory(Long id, Integer storeId);
 
