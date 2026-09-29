@@ -197,6 +197,10 @@ Run the jar from `sm-shop/` so the relative H2 path resolves to
 `sm-shop/SALESMANAGER.h2.db` (running from elsewhere silently creates a new,
 empty database in that directory).
 
+The jar logs a harmless `Can't load temporary default image` /
+`static/not-found.png ... does not reside in the file system` error at startup;
+it only affects the placeholder image and the app still starts normally.
+
 ### 4.3 Resetting local data
 
 The H2 file `sm-shop/SALESMANAGER.h2.db` is **tracked in git** and is modified
@@ -245,6 +249,9 @@ curl -H "Authorization: Bearer $TOKEN" http://localhost:8080/api/v1/private/user
 ```
 
 In Swagger UI, click **Authorize** and enter `Bearer <token>`.
+Swagger UI may show a `Resolver error ... Could not resolve pointer: /definitions/Error
+does not exist in document` banner when expanding some private endpoints; it is
+a pre-existing spec issue and does not affect *Try it out*.
 
 ## 6. Debug sm-shop
 
@@ -368,7 +375,8 @@ docker run -d --name shopizer-mysql \
 docker exec shopizer-mysql mysqladmin -uroot -ppassword ping
 ```
 
-Wait until `ping` prints `mysqld is alive`, then run with the `local` profile:
+The first few pings can fail with a socket error while MySQL initializes; re-run
+it until it prints `mysqld is alive`, then run with the `local` profile:
 
 ```bash
 ./mvnw -pl sm-shop spring-boot:run \
