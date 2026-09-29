@@ -1,0 +1,33 @@
+# Keep the build context small and deterministic.
+.git
+.github
+.circleci
+.idea
+.vscode
+**/*.iml
+**/.project
+**/.classpath
+**/.settings
+**/target
+**/bin
+**/build
+**/.DS_Store
+
+# Local runtime state
+**/*.lock.db
+**/*.trace.db
+**/SALESMANAGER.h2.db
+**/SALESMANAGER.mv.db
+**/logs
+
+# Local environment files (may contain secrets)
+.env
+.env.*
+!.env.example
+
+# Docker files themselves
+Dockerfile
+docker-compose*.yml
+compose*.yml
+docs
+*.md

@@ -67,6 +67,22 @@ API documentation:
 -------------------
 
 
+Run locally with Docker Compose (backend + MySQL):
+-------------------
+
+Build the backend from source and start it with a MySQL database:
+
+```
+cp .env.example .env    # optional
+docker compose up --build -d
+```
+
+API: http://localhost:8080/api/v1/ - Swagger UI: http://localhost:8080/swagger-ui.html - MySQL: localhost:3307
+
+See [docs/docker.md](docs/docker.md) for the full local workflow (rebuilding, logs, data volumes,
+running the app from an IDE against the Compose database, configuration and troubleshooting).
+
+
 Get the source code:
 -------------------
 Clone the repository:
