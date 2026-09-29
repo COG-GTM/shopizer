@@ -8,16 +8,18 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import javax.servlet.ServletContext;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.RequestMethod;
-
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
+import org.springframework.web.servlet.mvc.method.RequestMappingInfoHandlerMapping;
 
 import springfox.documentation.RequestHandler;
 import springfox.documentation.builders.RequestHandlerSelectors;
@@ -34,10 +36,12 @@ import springfox.documentation.service.VendorExtension;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
+import springfox.documentation.spring.web.plugins.WebMvcRequestHandlerProvider;
+import springfox.documentation.spring.web.readers.operation.HandlerMethodResolver;
+import springfox.documentation.swagger2.annotations.EnableSwagger2WebMvc;
 
 @Configuration
-@EnableSwagger2
+@EnableSwagger2WebMvc
 public class DocumentationConfiguration {
 
 	public static final Contact DEFAULT_CONTACT = new Contact("Shopizer", "https://www.shopizer.com", "");
@@ -47,6 +51,17 @@ public class DocumentationConfiguration {
 	/**
 	 * http://localhost:8080/swagger-ui.html#/ http://localhost:8080/v2/api-docs
 	 */
+
+	/**
+	 * Springfox only supports ant path matching; handler mappings using
+	 * PathPatternParser (e.g. actuator endpoints) are excluded from documentation.
+	 */
+	@Bean
+	public WebMvcRequestHandlerProvider webMvcRequestHandlerProvider(Optional<ServletContext> servletContext,
+			HandlerMethodResolver methodResolver, List<RequestMappingInfoHandlerMapping> handlerMappings) {
+		return new WebMvcRequestHandlerProvider(servletContext, methodResolver, handlerMappings.stream()
+				.filter(mapping -> mapping.getPatternParser() == null).collect(Collectors.toList()));
+	}
 
 	@Bean
 	public Docket api() {
@@ -86,11 +101,8 @@ public class DocumentationConfiguration {
 	
 	final Predicate<RequestHandler> requestHandlers() {
 		
-		   Set<Predicate<RequestHandler>> matchers = new HashSet<Predicate<RequestHandler>>();
-		   matchers.add(RequestHandlerSelectors.basePackage("com.salesmanager.shop.store.api.v1"));
-		   matchers.add(RequestHandlerSelectors.basePackage("com.salesmanager.shop.store.api.v2"));
-		   
-		   return Predicates.or(matchers);
+		   return RequestHandlerSelectors.basePackage("com.salesmanager.shop.store.api.v1")
+				   .or(RequestHandlerSelectors.basePackage("com.salesmanager.shop.store.api.v2"));
 
 	}
 
