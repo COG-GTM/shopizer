@@ -1,0 +1,91 @@
+# Local development stack for Shopizer: backend API + MySQL.
+#
+#   cp .env.example .env      # optional, override defaults
+#   docker compose up --build -d
+#
+# API:     http://localhost:8080  (Swagger UI: /swagger-ui.html)
+# MySQL:   localhost:3307 (see .env.example for credentials)
+#
+# Optional services (enable with --profile):
+#   admin  -> shopizer-admin Angular console on http://localhost:4200
+#   shop   -> shopizer-shop-reactjs storefront on http://localhost:3000
+#
+# See docs/docker.md for the full workflow.
+
+name: shopizer
+
+services:
+  db:
+    image: ${MYSQL_IMAGE:-mysql:8.0}
+    restart: unless-stopped
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_DATABASE: SALESMANAGER
+      MYSQL_USER: ${SHOPIZER_DB_USER:-shopizer}
+      MYSQL_PASSWORD: ${SHOPIZER_DB_PASSWORD:-shopizer}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-shopizer-root}
+      TZ: UTC
+    ports:
+      - "${SHOPIZER_DB_PORT:-3307}:3306"
+    volumes:
+      - db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p\"$${MYSQL_ROOT_PASSWORD}\" --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+
+  shopizer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MAVEN_MIRROR_URL: ${MAVEN_MIRROR_URL:-}
+    image: ${SHOPIZER_IMAGE:-shopizer:local}
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${SHOPIZER_PORT:-8080}:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: mysql
+      JAVA_TOOL_OPTIONS: ${SHOPIZER_JAVA_TOOL_OPTIONS:--XX:MaxRAMPercentage=75.0 -XX:+ExitOnOutOfMemoryError}
+      # Shopizer reads these legacy (dotted) property names directly from the environment.
+      db.jdbcUrl: jdbc:mysql://db:3306/SALESMANAGER?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&useUnicode=true&characterEncoding=UTF-8
+      db.user: ${SHOPIZER_DB_USER:-shopizer}
+      db.password: ${SHOPIZER_DB_PASSWORD:-shopizer}
+      db.show.sql: "false"
+      # No search engine in the local stack: skip product indexing.
+      search.noindex: "true"
+      config.cms.contentUrl: ${SHOPIZER_CONTENT_URL:-http://localhost:8080}
+    volumes:
+      - shopizer-files:/var/lib/shopizer/files
+
+  admin:
+    image: ${SHOPIZER_ADMIN_IMAGE:-shopizerecomm/shopizer-admin:latest}
+    profiles: ["admin"]
+    depends_on:
+      - shopizer
+    environment:
+      APP_BASE_URL: http://localhost:${SHOPIZER_PORT:-8080}/api
+    ports:
+      - "${SHOPIZER_ADMIN_PORT:-4200}:80"
+
+  shop:
+    image: ${SHOPIZER_SHOP_IMAGE:-shopizerecomm/shopizer-shop-reactjs:latest}
+    profiles: ["shop"]
+    depends_on:
+      - shopizer
+    environment:
+      APP_MERCHANT: DEFAULT
+      APP_BASE_URL: http://localhost:${SHOPIZER_PORT:-8080}
+    ports:
+      - "${SHOPIZER_SHOP_PORT:-3000}:80"
+
+volumes:
+  db-data:
+  shopizer-files:
