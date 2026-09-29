@@ -2,7 +2,7 @@ package com.salesmanager.shop.model.customer.address;
 
 import java.io.Serializable;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 
 /**
@@ -17,11 +17,11 @@ public class Address extends AddressLocation implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	@ApiModelProperty(notes = "Customer billing first name")
+	@Schema(description = "Customer billing first name")
 	//@NotEmpty(message="{NotEmpty.customer.firstName}")
 	private String firstName;
 	
-	@ApiModelProperty(notes = "Customer billing last name")
+	@Schema(description = "Customer billing last name")
 	//@NotEmpty(message="{NotEmpty.customer.lastName}")
 	private String lastName;
 	
@@ -30,24 +30,24 @@ public class Address extends AddressLocation implements Serializable {
 	private String company;
 
 	private String phone;
-	@ApiModelProperty(notes = "Customer billing or shipping address")
+	@Schema(description = "Customer billing or shipping address")
 	private String address;
-	@ApiModelProperty(notes = "Customer billing or shipping city")
+	@Schema(description = "Customer billing or shipping city")
 	private String city;
 	
 
 	
-	@ApiModelProperty(notes = "Customer billing or shipping state / province (if no 2 letter codes, example: North estate)")
+	@Schema(description = "Customer billing or shipping state / province (if no 2 letter codes, example: North estate)")
 	private String stateProvince;
 	private boolean billingAddress;
 	
 	private String latitude;
 	private String longitude;
 	
-	@ApiModelProperty(notes = "Customer billing or shipping state / province (2 letter code CA, ON...)")
+	@Schema(description = "Customer billing or shipping state / province (2 letter code CA, ON...)")
 	private String zone;//code
 	
-	@ApiModelProperty(notes = "Customer billing or shipping country code (2 letter code US, CA, UK, IT, IN, CN...)")
+	@Schema(description = "Customer billing or shipping country code (2 letter code US, CA, UK, IT, IN, CN...)")
 	//@NotEmpty(message="{NotEmpty.customer.billing.country}")
 	private String country;//code
 	
