@@ -464,3 +464,12 @@ be pre-populated under `~/.m2/wrapper/dists`):
 curl -fsSL -o .mvn/wrapper/maven-wrapper.jar \
   https://maven-central.storage-download.googleapis.com/maven2/io/takari/maven-wrapper/0.4.2/maven-wrapper-0.4.2.jar
 ```
+
+`sm-shop/` has its **own** wrapper (`sm-shop/mvnw`, `sm-shop/.mvn/`), so if you
+use the `cd sm-shop && ./mvnw ...` variants, fetch its jar too (the error
+otherwise is `Could not find or load main class org.apache.maven.wrapper.MavenWrapperMain`):
+
+```bash
+curl -fsSL -o sm-shop/.mvn/wrapper/maven-wrapper.jar \
+  https://maven-central.storage-download.googleapis.com/maven2/io/takari/maven-wrapper/0.4.2/maven-wrapper-0.4.2.jar
+```
