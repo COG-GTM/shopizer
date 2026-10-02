@@ -2,10 +2,10 @@ package com.salesmanager.shop.store.api.v1.product;
 
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +31,7 @@ import com.salesmanager.shop.store.controller.product.facade.ProductCommonFacade
 
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.annotations.ApiParam;
 
 @Controller
 @RequestMapping("/api/v1")
@@ -62,8 +62,8 @@ public class ProductReviewApi {
   public PersistableProductReview create(
       @PathVariable final Long id,
       @Valid @RequestBody PersistableProductReview review,
-      @ApiIgnore MerchantStore merchantStore,
-      @ApiIgnore Language language,
+      @ApiParam(hidden = true) MerchantStore merchantStore,
+      @ApiParam(hidden = true) Language language,
       HttpServletRequest request,
       HttpServletResponse response) {
 
@@ -109,8 +109,8 @@ public class ProductReviewApi {
   })
   public List<ReadableProductReview> getAll(
       @PathVariable final Long id,
-      @ApiIgnore MerchantStore merchantStore,
-      @ApiIgnore Language language,
+      @ApiParam(hidden = true) MerchantStore merchantStore,
+      @ApiParam(hidden = true) Language language,
       HttpServletResponse response) {
 
     try {
@@ -154,8 +154,8 @@ public class ProductReviewApi {
       @PathVariable final Long id,
       @PathVariable final Long reviewId,
       @Valid @RequestBody PersistableProductReview review,
-      @ApiIgnore MerchantStore merchantStore,
-      @ApiIgnore Language language,
+      @ApiParam(hidden = true) MerchantStore merchantStore,
+      @ApiParam(hidden = true) Language language,
       HttpServletRequest request,
       HttpServletResponse response) {
 
@@ -209,8 +209,8 @@ public class ProductReviewApi {
   public void delete(
       @PathVariable final Long id,
       @PathVariable final Long reviewId,
-      @ApiIgnore MerchantStore merchantStore,
-      @ApiIgnore Language language,
+      @ApiParam(hidden = true) MerchantStore merchantStore,
+      @ApiParam(hidden = true) Language language,
       HttpServletResponse response) {
 
     try {

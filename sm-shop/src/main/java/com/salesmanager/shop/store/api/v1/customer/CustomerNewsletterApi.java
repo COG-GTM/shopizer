@@ -1,9 +1,9 @@
 package com.salesmanager.shop.store.api.v1.customer;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +27,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.annotations.ApiParam;
 
 
 /**
@@ -58,8 +58,8 @@ public class CustomerNewsletterApi {
   })
   public void create(
       @Valid @RequestBody PersistableCustomerOptin optin,
-      @ApiIgnore MerchantStore merchantStore,
-      @ApiIgnore Language language) {
+      @ApiParam(hidden = true) MerchantStore merchantStore,
+      @ApiParam(hidden = true) Language language) {
 		customerFacade.optinCustomer(optin, merchantStore);
 	}
 

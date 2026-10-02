@@ -31,7 +31,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.annotations.ApiParam;
 
 /**
  * This API is for payment modules configurations. For payment of orders see
@@ -62,8 +62,8 @@ public class PaymentApi {
 	@ApiOperation(httpMethod = "GET", value = "List list of payment modules", notes = "Requires administration access", produces = "application/json", response = List.class)
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT") })
 	public List<IntegrationModuleSummaryEntity> paymentModules(
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) {
 
 		try {
 			List<IntegrationModule> modules = paymentService.getPaymentMethods(merchantStore);
@@ -83,7 +83,7 @@ public class PaymentApi {
 	@PostMapping(value = "/private/modules/payment")
 	public void configure(
 			@RequestBody IntegrationModuleConfiguration configuration,
-			@ApiIgnore MerchantStore merchantStore) {
+			@ApiParam(hidden = true) MerchantStore merchantStore) {
 		
 		try {
 			
@@ -135,7 +135,7 @@ public class PaymentApi {
 	@ApiOperation(httpMethod = "GET", value = "Payment module by code", produces = "application/json", response = List.class)
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT") })
 	public IntegrationModuleConfiguration paymentModule(@PathVariable String code,
-			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language) {
 
 		try {
 			

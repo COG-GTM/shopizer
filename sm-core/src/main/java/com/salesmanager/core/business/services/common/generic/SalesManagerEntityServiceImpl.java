@@ -41,10 +41,11 @@ public abstract class SalesManagerEntityServiceImpl<K extends Serializable & Com
 
 	
 	public void save(E entity) throws ServiceException {
-		repository.saveAndFlush(entity);
+		repository.saveAndFlush(unsavedIdToNull(entity));
 	}
 	
 	public void saveAll(Iterable<E> entities) throws ServiceException {
+		entities.forEach(this::unsavedIdToNull);
 		repository.saveAll(entities);
 	}
 	
@@ -81,7 +82,17 @@ public abstract class SalesManagerEntityServiceImpl<K extends Serializable & Com
 	}
 	
 	protected E saveAndFlush(E entity) {
-		return repository.saveAndFlush(entity);
+		return repository.saveAndFlush(unsavedIdToNull(entity));
+	}
+
+	/**
+	 * API models use 0 as the id of an entity that has not been persisted yet.
+	 */
+	private E unsavedIdToNull(E entity) {
+		if (entity.getId() instanceof Number id && id.longValue() == 0L) {
+			entity.setId(null);
+		}
+		return entity;
 	}
 
 }

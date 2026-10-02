@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.inject.Inject;
-import javax.validation.Valid;
+import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -45,7 +45,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.annotations.ApiParam;
 
 @RestController
 @RequestMapping(value = "/api/v1")
@@ -70,8 +70,8 @@ public class CategoryApi {
 			@ApiImplicitParam(name = "lang", dataType = "string", defaultValue = "en") })
 	public ReadableCategory get(
 			@PathVariable(name = "id") Long categoryId, 
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) {
 		ReadableCategory category = categoryFacade.getById(merchantStore, categoryId, language);
 		return category;
 	}
@@ -86,8 +86,8 @@ public class CategoryApi {
 	})
 	public ReadableCategory getByfriendlyUrl(
 								@PathVariable(name = "friendlyUrl") String friendlyUrl,
-								@ApiIgnore MerchantStore merchantStore,
-								@ApiIgnore Language language) throws Exception {
+								@ApiParam(hidden = true) MerchantStore merchantStore,
+								@ApiParam(hidden = true) Language language) throws Exception {
 		ReadableCategory category = categoryFacade.getCategoryByFriendlyUrl(merchantStore, friendlyUrl, language);
 		return category;
 	}
@@ -98,7 +98,7 @@ public class CategoryApi {
 			@ApiImplicitParam(name = "lang", dataType = "string", defaultValue = "en") })
 	@ApiOperation(httpMethod = "GET", value = "Check if category code already exists", notes = "", response = EntityExists.class)
 	public ResponseEntity<EntityExists> exists(@RequestParam(value = "code") String code,
-			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language) {
 		boolean isCategoryExist = categoryFacade.existByCode(merchantStore, code);
 		return new ResponseEntity<EntityExists>(new EntityExists(isCategoryExist), HttpStatus.OK);
 	}
@@ -116,8 +116,8 @@ public class CategoryApi {
 	public ReadableCategoryList list(
 			@RequestParam(value = "filter", required = false) List<String> filter,
 			@RequestParam(value = "name", required = false) String name,
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language,
+			@ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language,
 			@RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
 			@RequestParam(value = "count", required = false, defaultValue = "10") Integer count) {
 
@@ -135,8 +135,8 @@ public class CategoryApi {
 			@ApiImplicitParam(name = "lang", dataType = "string", defaultValue = "en") })
 	public ReadableCategoryList list(
 			@PathVariable(name = "ProductId") Long id,
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language lang) {
+			@ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language lang) {
 
 
 		return categoryFacade.listByProduct(merchantStore, id, lang);
@@ -149,8 +149,8 @@ public class CategoryApi {
 			@ApiImplicitParam(name = "lang", dataType = "string", defaultValue = "en") })
 	public PersistableCategory create(
 			@Valid @RequestBody PersistableCategory category,
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) {
 
 		// superadmin, admin and admin_catalogue
 		String authenticatedUser = userFacade.authenticatedUser();
@@ -166,7 +166,7 @@ public class CategoryApi {
 	@PutMapping(value = "/private/category/{id}", produces = { APPLICATION_JSON_VALUE })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT") })
 	public PersistableCategory update(@PathVariable Long id, @Valid @RequestBody PersistableCategory category,
-			@ApiIgnore MerchantStore merchantStore) {
+			@ApiParam(hidden = true) MerchantStore merchantStore) {
 
 		// superadmin, admin and admin_catalogue
 		String authenticatedUser = userFacade.authenticatedUser();
@@ -184,7 +184,7 @@ public class CategoryApi {
 	@PatchMapping(value = "/private/category/{id}/visible", produces = { APPLICATION_JSON_VALUE })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT") })
 	public void updateVisible(@PathVariable Long id, @Valid @RequestBody PersistableCategory category,
-			@ApiIgnore MerchantStore merchantStore
+			@ApiParam(hidden = true) MerchantStore merchantStore
 			) {
 
 		// superadmin, admin and admin_catalogue
@@ -205,7 +205,7 @@ public class CategoryApi {
 	public void move(
 			@PathVariable Long id,
 			@PathVariable Long parent,
-			@ApiIgnore MerchantStore merchantStore) {
+			@ApiParam(hidden = true) MerchantStore merchantStore) {
 		// superadmin, admin and admin_catalogue
 		String authenticatedUser = userFacade.authenticatedUser();
 		if (authenticatedUser == null) {
@@ -221,7 +221,7 @@ public class CategoryApi {
 
 	@DeleteMapping(value = "/private/category/{id}", produces = { APPLICATION_JSON_VALUE })
 	@ResponseStatus(OK)
-	public void delete(@PathVariable("id") Long categoryId, @ApiIgnore MerchantStore merchantStore) {
+	public void delete(@PathVariable("id") Long categoryId, @ApiParam(hidden = true) MerchantStore merchantStore) {
 
 		// superadmin, admin and admin_catalogue
 		String authenticatedUser = userFacade.authenticatedUser();

@@ -5,7 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.Validate;
@@ -38,7 +38,7 @@ import com.salesmanager.shop.utils.ImageFilePath;
 import com.salesmanager.shop.utils.LocaleUtils;
 
 @Service("productFacade")
-@Profile({ "default", "cloud", "gcp", "aws", "mysql" , "local" })
+@Profile({ "default", "cloud", "gcp", "aws", "mysql", "local", "docker" })
 public class ProductFacadeImpl implements ProductFacade {
 
 	@Inject

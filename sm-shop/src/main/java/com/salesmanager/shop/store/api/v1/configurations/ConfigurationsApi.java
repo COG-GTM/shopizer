@@ -17,7 +17,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.annotations.ApiParam;
 
 @RestController
 @RequestMapping(value = "/api/v1")
@@ -39,8 +39,8 @@ public class ConfigurationsApi {
 	      @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT")
 	  })
 	  public Void create(
-	      @ApiIgnore MerchantStore merchantStore,
-	      @ApiIgnore Language language) {
+	      @ApiParam(hidden = true) MerchantStore merchantStore,
+	      @ApiParam(hidden = true) Language language) {
 	      //return customerFacade.create(customer, merchantStore, language);
 		  return null;
 
@@ -59,8 +59,8 @@ public class ConfigurationsApi {
 	      @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT")
 	  })
 	  public List<ReadableConfiguration> listPaymentConfigurations(
-	      @ApiIgnore MerchantStore merchantStore,
-	      @ApiIgnore Language language) {
+	      @ApiParam(hidden = true) MerchantStore merchantStore,
+	      @ApiParam(hidden = true) Language language) {
 	      //return customerFacade.create(customer, merchantStore, language);
 		  return null;
 
@@ -81,8 +81,8 @@ public class ConfigurationsApi {
 	      @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT")
 	  })
 	  public List<ReadableConfiguration> listShippingConfigurations(
-	      @ApiIgnore MerchantStore merchantStore,
-	      @ApiIgnore Language language) {
+	      @ApiParam(hidden = true) MerchantStore merchantStore,
+	      @ApiParam(hidden = true) Language language) {
 	      //return customerFacade.create(customer, merchantStore, language);
 		  return null;
 

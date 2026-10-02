@@ -5,9 +5,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +42,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.annotations.ApiParam;
 
 @RestController
 @RequestMapping(value = "/api/v1")
@@ -62,7 +62,7 @@ public class CustomerApi {
 	@PostMapping("/private/customer")
 	@ApiOperation(httpMethod = "POST", value = "Creates a customer", notes = "Requires administration access", produces = "application/json", response = ReadableCustomer.class)
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT") })
-	public ReadableCustomer create(@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language,
+	public ReadableCustomer create(@ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language,
 			@Valid @RequestBody PersistableCustomer customer) {
 		return customerFacade.create(customer, merchantStore, language);
 
@@ -71,7 +71,7 @@ public class CustomerApi {
 	@PutMapping("/private/customer/{id}")
 	@ApiOperation(httpMethod = "PUT", value = "Updates a customer", notes = "Requires administration access", produces = "application/json", response = PersistableCustomer.class)
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT") })
-	public PersistableCustomer update(@PathVariable Long id, @ApiIgnore MerchantStore merchantStore,
+	public PersistableCustomer update(@PathVariable Long id, @ApiParam(hidden = true) MerchantStore merchantStore,
 			@Valid @RequestBody PersistableCustomer customer) {
 
 		customer.setId(id);
@@ -81,7 +81,7 @@ public class CustomerApi {
 	@PatchMapping("/private/customer/{id}/address")
 	@ApiOperation(httpMethod = "PATCH", value = "Updates a customer", notes = "Requires administration access", produces = "application/json", response = Void.class)
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT") })
-	public void updateAddress(@PathVariable Long id, @ApiIgnore MerchantStore merchantStore,
+	public void updateAddress(@PathVariable Long id, @ApiParam(hidden = true) MerchantStore merchantStore,
 			@RequestBody PersistableCustomer customer) {
 
 		customer.setId(id);
@@ -91,7 +91,7 @@ public class CustomerApi {
 	@DeleteMapping("/private/customer/{id}")
 	@ApiOperation(httpMethod = "DELETE", value = "Deletes a customer", notes = "Requires administration access")
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT") })
-	public void delete(@PathVariable Long id, @ApiIgnore MerchantStore merchantStore) {
+	public void delete(@PathVariable Long id, @ApiParam(hidden = true) MerchantStore merchantStore) {
 		
 		String authenticatedUser = userFacade.authenticatedUser();
 		if (authenticatedUser == null) {
@@ -117,8 +117,8 @@ public class CustomerApi {
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "string", defaultValue = "en") })
 	public ReadableCustomerList list(@RequestParam(value = "page", required = false) Integer page,
-			@RequestParam(value = "count", required = false) Integer count, @ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
+			@RequestParam(value = "count", required = false) Integer count, @ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) {
 		CustomerCriteria customerCriteria = createCustomerCriteria(page, count);
 		return customerFacade.getListByStore(merchantStore, customerCriteria, language);
 	}
@@ -133,8 +133,8 @@ public class CustomerApi {
 	@GetMapping("/private/customer/{id}")
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "string", defaultValue = "en") })
-	public ReadableCustomer get(@PathVariable Long id, @ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
+	public ReadableCustomer get(@PathVariable Long id, @ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) {
 		return customerFacade.getCustomerById(id, merchantStore, language);
 	}
 
@@ -149,7 +149,7 @@ public class CustomerApi {
 	@GetMapping({ "/private/customer/profile", "/auth/customer/profile" })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "string", defaultValue = "en") })
-	public ReadableCustomer getAuthUser(@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language,
+	public ReadableCustomer getAuthUser(@ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language,
 			HttpServletRequest request) {
 		Principal principal = request.getUserPrincipal();
 		String userName = principal.getName();
@@ -159,7 +159,7 @@ public class CustomerApi {
 	@PatchMapping("/auth/customer/address")
 	@ApiOperation(httpMethod = "PATCH", value = "Updates a loged in customer address", notes = "Requires authentication", produces = "application/json", response = Void.class)
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT") })
-	public void updateAuthUserAddress(@ApiIgnore MerchantStore merchantStore, @RequestBody PersistableCustomer customer,
+	public void updateAuthUserAddress(@ApiParam(hidden = true) MerchantStore merchantStore, @RequestBody PersistableCustomer customer,
 			HttpServletRequest request) {
 		Principal principal = request.getUserPrincipal();
 		String userName = principal.getName();
@@ -171,7 +171,7 @@ public class CustomerApi {
 	@PatchMapping("/auth/customer/")
 	@ApiOperation(httpMethod = "PATCH", value = "Updates a loged in customer profile", notes = "Requires authentication", produces = "application/json", response = PersistableCustomer.class)
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT") })
-	public PersistableCustomer update(@ApiIgnore MerchantStore merchantStore,
+	public PersistableCustomer update(@ApiParam(hidden = true) MerchantStore merchantStore,
 			@Valid @RequestBody PersistableCustomer customer, HttpServletRequest request) {
 
 		Principal principal = request.getUserPrincipal();
@@ -183,7 +183,7 @@ public class CustomerApi {
 	@DeleteMapping("/auth/customer/")
 	@ApiOperation(httpMethod = "DELETE", value = "Deletes a loged in customer profile", notes = "Requires authentication", produces = "application/json", response = Void.class)
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT") })
-	public void delete(@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language,
+	public void delete(@ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language,
 			HttpServletRequest request) {
 
 		Principal principal = request.getUserPrincipal();

@@ -6,10 +6,10 @@ import java.security.Principal;
 import java.util.Arrays;
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +46,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.annotations.ApiParam;
 
 @Controller
 @RequestMapping("/api/v1")
@@ -79,8 +79,8 @@ public class ShoppingCartApi {
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public @ResponseBody ReadableShoppingCart addToCart(
 			@Valid @RequestBody PersistableShoppingCartItem shoppingCartItem,
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) {
 		return shoppingCartFacade.addToCart(shoppingCartItem, merchantStore, language);
 	}
 
@@ -91,8 +91,8 @@ public class ShoppingCartApi {
 	public ResponseEntity<ReadableShoppingCart> modifyCart(
 			@PathVariable String code,
 			@Valid @RequestBody PersistableShoppingCartItem shoppingCartItem, 
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language, 
+			@ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language, 
 			HttpServletResponse response) {
 
 		try {
@@ -122,8 +122,8 @@ public class ShoppingCartApi {
 	public ResponseEntity<ReadableShoppingCart> modifyCart(
 			@PathVariable String code,//shopping cart code
 			@PathVariable String promo,
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language, 
+			@ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language, 
 			HttpServletResponse response) {
 
 		try {
@@ -153,8 +153,8 @@ public class ShoppingCartApi {
 	public ResponseEntity<ReadableShoppingCart> modifyCart(
 			@PathVariable String code,
 			@Valid @RequestBody PersistableShoppingCartItem[] shoppingCartItems, 
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) {
 
 		try {
 			ReadableShoppingCart cart = shoppingCartFacade.modifyCartMulti(code, Arrays.asList(shoppingCartItems),
@@ -178,7 +178,7 @@ public class ShoppingCartApi {
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public @ResponseBody ReadableShoppingCart getByCode(@PathVariable String code,
-			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language, HttpServletResponse response) {
+			@ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language, HttpServletResponse response) {
 
 		try {
 	
@@ -208,8 +208,8 @@ public class ShoppingCartApi {
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public @ResponseBody ReadableShoppingCart addToCart(@PathVariable Long id,
-			@Valid @RequestBody PersistableShoppingCartItem shoppingCartItem, @ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language, HttpServletResponse response) {
+			@Valid @RequestBody PersistableShoppingCartItem shoppingCartItem, @ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language, HttpServletResponse response) {
 		
 		throw new OperationNotAllowedException("API is no more supported. Authenticate customer first then get customer cart");
 
@@ -224,7 +224,7 @@ public class ShoppingCartApi {
 	public @ResponseBody ReadableShoppingCart getByCustomer(@PathVariable Long id, // customer
 																					// id
 			@RequestParam Optional<String> cart, // cart code
-			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language, HttpServletRequest request,
+			@ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language, HttpServletRequest request,
 			HttpServletResponse response) {
 
 		Principal principal = request.getUserPrincipal();
@@ -255,8 +255,8 @@ public class ShoppingCartApi {
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public @ResponseBody ReadableShoppingCart getByCustomer(
 			@RequestParam Optional<String> cart, // cart code
-			@ApiIgnore MerchantStore merchantStore, 
-			@ApiIgnore Language language, 
+			@ApiParam(hidden = true) MerchantStore merchantStore, 
+			@ApiParam(hidden = true) Language language, 
 			HttpServletRequest request,
 			HttpServletResponse response) {
 
@@ -290,7 +290,7 @@ public class ShoppingCartApi {
 			@ApiImplicitParam(name = "body", dataType = "boolean", defaultValue = "false"), })
 	public ResponseEntity<ReadableShoppingCart> deleteCartItem(@PathVariable("code") String cartCode,
 			@PathVariable("sku") String sku, 
-			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language,
+			@ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language,
 			@RequestParam(defaultValue = "false") boolean body) throws Exception {
 
 		ReadableShoppingCart updatedCart = shoppingCartFacade.removeShoppingCartItem(cartCode, sku, merchantStore,

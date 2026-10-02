@@ -1,7 +1,7 @@
 package com.salesmanager.shop.store.api.v1.product;
 
 import java.util.List;
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -30,7 +30,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.annotations.ApiParam;
 
 /**
  * API to create, read, update and delete a Product API to create Manufacturer
@@ -53,8 +53,8 @@ public class ProductTypeApi {
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public ReadableProductTypeList list(@RequestParam(name = "count", defaultValue = "10") int count,
-			@RequestParam(name = "page", defaultValue = "0") int page, @ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
+			@RequestParam(name = "page", defaultValue = "0") int page, @ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) {
 
 		return productTypeFacade.getByMerchant(merchantStore, language, count, page);
 
@@ -64,8 +64,8 @@ public class ProductTypeApi {
 	@ApiOperation(httpMethod = "GET", value = "Get product type", notes = "", produces = "application/json", response = ReadableProductType.class)
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
-	public ReadableProductType get(@PathVariable Long id, @ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
+	public ReadableProductType get(@PathVariable Long id, @ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) {
 
 		return productTypeFacade.get(merchantStore, id, language);
 
@@ -75,8 +75,8 @@ public class ProductTypeApi {
 	@ApiOperation(httpMethod = "GET", value = "Verify if product type is unique", notes = "", produces = "application/json", response = ResponseEntity.class)
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
-	public ResponseEntity<EntityExists> exists(@RequestParam String code, @ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
+	public ResponseEntity<EntityExists> exists(@RequestParam String code, @ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) {
 
 		boolean exists = productTypeFacade.exists(code, merchantStore, language);
 		return new ResponseEntity<EntityExists>(new EntityExists(exists), HttpStatus.OK);
@@ -87,8 +87,8 @@ public class ProductTypeApi {
 	@ApiOperation(httpMethod = "POST", value = "Create product type", notes = "", produces = "application/json", response = Entity.class)
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
-	public Entity create(@RequestBody PersistableProductType type, @ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
+	public Entity create(@RequestBody PersistableProductType type, @ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) {
 
 		Long id = productTypeFacade.save(type, merchantStore, language);
 		Entity entity = new Entity();
@@ -102,7 +102,7 @@ public class ProductTypeApi {
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public void update(@RequestBody PersistableProductType type, @PathVariable Long id,
-			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language) {
 
 		productTypeFacade.update(type, id, merchantStore, language);
 
@@ -112,7 +112,7 @@ public class ProductTypeApi {
 	@ApiOperation(httpMethod = "DELETE", value = "Delete product type", notes = "", produces = "application/json", response = Void.class)
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
-	public void delete(@PathVariable Long id, @ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) {
+	public void delete(@PathVariable Long id, @ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language) {
 
 		productTypeFacade.delete(id, merchantStore, language);
 

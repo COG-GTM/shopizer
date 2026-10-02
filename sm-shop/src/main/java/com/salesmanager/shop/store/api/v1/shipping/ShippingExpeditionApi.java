@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +30,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.annotations.ApiParam;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -50,8 +50,8 @@ public class ShippingExpeditionApi {
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
 	public ExpeditionConfiguration expedition(
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) {
 
 
 		String user = authorizationUtils.authenticatedUser();
@@ -65,8 +65,8 @@ public class ShippingExpeditionApi {
 	 @GetMapping("/shipping/country")
 	  public List<ReadableCountry> 
 	 	getCountry(
-				@ApiIgnore MerchantStore merchantStore,
-				@ApiIgnore Language language) {
+				@ApiParam(hidden = true) MerchantStore merchantStore,
+				@ApiParam(hidden = true) Language language) {
 	    return shippingFacade.shipToCountry(merchantStore, language);
 	  }
 	
@@ -76,8 +76,8 @@ public class ShippingExpeditionApi {
 	@ResponseBody
 	public void saveExpedition(
 			@RequestBody ExpeditionConfiguration expedition,
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) {
 
 
 		String user = authorizationUtils.authenticatedUser();

@@ -3,9 +3,10 @@ package com.salesmanager.shop.store.api.v1.customer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 
 import org.apache.commons.lang3.Validate;
 import org.apache.http.auth.AuthenticationException;
@@ -52,7 +53,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.annotations.ApiParam;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -68,6 +69,7 @@ public class AuthenticateCustomerApi {
     private String tokenHeader;
 
     @Inject
+    @Named("jwtCustomerAuthenticationManager")
     private AuthenticationManager jwtCustomerAuthenticationManager;
 
     @Inject
@@ -99,8 +101,8 @@ public class AuthenticateCustomerApi {
     @ResponseBody
     public ResponseEntity<?> register(
     		@Valid @RequestBody PersistableCustomer customer, 
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) throws Exception {
+			@ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) throws Exception {
 
 
             customer.setUserName(customer.getEmailAddress());

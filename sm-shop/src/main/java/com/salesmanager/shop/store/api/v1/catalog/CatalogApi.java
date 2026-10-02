@@ -18,10 +18,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.annotations.ApiParam;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import java.util.Optional;
 
 @RestController
@@ -46,7 +46,7 @@ public class CatalogApi {
       @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
       @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en")})
   public ReadableEntityList<ReadableCatalog> getCatalogs(
-      @ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language,
+      @ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language,
       Optional<String> code,
       @RequestParam(value = "page", required = false, defaultValue="0") Integer page,
       @RequestParam(value = "count", required = false, defaultValue="10") Integer count) {
@@ -66,8 +66,8 @@ public class CatalogApi {
       response = EntityExists.class)
   public ResponseEntity<EntityExists> exists(
       @RequestParam(value = "code") String code,
-      @ApiIgnore MerchantStore merchantStore,
-      @ApiIgnore Language language) {
+      @ApiParam(hidden = true) MerchantStore merchantStore,
+      @ApiParam(hidden = true) Language language) {
       boolean existByCode = catalogFacade.uniqueCatalog(code, merchantStore);
       return new ResponseEntity<EntityExists>(new EntityExists(existByCode), HttpStatus.OK);
   }
@@ -82,7 +82,7 @@ public class CatalogApi {
       @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en")})
   public ReadableCatalog createCatalog(
       @RequestBody @Valid PersistableCatalog catalog,
-      @ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) {
+      @ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language) {
 
 	  return catalogFacade.saveCatalog(catalog, merchantStore, language);
 
@@ -98,7 +98,7 @@ public class CatalogApi {
   public void updateCatalog(
 	  @PathVariable Long id,
       @RequestBody @Valid PersistableCatalog catalog,
-      @ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) {
+      @ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language) {
 
 	  catalog.setId(id);
 	  catalogFacade.updateCatalog(id, catalog, merchantStore, language);
@@ -114,7 +114,7 @@ public class CatalogApi {
       @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en")})
   public ReadableCatalog getCatalog(
 	  @PathVariable Long id,
-      @ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) {
+      @ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language) {
 
 	  return catalogFacade.getCatalog(id, merchantStore, language);
 
@@ -130,8 +130,8 @@ public class CatalogApi {
       @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en")})
   public void deleteCatalog(
       @PathVariable Long id,
-      @ApiIgnore MerchantStore merchantStore,
-      @ApiIgnore Language language) {
+      @ApiParam(hidden = true) MerchantStore merchantStore,
+      @ApiParam(hidden = true) Language language) {
 
 	  catalogFacade.deleteCatalog(id, merchantStore, language);
   }
@@ -146,7 +146,7 @@ public class CatalogApi {
   public ReadableCatalogCategoryEntry addCatalogEntry(
       @PathVariable Long id,
 	  @RequestBody @Valid PersistableCatalogCategoryEntry catalogEntry,
-      @ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) {
+      @ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language) {
 
 
 
@@ -172,7 +172,7 @@ public class CatalogApi {
   public void removeCatalogEntry(
       @PathVariable Long id,
       @PathVariable Long entryId,
-      @ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) {
+      @ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language) {
 
 
 	  catalogFacade.removeCatalogEntry(id, entryId, merchantStore, language);
@@ -190,8 +190,8 @@ public class CatalogApi {
       @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en")})
   public ReadableEntityList<ReadableCatalogCategoryEntry> getCatalogEntry(
 	  @PathVariable(value="id") Long id,
-      @ApiIgnore MerchantStore merchantStore,
-      @ApiIgnore Language language,
+      @ApiParam(hidden = true) MerchantStore merchantStore,
+      @ApiParam(hidden = true) Language language,
       @RequestParam(value = "page", required = false, defaultValue="0") Integer page,
       @RequestParam(value = "count", required = false, defaultValue="10") Integer count,
       HttpServletRequest request) {

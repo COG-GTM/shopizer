@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
@@ -52,7 +52,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.annotations.ApiParam;
 
 /**
  * API to manage product variant
@@ -116,8 +116,8 @@ public class ProductVariationApi {
   public ReadableProductPrice calculateVariant(
       @PathVariable final Long id,
       @RequestBody ReadableSelectedProductVariant options,
-      @ApiIgnore MerchantStore merchantStore,
-      @ApiIgnore Language language,
+      @ApiParam(hidden = true) MerchantStore merchantStore,
+      @ApiParam(hidden = true) Language language,
       HttpServletResponse response)
       throws Exception {
 
@@ -174,8 +174,8 @@ public class ProductVariationApi {
   })
   public List<ReadableProductVariant> categoryVariantList(
       @PathVariable final Long id, //category id
-      @ApiIgnore MerchantStore merchantStore,
-      @ApiIgnore Language language,
+      @ApiParam(hidden = true) MerchantStore merchantStore,
+      @ApiParam(hidden = true) Language language,
       HttpServletResponse response)
       throws Exception {
     
@@ -195,8 +195,8 @@ public class ProductVariationApi {
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public @ResponseBody Entity create(
 			@Valid @RequestBody PersistableProductVariation variation, 
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) {
 
 		Long variantId = productVariationFacade.create(variation, merchantStore, language);
 		return new Entity(variantId);
@@ -211,8 +211,8 @@ public class ProductVariationApi {
 	@ApiOperation(httpMethod = "GET", value = "Check if option set code already exists", notes = "", response = EntityExists.class)
 	public ResponseEntity<EntityExists> exists(
 			@RequestParam(value = "code") String code,
-			@ApiIgnore MerchantStore merchantStore, 
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore, 
+			@ApiParam(hidden = true) Language language) {
 
 		boolean isOptionExist = productVariationFacade.exists(code, merchantStore);
 		return new ResponseEntity<EntityExists>(new EntityExists(isOptionExist), HttpStatus.OK);
@@ -226,8 +226,8 @@ public class ProductVariationApi {
 	@ResponseBody
 	public ReadableProductVariation get(
 			@PathVariable Long variationId, 
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) {
 
 		return productVariationFacade.get(variationId, merchantStore, language);
 
@@ -241,8 +241,8 @@ public class ProductVariationApi {
 	public void update(
 			@Valid @RequestBody PersistableProductVariation variation, 
 			@PathVariable Long variationId,
-			@ApiIgnore MerchantStore merchantStore, 
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore, 
+			@ApiParam(hidden = true) Language language) {
 		
 		variation.setId(variationId);
 		productVariationFacade.update(variationId, variation, merchantStore, language);
@@ -257,8 +257,8 @@ public class ProductVariationApi {
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public void delete(
 			@PathVariable Long variationId,
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) {
 
 		productVariationFacade.delete(variationId, merchantStore);
 
@@ -271,8 +271,8 @@ public class ProductVariationApi {
 		@ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public @ResponseBody ReadableEntityList<ReadableProductVariation> list(
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language,
+			@ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language,
 			@RequestParam(value = "page", required = false, defaultValue="0") Integer page,
 		    @RequestParam(value = "count", required = false, defaultValue="10") Integer count) {
 

@@ -3,9 +3,9 @@ package com.salesmanager.shop.store.api.v1.order;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -37,7 +37,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.annotations.ApiParam;
 
 @Controller
 @RequestMapping("/api/v1")
@@ -83,8 +83,8 @@ public class OrderTotalApi {
   public ReadableOrderTotalSummary payment(
       @PathVariable final Long id,
       @RequestParam(value = "quote", required = false) Long quote,
-      @ApiIgnore MerchantStore merchantStore,
-      @ApiIgnore Language language,
+      @ApiParam(hidden = true) MerchantStore merchantStore,
+      @ApiParam(hidden = true) Language language,
       HttpServletRequest request,
       HttpServletResponse response) {
 
@@ -173,8 +173,8 @@ public class OrderTotalApi {
   public ReadableOrderTotalSummary calculateTotal(
       @PathVariable final String code,
       @RequestParam(value = "quote", required = false) Long quote,
-      @ApiIgnore MerchantStore merchantStore,
-      @ApiIgnore Language language,//possible postal code, province and country
+      @ApiParam(hidden = true) MerchantStore merchantStore,
+      @ApiParam(hidden = true) Language language,//possible postal code, province and country
       HttpServletResponse response) {
 
     try {

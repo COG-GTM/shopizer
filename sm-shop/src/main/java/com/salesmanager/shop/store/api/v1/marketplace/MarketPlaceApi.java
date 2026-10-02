@@ -1,6 +1,6 @@
 package com.salesmanager.shop.store.api.v1.marketplace;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,7 +29,7 @@ import com.salesmanager.shop.utils.LanguageUtils;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.annotations.ApiParam;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -63,7 +63,7 @@ public class MarketPlaceApi {
 	// signup new merchant
 	@PostMapping("/store/signup")
 	@ApiOperation(httpMethod = "POST", value = "Signup store", notes = "", produces = "application/json", response = Void.class)
-	public void signup(@RequestBody SignupStore store, @ApiIgnore Language language) {
+	public void signup(@RequestBody SignupStore store, @ApiParam(hidden = true) Language language) {
 
 		ReadableUser user = null;
 		try {
@@ -98,8 +98,8 @@ public class MarketPlaceApi {
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public void storeSignupVerify(@PathVariable String store, @PathVariable String token,
-			@ApiIgnore MerchantStore merchantStore, 
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore, 
+			@ApiParam(hidden = true) Language language) {
 
 		/**
 		 * Receives signup token. Needs to validate if a store
