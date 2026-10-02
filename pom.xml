@@ -64,7 +64,7 @@
 		<geoip2.version>2.7.0</geoip2.version>
 		<drools.version>7.32.0.Final</drools.version>
 		<google-client-maps-services-version>0.1.6</google-client-maps-services-version>
-		<jwt.version>0.8.0</jwt.version>
+		<jwt.version>0.12.6</jwt.version>
 		<jakarta.inject.version>2.0.1</jakarta.inject.version>
 		<swagger-annotations.version>1.6.14</swagger-annotations.version>
 
@@ -130,7 +130,17 @@
 
 			<dependency>
 				<groupId>io.jsonwebtoken</groupId>
-				<artifactId>jjwt</artifactId>
+				<artifactId>jjwt-api</artifactId>
+				<version>${jwt.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.jsonwebtoken</groupId>
+				<artifactId>jjwt-impl</artifactId>
+				<version>${jwt.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.jsonwebtoken</groupId>
+				<artifactId>jjwt-jackson</artifactId>
 				<version>${jwt.version}</version>
 			</dependency>
 
