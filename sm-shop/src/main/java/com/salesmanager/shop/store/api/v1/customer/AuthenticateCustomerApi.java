@@ -201,6 +201,10 @@ public class AuthenticateCustomerApi {
     public ResponseEntity<?> refreshToken(HttpServletRequest request) {
         String token = request.getHeader(tokenHeader);
 
+        if(token != null && token.startsWith("Bearer ")) {
+          token = token.substring("Bearer ".length());
+        }
+
         String username = jwtTokenUtil.getUsernameFromToken(token);
         JWTUser user = (JWTUser) jwtCustomerDetailsService.loadUserByUsername(username);
 
