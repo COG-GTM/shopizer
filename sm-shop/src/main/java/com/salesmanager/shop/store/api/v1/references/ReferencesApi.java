@@ -27,8 +27,8 @@ import com.salesmanager.shop.store.controller.language.facade.LanguageFacade;
 import com.salesmanager.shop.store.controller.store.facade.StoreFacade;
 import com.salesmanager.shop.store.controller.zone.facade.ZoneFacade;
 import com.salesmanager.shop.utils.LanguageUtils;
+import io.swagger.v3.oas.annotations.Parameter;
 
-import io.swagger.annotations.ApiParam;
 
 /**
  * Get system Language, Country and Currency objects
@@ -72,14 +72,14 @@ public class ReferencesApi {
    * @return
    */
   @GetMapping("/country")
-  public List<ReadableCountry> getCountry(@ApiParam(hidden = true) Language language, HttpServletRequest request) {
+  public List<ReadableCountry> getCountry(@Parameter(hidden = true) Language language, HttpServletRequest request) {
     MerchantStore merchantStore = storeFacade.getByCode(request);
     return countryFacade.getListCountryZones(language, merchantStore);
   }
 
   @GetMapping("/zones")
   public List<ReadableZone> getZones(
-      @RequestParam("code") String code, @ApiParam(hidden = true) Language language, HttpServletRequest request) {
+      @RequestParam("code") String code, @Parameter(hidden = true) Language language, HttpServletRequest request) {
     MerchantStore merchantStore = storeFacade.getByCode(request);
     return zoneFacade.getZones(code, language, merchantStore);
   }

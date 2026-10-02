@@ -10,37 +10,27 @@ import org.springframework.web.bind.annotation.RestController;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.shop.model.configuration.ReadableConfiguration;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.SwaggerDefinition;
-import io.swagger.annotations.Tag;
-import io.swagger.annotations.ApiParam;
 
 @RestController
 @RequestMapping(value = "/api/v1")
-@Api(tags = { "Configurations management" })
-@SwaggerDefinition(tags = {
-		@Tag(name = "Configurations management", description = "Configurations management for modules") })
+@Tag(name = "Configurations management", description = "Configurations management for modules")
 public class ConfigurationsApi {
 	
 	
 	  /** Configurations of modules */
 	  @PostMapping("/private/configurations/payment")
-	  @ApiOperation(
-	      httpMethod = "POST",
-	      value = "Manages payment configurations",
-	      notes = "Requires administration access",
-	      produces = "application/json",
-	      response = Void.class)
-	  @ApiImplicitParams({
-	      @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT")
-	  })
+	  @Operation(summary = "Manages payment configurations", description = "Requires administration access")
+	  @Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")) })
 	  public Void create(
-	      @ApiParam(hidden = true) MerchantStore merchantStore,
-	      @ApiParam(hidden = true) Language language) {
+	      @Parameter(hidden = true) MerchantStore merchantStore,
+	      @Parameter(hidden = true) Language language) {
 	      //return customerFacade.create(customer, merchantStore, language);
 		  return null;
 
@@ -49,18 +39,11 @@ public class ConfigurationsApi {
 	  
 	  /** Configurations of payment modules */
 	  @GetMapping("/private/configurations/payment")
-	  @ApiOperation(
-	      httpMethod = "GET",
-	      value = "List payment configurations summary",
-	      notes = "Requires administration access",
-	      produces = "application/json",
-	      response = List.class)
-	  @ApiImplicitParams({
-	      @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT")
-	  })
+	  @Operation(summary = "List payment configurations summary", description = "Requires administration access")
+	  @Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")) })
 	  public List<ReadableConfiguration> listPaymentConfigurations(
-	      @ApiParam(hidden = true) MerchantStore merchantStore,
-	      @ApiParam(hidden = true) Language language) {
+	      @Parameter(hidden = true) MerchantStore merchantStore,
+	      @Parameter(hidden = true) Language language) {
 	      //return customerFacade.create(customer, merchantStore, language);
 		  return null;
 
@@ -71,18 +54,11 @@ public class ConfigurationsApi {
 	  
 	  /** Configurations of shipping modules */
 	  @GetMapping("/private/configurations/shipping")
-	  @ApiOperation(
-	      httpMethod = "GET",
-	      value = "List shipping configurations summary",
-	      notes = "Requires administration access",
-	      produces = "application/json",
-	      response = List.class)
-	  @ApiImplicitParams({
-	      @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT")
-	  })
+	  @Operation(summary = "List shipping configurations summary", description = "Requires administration access")
+	  @Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")) })
 	  public List<ReadableConfiguration> listShippingConfigurations(
-	      @ApiParam(hidden = true) MerchantStore merchantStore,
-	      @ApiParam(hidden = true) Language language) {
+	      @Parameter(hidden = true) MerchantStore merchantStore,
+	      @Parameter(hidden = true) Language language) {
 	      //return customerFacade.create(customer, merchantStore, language);
 		  return null;
 

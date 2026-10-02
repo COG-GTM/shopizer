@@ -94,7 +94,8 @@ public class MultipleEntryPointsSecurityConfig {
 	@Bean
 	public WebSecurityCustomizer webSecurityCustomizer() {
 		return web -> web.ignoring().requestMatchers(path("/"), path("/error"), path("/resources/**"),
-				path("/static/**"), path("/services/public/**"), path("/swagger-ui.html"));
+				path("/static/**"), path("/services/public/**"), path("/swagger-ui.html"),
+				path("/swagger-ui/**"), path("/v3/api-docs/**"));
 	}
 
 	/**

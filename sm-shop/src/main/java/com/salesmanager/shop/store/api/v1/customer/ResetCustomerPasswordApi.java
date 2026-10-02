@@ -23,20 +23,17 @@ import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.shop.store.api.exception.RestApiException;
 import com.salesmanager.shop.store.security.PasswordRequest;
 import com.salesmanager.shop.store.security.ResetPasswordRequest;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.SwaggerDefinition;
-import io.swagger.annotations.Tag;
-import io.swagger.annotations.ApiParam;
 
 @RestController
 @RequestMapping(value = "/api/v1")
-@Api(tags = { "Customer password management resource (User password Management Api)" })
-@SwaggerDefinition(tags = {
-		@Tag(name = "Customer password management resource", description = "Customer password management") })
+@Tag(name = "Customer password management resource (User password Management Api)", description = "Customer password management")
 public class ResetCustomerPasswordApi {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ResetCustomerPasswordApi.class);
@@ -54,10 +51,10 @@ public class ResetCustomerPasswordApi {
 	 */
 	@ResponseStatus(HttpStatus.OK)
 	@PostMapping(value = { "/customer/password/reset/request" }, produces = MediaType.APPLICATION_JSON_VALUE)
-	@ApiOperation(httpMethod = "POST", value = "Launch customer password reset flow", notes = "", response = Void.class)
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
-	public void passwordResetRequest(@ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language,
+	@Operation(summary = "Launch customer password reset flow")
+	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
+	public void passwordResetRequest(@Parameter(hidden = true) MerchantStore merchantStore, @Parameter(hidden = true) Language language,
 			@Valid @RequestBody ResetPasswordRequest customer) {
 
 		customerFacade.requestPasswordReset(customer.getUsername(), customer.getReturnUrl(), merchantStore, language);
@@ -74,12 +71,12 @@ public class ResetCustomerPasswordApi {
 	 */
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping(value = { "/customer/{store}/reset/{token}" }, produces = MediaType.APPLICATION_JSON_VALUE)
-	@ApiOperation(httpMethod = "GET", value = "Validate customer password reset token", notes = "", response = Void.class)
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
+	@Operation(summary = "Validate customer password reset token")
+	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
 	public void passwordResetVerify(
 			@PathVariable String store, @PathVariable String token,
-			@ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language) {
+			@Parameter(hidden = true) MerchantStore merchantStore, @Parameter(hidden = true) Language language) {
 
 		/**
 		 * Receives reset token Needs to validate if user found from token Needs
@@ -104,11 +101,11 @@ public class ResetCustomerPasswordApi {
 	 */
 	@RequestMapping(value = "/customer/{store}/password/{token}", method = RequestMethod.POST, produces = {
 			"application/json" })
-	@ApiOperation(httpMethod = "POST", value = "Change customer password", response = Void.class)
+	@Operation(summary = "Change customer password")
 	public void changePassword(
 			@RequestBody @Valid PasswordRequest passwordRequest, 
 			@PathVariable String store,
-			@PathVariable String token, @ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language,
+			@PathVariable String token, @Parameter(hidden = true) MerchantStore merchantStore, @Parameter(hidden = true) Language language,
 			HttpServletRequest request) {
 
 		// validate password
