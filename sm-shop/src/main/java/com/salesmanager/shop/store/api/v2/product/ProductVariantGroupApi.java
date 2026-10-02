@@ -3,7 +3,7 @@ package com.salesmanager.shop.store.api.v2.product;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -39,7 +39,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.annotations.ApiParam;
 
 @Controller
 @RequestMapping("/api/v2")
@@ -60,7 +60,7 @@ public class ProductVariantGroupApi {
 			@ApiImplicitParam(name = "lang", dataType = "string", defaultValue = "en") })
 	public @ResponseBody Entity create(
 			@Valid @RequestBody PersistableProductVariantGroup instanceGroup,
-			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language) {
 
 		String authenticatedUser = userFacade.authenticatedUser();
 		if (authenticatedUser == null) {
@@ -81,8 +81,8 @@ public class ProductVariantGroupApi {
 	@ApiOperation(httpMethod = "PUT", value = "Update product instance group", notes = "", produces = "application/json", response = Void.class)
 	public @ResponseBody void update(@PathVariable Long id,
 			@Valid @RequestBody PersistableProductVariantGroup instance, 
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) {
 
 		String authenticatedUser = userFacade.authenticatedUser();
 		if (authenticatedUser == null) {
@@ -99,8 +99,8 @@ public class ProductVariantGroupApi {
 	@GetMapping(value = { "/private/product/productVariantGroup/{id}" })
 	@ApiOperation(httpMethod = "GET", value = "Get product instance group", notes = "", produces = "application/json", response = Void.class)
 	public @ResponseBody ReadableProductVariantGroup get(
-			@PathVariable Long id, @ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
+			@PathVariable Long id, @ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) {
 
 		String authenticatedUser = userFacade.authenticatedUser();
 		if (authenticatedUser == null) {
@@ -118,8 +118,8 @@ public class ProductVariantGroupApi {
 	@ResponseStatus(HttpStatus.OK)
 	@DeleteMapping(value = { "/private/product/productVariantGroup/{id}" })
 	@ApiOperation(httpMethod = "DELETE", value = "Delete product instance group", notes = "", produces = "application/json", response = Void.class)
-	public @ResponseBody void delete(@PathVariable Long id, @ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
+	public @ResponseBody void delete(@PathVariable Long id, @ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) {
 
 		String authenticatedUser = userFacade.authenticatedUser();
 		if (authenticatedUser == null) {
@@ -138,8 +138,8 @@ public class ProductVariantGroupApi {
 	@ApiOperation(httpMethod = "GET", value = "Delete product instance group", notes = "", produces = "application/json", response = Void.class)
 	public @ResponseBody ReadableEntityList<ReadableProductVariantGroup> list(
 			@PathVariable final Long id,
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language,
+			@ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language,
 			@RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
 	@RequestParam(value = "count", required = false, defaultValue = "10") Integer count) {
 
@@ -164,8 +164,8 @@ public class ProductVariantGroupApi {
 			@PathVariable Long id, 
 			@RequestParam(value = "file", required = true) MultipartFile file,
 			@RequestParam(value = "order", required = false, defaultValue = "0") Integer position,
-			@ApiIgnore MerchantStore merchantStore, 
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore, 
+			@ApiParam(hidden = true) Language language) {
 
 		String authenticatedUser = userFacade.authenticatedUser();
 		if (authenticatedUser == null) {
@@ -183,8 +183,8 @@ public class ProductVariantGroupApi {
 	@ResponseStatus(HttpStatus.OK)
 	@RequestMapping(value = {
 			"/private/product/productVariantGroup/{id}/image/{imageId}" }, method = RequestMethod.DELETE)
-	public void removeImage(@PathVariable Long id, @PathVariable Long imageId, @ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
+	public void removeImage(@PathVariable Long id, @PathVariable Long imageId, @ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) {
 
 		String authenticatedUser = userFacade.authenticatedUser();
 		if (authenticatedUser == null) {

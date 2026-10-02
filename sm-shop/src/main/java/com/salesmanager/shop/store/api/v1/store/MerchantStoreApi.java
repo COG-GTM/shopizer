@@ -10,9 +10,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +56,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.annotations.ApiParam;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -90,7 +90,7 @@ public class MerchantStoreApi {
 	@ApiImplicitParams({ @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public ReadableMerchantStore storeFull(
 			@PathVariable String code,
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) Language language) {
 
 		String authenticatedUser = userFacade.authenticatedUser();
 		if (authenticatedUser == null) {
@@ -104,7 +104,7 @@ public class MerchantStoreApi {
 	@GetMapping(value = { "/private/merchant/{code}/stores" }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ApiOperation(httpMethod = "GET", value = "Get retailer child stores", notes = "Merchant (retailer) can have multiple stores", response = ReadableMerchantStore.class)
 	@ApiImplicitParams({ @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
-	public ReadableMerchantStoreList list(@PathVariable String code, @ApiIgnore Language language,
+	public ReadableMerchantStoreList list(@PathVariable String code, @ApiParam(hidden = true) Language language,
 			@RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
 			@RequestParam(value = "count", required = false, defaultValue = "10") Integer count) {
 
@@ -126,8 +126,8 @@ public class MerchantStoreApi {
 	@ApiOperation(httpMethod = "GET", value = "Get list of stores. Returns all retailers and stores. If superadmin everything is returned, else only retailer and child stores.", notes = "", response = ReadableMerchantStore.class)
 	@ApiImplicitParams({ @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public ReadableMerchantStoreList get(
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language,
+			@ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language,
 			@RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
 			@RequestParam(value = "count", required = false, defaultValue = "10") Integer count,
 			HttpServletRequest request) {
@@ -167,8 +167,8 @@ public class MerchantStoreApi {
 	@GetMapping(value = { "/private/stores/names" }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ApiOperation(httpMethod = "GET", value = "Get list of store names. Returns all retailers and stores", notes = "", response = ReadableMerchantStore.class)
 	public List<ReadableMerchantStore> list(
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language,
+			@ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language,
 			@RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
 			@RequestParam(value = "count", required = false, defaultValue = "10") Integer count,
 			HttpServletRequest request
@@ -201,7 +201,7 @@ public class MerchantStoreApi {
 	@GetMapping(value = { "/store/languages" }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ApiOperation(httpMethod = "GET", value = "Get list of store supported languages.", notes = "", response = ReadableMerchantStore.class)
 	public List<Language> supportedLanguages(
-			@ApiIgnore MerchantStore merchantStore,
+			@ApiParam(hidden = true) MerchantStore merchantStore,
 			HttpServletRequest request) {
 
 		return storeFacade.supportedLanguages(merchantStore);
@@ -269,7 +269,7 @@ public class MerchantStoreApi {
 	@GetMapping(value = { "/private/merchant/{code}/children" }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ApiOperation(httpMethod = "GET", value = "Get child stores", notes = "", response = List.class)
 	@ApiImplicitParams({ @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
-	public ReadableMerchantStoreList children(@PathVariable String code, @ApiIgnore Language language,
+	public ReadableMerchantStoreList children(@PathVariable String code, @ApiParam(hidden = true) Language language,
 			@RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
 			@RequestParam(value = "count", required = false, defaultValue = "10") Integer count,
 			HttpServletRequest request) {

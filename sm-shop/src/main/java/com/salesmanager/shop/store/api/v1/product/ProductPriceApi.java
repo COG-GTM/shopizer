@@ -2,7 +2,7 @@ package com.salesmanager.shop.store.api.v1.product;
 
 import java.util.List;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +28,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.annotations.ApiParam;
 
 /**
  * Use inventory
@@ -58,8 +58,8 @@ public class ProductPriceApi {
 			@PathVariable String sku,
 			@PathVariable Long inventoryId,
 			@Valid @RequestBody PersistableProductPrice price,
-			@ApiIgnore MerchantStore merchantStore, 
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore, 
+			@ApiParam(hidden = true) Language language) {
 		
 		price.setSku(sku);
 		price.setProductAvailabilityId(inventoryId);
@@ -78,8 +78,8 @@ public class ProductPriceApi {
 	public @ResponseBody Entity save(
 			@PathVariable String sku,
 			@Valid @RequestBody PersistableProductPrice price,
-			@ApiIgnore MerchantStore merchantStore, 
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore, 
+			@ApiParam(hidden = true) Language language) {
 		
 		price.setSku(sku);
 		
@@ -99,8 +99,8 @@ public class ProductPriceApi {
 			@PathVariable Long inventoryId,
 			@PathVariable Long priceId,
 			@Valid @RequestBody PersistableProductPrice price,
-			@ApiIgnore MerchantStore merchantStore, 
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore, 
+			@ApiParam(hidden = true) Language language) {
 		
 		
 		price.setSku(sku);
@@ -121,8 +121,8 @@ public class ProductPriceApi {
 			@PathVariable String sku,
 			@PathVariable Long priceId,
 			@Valid @RequestBody PersistableProductPrice price,
-			@ApiIgnore MerchantStore merchantStore, 
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore, 
+			@ApiParam(hidden = true) Language language) {
 		
 		
 		price.setSku(sku);
@@ -139,8 +139,8 @@ public class ProductPriceApi {
 	public List<ReadableProductPrice> list(
 			@PathVariable String sku,
 			@PathVariable Long inventoryId,
-			@ApiIgnore MerchantStore merchantStore, 
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore, 
+			@ApiParam(hidden = true) Language language) {
 		
 		
 		return productPriceFacade.list(sku, inventoryId, merchantStore, language);
@@ -155,8 +155,8 @@ public class ProductPriceApi {
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public List<ReadableProductPrice> list(
 			@PathVariable String sku,
-			@ApiIgnore MerchantStore merchantStore, 
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore, 
+			@ApiParam(hidden = true) Language language) {
 		
 		
 		return productPriceFacade.list(sku, merchantStore, language);
@@ -172,8 +172,8 @@ public class ProductPriceApi {
 	public void delete(
 			@PathVariable String sku,
 			@PathVariable Long priceId,
-			@ApiIgnore MerchantStore merchantStore, 
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore, 
+			@ApiParam(hidden = true) Language language) {
 		
 		
 		productPriceFacade.delete(priceId, sku, merchantStore);

@@ -1,0 +1,2 @@
+com.shopizer.modules.shipping.canadapost.autoconfigure.CanadaPostAutoConfiguration
+com.shopizer.search.autoconfigure.SearchAutoConfiguration

@@ -2,7 +2,7 @@ package com.salesmanager.shop.store.api.v1.search;
 
 import java.util.List;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
 import modules.commons.search.request.SearchItem;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.annotations.ApiParam;
 
 /**
  * Api for searching shopizer catalog based on search term when filtering products based on product
@@ -53,8 +53,8 @@ public class SearchApi {
   //TODO use total, count and page
   public @ResponseBody List<SearchItem> search(
       @RequestBody SearchProductRequest searchRequest,
-      @ApiIgnore MerchantStore merchantStore,
-      @ApiIgnore Language language) {
+      @ApiParam(hidden = true) MerchantStore merchantStore,
+      @ApiParam(hidden = true) Language language) {
 
     return searchFacade.search(merchantStore, language, searchRequest);
   }
@@ -66,8 +66,8 @@ public class SearchApi {
   })
   public @ResponseBody ValueList autocomplete(
       @RequestBody SearchProductRequest searchRequest,
-      @ApiIgnore MerchantStore merchantStore,
-      @ApiIgnore Language language) {
+      @ApiParam(hidden = true) MerchantStore merchantStore,
+      @ApiParam(hidden = true) Language language) {
     return searchFacade.autocompleteRequest(searchRequest.getQuery(), merchantStore, language);
   }
 }

@@ -8,10 +8,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
@@ -50,7 +50,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.annotations.ApiParam;
 
 @Controller
 @RequestMapping("/api/v1")
@@ -89,7 +89,7 @@ public class ProductImageApi {
 			@RequestParam(value = "file", required = true) MultipartFile[] files,
 			@RequestParam(value = "order", required = false, defaultValue = "0") Integer position,
 			@RequestParam(value = "defaultImage", required = false, defaultValue = "false") boolean defaultImage,
-			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) throws IOException {
+			@ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language) throws IOException {
 
 		try {
 
@@ -173,7 +173,7 @@ public class ProductImageApi {
 	@ResponseStatus(HttpStatus.OK)
 	@RequestMapping(value = { "/private/product/{id}/image/{imageId}" }, method = RequestMethod.DELETE)
 	public void deleteImage(@PathVariable Long id, @PathVariable Long imageId, @Valid NameEntity imageName,
-			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language) {
 
 
 			Optional<ProductImage> productImage = productImageService.getProductImage(imageId, id, merchantStore);
@@ -213,8 +213,8 @@ public class ProductImageApi {
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public List<ReadableImage> images(
 			@PathVariable Long productId, 
-			@ApiIgnore MerchantStore merchantStore, 
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore, 
+			@ApiParam(hidden = true) Language language) {
 
 			
 			Product p = productService.getById(productId);
@@ -270,7 +270,7 @@ public class ProductImageApi {
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public void imageDetails(@PathVariable Long id, @PathVariable Long imageId,
 			@RequestParam(value = "order", required = false, defaultValue = "0") Integer position,
-			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) throws IOException {
+			@ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language) throws IOException {
 
 		try {
 			

@@ -24,7 +24,7 @@
    
 
   <!-- cache -->
-  <beans:import resource="classpath:/spring/shopizer-core-ehcache.xml" />
+  <beans:import resource="classpath:/spring/shopizer-core-cache.xml" />
   <!-- DB, TX and properties -->
   <beans:import resource="classpath:/spring/shopizer-core-config.xml" />
   <!-- content -->

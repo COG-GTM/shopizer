@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -43,7 +43,7 @@ import com.salesmanager.shop.utils.ImageFilePath;
 
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.annotations.ApiParam;
 
 /**
  * Administration tool dedicated api
@@ -84,7 +84,7 @@ public class ContentAdministrationApi {
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public List<ImageFile> list(@RequestParam(value = "parentPath", required = false) String path,
-			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) throws Exception {
+			@ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language) throws Exception {
 
 		String decodedPath = decodeContentPath(path);
 
@@ -107,8 +107,8 @@ public class ContentAdministrationApi {
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public ContentFolder folder(
 			@RequestParam(value = "path", required = false) String path,
-			@ApiIgnore MerchantStore merchantStore, 
-			@ApiIgnore Language language) throws Exception {
+			@ApiParam(hidden = true) MerchantStore merchantStore, 
+			@ApiParam(hidden = true) Language language) throws Exception {
 		String decodedPath = decodeContentPath(path);
 		return contentFacade.getContentFolder(decodedPath, merchantStore);
 	}
@@ -133,8 +133,8 @@ public class ContentAdministrationApi {
 			@RequestParam(value = "parentPath", required = false) String parentPath,
 			@RequestParam(value = "qqpartindex", required = false) Integer qqpartindex,
 			@RequestParam(value = "qqtotalparts", required = false) Integer qqtotalparts,
-			@ApiIgnore MerchantStore merchantStore, 
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore, 
+			@ApiParam(hidden = true) Language language) {
 		
 		    if(!fileNameUtils.validFileName(qqfilename)) {
 				FileStatus fs = new FileStatus();
@@ -166,8 +166,8 @@ public class ContentAdministrationApi {
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public @ResponseBody String download(
 			@RequestParam(value = "path", required = true) String path,
-			@ApiIgnore MerchantStore merchantStore, 
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore, 
+			@ApiParam(hidden = true) Language language) {
 		String fileName = path.substring(path.lastIndexOf("/")+1, path.length());
 		try {
 	    
@@ -191,8 +191,8 @@ public class ContentAdministrationApi {
 	public FileStatus rename(
 			@RequestParam(value = "path", required = true) String path,
 			@RequestParam(value = "newName", required = true) String newName,
-			@ApiIgnore MerchantStore merchantStore, 
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore, 
+			@ApiParam(hidden = true) Language language) {
 
 		try {
 			
@@ -217,8 +217,8 @@ public class ContentAdministrationApi {
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public FileStatus remove(
 			@RequestParam(value = "path", required = true) String path,
-			@ApiIgnore MerchantStore merchantStore, 
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore, 
+			@ApiParam(hidden = true) Language language) {
 
 		try {
 			

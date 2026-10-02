@@ -43,7 +43,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.annotations.ApiParam;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -67,7 +67,7 @@ public class ShippingConfigurationApi {
 	@RequestMapping(value = { "/private/shipping/origin" }, method = RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
-	public ReadableAddress shippingOrigin(@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) {
+	public ReadableAddress shippingOrigin(@ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language) {
 
 		String user = authorizationUtils.authenticatedUser();
 		authorizationUtils.authorizeUser(user, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN,
@@ -79,8 +79,8 @@ public class ShippingConfigurationApi {
 
 	@RequestMapping(value = { "/private/shipping/origin" }, method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.OK)
-	public void saveShippingOrigin(@RequestBody PersistableAddress address, @ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
+	public void saveShippingOrigin(@RequestBody PersistableAddress address, @ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) {
 
 		String user = authorizationUtils.authenticatedUser();
 		authorizationUtils.authorizeUser(user, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN,
@@ -94,7 +94,7 @@ public class ShippingConfigurationApi {
 	@ApiOperation(httpMethod = "GET", value = "Get list of configured packages types for a specific merchant store", notes = "", produces = "application/json", response = List.class)
 	@RequestMapping(value = { "/private/shipping/packages" }, method = RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK)
-	public List<PackageDetails> listPackages(@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) {
+	public List<PackageDetails> listPackages(@ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language) {
 
 		String user = authorizationUtils.authenticatedUser();
 		authorizationUtils.authorizeUser(user, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN,
@@ -108,8 +108,8 @@ public class ShippingConfigurationApi {
 	@ApiOperation(httpMethod = "GET", value = "Get package details", notes = "", produces = "application/json", response = PackageDetails.class)
 	@RequestMapping(value = { "/private/shipping/package/{code}" }, method = RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK)
-	public PackageDetails getPackage(@PathVariable String code, @ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
+	public PackageDetails getPackage(@PathVariable String code, @ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) {
 
 		String user = authorizationUtils.authenticatedUser();
 		authorizationUtils.authorizeUser(user, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN,
@@ -123,8 +123,8 @@ public class ShippingConfigurationApi {
 	@ApiOperation(httpMethod = "POST", value = "Create new package specification", notes = "", produces = "application/json", response = Void.class)
 	@RequestMapping(value = { "/private/shipping/package" }, method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.OK)
-	public void createPackage(@RequestBody PackageDetails details, @ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
+	public void createPackage(@RequestBody PackageDetails details, @ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) {
 
 		String user = authorizationUtils.authenticatedUser();
 		authorizationUtils.authorizeUser(user, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN,
@@ -139,7 +139,7 @@ public class ShippingConfigurationApi {
 	@RequestMapping(value = { "/private/shipping/package/{code}" }, method = RequestMethod.PUT)
 	@ResponseStatus(HttpStatus.OK)
 	public void updatePackage(@PathVariable String code, @RequestBody PackageDetails details,
-			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language) {
 
 		String user = authorizationUtils.authenticatedUser();
 		authorizationUtils.authorizeUser(user, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN,
@@ -153,8 +153,8 @@ public class ShippingConfigurationApi {
 	@ApiOperation(httpMethod = "DELETE", value = "Delete a package specification", notes = "", produces = "application/json", response = Void.class)
 	@RequestMapping(value = { "/private/shipping/package/{code}" }, method = RequestMethod.DELETE)
 	@ResponseStatus(HttpStatus.OK)
-	public void deletePackage(@PathVariable String code, @ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
+	public void deletePackage(@PathVariable String code, @ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) {
 
 		String user = authorizationUtils.authenticatedUser();
 		authorizationUtils.authorizeUser(user, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN,
@@ -174,8 +174,8 @@ public class ShippingConfigurationApi {
 	@GetMapping("/private/modules/shipping")
 	@ApiOperation(httpMethod = "GET", value = "List list of shipping modules", notes = "Requires administration access", produces = "application/json", response = List.class)
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT") })
-	public List<IntegrationModuleSummaryEntity> shippingModules(@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
+	public List<IntegrationModuleSummaryEntity> shippingModules(@ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) {
 
 		try {
 			List<IntegrationModule> modules = shippingService.getShippingMethods(merchantStore);
@@ -204,7 +204,7 @@ public class ShippingConfigurationApi {
 	@ApiOperation(httpMethod = "GET", value = "Shipping module by code", produces = "application/json", response = List.class)
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT") })
 	public IntegrationConfiguration shippingModule(@PathVariable String code,
-			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language) {
 
 		try {
 
@@ -245,7 +245,7 @@ public class ShippingConfigurationApi {
 
 	@PostMapping(value = "/private/modules/shipping")
 	public void configure(@RequestBody IntegrationModuleConfiguration configuration,
-			@ApiIgnore MerchantStore merchantStore) {
+			@ApiParam(hidden = true) MerchantStore merchantStore) {
 
 		try {
 

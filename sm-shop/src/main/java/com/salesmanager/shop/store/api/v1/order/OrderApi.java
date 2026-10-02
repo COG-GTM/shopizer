@@ -6,10 +6,10 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 
 import com.salesmanager.core.business.services.order.OrderService;
 import com.salesmanager.core.model.order.orderstatus.OrderStatus;
@@ -61,7 +61,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.annotations.ApiParam;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -116,8 +116,8 @@ public class OrderApi {
 			@ApiImplicitParam(name = "lang", dataType = "string", defaultValue = "en") })
 	public ReadableOrderList list(@PathVariable final Long id,
 			@RequestParam(value = "start", required = false) Integer start,
-			@RequestParam(value = "count", required = false) Integer count, @ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language, HttpServletResponse response) throws Exception {
+			@RequestParam(value = "count", required = false) Integer count, @ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language, HttpServletResponse response) throws Exception {
 
 		Customer customer = customerService.getById(id);
 
@@ -168,8 +168,8 @@ public class OrderApi {
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "string", defaultValue = "en") })
 	public ReadableOrderList list(@RequestParam(value = "page", required = false) Integer page,
-			@RequestParam(value = "count", required = false) Integer count, @ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language, HttpServletRequest request, HttpServletResponse response) throws Exception {
+			@RequestParam(value = "count", required = false) Integer count, @ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
 		Principal principal = request.getUserPrincipal();
 		String userName = principal.getName();
@@ -228,8 +228,8 @@ public class OrderApi {
 			@RequestParam(value = "status", required = false) String status,
 			@RequestParam(value = "phone", required = false) String phone,
 			@RequestParam(value = "email", required = false) String email,
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) {
 
 		OrderCriteria orderCriteria = new OrderCriteria();
 		orderCriteria.setPageSize(count);
@@ -267,8 +267,8 @@ public class OrderApi {
 			@ApiImplicitParam(name = "lang", dataType = "string", defaultValue = "en") })
 	public ReadableOrder get(
 			@PathVariable final Long id,
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) {
 
 		String user = authorizationUtils.authenticatedUser();
 		authorizationUtils.authorizeUser(user, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN,
@@ -294,8 +294,8 @@ public class OrderApi {
 	@ResponseBody
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "string", defaultValue = "en") })
-	public ReadableOrder getOrder(@PathVariable final Long id, @ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ReadableOrder getOrder(@PathVariable final Long id, @ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		Principal principal = request.getUserPrincipal();
 		String userName = principal.getName();
 
@@ -348,8 +348,8 @@ public class OrderApi {
 	public ReadableOrderConfirmation checkout(
 			@PathVariable final String code, //shopping cart
 			@Valid @RequestBody PersistableOrder order, // order
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language,
+			@ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language,
 			HttpServletRequest request,
 			HttpServletResponse response, Locale locale) throws Exception {
 
@@ -407,8 +407,8 @@ public class OrderApi {
 	public ReadableOrderConfirmation checkout(
 			@PathVariable final String code,//shopping cart
 			@Valid @RequestBody PersistableAnonymousOrder order,//order
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) {
 
 		Validate.notNull(order.getCustomer(), "Customer must not be null");
 
@@ -479,8 +479,8 @@ public class OrderApi {
 	public void updateOrderCustomer(
 			@PathVariable final Long id,
 			@Valid @RequestBody PersistableCustomer orderCustomer,
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) {
 
 		String user = authorizationUtils.authenticatedUser();
 		authorizationUtils.authorizeUser(user, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN,
@@ -500,8 +500,8 @@ public class OrderApi {
 	public void updateOrderStatus(
 			@PathVariable final Long id,
 			@Valid @RequestBody String status,
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) {
 
 		String user = authorizationUtils.authenticatedUser();
 		authorizationUtils.authorizeUser(user, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN,

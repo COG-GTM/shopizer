@@ -25,7 +25,10 @@ import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.validation.Errors;
+import org.springframework.validation.Validator;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
@@ -67,6 +70,30 @@ public class ShopApplicationConfiguration implements WebMvcConfigurer {
   @Override
   public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
     converters.add(new MappingJackson2HttpMessageConverter());
+  }
+
+  @Override
+  @SuppressWarnings("deprecation")
+  public void configurePathMatch(PathMatchConfigurer configurer) {
+    configurer.setUseTrailingSlashMatch(true);
+  }
+
+  /**
+   * No Bean Validation provider is on the classpath; keep request body validation disabled
+   * instead of letting Spring MVC method validation fail without a target validator.
+   */
+  @Override
+  public Validator getValidator() {
+    return new Validator() {
+      @Override
+      public boolean supports(Class<?> clazz) {
+        return false;
+      }
+
+      @Override
+      public void validate(Object target, Errors errors) {
+      }
+    };
   }
 
   @Override

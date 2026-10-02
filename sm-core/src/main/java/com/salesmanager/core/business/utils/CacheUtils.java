@@ -1,9 +1,11 @@
 package com.salesmanager.core.business.utils;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,9 +53,8 @@ public class CacheUtils {
 	
 	public List<String> getCacheKeys(MerchantStore store) throws Exception {
 		
-		  net.sf.ehcache.Cache cacheImpl = (net.sf.ehcache.Cache) cache.getNativeCache();
 		  List<String> returnKeys = new ArrayList<String>();
-		  for (Object key: cacheImpl.getKeys()) {
+		  for (Object key: nativeCacheKeys()) {
 		    
 			  
 				try {
@@ -77,6 +78,13 @@ public class CacheUtils {
 		return returnKeys;
 	}
 	
+	@SuppressWarnings("unchecked")
+	private Set<Object> nativeCacheKeys() {
+		com.github.benmanes.caffeine.cache.Cache<Object, Object> cacheImpl =
+				(com.github.benmanes.caffeine.cache.Cache<Object, Object>) cache.getNativeCache();
+		return new HashSet<>(cacheImpl.asMap().keySet());
+	}
+
 	public void shutDownCache() throws Exception {
 		
 	}
@@ -86,8 +94,7 @@ public class CacheUtils {
 	}
 	
 	public void removeAllFromCache(MerchantStore store) throws Exception {
-		  net.sf.ehcache.Cache cacheImpl = (net.sf.ehcache.Cache) cache.getNativeCache();
-		  for (Object key: cacheImpl.getKeys()) {
+		  for (Object key: nativeCacheKeys()) {
 				try {
 					String sKey = (String)key;
 					

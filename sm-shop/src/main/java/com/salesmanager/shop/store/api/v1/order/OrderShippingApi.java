@@ -4,9 +4,9 @@ import java.security.Principal;
 import java.util.List;
 import java.util.Locale;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -43,7 +43,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.annotations.ApiParam;
 
 @Controller
 @RequestMapping("/api/v1")
@@ -86,8 +86,8 @@ public class OrderShippingApi {
   })
   public ReadableShippingSummary shipping(
       @PathVariable final String code,
-      @ApiIgnore MerchantStore merchantStore,
-      @ApiIgnore Language language,
+      @ApiParam(hidden = true) MerchantStore merchantStore,
+      @ApiParam(hidden = true) Language language,
       HttpServletRequest request,
       HttpServletResponse response) {
 
@@ -198,8 +198,8 @@ public class OrderShippingApi {
   public ReadableShippingSummary shipping(
       @PathVariable final String code,
       @RequestBody AddressLocation address,
-      @ApiIgnore MerchantStore merchantStore,
-      @ApiIgnore Language language,
+      @ApiParam(hidden = true) MerchantStore merchantStore,
+      @ApiParam(hidden = true) Language language,
       HttpServletRequest request,
       HttpServletResponse response)
       throws Exception {

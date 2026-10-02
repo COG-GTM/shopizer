@@ -3,8 +3,8 @@ package com.salesmanager.shop.store.api.v2.product;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.inject.Inject;
-import javax.validation.Valid;
+import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +43,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.annotations.ApiParam;
 
 /**
  * Api to manage productVariant
@@ -76,8 +76,8 @@ public class ProductVariantApi {
 	public @ResponseBody Entity create(
 			@Valid @RequestBody PersistableProductVariant variant, 
 			@PathVariable Long productId,
-			@ApiIgnore MerchantStore merchantStore, 
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore, 
+			@ApiParam(hidden = true) Language language) {
 
 		String authenticatedUser = userFacade.authenticatedUser();
 		if (authenticatedUser == null) {
@@ -97,8 +97,8 @@ public class ProductVariantApi {
 	@PutMapping(value = { "/private/product/{id}/variant/{variantId}" })
 	@ApiOperation(httpMethod = "PUT", value = "Update product variant", notes = "", produces = "application/json", response = Void.class)
 	public @ResponseBody void update(@PathVariable Long id, @PathVariable Long variantId,
-			@Valid @RequestBody PersistableProductVariant variant, @ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
+			@Valid @RequestBody PersistableProductVariant variant, @ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) {
 
 		String authenticatedUser = userFacade.authenticatedUser();
 		if (authenticatedUser == null) {
@@ -119,8 +119,8 @@ public class ProductVariantApi {
 	public @ResponseBody ResponseEntity<EntityExists> exists(
 			@PathVariable Long id, 
 			@PathVariable String sku,
-			@ApiIgnore MerchantStore merchantStore, 
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore, 
+			@ApiParam(hidden = true) Language language) {
 
 		String authenticatedUser = userFacade.authenticatedUser();
 		if (authenticatedUser == null) {
@@ -145,8 +145,8 @@ public class ProductVariantApi {
 			@PathVariable final Long id, 
 			@PathVariable Long variantId,
 			@RequestParam(value = "lang", required = false) String lang, 
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) throws Exception {
+			@ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) throws Exception {
 
 		return productVariantFacade.get(variantId, id, merchantStore, language);
 
@@ -157,7 +157,7 @@ public class ProductVariantApi {
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public @ResponseBody ReadableEntityList<ReadableProductVariant> list(@PathVariable final Long id,
-			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language,
+			@ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language,
 			@RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
 			@RequestParam(value = "count", required = false, defaultValue = "10") Integer count) {
 
@@ -173,8 +173,8 @@ public class ProductVariantApi {
 	public void delete(
 			@PathVariable Long id,
 			@PathVariable Long variantId,
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) {
 
 		productVariantFacade.delete(variantId, id, merchantStore);
 
@@ -191,8 +191,8 @@ public class ProductVariantApi {
 	public void addvariantImage(
 			@PathVariable Long id,
 			@RequestParam(name = "file", required = true) MultipartFile file, 
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language, 
+			@ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language, 
 			HttpServletRequest request, 
 			HttpServletResponse response) {
 

@@ -9,10 +9,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +54,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.annotations.ApiParam;
 
 @Controller
 @RequestMapping("/api/v1")
@@ -90,7 +90,7 @@ public class OrderPaymentApi {
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public ReadableTransaction init(@Valid @RequestBody PersistablePayment payment, @PathVariable String code,
-			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) throws Exception {
+			@ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language) throws Exception {
 
 		ShoppingCart cart = shoppingCartService.getByCode(code, merchantStore);
 		if (cart == null) {
@@ -122,7 +122,7 @@ public class OrderPaymentApi {
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public ReadableTransaction init(@Valid @RequestBody PersistablePayment payment, @PathVariable String code,
-			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language, HttpServletRequest request,
+			@ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language, HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
 
 		try {
@@ -189,8 +189,8 @@ public class OrderPaymentApi {
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public String nextTransaction(
 			@PathVariable final Long id, 
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) {
 
 		String user = authorizationUtils.authenticatedUser();
 		authorizationUtils.authorizeUser(user, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN,
@@ -210,8 +210,8 @@ public class OrderPaymentApi {
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public List<ReadableTransaction> listTransactions(
 			@PathVariable final Long id, 
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) {
 
 		String user = authorizationUtils.authenticatedUser();
 		authorizationUtils.authorizeUser(user, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN,
@@ -241,7 +241,7 @@ public class OrderPaymentApi {
 	public ReadableOrderList listCapturableOrders(
 			@RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
 			@RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language, HttpServletRequest request,
+			@ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language, HttpServletRequest request,
 			HttpServletResponse response) {
 
 		try {
@@ -294,8 +294,8 @@ public class OrderPaymentApi {
 	@ResponseBody
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
-	public ReadableTransaction capturePayment(@PathVariable Long id, @ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
+	public ReadableTransaction capturePayment(@PathVariable Long id, @ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) {
 		/*
 		 * try {
 		 * 
@@ -337,8 +337,8 @@ public class OrderPaymentApi {
 	@ResponseBody
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
-	public ReadableTransaction refundPayment(@PathVariable Long id, @ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
+	public ReadableTransaction refundPayment(@PathVariable Long id, @ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) {
 		return null;
 	}
 
@@ -355,8 +355,8 @@ public class OrderPaymentApi {
 	@ResponseBody
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
-	public ReadableTransaction authorizePayment(@PathVariable Long id, @ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
+	public ReadableTransaction authorizePayment(@PathVariable Long id, @ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) {
 		return null;
 	}
 }

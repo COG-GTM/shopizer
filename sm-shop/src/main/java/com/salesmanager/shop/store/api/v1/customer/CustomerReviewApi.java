@@ -2,8 +2,8 @@ package com.salesmanager.shop.store.api.v1.customer;
 
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.validation.Valid;
+import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +30,7 @@ import com.salesmanager.shop.utils.LanguageUtils;
 
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.annotations.ApiParam;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -70,8 +70,8 @@ public class CustomerReviewApi {
   public PersistableCustomerReview create(
       @PathVariable final Long id,
       @Valid @RequestBody PersistableCustomerReview review,
-      @ApiIgnore MerchantStore merchantStore,
-      @ApiIgnore Language language) {
+      @ApiParam(hidden = true) MerchantStore merchantStore,
+      @ApiParam(hidden = true) Language language) {
     return customerFacade.createCustomerReview(id, review, merchantStore, language);
   }
 
@@ -81,7 +81,7 @@ public class CustomerReviewApi {
       @ApiImplicitParam(name = "lang", dataType = "string", defaultValue = "en")
   })
   public List<ReadableCustomerReview> getAll(
-      @PathVariable final Long id, @ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) {
+      @PathVariable final Long id, @ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language) {
     return customerFacade.getAllCustomerReviewsByReviewed(id, merchantStore, language);
   }
 
@@ -90,8 +90,8 @@ public class CustomerReviewApi {
       @PathVariable final Long id,
       @PathVariable final Long reviewId,
       @Valid @RequestBody PersistableCustomerReview review,
-      @ApiIgnore MerchantStore merchantStore,
-      @ApiIgnore Language language) {
+      @ApiParam(hidden = true) MerchantStore merchantStore,
+      @ApiParam(hidden = true) Language language) {
       return customerFacade.updateCustomerReview(id, reviewId, review, merchantStore, language);
 	}
 
@@ -99,8 +99,8 @@ public class CustomerReviewApi {
   public void delete(
       @PathVariable final Long id,
       @PathVariable final Long reviewId,
-      @ApiIgnore MerchantStore merchantStore,
-      @ApiIgnore Language language) {
+      @ApiParam(hidden = true) MerchantStore merchantStore,
+      @ApiParam(hidden = true) Language language) {
     customerFacade.deleteCustomerReview(id, reviewId, merchantStore, language);
   }
 }

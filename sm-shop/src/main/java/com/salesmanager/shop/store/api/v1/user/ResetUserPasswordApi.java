@@ -1,8 +1,8 @@
 package com.salesmanager.shop.store.api.v1.user;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -31,7 +31,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.annotations.ApiParam;
 
 @RestController
 @RequestMapping(value = "/api/v1")
@@ -60,8 +60,8 @@ public class ResetUserPasswordApi {
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public void passwordResetRequest(
-			@ApiIgnore MerchantStore merchantStore, 
-			@ApiIgnore Language language,
+			@ApiParam(hidden = true) MerchantStore merchantStore, 
+			@ApiParam(hidden = true) Language language,
 			@Valid @RequestBody ResetPasswordRequest user, HttpServletRequest request) {
 
 
@@ -83,7 +83,7 @@ public class ResetUserPasswordApi {
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public void passwordResetVerify(@PathVariable String store, @PathVariable String token,
-			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language, HttpServletRequest request) {
+			@ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language, HttpServletRequest request) {
 
 		/**
 		 * Receives reset token Needs to validate if user found from token Needs
@@ -112,7 +112,7 @@ public class ResetUserPasswordApi {
 	public void changePassword(
 			@RequestBody @Valid PasswordRequest passwordRequest, 
 			@PathVariable String store,
-			@PathVariable String token, @ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language,
+			@PathVariable String token, @ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language,
 			HttpServletRequest request) {
 
 		// validate password

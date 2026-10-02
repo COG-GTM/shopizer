@@ -2,8 +2,8 @@ package com.salesmanager.shop.store.api.v1.product;
 
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +25,7 @@ import com.salesmanager.shop.store.controller.product.facade.ProductFacade;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.annotations.ApiParam;
 
 @Controller
 @RequestMapping("/api/v1")
@@ -54,8 +54,8 @@ public class ProductRelationshipApi {
   })
   public List<ReadableProduct> getAll(
       @PathVariable final Long id,
-      @ApiIgnore MerchantStore merchantStore,
-      @ApiIgnore Language language,
+      @ApiParam(hidden = true) MerchantStore merchantStore,
+      @ApiParam(hidden = true) Language language,
       HttpServletResponse response)
       throws Exception {
 

@@ -2,7 +2,7 @@ package com.salesmanager.shop.store.facade.product;
 
 import java.util.Optional;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -25,7 +25,7 @@ import com.salesmanager.shop.store.controller.product.facade.ProductVariantFacad
 import com.salesmanager.shop.utils.ImageFilePath;
 
 @Service("productDefinitionFacade")
-@Profile({ "default", "cloud", "gcp", "aws", "mysql", "local" })
+@Profile({ "default", "cloud", "gcp", "aws", "mysql", "local", "docker" })
 public class ProductDefinitionFacadeImpl implements ProductDefinitionFacade {
 	
 

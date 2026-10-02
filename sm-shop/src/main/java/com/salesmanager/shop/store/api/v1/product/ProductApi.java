@@ -6,10 +6,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -59,7 +59,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.annotations.ApiParam;
 
 /**
  * API to create, read, update and delete a Product API.
@@ -108,7 +108,7 @@ public class ProductApi {
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public @ResponseBody Entity create(@Valid @RequestBody PersistableProduct product,
-			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language) {
 	
 		Long id = productCommonFacade.saveProduct(merchantStore, product, language);
 		Entity returnEntity = new Entity();
@@ -123,7 +123,7 @@ public class ProductApi {
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	@ApiOperation(httpMethod = "PUT", value = "Update product", notes = "", produces = "application/json", response = PersistableProduct.class)
 	public void update(@PathVariable Long id,
-			@Valid @RequestBody PersistableProduct product, @ApiIgnore MerchantStore merchantStore,
+			@Valid @RequestBody PersistableProduct product, @ApiParam(hidden = true) MerchantStore merchantStore,
 			HttpServletRequest request, HttpServletResponse response) {
 
 		try {
@@ -154,8 +154,8 @@ public class ProductApi {
 			@PathVariable Long id,
 			@Valid @RequestBody
 			LightPersistableProduct product,
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) {
 		productCommonFacade.update(id, product, merchantStore, language);
 		return;
 
@@ -165,7 +165,7 @@ public class ProductApi {
 	@RequestMapping(value = { "/private/product/{id}", "/auth/product/{id}" }, method = RequestMethod.DELETE)
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
-	public void delete(@PathVariable Long id, @ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) {
+	public void delete(@PathVariable Long id, @ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language) {
 
 		productCommonFacade.deleteProduct(id, merchantStore);
 	}
@@ -208,7 +208,7 @@ public class ProductApi {
 			@RequestParam(value = "available", required = false) Boolean available,
 			// per
 			// page
-			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language, HttpServletRequest request,
+			@ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language, HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
 
 		ProductCriteria criteria = new ProductCriteria();
@@ -310,7 +310,7 @@ public class ProductApi {
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public ReadableProduct get(@PathVariable final Long id, @RequestParam(value = "lang", required = false) String lang,
-			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language, HttpServletResponse response)
+			@ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language, HttpServletResponse response)
 			throws Exception {
 		ReadableProduct product = productCommonFacade.getProduct(merchantStore, id, language);
 
@@ -341,7 +341,7 @@ public class ProductApi {
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public ReadableProductPrice price(@PathVariable final Long id,
 			@RequestBody ProductPriceRequest variants,
-			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language) {
 
 		return productFacade.getProductPrice(id, variants, merchantStore, language);
 
@@ -369,8 +369,8 @@ public class ProductApi {
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public ReadableProduct getByfriendlyUrl(@PathVariable final String friendlyUrl,
-			@RequestParam(value = "lang", required = false) String lang, @ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language, HttpServletResponse response) throws Exception {
+			@RequestParam(value = "lang", required = false) String lang, @ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language, HttpServletResponse response) throws Exception {
 		ReadableProduct product = productFacade.getProductBySeUrl(merchantStore, friendlyUrl, language);
 
 		if (product == null) {
@@ -386,7 +386,7 @@ public class ProductApi {
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT") })
 	@ApiOperation(httpMethod = "GET", value = "Check if product code already exists", notes = "", response = EntityExists.class)
 	public ResponseEntity<EntityExists> exists(@RequestParam(value = "code") String code,
-			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language) {
 
 		boolean exists = productCommonFacade.exists(code, merchantStore);
 		return new ResponseEntity<EntityExists>(new EntityExists(exists), HttpStatus.OK);
@@ -398,7 +398,7 @@ public class ProductApi {
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public void addProductToCategory(@PathVariable Long productId,
-			@PathVariable Long categoryId, @ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language,
+			@PathVariable Long categoryId, @ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language,
 			HttpServletResponse response) throws Exception {
 
 		try {
@@ -437,7 +437,7 @@ public class ProductApi {
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public void removeProductFromCategory(@PathVariable Long productId,
-			@PathVariable Long categoryId, @ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) {
+			@PathVariable Long categoryId, @ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language) {
 
 		try {
 			Product product = productService.getById(productId);
@@ -486,7 +486,7 @@ public class ProductApi {
 	@ApiOperation(httpMethod = "POST", value = "Patch product sort order", notes = "Change product sortOrder")
 	public void changeProductOrder(@PathVariable Long id,
 			@RequestParam(value = "order", required = false, defaultValue = "0") Integer position,
-			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) throws IOException {
+			@ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language) throws IOException {
 
 		try {
 

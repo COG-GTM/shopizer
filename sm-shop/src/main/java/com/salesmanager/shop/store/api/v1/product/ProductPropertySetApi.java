@@ -2,7 +2,7 @@ package com.salesmanager.shop.store.api.v1.product;
 
 import java.util.List;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +32,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.annotations.ApiParam;
 
 @Controller
 @RequestMapping("/api/v1")
@@ -50,8 +50,8 @@ public class ProductPropertySetApi {
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public void create(
 			@Valid @RequestBody PersistableProductOptionSet optionSet, 
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) {
 
 		productOptionSetFacade.create(optionSet, merchantStore, language);
 
@@ -64,8 +64,8 @@ public class ProductPropertySetApi {
 	@ApiOperation(httpMethod = "GET", value = "Check if option set code already exists", notes = "", response = EntityExists.class)
 	public ResponseEntity<EntityExists> exists(
 			@RequestParam(value = "code") String code,
-			@ApiIgnore MerchantStore merchantStore, 
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore, 
+			@ApiParam(hidden = true) Language language) {
 
 		boolean isOptionExist = productOptionSetFacade.exists(code, merchantStore);
 		return new ResponseEntity<EntityExists>(new EntityExists(isOptionExist), HttpStatus.OK);
@@ -79,8 +79,8 @@ public class ProductPropertySetApi {
 	@ResponseBody
 	public ReadableProductOptionSet get(
 			@PathVariable Long id, 
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) {
 
 		return productOptionSetFacade.get(id, merchantStore, language);
 
@@ -94,8 +94,8 @@ public class ProductPropertySetApi {
 	public void update(
 			@Valid @RequestBody PersistableProductOptionSet option, 
 			@PathVariable Long id,
-			@ApiIgnore MerchantStore merchantStore, 
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore, 
+			@ApiParam(hidden = true) Language language) {
 		
 		option.setId(id);
 		productOptionSetFacade.update(id, option, merchantStore, language);
@@ -110,8 +110,8 @@ public class ProductPropertySetApi {
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public void delete(
 			@PathVariable Long id,
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) {
+			@ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language) {
 
 		productOptionSetFacade.delete(id, merchantStore);
 
@@ -130,8 +130,8 @@ public class ProductPropertySetApi {
 		@ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public @ResponseBody List<ReadableProductOptionSet> list(
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language,
+			@ApiParam(hidden = true) MerchantStore merchantStore,
+			@ApiParam(hidden = true) Language language,
 			@RequestParam(value = "productType", required = false) String type) {
 
 		if(!StringUtils.isBlank(type)) {

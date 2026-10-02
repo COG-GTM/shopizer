@@ -7,9 +7,9 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -51,7 +51,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.annotations.ApiParam;
 
 /** Api for managing admin users */
 @RestController
@@ -83,7 +83,7 @@ public class UserApi {
 			@ApiResponse(code = 401, message = "Login required") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "string", defaultValue = "en") })
-	public ReadableUser get(@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language, @PathVariable Long id,
+	public ReadableUser get(@ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language, @PathVariable Long id,
 			HttpServletRequest request) {
 
 		String authenticatedUser = userFacade.authenticatedUser();
@@ -109,8 +109,8 @@ public class UserApi {
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public ReadableUser create(
-			@ApiIgnore MerchantStore merchantStore, 
-			@ApiIgnore Language language,
+			@ApiParam(hidden = true) MerchantStore merchantStore, 
+			@ApiParam(hidden = true) Language language,
 			@Valid @RequestBody PersistableUser user, HttpServletRequest request) {
 		/** Must be superadmin or admin */
 		String authenticatedUser = userFacade.authenticatedUser();
@@ -137,7 +137,7 @@ public class UserApi {
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	@ApiOperation(httpMethod = "PUT", value = "Updates a user", notes = "", response = ReadableUser.class)
 	public ReadableUser update(@Valid @RequestBody PersistableUser user, @PathVariable Long id,
-			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language
+			@ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language
 
 	) {
 
@@ -170,8 +170,8 @@ public class UserApi {
 		@ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 		@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public ReadableUserList list(
-			@ApiIgnore MerchantStore merchantStore, 
-			@ApiIgnore Language language,
+			@ApiParam(hidden = true) MerchantStore merchantStore, 
+			@ApiParam(hidden = true) Language language,
 			@RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
 			@RequestParam(value = "count", required = false, defaultValue = "20") Integer count,
 			@RequestParam(value = "emailAddress", required = false) String emailAddress) {
@@ -204,7 +204,7 @@ public class UserApi {
 	public void updateEnabled(
 			@PathVariable Long id, 
 			@Valid @RequestBody PersistableUser user,
-			@ApiIgnore MerchantStore merchantStore
+			@ApiParam(hidden = true) MerchantStore merchantStore
 			) {
 		
 		// superadmin, admin and retail_admin
@@ -224,7 +224,7 @@ public class UserApi {
 	@ApiOperation(httpMethod = "DELETE", value = "Deletes a user", notes = "", response = Void.class)
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "string", defaultValue = "en") })
-	public void delete(@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language, @PathVariable Long id,
+	public void delete(@ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language, @PathVariable Long id,
 			HttpServletRequest request) {
 
 		/** Must be superadmin or admin */
@@ -245,7 +245,7 @@ public class UserApi {
 	@ResponseStatus(HttpStatus.OK)
 	@PostMapping(value = { "/private/user/unique" }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ApiOperation(httpMethod = "POST", value = "Check if username already exists", notes = "", response = EntityExists.class)
-	public ResponseEntity<EntityExists> exists(@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language,
+	public ResponseEntity<EntityExists> exists(@ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language,
 			@RequestBody UniqueEntity userName) {
 
 		boolean isUserExist = true;// default user exist
@@ -269,7 +269,7 @@ public class UserApi {
 	 */
 	@GetMapping("/private/user/profile")
 	@ApiImplicitParams({ @ApiImplicitParam(name = "lang", dataType = "string", defaultValue = "en") })
-	public ReadableUser getAuthUser(@ApiIgnore Language language, HttpServletRequest request) {
+	public ReadableUser getAuthUser(@ApiParam(hidden = true) Language language, HttpServletRequest request) {
 		Principal principal = request.getUserPrincipal();
 		String userName = principal.getName();
 		ReadableUser user = userFacade.findByUserName(userName, null, language);
