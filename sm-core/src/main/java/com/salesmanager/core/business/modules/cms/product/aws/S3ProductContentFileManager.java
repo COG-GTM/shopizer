@@ -8,19 +8,9 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.AmazonS3Exception;
-import com.amazonaws.services.s3.model.Bucket;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.ListObjectsV2Request;
-import com.amazonaws.services.s3.model.ListObjectsV2Result;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.salesmanager.core.business.constants.Constants;
 import com.salesmanager.core.business.exception.ServiceException;
+import com.salesmanager.core.business.modules.aws.AwsRegions;
 import com.salesmanager.core.business.modules.cms.impl.CMSManager;
 import com.salesmanager.core.business.modules.cms.product.ProductAssetsManager;
 import com.salesmanager.core.model.catalog.product.Product;
@@ -29,6 +19,15 @@ import com.salesmanager.core.model.catalog.product.image.ProductImage;
 import com.salesmanager.core.model.content.FileContentType;
 import com.salesmanager.core.model.content.ImageContentFile;
 import com.salesmanager.core.model.content.OutputContentFile;
+
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
+import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Object;
 
 /**
  * Product content file manager with AWS S3
@@ -78,27 +77,19 @@ public class S3ProductContentFileManager
   @Override
   public List<OutputContentFile> getImages(String merchantStoreCode,
       FileContentType imageContentType) throws ServiceException {
-    try {
-      // get buckets
-      String bucketName = bucketName();
-
-
-
-      ListObjectsV2Request listObjectsRequest = new ListObjectsV2Request()
-          .withBucketName(bucketName).withPrefix(nodePath(merchantStoreCode));
-
+    String bucketName = bucketName();
+    try (S3Client s3 = s3Client()) {
       List<OutputContentFile> files = null;
-      final AmazonS3 s3 = s3Client();
-      ListObjectsV2Result results = s3.listObjectsV2(listObjectsRequest);
-      List<S3ObjectSummary> objects = results.getObjectSummaries();
-      for (S3ObjectSummary os : objects) {
+      ListObjectsV2Request listObjectsRequest = ListObjectsV2Request.builder()
+          .bucket(bucketName).prefix(nodePath(merchantStoreCode)).build();
+      for (S3Object os : s3.listObjectsV2Paginator(listObjectsRequest).contents()) {
         if (files == null) {
           files = new ArrayList<OutputContentFile>();
         }
-        String mimetype = URLConnection.guessContentTypeFromName(os.getKey());
+        String mimetype = URLConnection.guessContentTypeFromName(os.key());
         if (!StringUtils.isBlank(mimetype)) {
-          S3Object o = s3.getObject(bucketName, os.getKey());
-          byte[] byteArray = IOUtils.toByteArray(o.getObjectContent());
+          byte[] byteArray = s3.getObjectAsBytes(
+              GetObjectRequest.builder().bucket(bucketName).key(os.key()).build()).asByteArray();
           ByteArrayOutputStream baos = new ByteArrayOutputStream(byteArray.length);
           baos.write(byteArray, 0, byteArray.length);
           OutputContentFile ct = new OutputContentFile();
@@ -117,12 +108,9 @@ public class S3ProductContentFileManager
 
   @Override
   public void removeImages(String merchantStoreCode) throws ServiceException {
-    try {
-      // get buckets
-      String bucketName = bucketName();
-
-      final AmazonS3 s3 = s3Client();
-      s3.deleteObject(bucketName, nodePath(merchantStoreCode));
+    String bucketName = bucketName();
+    try (S3Client s3 = s3Client()) {
+      deleteObject(s3, bucketName, nodePath(merchantStoreCode));
 
       LOGGER.info("Remove folder");
     } catch (final Exception e) {
@@ -135,12 +123,9 @@ public class S3ProductContentFileManager
 
   @Override
   public void removeProductImage(ProductImage productImage) throws ServiceException {
-    try {
-      // get buckets
-      String bucketName = bucketName();
-
-      final AmazonS3 s3 = s3Client();
-      s3.deleteObject(bucketName, nodePath(productImage.getProduct().getMerchantStore().getCode(),
+    String bucketName = bucketName();
+    try (S3Client s3 = s3Client()) {
+      deleteObject(s3, bucketName, nodePath(productImage.getProduct().getMerchantStore().getCode(),
           productImage.getProduct().getSku()) + productImage.getProductImage());
 
       LOGGER.info("Remove file");
@@ -154,12 +139,9 @@ public class S3ProductContentFileManager
 
   @Override
   public void removeProductImages(Product product) throws ServiceException {
-    try {
-      // get buckets
-      String bucketName = bucketName();
-
-      final AmazonS3 s3 = s3Client();
-      s3.deleteObject(bucketName, nodePath(product.getMerchantStore().getCode(), product.getSku()));
+    String bucketName = bucketName();
+    try (S3Client s3 = s3Client()) {
+      deleteObject(s3, bucketName, nodePath(product.getMerchantStore().getCode(), product.getSku()));
 
       LOGGER.info("Remove file");
     } catch (final Exception e) {
@@ -200,25 +182,19 @@ public class S3ProductContentFileManager
       throws ServiceException {
 
 
-    try {
-      // get buckets
-      String bucketName = bucketName();
-      final AmazonS3 s3 = s3Client();
-
+    String bucketName = bucketName();
+    try (S3Client s3 = s3Client()) {
       String nodePath = this.nodePath(productImage.getProduct().getMerchantStore().getCode(),
           productImage.getProduct().getSku(), contentImage);
 
+      PutObjectRequest request = PutObjectRequest.builder()
+          .bucket(bucketName)
+          .key(nodePath + productImage.getProductImage())
+          .contentType(contentImage.getMimeType())
+          .acl(ObjectCannedACL.PUBLIC_READ)
+          .build();
 
-      ObjectMetadata metadata = new ObjectMetadata();
-      metadata.setContentType(contentImage.getMimeType());
-
-      PutObjectRequest request = new PutObjectRequest(bucketName,
-          nodePath + productImage.getProductImage(), contentImage.getFile(), metadata);
-      request.setCannedAcl(CannedAccessControlList.PublicRead);
-
-
-      s3.putObject(request);
-
+      s3.putObject(request, RequestBody.fromBytes(IOUtils.toByteArray(contentImage.getFile())));
 
       LOGGER.info("Product add file");
 
@@ -232,37 +208,8 @@ public class S3ProductContentFileManager
   }
 
 
-  private Bucket getBucket(String bucket_name) {
-    final AmazonS3 s3 = s3Client();
-    Bucket named_bucket = null;
-    List<Bucket> buckets = s3.listBuckets();
-    for (Bucket b : buckets) {
-      if (b.getName().equals(bucket_name)) {
-        named_bucket = b;
-      }
-    }
-
-    if (named_bucket == null) {
-      named_bucket = createBucket(bucket_name);
-    }
-
-    return named_bucket;
-  }
-
-  private Bucket createBucket(String bucket_name) {
-    final AmazonS3 s3 = s3Client();
-    Bucket b = null;
-    if (s3.doesBucketExistV2(bucket_name)) {
-      System.out.format("Bucket %s already exists.\n", bucket_name);
-      b = getBucket(bucket_name);
-    } else {
-      try {
-        b = s3.createBucket(bucket_name);
-      } catch (AmazonS3Exception e) {
-        System.err.println(e.getErrorMessage());
-      }
-    }
-    return b;
+  private static void deleteObject(S3Client s3, String bucketName, String key) {
+    s3.deleteObject(DeleteObjectRequest.builder().bucket(bucketName).key(key).build());
   }
 
   /**
@@ -270,12 +217,8 @@ public class S3ProductContentFileManager
    * 
    * @return
    */
-  private AmazonS3 s3Client() {
-
-    return AmazonS3ClientBuilder.standard().withRegion(regionName()) // The first region to
-                                                                            // try your request
-                                                                            // against
-        .build();
+  private S3Client s3Client() {
+    return S3Client.builder().region(AwsRegions.of(regionName(), DEFAULT_REGION_NAME)).build();
   }
 
   private String bucketName() {

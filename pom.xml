@@ -42,8 +42,6 @@
 		<shopizer.search.version>2.11.1</shopizer.search.version>
 		<shopizer-canadapost.version>2.15.0</shopizer-canadapost.version>
 
-		<!-- TODO replace with starter -->
-		<elasticsearch.version>7.5.2</elasticsearch.version>
 		<guava.version>27.1-jre</guava.version>
 		<commons-lang.version>3.5</commons-lang.version>
 		<commons-io.version>2.7</commons-io.version>
@@ -64,6 +62,7 @@
 		<geoip2.version>2.7.0</geoip2.version>
 		<drools.version>7.32.0.Final</drools.version>
 		<google-client-maps-services-version>0.1.6</google-client-maps-services-version>
+		<aws-sdk-v2.version>2.54.20</aws-sdk-v2.version>
 		<jwt.version>0.8.0</jwt.version>
 		<jakarta.inject.version>2.0.1</jakarta.inject.version>
 		<swagger-annotations.version>1.6.14</swagger-annotations.version>
@@ -242,18 +241,12 @@
 				</exclusions>
 			</dependency>
 
-			<!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-s3 -->
 			<dependency>
-				<groupId>com.amazonaws</groupId>
-				<artifactId>aws-java-sdk-s3</artifactId>
-				<version>1.11.640</version>
-			</dependency>
-
-			<!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-ses -->
-			<dependency>
-				<groupId>com.amazonaws</groupId>
-				<artifactId>aws-java-sdk-ses</artifactId>
-				<version>1.11.640</version>
+				<groupId>software.amazon.awssdk</groupId>
+				<artifactId>bom</artifactId>
+				<version>${aws-sdk-v2.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
 			</dependency>
 
 			<!-- google cloud storage -->
@@ -369,8 +362,8 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.eclipse.angus</groupId>
-			<artifactId>jakarta.mail</artifactId>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
 		</dependency>
 
 		<!-- http://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple -->
