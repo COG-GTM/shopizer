@@ -5,11 +5,11 @@ import java.util.Map;
 
 import jakarta.inject.Inject;
 
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.modules.email.Email;
@@ -18,9 +18,9 @@ import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.test.common.AbstractSalesManagerCoreTestCase;
 import com.salesmanager.test.configuration.ConfigurationTest;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = {ConfigurationTest.class})
-@Ignore
+@Disabled
 public class SendEmailTest extends AbstractSalesManagerCoreTestCase {
   
   @Inject

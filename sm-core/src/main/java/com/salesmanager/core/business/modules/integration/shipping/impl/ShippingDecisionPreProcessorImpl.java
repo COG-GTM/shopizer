@@ -10,12 +10,9 @@ import jakarta.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-import org.kie.api.runtime.KieSession;
-import org.kie.internal.io.ResourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.salesmanager.core.business.configuration.DroolsBeanFactory;
 import com.salesmanager.core.model.common.Delivery;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.shipping.PackageDetails;
@@ -38,9 +35,6 @@ public class ShippingDecisionPreProcessorImpl implements ShippingQuotePrePostPro
 	private static final Logger LOGGER = LoggerFactory.getLogger(ShippingDecisionPreProcessorImpl.class);
 	
 	private final static String MODULE_CODE = "shippingDecisionModule";
-	
-	@Inject
-	private DroolsBeanFactory droolsBeanFactory;
 	
 	//private StatelessKnowledgeSession shippingMethodDecision;
 	
@@ -140,13 +134,8 @@ public class ShippingDecisionPreProcessorImpl implements ShippingQuotePrePostPro
 		 * New code
 		 */
 		
-		KieSession kieSession=droolsBeanFactory.getKieSession(ResourceFactory.newClassPathResource("com/salesmanager/drools/rules/ShippingDecision.drl"));
-		
 		DecisionResponse resp = new DecisionResponse();
-		
-        kieSession.insert(inputParameters);
-        kieSession.setGlobal("decision",resp);
-        kieSession.fireAllRules();
+		ShippingDecisionRules.apply(inputParameters, resp);
         //System.out.println(resp.getModuleName());
         inputParameters.setModuleName(resp.getModuleName());
 

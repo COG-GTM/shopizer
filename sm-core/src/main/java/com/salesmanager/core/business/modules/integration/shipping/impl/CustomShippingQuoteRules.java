@@ -10,12 +10,9 @@ import jakarta.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-import org.kie.api.runtime.KieSession;
-import org.kie.internal.io.ResourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.salesmanager.core.business.configuration.DroolsBeanFactory;
 import com.salesmanager.core.model.common.Delivery;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.shipping.PackageDetails;
@@ -34,9 +31,6 @@ import com.salesmanager.core.modules.integration.shipping.model.ShippingQuoteMod
 public class CustomShippingQuoteRules implements ShippingQuoteModule {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(CustomShippingQuoteRules.class);
-	
-	@Inject
-	private DroolsBeanFactory droolsBeanFactory;
 
 	public final static String MODULE_CODE = "customQuotesRules";
 
@@ -142,13 +136,8 @@ public class CustomShippingQuoteRules implements ShippingQuoteModule {
 		LOGGER.debug("Setting input parameters " + inputParameters.toString());
 		
 		
-		KieSession kieSession=droolsBeanFactory.getKieSession(ResourceFactory.newClassPathResource("com/salesmanager/drools/rules/PriceByDistance.drl"));
-		
 		DecisionResponse resp = new DecisionResponse();
-		
-        kieSession.insert(inputParameters);
-        kieSession.setGlobal("decision",resp);
-        kieSession.fireAllRules();
+		PriceByDistanceRules.apply(inputParameters, resp);
         //System.out.println(resp.getCustomPrice());
 
 		if(resp.getCustomPrice() != null) {
