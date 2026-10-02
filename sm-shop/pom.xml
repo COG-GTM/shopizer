@@ -97,8 +97,15 @@
 		</dependency>
 
 		<dependency>
-			<groupId>io.swagger</groupId>
-			<artifactId>swagger-annotations</artifactId>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<exclusions>
+				<!-- keep Bean Validation runtime off the classpath (Hibernate would start validating entities on persist) -->
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-validation</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>

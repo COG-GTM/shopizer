@@ -55,18 +55,16 @@ import com.salesmanager.shop.store.security.services.CredentialsException;
 import com.salesmanager.shop.store.security.services.CredentialsService;
 import com.salesmanager.shop.utils.AuthorizationUtils;
 import com.salesmanager.shop.utils.LocaleUtils;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.SwaggerDefinition;
-import io.swagger.annotations.Tag;
-import io.swagger.annotations.ApiParam;
 
 @RestController
 @RequestMapping("/api/v1")
-@Api(tags = { "Ordering api (Order Flow Api)" })
-@SwaggerDefinition(tags = { @Tag(name = "Order flow resource", description = "Manage orders (create, list, get)") })
+@Tag(name = "Ordering api (Order Flow Api)", description = "Manage orders (create, list, get)")
 public class OrderApi {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(OrderApi.class);
@@ -112,12 +110,12 @@ public class OrderApi {
 	@RequestMapping(value = { "/private/orders/customers/{id}" }, method = RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "string", defaultValue = "en") })
+	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
 	public ReadableOrderList list(@PathVariable final Long id,
 			@RequestParam(value = "start", required = false) Integer start,
-			@RequestParam(value = "count", required = false) Integer count, @ApiParam(hidden = true) MerchantStore merchantStore,
-			@ApiParam(hidden = true) Language language, HttpServletResponse response) throws Exception {
+			@RequestParam(value = "count", required = false) Integer count, @Parameter(hidden = true) MerchantStore merchantStore,
+			@Parameter(hidden = true) Language language, HttpServletResponse response) throws Exception {
 
 		Customer customer = customerService.getById(id);
 
@@ -165,11 +163,11 @@ public class OrderApi {
 	@RequestMapping(value = { "/auth/orders" }, method = RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "string", defaultValue = "en") })
+	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
 	public ReadableOrderList list(@RequestParam(value = "page", required = false) Integer page,
-			@RequestParam(value = "count", required = false) Integer count, @ApiParam(hidden = true) MerchantStore merchantStore,
-			@ApiParam(hidden = true) Language language, HttpServletRequest request, HttpServletResponse response) throws Exception {
+			@RequestParam(value = "count", required = false) Integer count, @Parameter(hidden = true) MerchantStore merchantStore,
+			@Parameter(hidden = true) Language language, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
 		Principal principal = request.getUserPrincipal();
 		String userName = principal.getName();
@@ -228,8 +226,8 @@ public class OrderApi {
 			@RequestParam(value = "status", required = false) String status,
 			@RequestParam(value = "phone", required = false) String phone,
 			@RequestParam(value = "email", required = false) String email,
-			@ApiParam(hidden = true) MerchantStore merchantStore,
-			@ApiParam(hidden = true) Language language) {
+			@Parameter(hidden = true) MerchantStore merchantStore,
+			@Parameter(hidden = true) Language language) {
 
 		OrderCriteria orderCriteria = new OrderCriteria();
 		orderCriteria.setPageSize(count);
@@ -263,12 +261,12 @@ public class OrderApi {
 	@RequestMapping(value = { "/private/orders/{id}" }, method = RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "string", defaultValue = "en") })
+	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
 	public ReadableOrder get(
 			@PathVariable final Long id,
-			@ApiParam(hidden = true) MerchantStore merchantStore,
-			@ApiParam(hidden = true) Language language) {
+			@Parameter(hidden = true) MerchantStore merchantStore,
+			@Parameter(hidden = true) Language language) {
 
 		String user = authorizationUtils.authenticatedUser();
 		authorizationUtils.authorizeUser(user, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN,
@@ -292,10 +290,10 @@ public class OrderApi {
 	@RequestMapping(value = { "/auth/orders/{id}" }, method = RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "string", defaultValue = "en") })
-	public ReadableOrder getOrder(@PathVariable final Long id, @ApiParam(hidden = true) MerchantStore merchantStore,
-			@ApiParam(hidden = true) Language language, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
+	public ReadableOrder getOrder(@PathVariable final Long id, @Parameter(hidden = true) MerchantStore merchantStore,
+			@Parameter(hidden = true) Language language, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		Principal principal = request.getUserPrincipal();
 		String userName = principal.getName();
 
@@ -343,13 +341,13 @@ public class OrderApi {
 	@RequestMapping(value = { "/auth/cart/{code}/checkout" }, method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "string", defaultValue = "en") })
+	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
 	public ReadableOrderConfirmation checkout(
 			@PathVariable final String code, //shopping cart
 			@Valid @RequestBody PersistableOrder order, // order
-			@ApiParam(hidden = true) MerchantStore merchantStore,
-			@ApiParam(hidden = true) Language language,
+			@Parameter(hidden = true) MerchantStore merchantStore,
+			@Parameter(hidden = true) Language language,
 			HttpServletRequest request,
 			HttpServletResponse response, Locale locale) throws Exception {
 
@@ -402,13 +400,13 @@ public class OrderApi {
 	@RequestMapping(value = { "/cart/{code}/checkout" }, method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "string", defaultValue = "en") })
+	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
 	public ReadableOrderConfirmation checkout(
 			@PathVariable final String code,//shopping cart
 			@Valid @RequestBody PersistableAnonymousOrder order,//order
-			@ApiParam(hidden = true) MerchantStore merchantStore,
-			@ApiParam(hidden = true) Language language) {
+			@Parameter(hidden = true) MerchantStore merchantStore,
+			@Parameter(hidden = true) Language language) {
 
 		Validate.notNull(order.getCustomer(), "Customer must not be null");
 
@@ -473,14 +471,13 @@ public class OrderApi {
 	@RequestMapping(value = { "/private/orders/{id}/customer" }, method = RequestMethod.PATCH)
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
-	@ApiImplicitParams({
-			@ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "string", defaultValue = "en") })
+	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
 	public void updateOrderCustomer(
 			@PathVariable final Long id,
 			@Valid @RequestBody PersistableCustomer orderCustomer,
-			@ApiParam(hidden = true) MerchantStore merchantStore,
-			@ApiParam(hidden = true) Language language) {
+			@Parameter(hidden = true) MerchantStore merchantStore,
+			@Parameter(hidden = true) Language language) {
 
 		String user = authorizationUtils.authenticatedUser();
 		authorizationUtils.authorizeUser(user, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN,
@@ -494,14 +491,13 @@ public class OrderApi {
 	@RequestMapping(value = { "/private/orders/{id}/status" }, method = RequestMethod.PUT)
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
-	@ApiImplicitParams({
-			@ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "string", defaultValue = "en") })
+	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
 	public void updateOrderStatus(
 			@PathVariable final Long id,
 			@Valid @RequestBody String status,
-			@ApiParam(hidden = true) MerchantStore merchantStore,
-			@ApiParam(hidden = true) Language language) {
+			@Parameter(hidden = true) MerchantStore merchantStore,
+			@Parameter(hidden = true) Language language) {
 
 		String user = authorizationUtils.authenticatedUser();
 		authorizationUtils.authorizeUser(user, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN,

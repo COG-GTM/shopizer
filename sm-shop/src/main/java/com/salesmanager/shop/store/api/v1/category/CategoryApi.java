@@ -36,22 +36,20 @@ import com.salesmanager.shop.model.entity.ListCriteria;
 import com.salesmanager.shop.store.api.exception.UnauthorizedException;
 import com.salesmanager.shop.store.controller.category.facade.CategoryFacade;
 import com.salesmanager.shop.store.controller.user.facade.UserFacade;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import io.swagger.annotations.SwaggerDefinition;
-import io.swagger.annotations.Tag;
-import io.swagger.annotations.ApiParam;
 
 @RestController
 @RequestMapping(value = "/api/v1")
-@Api(tags = { "Category management resource (Category Management Api)" })
-@SwaggerDefinition(tags = {
-		@Tag(name = "Category management resource", description = "Manage category and attached products") })
+@Tag(name = "Category management resource (Category Management Api)", description = "Manage category and attached products")
 public class CategoryApi {
 
 	private static final int DEFAULT_CATEGORY_DEPTH = 0;
@@ -63,42 +61,40 @@ public class CategoryApi {
 	private UserFacade userFacade;
 
 	@GetMapping(value = "/category/{id}", produces = { APPLICATION_JSON_VALUE })
-	@ApiOperation(httpMethod = "GET", value = "Get category list for an given Category id", notes = "List current Category and child category")
+	@Operation(summary = "Get category list for an given Category id", description = "List current Category and child category")
 	@ApiResponses(value = {
-			@ApiResponse(code = 200, message = "List of category found", response = ReadableCategory.class) })
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "string", defaultValue = "en") })
+			@ApiResponse(responseCode = "200", description = "List of category found", content = @Content(schema = @Schema(implementation = ReadableCategory.class))) })
+	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
 	public ReadableCategory get(
 			@PathVariable(name = "id") Long categoryId, 
-			@ApiParam(hidden = true) MerchantStore merchantStore,
-			@ApiParam(hidden = true) Language language) {
+			@Parameter(hidden = true) MerchantStore merchantStore,
+			@Parameter(hidden = true) Language language) {
 		ReadableCategory category = categoryFacade.getById(merchantStore, categoryId, language);
 		return category;
 	}
 
 	@GetMapping(value = "/category/{friendlyUrl}", produces = { APPLICATION_JSON_VALUE })
-	@ApiOperation(httpMethod = "GET", value = "Get category list for an given Category code", notes = "List current Category and child category")
+	@Operation(summary = "Get category list for an given Category code", description = "List current Category and child category")
 	@ApiResponses(value = {
-			@ApiResponse(code = 200, message = "List of category found", response = ReadableCategory.class) })
-	@ApiImplicitParams({
-			@ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "string", defaultValue = "en")
-	})
+			@ApiResponse(responseCode = "200", description = "List of category found", content = @Content(schema = @Schema(implementation = ReadableCategory.class))) })
+	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
 	public ReadableCategory getByfriendlyUrl(
 								@PathVariable(name = "friendlyUrl") String friendlyUrl,
-								@ApiParam(hidden = true) MerchantStore merchantStore,
-								@ApiParam(hidden = true) Language language) throws Exception {
+								@Parameter(hidden = true) MerchantStore merchantStore,
+								@Parameter(hidden = true) Language language) throws Exception {
 		ReadableCategory category = categoryFacade.getCategoryByFriendlyUrl(merchantStore, friendlyUrl, language);
 		return category;
 	}
 
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping(value = { "/private/category/unique" }, produces = MediaType.APPLICATION_JSON_VALUE)
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "string", defaultValue = "en") })
-	@ApiOperation(httpMethod = "GET", value = "Check if category code already exists", notes = "", response = EntityExists.class)
+	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
+	@Operation(summary = "Check if category code already exists")
 	public ResponseEntity<EntityExists> exists(@RequestParam(value = "code") String code,
-			@ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language) {
+			@Parameter(hidden = true) MerchantStore merchantStore, @Parameter(hidden = true) Language language) {
 		boolean isCategoryExist = categoryFacade.existByCode(merchantStore, code);
 		return new ResponseEntity<EntityExists>(new EntityExists(isCategoryExist), HttpStatus.OK);
 	}
@@ -110,14 +106,14 @@ public class CategoryApi {
 	 * @return
 	 */
 	@GetMapping(value = "/category", produces = { APPLICATION_JSON_VALUE })
-	@ApiOperation(httpMethod = "GET", value = "Get category hierarchy from root. Supports filtering FEATURED_CATEGORIES and VISIBLE ONLY by adding ?filter=[featured] or ?filter=[visible] or ? filter=[featured,visible", notes = "Does not return any product attached")
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "string", defaultValue = "en") })
+	@Operation(summary = "Get category hierarchy from root. Supports filtering FEATURED_CATEGORIES and VISIBLE ONLY by adding ?filter=[featured] or ?filter=[visible] or ? filter=[featured,visible", description = "Does not return any product attached")
+	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
 	public ReadableCategoryList list(
 			@RequestParam(value = "filter", required = false) List<String> filter,
 			@RequestParam(value = "name", required = false) String name,
-			@ApiParam(hidden = true) MerchantStore merchantStore,
-			@ApiParam(hidden = true) Language language,
+			@Parameter(hidden = true) MerchantStore merchantStore,
+			@Parameter(hidden = true) Language language,
 			@RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
 			@RequestParam(value = "count", required = false, defaultValue = "10") Integer count) {
 
@@ -130,13 +126,13 @@ public class CategoryApi {
 	
 	
 	@GetMapping(value = "/category/product/{ProductId}", produces = { APPLICATION_JSON_VALUE })
-	@ApiOperation(httpMethod = "GET", value = "Get category by product", notes = "")
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "string", defaultValue = "en") })
+	@Operation(summary = "Get category by product")
+	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
 	public ReadableCategoryList list(
 			@PathVariable(name = "ProductId") Long id,
-			@ApiParam(hidden = true) MerchantStore merchantStore,
-			@ApiParam(hidden = true) Language lang) {
+			@Parameter(hidden = true) MerchantStore merchantStore,
+			@Parameter(hidden = true) Language lang) {
 
 
 		return categoryFacade.listByProduct(merchantStore, id, lang);
@@ -145,12 +141,12 @@ public class CategoryApi {
 
 	@ResponseStatus(HttpStatus.CREATED)
 	@PostMapping(value = "/private/category", produces = { APPLICATION_JSON_VALUE })
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "string", defaultValue = "en") })
+	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
 	public PersistableCategory create(
 			@Valid @RequestBody PersistableCategory category,
-			@ApiParam(hidden = true) MerchantStore merchantStore,
-			@ApiParam(hidden = true) Language language) {
+			@Parameter(hidden = true) MerchantStore merchantStore,
+			@Parameter(hidden = true) Language language) {
 
 		// superadmin, admin and admin_catalogue
 		String authenticatedUser = userFacade.authenticatedUser();
@@ -164,9 +160,9 @@ public class CategoryApi {
 	}
 
 	@PutMapping(value = "/private/category/{id}", produces = { APPLICATION_JSON_VALUE })
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT") })
+	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")) })
 	public PersistableCategory update(@PathVariable Long id, @Valid @RequestBody PersistableCategory category,
-			@ApiParam(hidden = true) MerchantStore merchantStore) {
+			@Parameter(hidden = true) MerchantStore merchantStore) {
 
 		// superadmin, admin and admin_catalogue
 		String authenticatedUser = userFacade.authenticatedUser();
@@ -182,9 +178,9 @@ public class CategoryApi {
 	}
 
 	@PatchMapping(value = "/private/category/{id}/visible", produces = { APPLICATION_JSON_VALUE })
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT") })
+	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")) })
 	public void updateVisible(@PathVariable Long id, @Valid @RequestBody PersistableCategory category,
-			@ApiParam(hidden = true) MerchantStore merchantStore
+			@Parameter(hidden = true) MerchantStore merchantStore
 			) {
 
 		// superadmin, admin and admin_catalogue
@@ -200,12 +196,12 @@ public class CategoryApi {
 	}
 
 	@PutMapping(value = "/private/category/{id}/move/{parent}", produces = { APPLICATION_JSON_VALUE })
-	@ApiOperation(httpMethod = "PUT", value = "Move a category under another category", notes = "Move category {id} under category {parent}")
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT") })
+	@Operation(summary = "Move a category under another category", description = "Move category {id} under category {parent}")
+	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")) })
 	public void move(
 			@PathVariable Long id,
 			@PathVariable Long parent,
-			@ApiParam(hidden = true) MerchantStore merchantStore) {
+			@Parameter(hidden = true) MerchantStore merchantStore) {
 		// superadmin, admin and admin_catalogue
 		String authenticatedUser = userFacade.authenticatedUser();
 		if (authenticatedUser == null) {
@@ -221,7 +217,7 @@ public class CategoryApi {
 
 	@DeleteMapping(value = "/private/category/{id}", produces = { APPLICATION_JSON_VALUE })
 	@ResponseStatus(OK)
-	public void delete(@PathVariable("id") Long categoryId, @ApiParam(hidden = true) MerchantStore merchantStore) {
+	public void delete(@PathVariable("id") Long categoryId, @Parameter(hidden = true) MerchantStore merchantStore) {
 
 		// superadmin, admin and admin_catalogue
 		String authenticatedUser = userFacade.authenticatedUser();

@@ -23,19 +23,16 @@ import com.salesmanager.shop.model.catalog.product.inventory.ReadableInventory;
 import com.salesmanager.shop.model.entity.ReadableEntityList;
 import com.salesmanager.shop.store.api.exception.RestApiException;
 import com.salesmanager.shop.store.controller.product.facade.ProductInventoryFacade;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.SwaggerDefinition;
-import io.swagger.annotations.Tag;
-import io.swagger.annotations.ApiParam;
 
 @Controller
 @RequestMapping("/api/v1")
-@Api(tags = { "Product inventory resource (Product Inventory Api)" })
-@SwaggerDefinition(tags = {
-		@Tag(name = "Product inventory resource", description = "Manage inventory for a given product") })
+@Tag(name = "Product inventory resource (Product Inventory Api)", description = "Manage inventory for a given product")
 public class ProductInventoryApi {
 
 	@Autowired
@@ -45,24 +42,24 @@ public class ProductInventoryApi {
 
 	@ResponseStatus(HttpStatus.CREATED)
 	@RequestMapping(value = { "/private/product/{productId}/inventory" }, method = RequestMethod.POST)
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
+	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
 	public @ResponseBody ReadableInventory create(@PathVariable Long productId,
-			@Valid @RequestBody PersistableInventory inventory, @ApiParam(hidden = true) MerchantStore merchantStore,
-			@ApiParam(hidden = true) Language language) {
+			@Valid @RequestBody PersistableInventory inventory, @Parameter(hidden = true) MerchantStore merchantStore,
+			@Parameter(hidden = true) Language language) {
 		inventory.setProductId(productId);
 		return productInventoryFacade.add(inventory, merchantStore, language);
 	}
 
 	@ResponseStatus(HttpStatus.OK)
 	@RequestMapping(value = { "/private/product/{productId}/inventory/{id}" }, method = RequestMethod.PUT)
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
+	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
 	public void update(
 			@PathVariable Long productId, 
 			@PathVariable Long id,
-			@Valid @RequestBody PersistableInventory inventory, @ApiParam(hidden = true) MerchantStore merchantStore,
-			@ApiParam(hidden = true) Language language) {
+			@Valid @RequestBody PersistableInventory inventory, @Parameter(hidden = true) MerchantStore merchantStore,
+			@Parameter(hidden = true) Language language) {
 		inventory.setId(id);
 		inventory.setProductId(inventory.getProductId());
 		inventory.setVariant(inventory.getVariant());
@@ -73,13 +70,13 @@ public class ProductInventoryApi {
 
 	@ResponseStatus(HttpStatus.OK)
 	@RequestMapping(value = { "/private/product/{productId}/inventory/{id}" }, method = RequestMethod.DELETE)
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
+	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
 	public void delete(
 			@PathVariable Long productId, 
 			@PathVariable Long id, 
-			@ApiParam(hidden = true) MerchantStore merchantStore, 
-			@ApiParam(hidden = true) Language language) {
+			@Parameter(hidden = true) MerchantStore merchantStore, 
+			@Parameter(hidden = true) Language language) {
 
 		productInventoryFacade.delete(productId, id, merchantStore);
 
@@ -87,12 +84,12 @@ public class ProductInventoryApi {
 
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping(value = { "/private/product/{sku}/inventory" })
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
+	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
 	public @ResponseBody ReadableEntityList<ReadableInventory> getBySku(
 			@PathVariable String sku,
-			@ApiParam(hidden = true) MerchantStore merchantStore, 
-			@ApiParam(hidden = true) Language language,
+			@Parameter(hidden = true) MerchantStore merchantStore, 
+			@Parameter(hidden = true) Language language,
 			@RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
 			@RequestParam(value = "count", required = false, defaultValue = "10") Integer count) {
 
@@ -102,12 +99,12 @@ public class ProductInventoryApi {
 	
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping(value = { "/private/product/inventory" })
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
+	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
 	public @ResponseBody ReadableEntityList<ReadableInventory> getByProductId(
 			@RequestParam Long productId,
-			@ApiParam(hidden = true) MerchantStore merchantStore, 
-			@ApiParam(hidden = true) Language language,
+			@Parameter(hidden = true) MerchantStore merchantStore, 
+			@Parameter(hidden = true) Language language,
 			@RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
 			@RequestParam(value = "count", required = false, defaultValue = "10") Integer count) {
 		

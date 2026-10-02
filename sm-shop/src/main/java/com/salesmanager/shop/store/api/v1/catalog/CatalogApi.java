@@ -10,7 +10,6 @@ import com.salesmanager.shop.model.entity.EntityExists;
 import com.salesmanager.shop.model.entity.ReadableEntityList;
 import com.salesmanager.shop.store.api.exception.ResourceNotFoundException;
 import com.salesmanager.shop.store.controller.catalog.facade.CatalogFacade;
-import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,18 +17,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import io.swagger.annotations.ApiParam;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.Optional;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping(value = "/api/v1")
-@Api(tags = {"Catalog management resource (Catalog Management Api)"})
-@SwaggerDefinition(tags = {
-    @Tag(name = "Catalog management resource", description = "Manage catalogs and attached products")
-})
+@Tag(name = "Catalog management resource (Catalog Management Api)", description = "Manage catalogs and attached products")
 public class CatalogApi {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CatalogApi.class);
@@ -40,13 +41,11 @@ public class CatalogApi {
 
   @GetMapping(value = "/private/catalogs")
   @ResponseStatus(HttpStatus.OK)
-  @ApiOperation(httpMethod = "GET", value = "Get catalogs by merchant", notes = "",
-      response = ReadableEntityList.class)
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-      @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en")})
+  @Operation(summary = "Get catalogs by merchant")
+  @Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
   public ReadableEntityList<ReadableCatalog> getCatalogs(
-      @ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language,
+      @Parameter(hidden = true) MerchantStore merchantStore, @Parameter(hidden = true) Language language,
       Optional<String> code,
       @RequestParam(value = "page", required = false, defaultValue="0") Integer page,
       @RequestParam(value = "count", required = false, defaultValue="10") Integer count) {
@@ -58,16 +57,13 @@ public class CatalogApi {
 
   @ResponseStatus(HttpStatus.OK)
   @GetMapping(value = {"/private/catalog/unique"}, produces = MediaType.APPLICATION_JSON_VALUE)
-  @ApiImplicitParams({
-    @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT"),
-    @ApiImplicitParam(name = "lang", dataType = "string", defaultValue = "en")
-  })
-  @ApiOperation(httpMethod = "GET", value = "Check if catalog code already exists", notes = "",
-      response = EntityExists.class)
+  @Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
+  @Operation(summary = "Check if catalog code already exists")
   public ResponseEntity<EntityExists> exists(
       @RequestParam(value = "code") String code,
-      @ApiParam(hidden = true) MerchantStore merchantStore,
-      @ApiParam(hidden = true) Language language) {
+      @Parameter(hidden = true) MerchantStore merchantStore,
+      @Parameter(hidden = true) Language language) {
       boolean existByCode = catalogFacade.uniqueCatalog(code, merchantStore);
       return new ResponseEntity<EntityExists>(new EntityExists(existByCode), HttpStatus.OK);
   }
@@ -75,14 +71,12 @@ public class CatalogApi {
 
   @PostMapping(value = "/private/catalog")
   @ResponseStatus(HttpStatus.OK)
-  @ApiOperation(httpMethod = "POST", value = "Create catalog", notes = "",
-      response = Void.class)
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-      @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en")})
+  @Operation(summary = "Create catalog")
+  @Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
   public ReadableCatalog createCatalog(
       @RequestBody @Valid PersistableCatalog catalog,
-      @ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language) {
+      @Parameter(hidden = true) MerchantStore merchantStore, @Parameter(hidden = true) Language language) {
 
 	  return catalogFacade.saveCatalog(catalog, merchantStore, language);
 
@@ -90,15 +84,13 @@ public class CatalogApi {
 
   @PatchMapping(value = "/private/catalog/{id}")
   @ResponseStatus(HttpStatus.OK)
-  @ApiOperation(httpMethod = "PATCH", value = "Update catalog", notes = "",
-      response = Void.class)
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-      @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en")})
+  @Operation(summary = "Update catalog")
+  @Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
   public void updateCatalog(
 	  @PathVariable Long id,
       @RequestBody @Valid PersistableCatalog catalog,
-      @ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language) {
+      @Parameter(hidden = true) MerchantStore merchantStore, @Parameter(hidden = true) Language language) {
 
 	  catalog.setId(id);
 	  catalogFacade.updateCatalog(id, catalog, merchantStore, language);
@@ -107,14 +99,12 @@ public class CatalogApi {
 
   @GetMapping(value = "/private/catalog/{id}")
   @ResponseStatus(HttpStatus.OK)
-  @ApiOperation(httpMethod = "GET", value = "Get catalog", notes = "",
-      response = Void.class)
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-      @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en")})
+  @Operation(summary = "Get catalog")
+  @Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
   public ReadableCatalog getCatalog(
 	  @PathVariable Long id,
-      @ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language) {
+      @Parameter(hidden = true) MerchantStore merchantStore, @Parameter(hidden = true) Language language) {
 
 	  return catalogFacade.getCatalog(id, merchantStore, language);
 
@@ -123,30 +113,26 @@ public class CatalogApi {
 
 
   @DeleteMapping(value = "/private/catalog/{id}")
-  @ApiOperation(httpMethod = "DELETE", value = "Deletes a catalog", notes = "",
-  response = Void.class)
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-      @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en")})
+  @Operation(summary = "Deletes a catalog")
+  @Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
   public void deleteCatalog(
       @PathVariable Long id,
-      @ApiParam(hidden = true) MerchantStore merchantStore,
-      @ApiParam(hidden = true) Language language) {
+      @Parameter(hidden = true) MerchantStore merchantStore,
+      @Parameter(hidden = true) Language language) {
 
 	  catalogFacade.deleteCatalog(id, merchantStore, language);
   }
 
   @PostMapping(value = "/private/catalog/{id}")
   @ResponseStatus(HttpStatus.OK)
-  @ApiOperation(httpMethod = "POST", value = "Add catalog entry to catalog", notes = "",
-      response = ReadableCatalogCategoryEntry.class)
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-      @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en")})
+  @Operation(summary = "Add catalog entry to catalog")
+  @Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
   public ReadableCatalogCategoryEntry addCatalogEntry(
       @PathVariable Long id,
 	  @RequestBody @Valid PersistableCatalogCategoryEntry catalogEntry,
-      @ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language) {
+      @Parameter(hidden = true) MerchantStore merchantStore, @Parameter(hidden = true) Language language) {
 
 
 
@@ -164,15 +150,13 @@ public class CatalogApi {
 
   @DeleteMapping(value = "/private/catalog/{id}/entry/{entryId}")
   @ResponseStatus(HttpStatus.OK)
-  @ApiOperation(httpMethod = "DELETE", value = "Remove catalog entry from catalog", notes = "",
-      response = Void.class)
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-      @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en")})
+  @Operation(summary = "Remove catalog entry from catalog")
+  @Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
   public void removeCatalogEntry(
       @PathVariable Long id,
       @PathVariable Long entryId,
-      @ApiParam(hidden = true) MerchantStore merchantStore, @ApiParam(hidden = true) Language language) {
+      @Parameter(hidden = true) MerchantStore merchantStore, @Parameter(hidden = true) Language language) {
 
 
 	  catalogFacade.removeCatalogEntry(id, entryId, merchantStore, language);
@@ -183,15 +167,13 @@ public class CatalogApi {
 
   @GetMapping(value = "/private/catalog/{id}/entry")
   @ResponseStatus(HttpStatus.OK)
-  @ApiOperation(httpMethod = "GET", value = "Get catalog entry by catalog", notes = "",
-      response = ReadableEntityList.class)
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-      @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en")})
+  @Operation(summary = "Get catalog entry by catalog")
+  @Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
   public ReadableEntityList<ReadableCatalogCategoryEntry> getCatalogEntry(
 	  @PathVariable(value="id") Long id,
-      @ApiParam(hidden = true) MerchantStore merchantStore,
-      @ApiParam(hidden = true) Language language,
+      @Parameter(hidden = true) MerchantStore merchantStore,
+      @Parameter(hidden = true) Language language,
       @RequestParam(value = "page", required = false, defaultValue="0") Integer page,
       @RequestParam(value = "count", required = false, defaultValue="10") Integer count,
       HttpServletRequest request) {

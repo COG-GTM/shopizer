@@ -26,10 +26,8 @@ import com.salesmanager.shop.store.security.AuthenticationRequest;
 import com.salesmanager.shop.store.security.AuthenticationResponse;
 import com.salesmanager.shop.store.security.JWTTokenUtil;
 import com.salesmanager.shop.store.security.user.JWTUser;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.SwaggerDefinition;
-import io.swagger.annotations.Tag;
 
 /**
  * Authenticates a User (Administration purpose)
@@ -38,9 +36,7 @@ import io.swagger.annotations.Tag;
  */
 @Controller
 @RequestMapping("/api/v1")
-@Api(tags = { "User authentication Api" })
-@SwaggerDefinition(tags = {
-		@Tag(name = "User authentication resource", description = "Login for administrator users") })
+@Tag(name = "User authentication Api", description = "Login for administrator users")
 public class AuthenticateUserApi {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticateUserApi.class);
