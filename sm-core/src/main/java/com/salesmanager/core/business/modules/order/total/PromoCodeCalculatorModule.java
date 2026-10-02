@@ -5,12 +5,9 @@ import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-import org.kie.api.runtime.KieSession;
-import org.kie.internal.io.ResourceFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.salesmanager.core.business.configuration.DroolsBeanFactory;
 import com.salesmanager.core.business.constants.Constants;
 import com.salesmanager.core.business.services.catalog.pricing.PricingService;
 import com.salesmanager.core.model.catalog.product.Product;
@@ -25,10 +22,6 @@ import com.salesmanager.core.modules.order.total.OrderTotalPostProcessorModule;
 
 @Component
 public class PromoCodeCalculatorModule implements OrderTotalPostProcessorModule {
-	
-	
-	@Autowired
-	private DroolsBeanFactory droolsBeanFactory;
 	
 	@Autowired
 	private PricingService pricingService;
@@ -70,17 +63,13 @@ public class PromoCodeCalculatorModule implements OrderTotalPostProcessorModule 
 			return null;
 		}
 		
-		KieSession kieSession=droolsBeanFactory.getKieSession(ResourceFactory.newClassPathResource("com/salesmanager/drools/rules/PromoCoupon.drl"));
-		
 		OrderTotalResponse resp = new OrderTotalResponse();
 		
 		OrderTotalInputParameters inputParameters = new OrderTotalInputParameters();
 		inputParameters.setPromoCode(summary.getPromoCode());
 		inputParameters.setDate(new Date());
 		
-        kieSession.insert(inputParameters);
-        kieSession.setGlobal("total",resp);
-        kieSession.fireAllRules();
+		PromoCouponRules.apply(inputParameters, resp);
 
 		if(resp.getDiscount() != null) {
 			

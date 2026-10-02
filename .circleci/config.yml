@@ -28,6 +28,22 @@ jobs:
       - run:
           name: Build and test
           command: ./mvnw -B clean install
+      - run:
+          name: SpotBugs report
+          command: ./mvnw -B spotbugs:spotbugs
+      - run:
+          name: Collect test and SpotBugs reports
+          command: |
+            mkdir -p ~/reports/junit ~/reports/spotbugs
+            find . -path '*/target/surefire-reports/*.xml' -exec cp {} ~/reports/junit/ \;
+            for m in sm-core-model sm-core sm-core-modules sm-shop-model sm-shop; do
+              if [ -f $m/target/spotbugsXml.xml ]; then cp $m/target/spotbugsXml.xml ~/reports/spotbugs/$m.xml; fi
+            done
+          when: always
+      - store_test_results:
+          path: ~/reports/junit
+      - store_artifacts:
+          path: ~/reports/spotbugs
       - save_cache:
           key: m2-{{ checksum "pom.xml" }}
           paths:
