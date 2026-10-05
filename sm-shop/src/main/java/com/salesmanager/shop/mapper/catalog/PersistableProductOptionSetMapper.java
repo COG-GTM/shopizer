@@ -54,7 +54,9 @@ public class PersistableProductOptionSetMapper implements Mapper<PersistableProd
 								  MerchantStore store, Language language) {
 		Validate.notNull(destination, "ProductOptionSet must not be null");
 		
-		destination.setId(source.getId());
+		if (source.getId() != null && source.getId() > 0) {
+			destination.setId(source.getId());
+		}
 		destination.setCode(source.getCode());
 		destination.setOptionDisplayOnly(source.isReadOnly());
 		

@@ -37,7 +37,9 @@ public class PersistableProductVariationMapper implements Mapper<PersistableProd
 			Language language) {
 		Validate.notNull(destination, "ProductVariation cannot be null");
 		
-		destination.setId(source.getId());
+		if (source.getId() != null && source.getId() > 0) {
+			destination.setId(source.getId());
+		}
 		destination.setCode(source.getCode());
 		destination.setMerchantStore(store);
 		
