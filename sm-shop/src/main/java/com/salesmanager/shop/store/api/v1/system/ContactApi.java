@@ -1,5 +1,11 @@
 package com.salesmanager.shop.store.api.v1.system;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Locale;
 
 import jakarta.inject.Inject;
@@ -19,20 +25,10 @@ import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.shop.model.shop.ContactForm;
 import com.salesmanager.shop.utils.EmailTemplatesUtils;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.SwaggerDefinition;
-import io.swagger.annotations.Tag;
-import springfox.documentation.annotations.ApiIgnore;
 
 @RestController
 @RequestMapping("/api/v1")
-@Api(tags = {"Contact form api"})
-@SwaggerDefinition(tags = {
-    @Tag(name = "Contact store resource", description = "Contact form")
-})
+@Tag(name = "Contact form api", description = "Contact form")
 public class ContactApi {
 
 
@@ -41,19 +37,15 @@ public class ContactApi {
   @Inject private EmailTemplatesUtils emailTemplatesUtils;
 
   @PostMapping("/contact")
-  @ApiOperation(
-      httpMethod = "POST",
-      value = "Sends an email contact us to store owner",
-      notes = "",
-      produces = "application/json")
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-      @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en")
+  @Operation(summary = "Sends an email contact us to store owner", description = "")
+  @Parameters({
+      @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+      @Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en"))
   })
   public ResponseEntity<Void> contact(
       @Valid @RequestBody ContactForm contact,
-      @ApiIgnore MerchantStore merchantStore,
-      @ApiIgnore Language language,
+      @Parameter(hidden = true) MerchantStore merchantStore,
+      @Parameter(hidden = true) Language language,
       HttpServletRequest request) {
     Locale locale = languageService.toLocale(language, merchantStore);
     emailTemplatesUtils.sendContactEmail(contact, merchantStore, locale, request.getContextPath());
