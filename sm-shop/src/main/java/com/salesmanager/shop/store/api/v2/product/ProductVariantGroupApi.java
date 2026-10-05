@@ -1,5 +1,6 @@
 package com.salesmanager.shop.store.api.v2.product;
 
+import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -14,7 +15,6 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,7 +40,7 @@ import com.salesmanager.shop.store.controller.product.facade.ProductVariantGroup
 import com.salesmanager.shop.store.controller.user.facade.UserFacade;
 
 
-@Controller
+@RestController
 @RequestMapping("/api/v2")
 @Tag(name = "Product instances group api", description = "Manage product instances group")
 public class ProductVariantGroupApi {

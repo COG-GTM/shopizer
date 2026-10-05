@@ -1,5 +1,6 @@
 package com.salesmanager.shop.store.api.v2.product;
 
+import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -20,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -54,7 +54,7 @@ import com.salesmanager.shop.store.controller.user.facade.UserFacade;
  * @author carlsamson
  *
  */
-@Controller
+@RestController
 @RequestMapping("/api/v2")
 @Tag(name = "Product variants api", description = "Manage inventory for a given product")
 public class ProductVariantApi {

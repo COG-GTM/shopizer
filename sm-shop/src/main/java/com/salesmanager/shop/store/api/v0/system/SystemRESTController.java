@@ -1,6 +1,7 @@
 package com.salesmanager.shop.store.api.v0.system;
 
 
+import org.springframework.web.bind.annotation.RestController;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -21,7 +22,7 @@ import com.salesmanager.core.business.utils.ajax.AjaxResponse;
  * @author Carl Samson
  *
  */
-@Controller
+@RestController
 @RequestMapping("/services")
 public class SystemRESTController {
 	

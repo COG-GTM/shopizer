@@ -1,6 +1,7 @@
 package com.salesmanager.shop.store.api.v0.store;
 
 
+import org.springframework.web.bind.annotation.RestController;
 import java.util.Locale;
 import java.util.Map;
 
@@ -39,7 +40,7 @@ import com.salesmanager.shop.utils.LocaleUtils;
  * @author Carl Samson
  *
  */
-@Controller
+@RestController
 @RequestMapping("/services")
 public class StoreContactRESTController {
 	
