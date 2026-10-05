@@ -9,16 +9,14 @@
    http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd
    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
    http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
-   http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
-   http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring/ehcache-spring.xsd">
+   http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
 
-	<bean id="springCacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
-		<property name="configLocation" value="classpath:/spring/ehcache.xml" />
-		<property name="shared" value="false" />
+	<bean id="springCacheManager" class="org.springframework.cache.jcache.JCacheManagerFactoryBean">
+		<property name="cacheManagerUri" value="classpath:/spring/ehcache.xml" />
 	</bean>
 
-	<bean id="serviceCacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager">
+	<bean id="serviceCacheManager" class="org.springframework.cache.jcache.JCacheCacheManager">
 		<property name="cacheManager">
 			<ref bean="springCacheManager" />
 		</property>
