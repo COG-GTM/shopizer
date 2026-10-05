@@ -1,5 +1,6 @@
 package com.salesmanager.shop.store.api.v1.user;
 
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,7 +20,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -35,7 +35,7 @@ import com.salesmanager.shop.store.security.user.JWTUser;
  * @author c.samson
  *
  */
-@Controller
+@RestController
 @RequestMapping("/api/v1")
 @Tag(name = "User authentication Api", description = "Login for administrator users")
 public class AuthenticateUserApi {

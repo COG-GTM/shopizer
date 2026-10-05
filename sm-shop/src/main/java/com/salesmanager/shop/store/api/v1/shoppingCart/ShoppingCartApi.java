@@ -1,5 +1,6 @@
 package com.salesmanager.shop.store.api.v1.shoppingCart;
 
+import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -22,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -47,7 +47,7 @@ import com.salesmanager.shop.store.controller.customer.facade.v1.CustomerFacade;
 import com.salesmanager.shop.store.controller.shoppingCart.facade.ShoppingCartFacade;
 
 
-@Controller
+@RestController
 @RequestMapping("/api/v1")
 @Tag(name = "Shopping cart api", description = "Add, remove and retrieve shopping carts")
 public class ShoppingCartApi {
