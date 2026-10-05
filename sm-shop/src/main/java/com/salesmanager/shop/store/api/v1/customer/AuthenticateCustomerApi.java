@@ -1,5 +1,13 @@
 package com.salesmanager.shop.store.api.v1.customer;
 
+import org.springframework.beans.factory.annotation.Qualifier;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -46,20 +54,10 @@ import com.salesmanager.shop.store.security.PasswordRequest;
 import com.salesmanager.shop.store.security.user.JWTUser;
 import com.salesmanager.shop.utils.AuthorizationUtils;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.SwaggerDefinition;
-import io.swagger.annotations.Tag;
-import springfox.documentation.annotations.ApiIgnore;
 
 @RestController
 @RequestMapping("/api/v1")
-@Api(tags = {"Customer authentication resource (Customer Authentication Api)"})
-@SwaggerDefinition(tags = {
-    @Tag(name = "Customer authentication resource", description = "Authenticates customer, register customer and reset customer password")
-})
+@Tag(name = "Customer authentication resource (Customer Authentication Api)", description = "Authenticates customer, register customer and reset customer password")
 public class AuthenticateCustomerApi {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticateCustomerApi.class);
@@ -68,6 +66,7 @@ public class AuthenticateCustomerApi {
     private String tokenHeader;
 
     @Inject
+    @Qualifier("jwtCustomerAuthenticationManager")
     private AuthenticationManager jwtCustomerAuthenticationManager;
 
     @Inject
@@ -93,14 +92,14 @@ public class AuthenticateCustomerApi {
      */
     @RequestMapping( value={"/customer/register"}, method=RequestMethod.POST, produces ={ "application/json" })
     @ResponseStatus(HttpStatus.CREATED)
-    @ApiOperation(httpMethod = "POST", value = "Registers a customer to the application", notes = "Used as self-served operation",response = AuthenticationResponse.class)
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT"),
-		@ApiImplicitParam(name = "lang", dataType = "string", defaultValue = "en") })
+    @Operation(summary = "Registers a customer to the application", description = "Used as self-served operation")
+	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+		@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
     @ResponseBody
     public ResponseEntity<?> register(
     		@Valid @RequestBody PersistableCustomer customer, 
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language) throws Exception {
+			@Parameter(hidden = true) MerchantStore merchantStore,
+			@Parameter(hidden = true) Language language) throws Exception {
 
 
             customer.setUserName(customer.getEmailAddress());
@@ -155,7 +154,7 @@ public class AuthenticateCustomerApi {
      * @throws AuthenticationException
      */
     @RequestMapping(value = "/customer/login", method = RequestMethod.POST, produces ={ "application/json" })
-    @ApiOperation(httpMethod = "POST", value = "Authenticates a customer to the application", notes = "Customer can authenticate after registration, request is {\"username\":\"admin\",\"password\":\"password\"}",response = ResponseEntity.class)
+    @Operation(summary = "Authenticates a customer to the application", description = "Customer can authenticate after registration, request is {\"username\":\"admin\",\"password\":\"password\"}")
     @ResponseBody
     public ResponseEntity<?> authenticate(@RequestBody @Valid AuthenticationRequest authenticationRequest) throws AuthenticationException {
 
@@ -213,7 +212,7 @@ public class AuthenticateCustomerApi {
     
 
     @RequestMapping(value = "/auth/customer/password", method = RequestMethod.POST, produces ={ "application/json" })
-    @ApiOperation(httpMethod = "POST", value = "Sends a request to reset password", notes = "Password reset request is {\"username\":\"test@email.com\"}",response = ResponseEntity.class)
+    @Operation(summary = "Sends a request to reset password", description = "Password reset request is {\"username\":\"test@email.com\"}")
     public ResponseEntity<?> changePassword(@RequestBody @Valid PasswordRequest passwordRequest, HttpServletRequest request) {
 
 
