@@ -18,7 +18,8 @@ import jakarta.persistence.Table;
 import jakarta.persistence.TableGenerator;
 import jakarta.persistence.Transient;
 
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import com.salesmanager.core.model.common.audit.AuditListener;
 import com.salesmanager.core.model.common.audit.AuditSection;
@@ -56,7 +57,7 @@ public class IntegrationModule extends SalesManagerEntity<Long, IntegrationModul
 	private String configuration;
 
 	@Column(name = "DETAILS")
-	@Type(type = "org.hibernate.type.TextType")
+	@JdbcTypeCode(SqlTypes.LONGVARCHAR)
 	private String configDetails;
 
 	@Column(name = "TYPE")

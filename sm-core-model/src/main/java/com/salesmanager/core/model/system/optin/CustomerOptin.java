@@ -18,7 +18,8 @@ import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import jakarta.persistence.UniqueConstraint;
 
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import com.salesmanager.core.constants.SchemaConstant;
 import com.salesmanager.core.model.common.audit.AuditListener;
@@ -73,7 +74,7 @@ public class CustomerOptin extends SalesManagerEntity<Long, CustomerOptin> imple
 	private String email;
 	
 	@Column(name="VALUE")
-	@Type(type = "org.hibernate.type.TextType")
+	@JdbcTypeCode(SqlTypes.LONGVARCHAR)
 	private String value;
 
 	@Override

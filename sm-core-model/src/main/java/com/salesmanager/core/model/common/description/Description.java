@@ -15,7 +15,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.validation.constraints.NotEmpty;
 
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.salesmanager.core.model.common.audit.AuditListener;
@@ -50,7 +51,7 @@ public class Description implements Auditable, Serializable {
 	private String title;
 	
 	@Column(name="DESCRIPTION")
-	@Type(type = "org.hibernate.type.TextType")
+	@JdbcTypeCode(SqlTypes.LONGVARCHAR)
 	private String description;
 	
 	public Description() {

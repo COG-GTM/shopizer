@@ -25,7 +25,6 @@ import jakarta.persistence.TemporalType;
 import jakarta.validation.Valid;
 
 import org.hibernate.annotations.OrderBy;
-import org.hibernate.annotations.Type;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.salesmanager.core.model.common.Billing;
@@ -132,7 +131,6 @@ public class Order extends SalesManagerEntity<Long, Order> {
 	@JoinColumn(name = "CURRENCY_ID")
 	private Currency currency;
 	
-	@Type(type="locale")  
 	@Column (name ="LOCALE")
 	private Locale locale; 
 	

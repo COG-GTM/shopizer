@@ -24,7 +24,8 @@ import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import jakarta.persistence.Transient;
 
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.json.simple.JSONAware;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,7 +81,7 @@ public class Transaction extends SalesManagerEntity<Long, Transaction> implement
 	private PaymentType paymentType;
 	
 	@Column(name="DETAILS")
-	@Type(type = "org.hibernate.type.TextType")
+	@JdbcTypeCode(SqlTypes.LONGVARCHAR)
 	private String details;
 	
 	@Transient
