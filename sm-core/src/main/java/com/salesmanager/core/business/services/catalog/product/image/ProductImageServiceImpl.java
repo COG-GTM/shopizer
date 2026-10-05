@@ -58,7 +58,7 @@ public class ProductImageServiceImpl extends SalesManagerEntityServiceImpl<Long,
 		try {
 			for (ProductImage productImage : productImages) {
 
-				Assert.notNull(productImage.getImage());
+				Assert.notNull(productImage.getImage(), "productImage.getImage() must not be null");
 
 				InputStream inputStream = productImage.getImage();
 				ImageContentFile cmsContentImage = new ImageContentFile();

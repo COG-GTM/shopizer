@@ -15,8 +15,7 @@ import java.util.Optional;
 
 import jakarta.annotation.PostConstruct;
 import org.apache.commons.io.IOUtils;
-import org.infinispan.tree.Fqn;
-import org.infinispan.tree.Node;
+import com.salesmanager.core.business.modules.cms.impl.CmsNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,7 +116,7 @@ public class CmsStaticContentFileManagerImpl
 
 			String nodePath = this.getNodePath(merchantStoreCode, inputStaticContentData.getFileContentType());
 
-			final Node<String, Object> merchantNode = this.getNode(nodePath);
+			final CmsNode merchantNode = this.getNode(nodePath);
 
 			merchantNode.put(inputStaticContentData.getFileName(),
 					IOUtils.toByteArray(inputStaticContentData.getFile()));
@@ -166,7 +165,7 @@ public class CmsStaticContentFileManagerImpl
 			for (final InputContentFile inputStaticContentData : inputStaticContentDataList) {
 
 				String nodePath = this.getNodePath(merchantStoreCode, inputStaticContentData.getFileContentType());
-				final Node<String, Object> merchantNode = this.getNode(nodePath);
+				final CmsNode merchantNode = this.getNode(nodePath);
 				merchantNode.put(inputStaticContentData.getFileName(),
 						IOUtils.toByteArray(inputStaticContentData.getFile()));
 
@@ -207,7 +206,7 @@ public class CmsStaticContentFileManagerImpl
 
 			String nodePath = this.getNodePath(merchantStoreCode, fileContentType);
 
-			final Node<String, Object> merchantNode = this.getNode(nodePath);
+			final CmsNode merchantNode = this.getNode(nodePath);
 
 			final byte[] fileBytes = (byte[]) merchantNode.get(contentFileName);
 
@@ -246,7 +245,7 @@ public class CmsStaticContentFileManagerImpl
 			FileNameMap fileNameMap = URLConnection.getFileNameMap();
 			String nodePath = this.getNodePath(merchantStoreCode, staticContentType);
 
-			final Node<String, Object> merchantNode = this.getNode(nodePath);
+			final CmsNode merchantNode = this.getNode(nodePath);
 
 			for (String key : merchantNode.getKeys()) {
 
@@ -288,7 +287,7 @@ public class CmsStaticContentFileManagerImpl
 		try {
 
 			String nodePath = this.getNodePath(merchantStoreCode, staticContentType);
-			final Node<String, Object> merchantNode = this.getNode(nodePath);
+			final CmsNode merchantNode = this.getNode(nodePath);
 
 			merchantNode.remove(fileName);
 
@@ -316,7 +315,7 @@ public class CmsStaticContentFileManagerImpl
 
 			final StringBuilder merchantPath = new StringBuilder();
 			merchantPath.append(getRootName()).append(merchantStoreCode);
-			cacheManager.getTreeCache().getRoot().remove(merchantPath.toString());
+			cacheManager.getTreeCache().getRoot().removeChild(merchantPath.toString());
 
 		} catch (final Exception e) {
 			LOGGER.error("Error while deleting content image for {} merchant ", merchantStoreCode);
@@ -326,14 +325,14 @@ public class CmsStaticContentFileManagerImpl
 	}
 
 	@SuppressWarnings({ "unchecked" })
-	private Node<String, Object> getNode(final String node) {
+	private CmsNode getNode(final String node) {
 		LOGGER.debug("Fetching node for store {} from Infinispan", node);
 		final StringBuilder merchantPath = new StringBuilder();
 		merchantPath.append(getRootName()).append(node);
 
-		Fqn contentFilesFqn = Fqn.fromString(merchantPath.toString());
+		String contentFilesFqn = merchantPath.toString();
 
-		Node<String, Object> nd = cacheManager.getTreeCache().getRoot().getChild(contentFilesFqn);
+		CmsNode nd = cacheManager.getTreeCache().getRoot().getChild(contentFilesFqn);
 
 		if (nd == null) {
 
@@ -401,7 +400,7 @@ public class CmsStaticContentFileManagerImpl
 		try {
 
 			String nodePath = this.getNodePath(merchantStoreCode, staticContentType);
-			final Node<String, Object> objectNode = this.getNode(nodePath);
+			final CmsNode objectNode = this.getNode(nodePath);
 
 			if (objectNode.getKeys().isEmpty()) {
 				LOGGER.warn("Unable to find content attribute for given merchant");
@@ -439,9 +438,9 @@ public class CmsStaticContentFileManagerImpl
 		
 		//Put logic in a method
 		
-		Fqn folderFqn = Fqn.fromString(appender.toString());
+		String folderFqn = appender.toString();
 
-		Node<String, Object> nd = cacheManager.getTreeCache().getRoot().getChild(folderFqn);
+		CmsNode nd = cacheManager.getTreeCache().getRoot().getChild(folderFqn);
 
 		if (nd == null) {
 
@@ -452,7 +451,7 @@ public class CmsStaticContentFileManagerImpl
 		
 		appender.append(Constants.SLASH).append(folderName);
 		
-		Fqn newFolderFqn = Fqn.fromString(appender.toString());
+		String newFolderFqn = appender.toString();
 		cacheManager.getTreeCache().getRoot().addChild(newFolderFqn);
 
 	}

@@ -11,17 +11,15 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.AmazonS3Exception;
-import com.amazonaws.services.s3.model.Bucket;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.ListObjectsV2Request;
-import com.amazonaws.services.s3.model.ListObjectsV2Result;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
+import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Object;
 import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.modules.cms.content.ContentAssetsManager;
 import com.salesmanager.core.business.modules.cms.impl.CMSManager;
@@ -45,6 +43,8 @@ public class S3StaticContentAssetsManagerImpl implements ContentAssetsManager {
 
 	private CMSManager cmsManager;
 
+	private S3Client s3Client;
+
 	public static S3StaticContentAssetsManagerImpl getInstance() {
 
 		if (fileManager == null) {
@@ -62,12 +62,12 @@ public class S3StaticContentAssetsManagerImpl implements ContentAssetsManager {
 			// get buckets
 			String bucketName = bucketName();
 
-			final AmazonS3 s3 = s3Client();
+			final S3Client s3 = s3Client();
 
-			S3Object o = s3.getObject(bucketName, nodePath(merchantStoreCode, fileContentType) + contentName);
+			byte[] content = getObjectBytes(s3, bucketName, nodePath(merchantStoreCode, fileContentType) + contentName);
 
 			LOGGER.info("Content getFile");
-			return getOutputContentFile(IOUtils.toByteArray(o.getObjectContent()));
+			return getOutputContentFile(content);
 		} catch (final Exception e) {
 			LOGGER.error("Error while getting file", e);
 			throw new ServiceException(e);
@@ -82,24 +82,23 @@ public class S3StaticContentAssetsManagerImpl implements ContentAssetsManager {
 			// get buckets
 			String bucketName = bucketName();
 
-			ListObjectsV2Request listObjectsRequest = new ListObjectsV2Request().withBucketName(bucketName)
-					.withPrefix(nodePath(merchantStoreCode, fileContentType));
+			ListObjectsV2Request listObjectsRequest = ListObjectsV2Request.builder().bucket(bucketName)
+					.prefix(nodePath(merchantStoreCode, fileContentType)).build();
 
 			List<String> fileNames = null;
 
-			final AmazonS3 s3 = s3Client();
-			ListObjectsV2Result results = s3.listObjectsV2(listObjectsRequest);
-			List<S3ObjectSummary> objects = results.getObjectSummaries();
-			for (S3ObjectSummary os : objects) {
-				if (isInsideSubFolder(os.getKey())) {
+			final S3Client s3 = s3Client();
+			List<S3Object> objects = s3.listObjectsV2(listObjectsRequest).contents();
+			for (S3Object os : objects) {
+				if (isInsideSubFolder(os.key())) {
 					continue;
 				}
 				if (fileNames == null) {
 					fileNames = new ArrayList<String>();
 				}
-				String mimetype = URLConnection.guessContentTypeFromName(os.getKey());
+				String mimetype = URLConnection.guessContentTypeFromName(os.key());
 				if (!StringUtils.isBlank(mimetype)) {
-					fileNames.add(getName(os.getKey()));
+					fileNames.add(getName(os.key()));
 				}
 			}
 
@@ -119,21 +118,19 @@ public class S3StaticContentAssetsManagerImpl implements ContentAssetsManager {
 			// get buckets
 			String bucketName = bucketName();
 
-			ListObjectsV2Request listObjectsRequest = new ListObjectsV2Request().withBucketName(bucketName)
-					.withPrefix(nodePath(merchantStoreCode, fileContentType));
+			ListObjectsV2Request listObjectsRequest = ListObjectsV2Request.builder().bucket(bucketName)
+					.prefix(nodePath(merchantStoreCode, fileContentType)).build();
 
 			List<OutputContentFile> files = null;
-			final AmazonS3 s3 = s3Client();
-			ListObjectsV2Result results = s3.listObjectsV2(listObjectsRequest);
-			List<S3ObjectSummary> objects = results.getObjectSummaries();
-			for (S3ObjectSummary os : objects) {
+			final S3Client s3 = s3Client();
+			List<S3Object> objects = s3.listObjectsV2(listObjectsRequest).contents();
+			for (S3Object os : objects) {
 				if (files == null) {
 					files = new ArrayList<OutputContentFile>();
 				}
-				String mimetype = URLConnection.guessContentTypeFromName(os.getKey());
+				String mimetype = URLConnection.guessContentTypeFromName(os.key());
 				if (!StringUtils.isBlank(mimetype)) {
-					S3Object o = s3.getObject(bucketName, os.getKey());
-					byte[] byteArray = IOUtils.toByteArray(o.getObjectContent());
+					byte[] byteArray = getObjectBytes(s3, bucketName, os.key());
 					ByteArrayOutputStream baos = new ByteArrayOutputStream(byteArray.length);
 					baos.write(byteArray, 0, byteArray.length);
 					OutputContentFile ct = new OutputContentFile();
@@ -160,15 +157,11 @@ public class S3StaticContentAssetsManagerImpl implements ContentAssetsManager {
 
 			String nodePath = nodePath(merchantStoreCode, inputStaticContentData.getFileContentType());
 
-			final AmazonS3 s3 = s3Client();
+			final S3Client s3 = s3Client();
 
-			ObjectMetadata metadata = new ObjectMetadata();
-			metadata.setContentType(inputStaticContentData.getMimeType());
-			PutObjectRequest request = new PutObjectRequest(bucketName, nodePath + inputStaticContentData.getFileName(),
-					inputStaticContentData.getFile(), metadata);
-			request.setCannedAcl(CannedAccessControlList.PublicRead);
-
-			s3.putObject(request);
+			PutObjectRequest request = PutObjectRequest.builder().bucket(bucketName).key(nodePath + inputStaticContentData.getFileName())
+					.contentType(inputStaticContentData.getMimeType()).acl(ObjectCannedACL.PUBLIC_READ).build();
+			s3.putObject(request, RequestBody.fromBytes(IOUtils.toByteArray(inputStaticContentData.getFile())));
 
 			LOGGER.info("Content add file");
 		} catch (final Exception e) {
@@ -200,8 +193,8 @@ public class S3StaticContentAssetsManagerImpl implements ContentAssetsManager {
 			// get buckets
 			String bucketName = bucketName();
 
-			final AmazonS3 s3 = s3Client();
-			s3.deleteObject(bucketName, nodePath(merchantStoreCode, staticContentType) + fileName);
+			final S3Client s3 = s3Client();
+			s3.deleteObject(DeleteObjectRequest.builder().bucket(bucketName).key(nodePath(merchantStoreCode, staticContentType) + fileName).build());
 
 			LOGGER.info("Remove file");
 		} catch (final Exception e) {
@@ -219,8 +212,8 @@ public class S3StaticContentAssetsManagerImpl implements ContentAssetsManager {
 			// get buckets
 			String bucketName = bucketName();
 
-			final AmazonS3 s3 = s3Client();
-			s3.deleteObject(bucketName, nodePath(merchantStoreCode));
+			final S3Client s3 = s3Client();
+			s3.deleteObject(DeleteObjectRequest.builder().bucket(bucketName).key(nodePath(merchantStoreCode)).build());
 
 			LOGGER.info("Remove folder");
 		} catch (final Exception e) {
@@ -231,57 +224,21 @@ public class S3StaticContentAssetsManagerImpl implements ContentAssetsManager {
 
 	}
 
-	private Bucket getBucket(String bucket_name) {
-		final AmazonS3 s3 = s3Client();
-		Bucket named_bucket = null;
-		List<Bucket> buckets = s3.listBuckets();
-		for (Bucket b : buckets) {
-			if (b.getName().equals(bucket_name)) {
-				named_bucket = b;
-			}
-		}
-
-		if (named_bucket == null) {
-			named_bucket = createBucket(bucket_name);
-		}
-
-		return named_bucket;
-	}
-
-	private Bucket createBucket(String bucket_name) {
-		final AmazonS3 s3 = s3Client();
-		Bucket b = null;
-		if (s3.doesBucketExistV2(bucket_name)) {
-			System.out.format("Bucket %s already exists.\n", bucket_name);
-			b = getBucket(bucket_name);
-		} else {
-			try {
-				b = s3.createBucket(bucket_name);
-			} catch (AmazonS3Exception e) {
-				System.err.println(e.getErrorMessage());
-			}
-		}
-		return b;
-	}
 
 	/**
 	 * Builds an amazon S3 client
 	 * 
 	 * @return
 	 */
-	private AmazonS3 s3Client() {
+	private synchronized S3Client s3Client() {
+		if (s3Client != null) {
+			return s3Client;
+		}
 		String region = regionName();
 		LOGGER.debug("AWS CMS Using region " + region);
 
-		return AmazonS3ClientBuilder.standard().withRegion(region) // The
-																			// first
-																			// region
-																			// to
-																			// try
-																			// your
-																			// request
-																			// against
-				.build();
+		s3Client = S3Client.builder().region(Region.of(region)).build();
+		return s3Client;
 	}
 
 	private String regionName() {
@@ -317,6 +274,11 @@ public class S3StaticContentAssetsManagerImpl implements ContentAssetsManager {
 	public List<String> listFolders(String merchantStoreCode, Optional<String> path) throws ServiceException {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+
+	private static byte[] getObjectBytes(S3Client s3, String bucketName, String key) {
+		return s3.getObjectAsBytes(GetObjectRequest.builder().bucket(bucketName).key(key).build()).asByteArray();
 	}
 
 }

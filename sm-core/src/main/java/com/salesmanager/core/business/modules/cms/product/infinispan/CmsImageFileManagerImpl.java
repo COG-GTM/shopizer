@@ -11,8 +11,7 @@ import java.util.List;
 import java.util.Set;
 import jakarta.annotation.PostConstruct;
 import org.apache.commons.io.IOUtils;
-import org.infinispan.tree.Fqn;
-import org.infinispan.tree.Node;
+import com.salesmanager.core.business.modules.cms.impl.CmsNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.salesmanager.core.business.constants.Constants;
@@ -123,7 +122,7 @@ public class CmsImageFileManagerImpl implements ProductAssetsManager {
         nodePath.append(LARGE);
       }
 
-      Node<String, Object> productNode = this.getNode(nodePath.toString());
+      CmsNode productNode = this.getNode(nodePath.toString());
 
 
       InputStream isFile = contentImage.getFile();
@@ -179,7 +178,7 @@ public class CmsImageFileManagerImpl implements ProductAssetsManager {
       StringBuilder nodePath = new StringBuilder();
       nodePath.append(product.getMerchantStore().getCode());
 
-      Node<String, Object> merchantNode = this.getNode(nodePath.toString());
+      CmsNode merchantNode = this.getNode(nodePath.toString());
 
       if (merchantNode == null) {
         return null;
@@ -234,7 +233,7 @@ public class CmsImageFileManagerImpl implements ProductAssetsManager {
 
       final StringBuilder merchantPath = new StringBuilder();
       merchantPath.append(getRootName()).append(merchantStoreCode);
-      cacheManager.getTreeCache().getRoot().remove(merchantPath.toString());
+      cacheManager.getTreeCache().getRoot().removeChild(merchantPath.toString());
 
 
 
@@ -263,7 +262,7 @@ public class CmsImageFileManagerImpl implements ProductAssetsManager {
           .append(Constants.SLASH).append(productImage.getProduct().getSku());
 
 
-      Node<String, Object> productNode = this.getNode(nodePath.toString());
+      CmsNode productNode = this.getNode(nodePath.toString());
       productNode.remove(productImage.getProductImage());
 
 
@@ -291,7 +290,7 @@ public class CmsImageFileManagerImpl implements ProductAssetsManager {
       nodePath.append(product.getMerchantStore().getCode());
 
 
-      Node<String, Object> merchantNode = this.getNode(nodePath.toString());
+      CmsNode merchantNode = this.getNode(nodePath.toString());
 
       merchantNode.remove(product.getSku());
 
@@ -323,17 +322,17 @@ public class CmsImageFileManagerImpl implements ProductAssetsManager {
       nodePath.append(merchantStoreCode);
 
 
-      Node<String, Object> merchantNode = this.getNode(nodePath.toString());
+      CmsNode merchantNode = this.getNode(nodePath.toString());
 
-      Set<Node<String, Object>> childs = merchantNode.getChildren();
+      Set<CmsNode> childs = merchantNode.getChildren();
 
       // TODO image sizes
-      for (Node<String, Object> node : childs) {
+      for (CmsNode node : childs) {
 
         for (String key : node.getKeys()) {
 
 
-          byte[] imageBytes = (byte[]) merchantNode.get(key);
+          byte[] imageBytes = (byte[]) node.get(key);
 
           OutputContentFile contentImage = new OutputContentFile();
 
@@ -396,7 +395,7 @@ public class CmsImageFileManagerImpl implements ProductAssetsManager {
       nodePath.append(merchantStoreCode).append(Constants.SLASH).append(productCode)
           .append(Constants.SLASH).append(size);
 
-      Node<String, Object> productNode = this.getNode(nodePath.toString());
+      CmsNode productNode = this.getNode(nodePath.toString());
 
 
       byte[] imageBytes = (byte[]) productNode.get(imageName);
@@ -435,14 +434,14 @@ public class CmsImageFileManagerImpl implements ProductAssetsManager {
 
 
   @SuppressWarnings("unchecked")
-  private Node<String, Object> getNode(final String node) {
+  private CmsNode getNode(final String node) {
     LOGGER.debug("Fetching node for store {} from Infinispan", node);
     final StringBuilder merchantPath = new StringBuilder();
     merchantPath.append(getRootName()).append(node);
 
-    Fqn contentFilesFqn = Fqn.fromString(merchantPath.toString());
+    String contentFilesFqn = merchantPath.toString();
 
-    Node<String, Object> nd = cacheManager.getTreeCache().getRoot().getChild(contentFilesFqn);
+    CmsNode nd = cacheManager.getTreeCache().getRoot().getChild(contentFilesFqn);
 
     if (nd == null) {
 
