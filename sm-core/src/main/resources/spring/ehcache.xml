@@ -1,43 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ehcache name="com.shopizer.core.cache" 
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd">
-	
-    <defaultCache
-            maxElementsInMemory="10000"
-            eternal="false"
-            timeToIdleSeconds="120"
-            timeToLiveSeconds="120"
-            overflowToDisk="false"
-            diskSpoolBufferSizeMB="30"
-            maxElementsOnDisk="10000000"
-            diskPersistent="false"
-            diskExpiryThreadIntervalSeconds="120"
-            memoryStoreEvictionPolicy="LRU" />
-            
-            
-     <cache name="com.shopizer.OBJECT_CACHE"
-           maxElementsInMemory="10000"
-           eternal="false"
-           overflowToDisk="false"
-           timeToIdleSeconds="1200"
-           timeToLiveSeconds="1200"
-           memoryStoreEvictionPolicy="LFU" />
-           
-     <cache name="store" maxElementsInMemory="1000" eternal="false"
-    	overflowToDisk="false" memoryStoreEvictionPolicy="LFU" />
-    	
-     <cache name="countriesMap" maxElementsInMemory="500" eternal="false"
-    	overflowToDisk="false" memoryStoreEvictionPolicy="LFU" />
-    	           
-     <cache name="countrByCode" maxElementsInMemory="300" eternal="false"
-    	overflowToDisk="false" memoryStoreEvictionPolicy="LFU" />
-    	
-     <cache name="zoneByCode" maxElementsInMemory="800" eternal="false"
-    	overflowToDisk="false" memoryStoreEvictionPolicy="LFU" />
-    	
-     <cache name="languageByCode" maxElementsInMemory="50" eternal="false"
-    	overflowToDisk="false" memoryStoreEvictionPolicy="LFU" />
+<!-- Ehcache 3 (JCache / JSR-107) configuration used by Spring cache abstraction and Hibernate second level cache -->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.ehcache.org/v3"
+	xsi:schemaLocation="http://www.ehcache.org/v3 http://www.ehcache.org/schema/ehcache-core-3.0.xsd">
 
+	<cache-template name="default">
+		<expiry>
+			<ttl unit="seconds">120</ttl>
+		</expiry>
+		<heap unit="entries">10000</heap>
+	</cache-template>
 
-</ehcache>
+	<cache-template name="eternal">
+		<expiry>
+			<none />
+		</expiry>
+		<heap unit="entries">1000</heap>
+	</cache-template>
+
+	<cache alias="com.shopizer.OBJECT_CACHE">
+		<expiry>
+			<ttl unit="seconds">1200</ttl>
+		</expiry>
+		<heap unit="entries">10000</heap>
+	</cache>
+
+	<cache alias="store" uses-template="eternal">
+		<heap unit="entries">1000</heap>
+	</cache>
+	<cache alias="countriesMap" uses-template="eternal">
+		<heap unit="entries">500</heap>
+	</cache>
+	<cache alias="countrByCode" uses-template="eternal">
+		<heap unit="entries">300</heap>
+	</cache>
+	<cache alias="zoneByCode" uses-template="eternal">
+		<heap unit="entries">800</heap>
+	</cache>
+	<cache alias="languageByCode" uses-template="eternal">
+		<heap unit="entries">50</heap>
+	</cache>
+
+	<!-- Hibernate second level cache regions -->
+	<cache alias="com.salesmanager.core.model.reference.currency.Currency" uses-template="default" />
+	<cache alias="com.salesmanager.core.model.reference.country.Country" uses-template="default" />
+	<cache alias="com.salesmanager.core.model.reference.language.Language" uses-template="default" />
+	<cache alias="default-query-results-region" uses-template="default" />
+	<cache alias="default-update-timestamps-region" uses-template="eternal" />
+
+</config>
