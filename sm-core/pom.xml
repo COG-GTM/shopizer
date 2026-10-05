@@ -162,10 +162,9 @@
 			<artifactId>spring-context-support</artifactId>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
 		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
+			<groupId>org.apache.httpcomponents.client5</groupId>
+			<artifactId>httpclient5</artifactId>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-s3 -->

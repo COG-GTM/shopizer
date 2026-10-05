@@ -1,10 +1,10 @@
 package com.salesmanager.shop.store.api.v1.user;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 
-import org.apache.http.auth.AuthenticationException;
+import org.springframework.security.core.AuthenticationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
