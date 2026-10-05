@@ -6,8 +6,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import com.salesmanager.core.model.catalog.category.Category;
 import com.salesmanager.core.model.catalog.category.CategoryDescription;
@@ -250,7 +250,7 @@ public class ShoppingCartTest extends com.salesmanager.test.common.AbstractSales
 
 	    ShoppingCart retrievedCart = shoppingCartService.getByCode(cartCode.toString(), store);
 	    
-	    Assert.assertNotNull(retrievedCart);
+	    Assertions.assertNotNull(retrievedCart);
 	    
 	    /** Delete cart **/
 	    shoppingCartService.delete(retrievedCart);
@@ -258,7 +258,7 @@ public class ShoppingCartTest extends com.salesmanager.test.common.AbstractSales
 	    /** Check if cart has been deleted **/
 	    retrievedCart = shoppingCartService.getByCode(cartCode.toString(), store);
 	    
-	    Assert.assertNull(retrievedCart);
+	    Assertions.assertNull(retrievedCart);
 
 		// Clean up for other tests
 	    categoryService.delete(shirts);

@@ -2,7 +2,7 @@ package com.salesmanager.test.shipping;
 
 import jakarta.inject.Inject;
 
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 
 import com.salesmanager.core.model.common.Delivery;
 import com.salesmanager.core.model.reference.country.Country;
@@ -11,13 +11,13 @@ import com.salesmanager.core.model.shipping.ShippingOrigin;
 import com.salesmanager.core.model.shipping.ShippingQuote;
 import com.salesmanager.core.modules.integration.shipping.model.ShippingQuotePrePostProcessModule;
 
-@Ignore
+@Disabled
 public class ShippingDistanceProcessorTest {
 	
 	@Inject
 	ShippingQuotePrePostProcessModule shippingDecisionTablePreProcessor;
 
-	@Ignore
+	@Disabled
 	public void testDistance() throws Exception {
 		
 		ShippingQuote shippingQuote = new ShippingQuote();

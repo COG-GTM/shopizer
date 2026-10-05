@@ -6,8 +6,7 @@ import java.util.Locale;
 
 import jakarta.inject.Inject;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.salesmanager.core.business.modules.integration.shipping.impl.ShippingDecisionPreProcessorImpl;
 import com.salesmanager.core.model.common.Delivery;
@@ -19,14 +18,12 @@ import com.salesmanager.core.model.system.IntegrationModule;
 
 
 
-@Ignore
 public class ShippingMethodDecisionTest extends com.salesmanager.test.common.AbstractSalesManagerCoreTestCase {
 	
 	@Inject
 	ShippingDecisionPreProcessorImpl shippingMethodDecisionProcess;
 
 	@Test
-	@Ignore
 	public void validateShippingMethod() throws Exception {
 		
 		ShippingQuote quote = new ShippingQuote();

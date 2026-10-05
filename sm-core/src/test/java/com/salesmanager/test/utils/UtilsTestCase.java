@@ -8,12 +8,12 @@ import java.util.Locale;
 
 import jakarta.inject.Inject;
 
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.salesmanager.core.business.services.reference.country.CountryService;
 import com.salesmanager.core.business.services.reference.currency.CurrencyService;
@@ -25,9 +25,9 @@ import com.salesmanager.core.modules.utils.GeoLocation;
 import com.salesmanager.test.configuration.ConfigurationTest;
 
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = {ConfigurationTest.class})
-@Ignore
+@Disabled
 public class UtilsTestCase  {
 	
 	
@@ -49,7 +49,7 @@ public class UtilsTestCase  {
 
 	
 	//@Test
-	@Ignore
+	@Disabled
 	public void testCache() throws Exception {
 		
 
@@ -63,12 +63,12 @@ public class UtilsTestCase  {
 		@SuppressWarnings("rawtypes")
 		List objects = (List) cache.getFromCache("COUNTRIES");
 		
-		Assert.assertNotNull(objects);
+		Assertions.assertNotNull(objects);
 		
 	}
 	
 	//@Test
-	@Ignore
+	@Disabled
 	public void testCurrency() throws Exception {
 		
 		Currency currency = currencyService.getByCode("BGN");

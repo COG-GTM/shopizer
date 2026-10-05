@@ -7,12 +7,12 @@ package com.salesmanager.test.common;
 
 import jakarta.inject.Inject;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.services.catalog.category.CategoryService;
@@ -51,9 +51,9 @@ import com.salesmanager.test.configuration.ConfigurationTest;
  *
  */
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes=ConfigurationTest.class)
-@Ignore
+@Disabled
 public class AbstractSalesManagerCoreTestCase {
 	
 	private static final String CONTEXT_LOAD_NAME = "TEST";
@@ -150,7 +150,7 @@ public class AbstractSalesManagerCoreTestCase {
 	@Inject
 	protected EmailService emailService;
 	
-	@Before
+	@BeforeEach
 	public void init() throws ServiceException {
 		if(initializationDatabase.isEmpty()) {
 		  populate();
@@ -158,7 +158,7 @@ public class AbstractSalesManagerCoreTestCase {
 
 	}
 	
-	@After
+	@AfterEach
 	public void close() throws ServiceException {
 
 	}

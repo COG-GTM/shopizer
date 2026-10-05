@@ -31,3 +31,7 @@ sm-shop/src/main/resources/database.properties
 .DS_Store
 
 .mvnw/*.jar
+
+# Infinispan CMS file stores (generated at runtime)
+sm-shop/files/store/*.dat
+sm-shop/files/repos/*.dat

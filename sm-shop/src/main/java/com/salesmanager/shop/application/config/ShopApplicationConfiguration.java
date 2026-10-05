@@ -13,6 +13,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.web.filter.UrlHandlerFilter;
+import org.springframework.core.Ordered;
 import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -49,6 +51,18 @@ public class ShopApplicationConfiguration implements WebMvcConfigurer {
   public void applicationReadyCode() {
     String workingDir = System.getProperty("user.dir");
     logger.info("Current working directory : " + workingDir);
+  }
+
+  /**
+   * Spring Framework 6 no longer matches a trailing slash implicitly; keep
+   * existing API clients calling e.g. /api/v1/category/ working.
+   */
+  @Bean
+  public FilterRegistrationBean<UrlHandlerFilter> trailingSlashFilter() {
+      FilterRegistrationBean<UrlHandlerFilter> registrationBean = new FilterRegistrationBean<>(
+              UrlHandlerFilter.trailingSlashHandler("/**").wrapRequest().build());
+      registrationBean.setOrder(Ordered.HIGHEST_PRECEDENCE);
+      return registrationBean;
   }
 
   @Bean

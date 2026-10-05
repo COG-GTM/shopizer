@@ -10,25 +10,10 @@ import com.salesmanager.core.model.catalog.product.availability.ProductAvailabil
 public interface ProductAvailabilityRepository extends JpaRepository<ProductAvailability, Long> {
 
   
-  @Query(value = "select distinct p from ProductAvailability p "
-      + "left join fetch p.merchantStore pm "
-      + "left join fetch p.prices pp "
-      + "left join fetch pp.descriptions ppd "
-      + "left join fetch p.merchantStore pm "
-      + "join fetch p.product ppr "
-      + "join fetch ppr.merchantStore pprm "
-      + "where p.id=?1 ")
+  @Query(value = "select distinct p from ProductAvailability p left join fetch p.merchantStore pm left join fetch p.prices pp left join fetch pp.descriptions ppd join fetch p.product ppr join fetch ppr.merchantStore pprm where p.id=?1 ")
   ProductAvailability getById(Long availabilityId);
   
-  @Query(value = "select distinct p from ProductAvailability p "
-      + "left join fetch p.merchantStore pm "
-      + "left join fetch p.prices pp "
-      + "left join fetch pp.descriptions ppd "
-      + "left join fetch p.merchantStore pm "
-      + "join fetch p.product ppr "
-      + "join fetch ppr.merchantStore pprm "
-      + "where p.id=?1 "
-      + "and pprm.id=?2")
+  @Query(value = "select distinct p from ProductAvailability p left join fetch p.merchantStore pm left join fetch p.prices pp left join fetch pp.descriptions ppd join fetch p.product ppr join fetch ppr.merchantStore pprm where p.id=?1 and pprm.id=?2")
   ProductAvailability getById(Long availabilityId, int merchantId);
   
 

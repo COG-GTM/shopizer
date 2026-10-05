@@ -500,7 +500,7 @@ public class ContentApi {
 	 *
 	 * @param name
 	 */
-	@DeleteMapping(value = "/private/content/")
+	@DeleteMapping(value = "/private/content")
 	@Operation(summary = "Deletes a file from CMS", description = "Delete a file from server")
 	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
 			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
