@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Ehcache 3 configuration, used through JCache by the Spring cache abstraction and the Hibernate second-level cache -->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.ehcache.org/v3"
+	xmlns:jsr107="http://www.ehcache.org/v3/jsr107"
+	xsi:schemaLocation="http://www.ehcache.org/v3 http://www.ehcache.org/schema/ehcache-core-3.10.xsd
+		http://www.ehcache.org/v3/jsr107 http://www.ehcache.org/schema/ehcache-107-ext-3.10.xsd">
+
+	<service>
+		<!-- caches created on demand (Hibernate entity / query regions) use the default template -->
+		<jsr107:defaults default-template="default" enable-management="false" enable-statistics="false" />
+	</service>
+
+	<cache-template name="default">
+		<expiry>
+			<ttl unit="seconds">120</ttl>
+		</expiry>
+		<heap unit="entries">10000</heap>
+	</cache-template>
+
+	<cache alias="com.shopizer.OBJECT_CACHE" uses-template="default">
+		<expiry>
+			<ttl unit="seconds">1200</ttl>
+		</expiry>
+	</cache>
+
+	<cache alias="store" uses-template="default">
+		<heap unit="entries">1000</heap>
+	</cache>
+
+	<cache alias="countriesMap" uses-template="default">
+		<heap unit="entries">500</heap>
+	</cache>
+
+	<cache alias="countrByCode" uses-template="default">
+		<heap unit="entries">300</heap>
+	</cache>
+
+	<cache alias="zoneByCode" uses-template="default">
+		<heap unit="entries">800</heap>
+	</cache>
+
+	<cache alias="languageByCode" uses-template="default">
+		<heap unit="entries">50</heap>
+	</cache>
+
+</config>

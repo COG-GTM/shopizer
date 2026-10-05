@@ -131,10 +131,10 @@ public class Customer extends SalesManagerEntity<Long, Customer> implements Audi
 	@JsonIgnore
 	@ManyToMany(fetch=FetchType.LAZY, cascade = {CascadeType.REFRESH})
 	@JoinTable(name = "CUSTOMER_GROUP", joinColumns = { 
-			@JoinColumn(name = "CUSTOMER_ID", nullable = false, updatable = false) }
+			@JoinColumn(name = "CUSTOMER_ID", nullable = false) }
 			, 
 			inverseJoinColumns = { @JoinColumn(name = "GROUP_ID", 
-					nullable = false, updatable = false) }
+					nullable = false) }
 	)
 	@Cascade({
 		org.hibernate.annotations.CascadeType.DETACH,

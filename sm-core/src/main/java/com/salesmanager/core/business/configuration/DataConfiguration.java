@@ -16,6 +16,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import com.zaxxer.hikari.HikariDataSource;
 
+import javax.cache.CacheManager;
+
 
 @Configuration
 @EnableCaching
@@ -83,7 +85,7 @@ public class DataConfiguration {
     }
 
 	@Bean
-	public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
+	public LocalContainerEntityManagerFactoryBean entityManagerFactory(CacheManager jCacheManager) {
 
 		HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
 		vendorAdapter.setGenerateDdl(true);
@@ -91,12 +93,12 @@ public class DataConfiguration {
 		LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
 		factory.setJpaVendorAdapter(vendorAdapter);
 		factory.setPackagesToScan("com.salesmanager.core.model");
-		factory.setJpaProperties(additionalProperties());
+		factory.setJpaProperties(additionalProperties(jCacheManager));
 		factory.setDataSource(dataSource());
 		return factory;
 	}
 	
-    final Properties additionalProperties() {
+    final Properties additionalProperties(CacheManager jCacheManager) {
         final Properties hibernateProperties = new Properties();
         
         hibernateProperties.setProperty("hibernate.hbm2ddl.auto", hbm2ddl);
@@ -105,12 +107,15 @@ public class DataConfiguration {
         hibernateProperties.setProperty("hibernate.show_sql", showSql);
         hibernateProperties.setProperty("hibernate.cache.use_second_level_cache", "true");
         hibernateProperties.setProperty("hibernate.cache.use_query_cache", "true");
-        hibernateProperties.setProperty("hibernate.cache.region.factory_class", "org.hibernate.cache.ehcache.EhCacheRegionFactory");
+        hibernateProperties.setProperty("hibernate.cache.region.factory_class", "jcache");
+        hibernateProperties.put("hibernate.javax.cache.cache_manager", jCacheManager);
+        hibernateProperties.setProperty("hibernate.javax.cache.missing_cache_strategy", "create");
         hibernateProperties.setProperty("hibernate.connection.CharSet", "utf8");
         hibernateProperties.setProperty("hibernate.connection.characterEncoding", "utf8");
         hibernateProperties.setProperty("hibernate.connection.useUnicode", "true");
-        hibernateProperties.setProperty("hibernate.id.new_generator_mappings", "false"); //unless you run on a new schema
         hibernateProperties.setProperty("hibernate.generate_statistics", "false");
+        // entity constraints were never enforced at flush time before Boot 3 (no Bean Validation provider on the classpath)
+        hibernateProperties.setProperty("jakarta.persistence.validation.mode", "none");
         // hibernateProperties.setProperty("hibernate.globally_quoted_identifiers", "true");
         return hibernateProperties;
     }

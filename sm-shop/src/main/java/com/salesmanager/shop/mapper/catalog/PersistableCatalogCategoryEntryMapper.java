@@ -47,7 +47,9 @@ public class PersistableCatalogCategoryEntryMapper implements Mapper<Persistable
 			destination = new CatalogCategoryEntry();
 			
 		}
-		destination.setId(source.getId());
+		if (source.getId() != null && source.getId() > 0) {
+			destination.setId(source.getId());
+		}
 		destination.setVisible(source.isVisible());
 
 		

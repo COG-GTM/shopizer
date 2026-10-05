@@ -31,6 +31,15 @@ public class CacheUtils {
 	
 
 
+	@SuppressWarnings("unchecked")
+	private List<Object> nativeKeys() {
+		List<Object> keys = new ArrayList<Object>();
+		for (javax.cache.Cache.Entry<Object, Object> entry : (javax.cache.Cache<Object, Object>) cache.getNativeCache()) {
+			keys.add(entry.getKey());
+		}
+		return keys;
+	}
+
 	public void putInCache(Object object, String keyName) throws Exception {
 
 		cache.put(keyName, object);
@@ -51,9 +60,8 @@ public class CacheUtils {
 	
 	public List<String> getCacheKeys(MerchantStore store) throws Exception {
 		
-		  net.sf.ehcache.Cache cacheImpl = (net.sf.ehcache.Cache) cache.getNativeCache();
 		  List<String> returnKeys = new ArrayList<String>();
-		  for (Object key: cacheImpl.getKeys()) {
+		  for (Object key: nativeKeys()) {
 		    
 			  
 				try {
@@ -86,8 +94,7 @@ public class CacheUtils {
 	}
 	
 	public void removeAllFromCache(MerchantStore store) throws Exception {
-		  net.sf.ehcache.Cache cacheImpl = (net.sf.ehcache.Cache) cache.getNativeCache();
-		  for (Object key: cacheImpl.getKeys()) {
+		  for (Object key: nativeKeys()) {
 				try {
 					String sKey = (String)key;
 					

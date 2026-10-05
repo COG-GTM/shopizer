@@ -75,10 +75,10 @@ public class User extends SalesManagerEntity<Long, User> implements Auditable {
 	
 	@ManyToMany(fetch=FetchType.LAZY, cascade = {CascadeType.REFRESH})
 	@JoinTable(name = "USER_GROUP", joinColumns = { 
-			@JoinColumn(name = "USER_ID", nullable = false, updatable = false) }
+			@JoinColumn(name = "USER_ID", nullable = false) }
 			, 
 			inverseJoinColumns = { @JoinColumn(name = "GROUP_ID", 
-					nullable = false, updatable = false) }
+					nullable = false) }
 	)
 	@Cascade({
 		org.hibernate.annotations.CascadeType.DETACH,

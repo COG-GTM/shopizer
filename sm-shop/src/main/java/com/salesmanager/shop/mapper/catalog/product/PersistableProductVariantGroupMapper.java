@@ -49,7 +49,9 @@ public class PersistableProductVariantGroupMapper implements Mapper<PersistableP
 			destination = new ProductVariantGroup();
 		}
 		
-		destination.setId(source.getId());
+		if (source.getId() != null && source.getId() > 0) {
+			destination.setId(source.getId());
+		}
 		
 		
 		List<ProductVariant> productVariants = productVariantService.getByIds(source.getproductVariants(), store);

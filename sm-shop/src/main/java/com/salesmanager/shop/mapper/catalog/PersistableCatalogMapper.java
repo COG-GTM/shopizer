@@ -23,7 +23,9 @@ public class PersistableCatalogMapper implements Mapper<PersistableCatalog, Cata
 		
 		destination.setCode(source.getCode());
 		destination.setDefaultCatalog(source.isDefaultCatalog());
-		destination.setId(source.getId());
+		if (source.getId() != null && source.getId() > 0) {
+			destination.setId(source.getId());
+		}
 		destination.setMerchantStore(store);
 		destination.setVisible(source.isVisible());
 		
