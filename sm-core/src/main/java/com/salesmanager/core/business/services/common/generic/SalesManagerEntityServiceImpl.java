@@ -41,7 +41,7 @@ public abstract class SalesManagerEntityServiceImpl<K extends Serializable & Com
 
 	
 	public void save(E entity) throws ServiceException {
-		repository.saveAndFlush(entity);
+		repository.saveAndFlush(clearZeroId(entity));
 	}
 	
 	public void saveAll(Iterable<E> entities) throws ServiceException {
@@ -81,7 +81,17 @@ public abstract class SalesManagerEntityServiceImpl<K extends Serializable & Com
 	}
 	
 	protected E saveAndFlush(E entity) {
-		return repository.saveAndFlush(entity);
+		return repository.saveAndFlush(clearZeroId(entity));
+	}
+
+	/**
+	 * DTO mappers often send id 0 for new rows; Hibernate 6 treats a non-null id as detached.
+	 */
+	private E clearZeroId(E entity) {
+		if (entity != null && entity.getId() instanceof Number && ((Number) entity.getId()).longValue() == 0L) {
+			entity.setId(null);
+		}
+		return entity;
 	}
 
 }
