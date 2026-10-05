@@ -1,6 +1,6 @@
 package com.salesmanager.test.catalog;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
 import org.springframework.util.Assert;
 import com.salesmanager.core.business.exception.ServiceException;

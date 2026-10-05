@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.model.catalog.category.Category;
 import com.salesmanager.core.model.catalog.category.CategoryDescription;
@@ -512,7 +512,7 @@ public class ProductTest extends com.salesmanager.test.common.AbstractSalesManag
 	     */
 	    
 	    List<ProductAttribute> attributes = productAttributeService.getProductAttributesByCategoryLineage(store, product.getCategories().iterator().next().getLineage(), en);
-	    Assert.assertTrue((long) attributes.size() > 0);
+	    Assertions.assertTrue((long) attributes.size() > 0);
 
 	}
 	
@@ -559,12 +559,12 @@ public class ProductTest extends com.salesmanager.test.common.AbstractSalesManag
         //get physical small image
         OutputContentFile contentFile = productImageService.getProductImage(product.getMerchantStore().getCode(), product.getSku(), productImage.getProductImage(), ProductImageSize.SMALL);
         
-        Assert.assertNotNull(contentFile);
+        Assertions.assertNotNull(contentFile);
 
    	 	//get physical original image
         contentFile = productImageService.getProductImage(product.getMerchantStore().getCode(), product.getSku(), productImage.getProductImage(), ProductImageSize.LARGE);
         
-        Assert.assertNotNull(contentFile);
+        Assertions.assertNotNull(contentFile);
 
 		
 	}
