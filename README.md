@@ -1,4 +1,4 @@
-# Shopizer 3 (for java 17 +) (tested with Java 11, 17)
+# Shopizer 3 (for java 21 +) (Spring Boot 3.5)
 
 3.2.7
 
