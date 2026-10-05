@@ -1,5 +1,7 @@
 package com.salesmanager.shop.store.api.v1.customer;
 
+import org.springframework.beans.factory.annotation.Qualifier;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -64,6 +66,7 @@ public class AuthenticateCustomerApi {
     private String tokenHeader;
 
     @Inject
+    @Qualifier("jwtCustomerAuthenticationManager")
     private AuthenticationManager jwtCustomerAuthenticationManager;
 
     @Inject

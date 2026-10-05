@@ -103,7 +103,7 @@ public class UserApi {
 	 * @return
 	 */
 	@ResponseStatus(HttpStatus.OK)
-	@PostMapping(value = { "/private/user/" }, produces = MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping(value = { "/private/user" }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@Operation(summary = "Creates a new user", description = "")
 	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
 			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })

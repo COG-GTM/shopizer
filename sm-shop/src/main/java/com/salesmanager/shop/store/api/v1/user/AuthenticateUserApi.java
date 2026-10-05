@@ -1,5 +1,7 @@
 package com.salesmanager.shop.store.api.v1.user;
 
+import org.springframework.beans.factory.annotation.Qualifier;
+
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletRequest;
@@ -44,6 +46,7 @@ public class AuthenticateUserApi {
     private String tokenHeader;
 
     @Inject
+    @Qualifier("jwtAdminAuthenticationManager")
     private AuthenticationManager jwtAdminAuthenticationManager;
     
     @Inject
