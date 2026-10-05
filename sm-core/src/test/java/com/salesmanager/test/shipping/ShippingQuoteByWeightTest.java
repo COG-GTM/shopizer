@@ -259,7 +259,7 @@ public class ShippingQuoteByWeightTest extends com.salesmanager.test.common.Abst
 	    
 	    ShippingQuote shippingQuote = shippingService.getShippingQuote(dummyCartId, store, delivery, shippingProducts, en);
 
-	    Assert.notNull(shippingQuote);
+	    Assert.notNull(shippingQuote, "shippingQuote must not be null");
 	    
 	}
 
