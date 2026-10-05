@@ -2,11 +2,11 @@ package com.salesmanager.core.business.repositories.user;
 
 import java.util.List;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 
-import javax.persistence.Query;
+import jakarta.persistence.Query;
 
 import com.salesmanager.core.model.user.Permission;
 import com.salesmanager.core.model.user.PermissionCriteria;

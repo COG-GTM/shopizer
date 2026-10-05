@@ -12,18 +12,17 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.apache.commons.digester.Digester;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.client5.http.ClientProtocolException;
+import org.apache.hc.core5.http.io.HttpClientResponseHandler;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -442,8 +441,8 @@ public class USPSShippingQuote implements ShippingQuoteModule {
 			// StringRequestEntity(xmlbuffer.toString(),"text/plain","UTF-8");
 			// httpget.setRequestEntity(entity);
 
-            ResponseHandler<String> responseHandler = response -> {
-				int status = response.getStatusLine().getStatusCode();
+            HttpClientResponseHandler<String> responseHandler = response -> {
+				int status = response.getCode();
 				if (status >= 200 && status < 300) {
 					HttpEntity entity = response.getEntity();
 					return entity != null ? EntityUtils.toString(entity) : null;
@@ -674,7 +673,7 @@ public class USPSShippingQuote implements ShippingQuoteModule {
 				}
 			}
 			if (httpget != null) {
-				httpget.releaseConnection();
+				httpget.reset();
 			}
 		}
 

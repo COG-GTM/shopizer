@@ -5,20 +5,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.salesmanager.core.business.utils.CoreConfiguration;
 import com.salesmanager.shop.constants.ApplicationConstants;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,7 +45,6 @@ public class CaptchaRequestUtils {
 	
 	public boolean checkCaptcha(String gRecaptchaResponse) throws Exception {
 
-		HttpClient client = HttpClientBuilder.create().build();
 	    
 	    String url = configuration.getProperty(ApplicationConstants.RECAPTCHA_URL);;
 
@@ -62,18 +60,14 @@ public class CaptchaRequestUtils {
 	    boolean checkCaptcha = false;
 	    
 
-	    try {
+	    try (CloseableHttpClient client = HttpClients.createDefault()) {
 	      // Execute the method.
-            HttpResponse httpResponse = client.execute(post);
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-
-	      if (statusCode != HttpStatus.SC_OK) {
-	    	throw new Exception("Got an invalid response from reCaptcha " + url + " [" + httpResponse.getStatusLine() + "]");
-	      }
-
-	      // Read the response body.
-            HttpEntity entity = httpResponse.getEntity();
-            byte[] responseBody =EntityUtils.toByteArray(entity);
+            byte[] responseBody = client.execute(post, httpResponse -> {
+              if (httpResponse.getCode() != HttpStatus.SC_OK) {
+                throw new IOException("Got an invalid response from reCaptcha " + url + " [" + httpResponse.getCode() + " " + httpResponse.getReasonPhrase() + "]");
+              }
+              return EntityUtils.toByteArray(httpResponse.getEntity());
+            });
 
 
 	      // Deal with the response.
@@ -102,10 +96,7 @@ public class CaptchaRequestUtils {
 	  	  
 	  	  return checkCaptcha;
 
-	    } finally {
-	      // Release the connection.
-	      post.releaseConnection();
-	    }  
+	    }
 	  }
 
 
