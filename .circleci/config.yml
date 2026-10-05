@@ -11,10 +11,7 @@ orbs:
 executors:
   shopizer-ci:
     docker:
-      - image: shopizerecomm/ci:java11
-        auth:
-          username: shopizerecomm
-          password: $DOCKERHUB_PASSWORD  
+      - image: cimg/openjdk:21.0
       
 working_directory: /tmp
 
@@ -26,17 +23,27 @@ jobs:
     steps:
       - checkout
       - run: echo "shopizer build and test (1)"
+      - restore_cache:
+          keys:
+            - m2-{{ checksum "pom.xml" }}-{{ checksum "sm-core/pom.xml" }}-{{ checksum "sm-shop/pom.xml" }}
+            - m2-
       - run:
-          name: Run shell script
+          name: Build and test (Java 21)
           command: |
             set -x
-            /home/shopizer/tools/shopizer.sh tests
+            java -version
+            ./mvnw -B clean install
+      - save_cache:
+          key: m2-{{ checksum "pom.xml" }}-{{ checksum "sm-core/pom.xml" }}-{{ checksum "sm-shop/pom.xml" }}
+          paths:
+            - ~/.m2/repository
       - persist_to_workspace:
           root: .
           paths:
             - ./sm-shop
   deploy:
-    machine: true
+    machine:
+      image: ubuntu-2404:current
     steps:
        - attach_workspace:
           at: .

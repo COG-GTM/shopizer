@@ -1,7 +1,7 @@
-FROM adoptopenjdk/openjdk11-openj9:alpine
-RUN mkdir /opt/app
-RUN mkdir /files
+FROM eclipse-temurin:21-jre
+RUN mkdir -p /opt/app /files
 COPY target/shopizer.jar /opt/app
 COPY SALESMANAGER.h2.db /
 COPY ./files /files
-CMD ["java", "-jar", "/opt/app/shopizer.jar"]
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "/opt/app/shopizer.jar"]
