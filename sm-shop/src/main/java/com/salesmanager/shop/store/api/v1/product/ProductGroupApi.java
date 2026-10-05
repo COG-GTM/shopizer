@@ -27,7 +27,6 @@ import com.salesmanager.shop.model.catalog.product.ReadableProductList;
 import com.salesmanager.shop.model.catalog.product.group.ProductGroup;
 import com.salesmanager.shop.store.controller.items.facade.ProductItemsFacade;
 
-import antlr.collections.List;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;

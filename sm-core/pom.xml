@@ -28,10 +28,10 @@
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-ehcache -->
+		<!-- Hibernate 6 second-level cache through JCache (Ehcache 3) -->
 		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-ehcache</artifactId>
+			<groupId>org.hibernate.orm</groupId>
+			<artifactId>hibernate-jcache</artifactId>
 		</dependency>
 
 		<!-- sm-core-model -->
@@ -85,39 +85,24 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.kie</groupId>
-			<artifactId>kie-ci</artifactId>
-			<exclusions>
-				<exclusion>
-					<groupId>com.google.guava</groupId>
-					<artifactId>guava</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>javax.annotation</groupId>
-					<artifactId>jsr250-api</artifactId>
-				</exclusion>
-			</exclusions>
+			<groupId>org.jsoup</groupId>
+			<artifactId>jsoup</artifactId>
+		</dependency>
+
+		<!-- rules engine (kie-ci / kie-spring have no Spring 6 release and are not used) -->
+		<dependency>
+			<groupId>org.drools</groupId>
+			<artifactId>drools-engine</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.drools</groupId>
+			<artifactId>drools-mvel</artifactId>
 		</dependency>
 
 		<dependency>
 			<groupId>org.drools</groupId>
 			<artifactId>drools-decisiontables</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.drools</groupId>
-			<artifactId>drools-core</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.drools</groupId>
-			<artifactId>drools-compiler</artifactId>
-		</dependency>
-
-		<!--spring integration -->
-		<dependency>
-			<groupId>org.kie</groupId>
-			<artifactId>kie-spring</artifactId>
 		</dependency>
 		<!-- end rules engine -->
 
