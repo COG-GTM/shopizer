@@ -167,7 +167,7 @@ public class CustomerApi {
 
 	}
 
-	@PatchMapping("/auth/customer/")
+	@PatchMapping("/auth/customer")
 	@Operation(summary = "Updates a loged in customer profile", description = "Requires authentication")
 	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")) })
 	public PersistableCustomer update(@Parameter(hidden = true) MerchantStore merchantStore,
@@ -179,7 +179,7 @@ public class CustomerApi {
 		return customerFacade.update(userName, customer, merchantStore);
 	}
 	
-	@DeleteMapping("/auth/customer/")
+	@DeleteMapping("/auth/customer")
 	@Operation(summary = "Deletes a loged in customer profile", description = "Requires authentication")
 	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")) })
 	public void delete(@Parameter(hidden = true) MerchantStore merchantStore, @Parameter(hidden = true) Language language,

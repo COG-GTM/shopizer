@@ -5,6 +5,7 @@ import static org.springframework.security.web.servlet.util.matcher.PathPatternR
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -92,11 +93,11 @@ public class MultipleEntryPointsSecurityConfig {
 	@Bean
 	@Order(1)
 	public SecurityFilterChain customerFilterChain(HttpSecurity http,
-			@Qualifier("customerDetailsService") UserDetailsService customerDetailsService,
-			PasswordEncoder passwordEncoder) throws Exception {
+			@Qualifier("customerAuthenticationManager") AuthenticationManager customerAuthenticationManager)
+			throws Exception {
 		http
 			.securityMatcher(path("/shop/**"))
-			.authenticationManager(authenticationManager(customerDetailsService, passwordEncoder))
+			.authenticationManager(customerAuthenticationManager)
 			.csrf(AbstractHttpConfigurer::disable)
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers(path("/shop/")).permitAll()
@@ -148,13 +149,11 @@ public class MultipleEntryPointsSecurityConfig {
 	@Bean
 	@Order(5)
 	public SecurityFilterChain userApiFilterChain(HttpSecurity http,
-			JWTAdminServicesImpl jwtUserDetailsService,
-			AuthenticationTokenFilter authenticationTokenFilter,
-			PasswordEncoder passwordEncoder) throws Exception {
+			@Qualifier("jwtAdminAuthenticationManager") AuthenticationManager jwtAdminAuthenticationManager,
+			AuthenticationTokenFilter authenticationTokenFilter) throws Exception {
 		http
 			.securityMatcher(path(API_VERSION + "/private/**"))
-			.authenticationManager(authenticationManager(jwtUserDetailsService, passwordEncoder,
-					jwtAdminAuthenticationProvider(jwtUserDetailsService)))
+			.authenticationManager(jwtAdminAuthenticationManager)
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers(path(API_VERSION + "/private/login*")).permitAll()
 				.requestMatchers(path(API_VERSION + "/private/refresh")).permitAll()
@@ -173,12 +172,11 @@ public class MultipleEntryPointsSecurityConfig {
 	@Bean
 	@Order(6)
 	public SecurityFilterChain customerApiFilterChain(HttpSecurity http,
-			@Qualifier("jwtCustomerDetailsService") UserDetailsService jwtCustomerDetailsService,
-			AuthenticationTokenFilter authenticationTokenFilter,
-			PasswordEncoder passwordEncoder) throws Exception {
+			@Qualifier("jwtCustomerAuthenticationManager") AuthenticationManager jwtCustomerAuthenticationManager,
+			AuthenticationTokenFilter authenticationTokenFilter) throws Exception {
 		http
 			.securityMatcher(path(API_VERSION + "/auth/**"))
-			.authenticationManager(authenticationManager(jwtCustomerDetailsService, passwordEncoder))
+			.authenticationManager(jwtCustomerAuthenticationManager)
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers(path(API_VERSION + "/auth/refresh")).permitAll()
 				.requestMatchers(path(API_VERSION + "/auth/login")).permitAll()
@@ -190,6 +188,27 @@ public class MultipleEntryPointsSecurityConfig {
 			.csrf(AbstractHttpConfigurer::disable)
 			.addFilterAfter(authenticationTokenFilter, BasicAuthenticationFilter.class);
 		return http.build();
+	}
+
+	@Primary
+	@Bean("customerAuthenticationManager")
+	public AuthenticationManager customerAuthenticationManager(
+			@Qualifier("customerDetailsService") UserDetailsService customerDetailsService,
+			PasswordEncoder passwordEncoder) {
+		return authenticationManager(customerDetailsService, passwordEncoder);
+	}
+
+	@Bean("jwtAdminAuthenticationManager")
+	public AuthenticationManager jwtAdminAuthenticationManager(JWTAdminServicesImpl jwtUserDetailsService,
+			JWTAdminAuthenticationProvider jwtAdminAuthenticationProvider, PasswordEncoder passwordEncoder) {
+		return authenticationManager(jwtUserDetailsService, passwordEncoder, jwtAdminAuthenticationProvider);
+	}
+
+	@Bean("jwtCustomerAuthenticationManager")
+	public AuthenticationManager jwtCustomerAuthenticationManager(
+			@Qualifier("jwtCustomerDetailsService") UserDetailsService jwtCustomerDetailsService,
+			PasswordEncoder passwordEncoder) {
+		return authenticationManager(jwtCustomerDetailsService, passwordEncoder);
 	}
 
 	@Bean
