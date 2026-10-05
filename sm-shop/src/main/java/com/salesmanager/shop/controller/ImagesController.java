@@ -1,8 +1,7 @@
 package com.salesmanager.shop.controller;
 
-import java.io.File;
+import java.io.InputStream;
 import java.io.IOException;
-import java.nio.file.Files;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.inject.Inject;
@@ -12,7 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.ResourceUtils;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -47,10 +46,8 @@ public class ImagesController {
 	@PostConstruct
 	public void init() {
 		try {
-			File file = ResourceUtils.getFile("classpath:static/not-found.png");
-			if(file != null) {
-				byte[] bFile = Files.readAllBytes(file.toPath());
-				this.tempImage = bFile;
+			try (InputStream in = new ClassPathResource("static/not-found.png").getInputStream()) {
+				this.tempImage = in.readAllBytes();
 			}
 
 			

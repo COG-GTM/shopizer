@@ -1,5 +1,10 @@
 package com.salesmanager.shop.store.api.v1.marketplace;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.inject.Inject;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,10 +31,6 @@ import com.salesmanager.shop.store.controller.store.facade.StoreFacade;
 import com.salesmanager.shop.store.controller.user.facade.UserFacade;
 import com.salesmanager.shop.utils.LanguageUtils;
 
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-import springfox.documentation.annotations.ApiIgnore;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -52,7 +53,7 @@ public class MarketPlaceApi {
 	 * merchant store
 	 */
 	@GetMapping("/private/marketplace/{store}")
-	@ApiOperation(httpMethod = "GET", value = "Get market place meta-data", notes = "", produces = "application/json", response = ReadableMarketPlace.class)
+	@Operation(summary = "Get market place meta-data", description = "")
 	public ReadableMarketPlace marketPlace(@PathVariable String store,
 			@RequestParam(value = "lang", required = false) String lang) {
 
@@ -62,8 +63,8 @@ public class MarketPlaceApi {
 
 	// signup new merchant
 	@PostMapping("/store/signup")
-	@ApiOperation(httpMethod = "POST", value = "Signup store", notes = "", produces = "application/json", response = Void.class)
-	public void signup(@RequestBody SignupStore store, @ApiIgnore Language language) {
+	@Operation(summary = "Signup store", description = "")
+	public void signup(@RequestBody SignupStore store, @Parameter(hidden = true) Language language) {
 
 		ReadableUser user = null;
 		try {
@@ -94,12 +95,12 @@ public class MarketPlaceApi {
 	
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping(value = { "/store/{store}/signup/{token}" }, produces = MediaType.APPLICATION_JSON_VALUE)
-	@ApiOperation(httpMethod = "GET", value = "Validate store signup token", notes = "", response = Void.class)
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
+	@Operation(summary = "Validate store signup token", description = "")
+	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
 	public void storeSignupVerify(@PathVariable String store, @PathVariable String token,
-			@ApiIgnore MerchantStore merchantStore, 
-			@ApiIgnore Language language) {
+			@Parameter(hidden = true) MerchantStore merchantStore, 
+			@Parameter(hidden = true) Language language) {
 
 		/**
 		 * Receives signup token. Needs to validate if a store

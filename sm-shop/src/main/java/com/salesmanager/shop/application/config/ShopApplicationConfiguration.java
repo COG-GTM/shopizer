@@ -18,6 +18,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.Ordered;
 import org.springframework.context.event.EventListener;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.http.MediaType;
@@ -25,6 +26,7 @@ import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.web.filter.UrlHandlerFilter;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -62,6 +64,17 @@ public class ShopApplicationConfiguration implements WebMvcConfigurer {
       registrationBean.addUrlPatterns("/customer/**");
           
       return registrationBean;    
+  }
+
+  /**
+   * Spring 6 no longer matches "/path/" to "/path"; keep accepting trailing slashes from existing API clients.
+   */
+  @Bean
+  public FilterRegistrationBean<UrlHandlerFilter> trailingSlashFilter() {
+    FilterRegistrationBean<UrlHandlerFilter> registrationBean = new FilterRegistrationBean<>(
+        UrlHandlerFilter.trailingSlashHandler("/**").wrapRequest().build());
+    registrationBean.setOrder(Ordered.HIGHEST_PRECEDENCE);
+    return registrationBean;
   }
 
   @Override

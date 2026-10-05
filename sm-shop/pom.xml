@@ -106,15 +106,10 @@
 			<scope>runtime</scope>
 		</dependency>
 
-		<!-- Swagger 2 documentation -->
+		<!-- OpenAPI 3 documentation: /swagger-ui/index.html, /v3/api-docs -->
 		<dependency>
-			<groupId>io.springfox</groupId>
-			<artifactId>springfox-swagger2</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>io.springfox</groupId>
-			<artifactId>springfox-swagger-ui</artifactId>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 		</dependency>
 
 		<dependency>
