@@ -11,12 +11,8 @@ orbs:
 executors:
   shopizer-ci:
     docker:
-      - image: shopizerecomm/ci:java11
-        auth:
-          username: shopizerecomm
-          password: $DOCKERHUB_PASSWORD  
-      
-working_directory: /tmp
+      - image: cimg/openjdk:21.0
+    working_directory: ~/shopizer
 
 
 # Define the jobs we want to run for this project
@@ -25,12 +21,23 @@ jobs:
     executor: shopizer-ci
     steps:
       - checkout
-      - run: echo "shopizer build and test (1)"
+      - restore_cache:
+          keys:
+            - shopizer-m2-{{ checksum "pom.xml" }}-{{ checksum "sm-core/pom.xml" }}-{{ checksum "sm-shop/pom.xml" }}
+            - shopizer-m2-
+      - run: echo "shopizer build and test (Java 21)"
       - run:
-          name: Run shell script
+          name: Build and test
           command: |
             set -x
-            /home/shopizer/tools/shopizer.sh tests
+            java -version
+            ./mvnw -B clean install
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: shopizer-m2-{{ checksum "pom.xml" }}-{{ checksum "sm-core/pom.xml" }}-{{ checksum "sm-shop/pom.xml" }}
+      - store_test_results:
+          path: sm-shop/target/surefire-reports
       - persist_to_workspace:
           root: .
           paths:
@@ -40,22 +47,12 @@ jobs:
     steps:
        - attach_workspace:
           at: .
-       # start proprietary DB using private Docker image
-       # with credentials stored in the UI
-       - run:
-           name: list files in repo
-           command: ls -al
-           working_directory: .
-       - run:
-           name: list files in shop
-           command: ls -al
-           working_directory: ./sm-shop
        - run:
            name: list files in shop/target
            command: ls -al
            working_directory: ./sm-shop/target
        - run: |
-           docker login -u shopizerecomm -p $DOCKERHUB_PASSWORD
+           echo "$DOCKERHUB_PASSWORD" | docker login -u shopizerecomm --password-stdin
        - run: |
            (cd sm-shop && docker build . -t shopizerecomm/shopizer:3.2.7)
        - run:
