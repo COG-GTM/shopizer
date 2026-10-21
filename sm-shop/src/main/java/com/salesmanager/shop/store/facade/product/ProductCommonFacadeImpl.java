@@ -94,7 +94,11 @@ public class ProductCommonFacadeImpl implements ProductCommonFacade {
 
 		Product target = null;
 		if (product.getId() != null && product.getId().longValue() > 0) {
-			target = productService.getById(product.getId());
+			target = productService.findOne(product.getId(), store);
+			if (target == null) {
+				throw new ResourceNotFoundException(
+						"Product [" + product.getId() + "] not found for store [" + store.getCode() + "]");
+			}
 		} else {
 			target = new Product();
 		}
