@@ -220,6 +220,10 @@ public class AuthenticateCustomerApi {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
 
+        if (!jwtTokenUtil.isTokenBoundTo(token, user, JWTTokenUtil.TOKEN_TYPE_CUSTOMER)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+
         if (jwtTokenUtil.canTokenBeRefreshed(token, user, JWTTokenUtil.TOKEN_TYPE_CUSTOMER)) {
             String refreshedToken = jwtTokenUtil.refreshToken(token);
             return ResponseEntity.ok(new AuthenticationResponse(user.getId(),refreshedToken));

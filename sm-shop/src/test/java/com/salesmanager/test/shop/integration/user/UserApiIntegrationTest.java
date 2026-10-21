@@ -1,6 +1,7 @@
 package com.salesmanager.test.shop.integration.user;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
 import javax.inject.Inject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,6 +18,7 @@ import com.salesmanager.shop.model.security.PersistableGroup;
 import com.salesmanager.shop.model.user.PersistableUser;
 import com.salesmanager.shop.model.user.ReadableUser;
 import com.salesmanager.shop.model.user.UserPassword;
+import com.salesmanager.shop.store.security.AuthenticationResponse;
 import com.salesmanager.test.shop.common.ServicesTestSupport;
 
 @SpringBootTest(classes = ShopApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -42,6 +44,17 @@ public class UserApiIntegrationTest extends ServicesTestSupport {
           final ReadableUser user = response.getBody();
           assertNotNull(user);
       }
+  }
+
+  @Test
+  public void refreshAdminToken() {
+      final HttpEntity<String> httpEntity = new HttpEntity<>(getHeader());
+      final ResponseEntity<AuthenticationResponse> response = testRestTemplate.exchange(
+              "/api/v1/auth/refresh", HttpMethod.GET, httpEntity, AuthenticationResponse.class);
+
+      assertEquals(HttpStatus.OK, response.getStatusCode());
+      assertNotNull(response.getBody());
+      assertNotNull(response.getBody().getToken());
   }
   
   @Test

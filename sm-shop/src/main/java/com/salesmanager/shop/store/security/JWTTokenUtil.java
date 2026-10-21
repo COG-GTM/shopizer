@@ -193,7 +193,7 @@ public class JWTTokenUtil implements Serializable {
 	                && !isTokenExpired && !isTokenCreatedBeforeLastPasswordReset;
 	    }
 
-	    private boolean isTokenBoundTo(String token, JWTUser user, String expectedTokenType) {
+	    public boolean isTokenBoundTo(String token, JWTUser user, String expectedTokenType) {
 	        return user.getUsername().equals(getUsernameFromToken(token))
 	                && expectedTokenType.equals(getTokenTypeFromToken(token))
 	                && user.getId() != null && user.getId().equals(getUserIdFromToken(token));

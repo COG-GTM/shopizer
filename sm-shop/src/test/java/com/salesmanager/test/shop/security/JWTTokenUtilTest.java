@@ -36,6 +36,7 @@ public class JWTTokenUtilTest {
         JWTUser user = user(1L, "admin@example.com");
         String token = tokenUtil.generateToken(user, JWTTokenUtil.TOKEN_TYPE_ADMIN);
 
+        assertTrue(tokenUtil.isTokenBoundTo(token, user, JWTTokenUtil.TOKEN_TYPE_ADMIN));
         assertTrue(tokenUtil.validateToken(token, user, JWTTokenUtil.TOKEN_TYPE_ADMIN));
     }
 
@@ -44,6 +45,7 @@ public class JWTTokenUtilTest {
         JWTUser customer = user(1L, "admin@example.com");
         String token = tokenUtil.generateToken(customer, JWTTokenUtil.TOKEN_TYPE_CUSTOMER);
 
+        assertFalse(tokenUtil.isTokenBoundTo(token, customer, JWTTokenUtil.TOKEN_TYPE_ADMIN));
         assertFalse(tokenUtil.validateToken(token, customer, JWTTokenUtil.TOKEN_TYPE_ADMIN));
     }
 

@@ -129,6 +129,10 @@ public class AuthenticateUserApi {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
 
+        if (!jwtTokenUtil.isTokenBoundTo(token, user, JWTTokenUtil.TOKEN_TYPE_ADMIN)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+
         if (jwtTokenUtil.canTokenBeRefreshedWithGrace(token, user, JWTTokenUtil.TOKEN_TYPE_ADMIN)) {
             String refreshedToken = jwtTokenUtil.refreshToken(token);
             return ResponseEntity.ok(new AuthenticationResponse(user.getId(),refreshedToken));

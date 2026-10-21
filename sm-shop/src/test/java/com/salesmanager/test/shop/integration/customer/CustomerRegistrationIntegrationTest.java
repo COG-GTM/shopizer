@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -91,6 +92,9 @@ public class CustomerRegistrationIntegrationTest extends ServicesTestSupport {
             final ResponseEntity<String> customerProfile = testRestTemplate.exchange(
                     "/api/v1/private/user/profile", HttpMethod.GET, new HttpEntity<>(customerHeaders), String.class);
             assertFalse(customerProfile.getStatusCode().is2xxSuccessful());
+            final ResponseEntity<String> customerRefresh = testRestTemplate.exchange(
+                    "/api/v1/auth/refresh", HttpMethod.GET, new HttpEntity<>(customerHeaders), String.class);
+            assertThat(customerRefresh.getStatusCode(), is(UNAUTHORIZED));
         } else {
             assertFalse(registrationResponse.getStatusCode().is2xxSuccessful());
             final ResponseEntity<String> anonymousProfile = testRestTemplate.exchange(
