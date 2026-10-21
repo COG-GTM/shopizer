@@ -139,6 +139,20 @@ public class UserApiIntegrationTest extends ServicesTestSupport {
       assertEquals(HttpStatus.UNAUTHORIZED, rejectedLogin.getStatusCode());
   }
 
+  @Test
+  public void updateWithoutStoreKeepsOwningStore() {
+      ReadableUser user = createUser("ADMIN_CATALOGUE");
+      PersistableUser update = userUpdate(user.getUserName(), "Password9");
+      update.setFirstName("Updated");
+
+      final ResponseEntity<ReadableUser> response = testRestTemplate.exchange(
+              "/api/v1/private/user/" + user.getId(), HttpMethod.PUT, new HttpEntity<>(update, getHeader()),
+              ReadableUser.class);
+      assertEquals(HttpStatus.OK, response.getStatusCode());
+      assertNotNull(response.getBody());
+      assertEquals("DEFAULT", response.getBody().getMerchant());
+  }
+
   private ReadableUser createUser(String groupName) {
       String username = "user-" + UUID.randomUUID() + "@shopizer.com";
       PersistableUser newUser = new PersistableUser();

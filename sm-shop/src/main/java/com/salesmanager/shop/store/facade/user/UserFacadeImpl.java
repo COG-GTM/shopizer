@@ -404,6 +404,9 @@ public class UserFacadeImpl implements UserFacade {
 			if (userModel == null) {
 				throw new ResourceNotFoundException("User [" + id + "] not found");
 			}
+			if (StringUtils.isBlank(user.getStore())) {
+				user.setStore(userModel.getMerchantStore().getCode());
+			}
 			if (userModel.getId().longValue() != id.longValue()) {
 				throw new ServiceRuntimeException(
 						"Cannot find user [" + user.getUserName() + "] id or name does not match");
@@ -425,7 +428,7 @@ public class UserFacadeImpl implements UserFacade {
 			boolean targetSuperadmin = originalGroups.stream()
 					.anyMatch(group -> Constants.GROUP_SUPERADMIN.equals(group.getGroupName()));
 			boolean isSelf = auth.getId().longValue() == userModel.getId().longValue();
-			String effectiveStoreCode = StringUtils.isBlank(user.getStore()) ? store.getCode() : user.getStore();
+			String effectiveStoreCode = user.getStore();
 
 			if (!isSelf) {
 				if (!callerAdmin) {
