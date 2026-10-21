@@ -100,11 +100,7 @@ public class ProductApi {
 	 * @return Entity
 	 */
 	@ResponseStatus(HttpStatus.CREATED)
-	@RequestMapping(value = { "/private/product", "/auth/products" }, // private
-																			// for
-			// adding
-			// products
-			method = RequestMethod.POST)
+	@RequestMapping(value = { "/private/product" }, method = RequestMethod.POST)
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public @ResponseBody Entity create(@Valid @RequestBody PersistableProduct product,
@@ -118,7 +114,7 @@ public class ProductApi {
 	}
 
 	@ResponseStatus(HttpStatus.OK)
-	@RequestMapping(value = { "/private/product/{id}", "/auth/product/{id}" }, method = RequestMethod.PUT)
+	@RequestMapping(value = { "/private/product/{id}" }, method = RequestMethod.PUT)
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	@ApiOperation(httpMethod = "PUT", value = "Update product", notes = "", produces = "application/json", response = PersistableProduct.class)
@@ -130,6 +126,7 @@ public class ProductApi {
 			// Make sure we have consistency in this request
 			if (!id.equals(product.getId())) {
 				response.sendError(400, "Error url id does not match object id");
+				return;
 			}
 
 			productCommonFacade.saveProduct(merchantStore, product,
@@ -162,7 +159,7 @@ public class ProductApi {
 	}
 
 	@ResponseStatus(HttpStatus.OK)
-	@RequestMapping(value = { "/private/product/{id}", "/auth/product/{id}" }, method = RequestMethod.DELETE)
+	@RequestMapping(value = { "/private/product/{id}" }, method = RequestMethod.DELETE)
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public void delete(@PathVariable Long id, @ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) {
@@ -480,7 +477,7 @@ public class ProductApi {
 	 */
 
 	@ResponseStatus(HttpStatus.OK)
-	@RequestMapping(value = { "/private/product/{id}", "/auth/product/{id}" }, method = RequestMethod.PATCH)
+	@RequestMapping(value = { "/private/product/{id}" }, method = RequestMethod.PATCH)
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	@ApiOperation(httpMethod = "POST", value = "Patch product sort order", notes = "Change product sortOrder")
