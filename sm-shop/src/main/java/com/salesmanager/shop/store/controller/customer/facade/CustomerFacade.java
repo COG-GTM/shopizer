@@ -171,7 +171,7 @@ public interface CustomerFacade
 
 	void deleteByNick(String nick);
 	
-	void deleteById(Long id);
+	void deleteById(Long id, MerchantStore store);
 
 	void delete(Customer entity);
 
