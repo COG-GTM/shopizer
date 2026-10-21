@@ -1,12 +1,14 @@
 package com.salesmanager.test.shop.uat;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,6 +23,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import com.salesmanager.core.business.exception.ServiceException;
+import com.salesmanager.core.business.services.merchant.MerchantStoreService;
+import com.salesmanager.core.business.services.shipping.ShippingService;
+import com.salesmanager.core.model.system.IntegrationConfiguration;
 import com.salesmanager.shop.application.ShopApplication;
 import com.salesmanager.shop.model.catalog.category.Category;
 import com.salesmanager.shop.model.catalog.category.PersistableCategory;
@@ -55,8 +61,14 @@ public class StorefrontAdminJourneyUatTest extends ServicesTestSupport {
 	@Autowired
 	private TestRestTemplate testRestTemplate;
 
+	@Autowired
+	private ShippingService shippingService;
+
+	@Autowired
+	private MerchantStoreService merchantStoreService;
+
 	@Test
-	public void exercisesAdminCustomerStoreCartShippingAndServiceJourneys() {
+	public void exercisesAdminCustomerStoreCartShippingAndServiceJourneys() throws Exception {
 		String adminToken = loginAdmin();
 		assertPrivateApiAuthorization(adminToken);
 
@@ -130,7 +142,7 @@ public class StorefrontAdminJourneyUatTest extends ServicesTestSupport {
 		assertEquals(2, cartRead.getBody().getQuantity());
 
 		configureInternationalShipping(adminToken);
-		boolean customShippingEnabled = configureCustomShippingModule(adminToken);
+		configureCustomShippingModule();
 		AddressLocation shipTo = new AddressLocation();
 		shipTo.setCountryCode("CA");
 		shipTo.setPostalCode("H3Z 2Y7");
@@ -138,11 +150,14 @@ public class StorefrontAdminJourneyUatTest extends ServicesTestSupport {
 				"/api/v1/cart/" + cartCode + "/shipping", shipTo, ReadableShippingSummary.class);
 		assertEquals(HttpStatus.OK, shipping.getStatusCode());
 		assertNotNull(shipping.getBody());
-		if (customShippingEnabled) {
-			assertNotNull(shipping.getBody().getShippingOptions());
-			assertTrue(shipping.getBody().getShippingOptions().stream()
-					.anyMatch(option -> "customQuotesRules".equals(option.getOptionCode())));
-		}
+		assertNotNull(shipping.getBody().getShippingOptions());
+		assertFalse(shipping.getBody().getShippingOptions().isEmpty());
+		String optionDetails = shipping.getBody().getShippingOptions().stream()
+				.map(option -> option.getOptionCode() + "=" + option.getOptionPrice())
+				.collect(Collectors.joining(", "));
+		assertTrue(optionDetails, shipping.getBody().getShippingOptions().stream()
+				.anyMatch(option -> "customQuotesRules".equals(option.getOptionCode())
+						&& new BigDecimal("140").compareTo(option.getOptionPrice()) == 0));
 
 		ResponseEntity<ReadableShoppingCart> cartBeforePromo = testRestTemplate.exchange(
 				"/api/v1/cart/" + cartCode,
@@ -197,7 +212,8 @@ public class StorefrontAdminJourneyUatTest extends ServicesTestSupport {
 				HttpMethod.GET,
 				new HttpEntity<Void>(garbageTokenHeaders),
 				String.class);
-		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, garbageToken.getStatusCode());
+		// Currently 500 from an uncaught MalformedJwtException; expected behavior is 401.
+		assertFalse(garbageToken.getStatusCode().is2xxSuccessful());
 	}
 
 	private PersistableCustomer customer(String email) {
@@ -223,18 +239,13 @@ public class StorefrontAdminJourneyUatTest extends ServicesTestSupport {
 		return customer;
 	}
 
-	private boolean configureCustomShippingModule(String adminToken) {
-		IntegrationModuleConfiguration configuration = new IntegrationModuleConfiguration();
-		configuration.setCode("customQuotesRules");
+	private void configureCustomShippingModule() throws ServiceException {
+		// Use the service because the pre-existing admin endpoint cannot create a new module config.
+		IntegrationConfiguration configuration = new IntegrationConfiguration();
+		configuration.setModuleCode("customQuotesRules");
 		configuration.setActive(true);
 		configuration.setDefaultSelected(true);
-		ResponseEntity<Void> response = testRestTemplate.postForEntity(
-				"/api/v1/private/modules/shipping",
-				new HttpEntity<IntegrationModuleConfiguration>(configuration, bearerHeaders(adminToken)),
-				Void.class);
-		assertTrue(response.getStatusCode().is2xxSuccessful()
-				|| response.getStatusCode() == HttpStatus.BAD_REQUEST);
-		return response.getStatusCode().is2xxSuccessful();
+		shippingService.saveShippingQuoteModuleConfiguration(configuration, merchantStoreService.getByCode("DEFAULT"));
 	}
 
 	private void configureInternationalShipping(String adminToken) {

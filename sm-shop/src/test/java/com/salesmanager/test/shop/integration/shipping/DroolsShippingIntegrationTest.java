@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 import org.kie.api.runtime.KieSession;
@@ -25,17 +26,21 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.salesmanager.core.business.configuration.DroolsBeanFactory;
+import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.modules.integration.shipping.impl.CustomShippingQuoteRules;
 import com.salesmanager.core.business.modules.integration.shipping.impl.DecisionResponse;
 import com.salesmanager.core.business.modules.integration.shipping.impl.ShippingDecisionPreProcessorImpl;
 import com.salesmanager.core.business.modules.integration.shipping.impl.ShippingInputParameters;
 import com.salesmanager.core.business.modules.order.total.PromoCodeCalculatorModule;
+import com.salesmanager.core.business.services.merchant.MerchantStoreService;
+import com.salesmanager.core.business.services.shipping.ShippingService;
 import com.salesmanager.core.model.common.Delivery;
 import com.salesmanager.core.model.order.OrderSummary;
 import com.salesmanager.core.model.reference.country.Country;
 import com.salesmanager.core.model.shipping.PackageDetails;
 import com.salesmanager.core.model.shipping.ShippingOption;
 import com.salesmanager.core.model.shipping.ShippingQuote;
+import com.salesmanager.core.model.system.IntegrationConfiguration;
 import com.salesmanager.core.model.system.IntegrationModule;
 import com.salesmanager.core.modules.constants.Constants;
 import com.salesmanager.core.modules.integration.shipping.model.ShippingQuotePrePostProcessModule;
@@ -51,7 +56,6 @@ import com.salesmanager.shop.model.shoppingcart.PersistableShoppingCartItem;
 import com.salesmanager.shop.model.shoppingcart.ReadableShoppingCart;
 import com.salesmanager.shop.model.entity.Entity;
 import com.salesmanager.shop.model.shipping.ExpeditionConfiguration;
-import com.salesmanager.shop.model.system.IntegrationModuleConfiguration;
 import com.salesmanager.test.shop.common.ServicesTestSupport;
 
 @SpringBootTest(classes = ShopApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -74,6 +78,12 @@ public class DroolsShippingIntegrationTest extends ServicesTestSupport {
 
 	@Autowired
 	private TestRestTemplate testRestTemplate;
+
+	@Autowired
+	private ShippingService shippingService;
+
+	@Autowired
+	private MerchantStoreService merchantStoreService;
 
 	@Test
 	public void springRulesAndShippingEndpointsUseConfiguredDrools() throws Exception {
@@ -141,7 +151,7 @@ public class DroolsShippingIntegrationTest extends ServicesTestSupport {
 		assertEquals("priceByDistance", decisionQuote.getCurrentShippingModule().getCode());
 
 		configureInternationalShipping();
-		boolean customShippingEnabled = enableCustomShippingModule();
+		configureCustomShippingModule();
 		ReadableShoppingCart cart = createCart();
 		AddressLocation address = new AddressLocation();
 		address.setCountryCode("CA");
@@ -152,11 +162,15 @@ public class DroolsShippingIntegrationTest extends ServicesTestSupport {
 				ReadableShippingSummary.class);
 		assertEquals(HttpStatus.OK, shippingResponse.getStatusCode());
 		assertNotNull(shippingResponse.getBody());
-		if (customShippingEnabled) {
-			assertNotNull(shippingResponse.getBody().getShippingOptions());
-			assertTrue(shippingResponse.getBody().getShippingOptions().stream()
-					.anyMatch(option -> "customQuotesRules".equals(option.getOptionCode())));
-		}
+		assertNotNull(shippingResponse.getBody().getShippingOptions());
+		assertFalse(shippingResponse.getBody().getShippingOptions().isEmpty());
+		List<ShippingOption> shippingOptions = shippingResponse.getBody().getShippingOptions();
+		String optionDetails = shippingOptions.stream()
+				.map(option -> option.getOptionCode() + "=" + option.getOptionPrice())
+				.collect(Collectors.joining(", "));
+		assertTrue(optionDetails, shippingOptions.stream()
+				.anyMatch(option -> CustomShippingQuoteRules.MODULE_CODE.equals(option.getOptionCode())
+						&& new BigDecimal("140").compareTo(option.getOptionPrice()) == 0));
 
 		ResponseEntity<ReadableShoppingCart> promoResponse = testRestTemplate.exchange(
 				"/api/v1/cart/" + cart.getCode() + "/promo/Test1234",
@@ -168,17 +182,13 @@ public class DroolsShippingIntegrationTest extends ServicesTestSupport {
 		assertEquals(cart.getTotal(), promoResponse.getBody().getTotal());
 	}
 
-	private boolean enableCustomShippingModule() {
-		IntegrationModuleConfiguration configuration = new IntegrationModuleConfiguration();
-		configuration.setCode(CustomShippingQuoteRules.MODULE_CODE);
+	private void configureCustomShippingModule() throws ServiceException {
+		// Use the service because the pre-existing admin endpoint cannot create a new module config.
+		IntegrationConfiguration configuration = new IntegrationConfiguration();
+		configuration.setModuleCode(CustomShippingQuoteRules.MODULE_CODE);
 		configuration.setActive(true);
 		configuration.setDefaultSelected(true);
-		ResponseEntity<Void> response = testRestTemplate.postForEntity(
-				"/api/v1/private/modules/shipping",
-				new HttpEntity<IntegrationModuleConfiguration>(configuration, getHeader()),
-				Void.class);
-		assertFalse(response.getStatusCode().is5xxServerError());
-		return response.getStatusCode().is2xxSuccessful();
+		shippingService.saveShippingQuoteModuleConfiguration(configuration, merchantStoreService.getByCode("DEFAULT"));
 	}
 
 	private void configureInternationalShipping() {
