@@ -12,7 +12,9 @@ import static com.salesmanager.shop.constants.Constants.SLASH;
 import static com.salesmanager.shop.constants.Constants.STATIC_URI;
 import static com.salesmanager.shop.constants.Constants.URL_EXTENSION;
 
+import java.net.URI;
 import java.net.URL;
+import java.util.Locale;
 import java.util.Properties;
 
 import javax.annotation.Resource;
@@ -222,5 +224,61 @@ public class FilePathUtils {
 	    {
 	        return false;
 	    }
+	}
+
+	public boolean isAllowedReturnUrl(String url, MerchantStore store, String allowedUrls) {
+		try {
+			String requestedOrigin = normalizeOrigin(url);
+			if (requestedOrigin == null) {
+				return false;
+			}
+
+			if (StringUtils.isNotBlank(allowedUrls)) {
+				for (String allowedUrl : allowedUrls.split(",")) {
+					if (requestedOrigin.equals(normalizeOrigin(allowedUrl.trim()))) {
+						return true;
+					}
+				}
+			}
+
+			if (store == null || StringUtils.isBlank(store.getDomainName())) {
+				return false;
+			}
+
+			String requestedHost = normalizeHost(url);
+			String storeHost = normalizeHost(validUrl(store.getDomainName()));
+			return requestedHost != null && requestedHost.equals(storeHost);
+		} catch (Exception exception) {
+			return false;
+		}
+	}
+
+	private String normalizeOrigin(String url) {
+		URI uri = parseHttpUri(url);
+		if (uri == null) {
+			return null;
+		}
+
+		return uri.getScheme().toLowerCase(Locale.ROOT) + "://" + uri.getHost().toLowerCase(Locale.ROOT)
+				+ (uri.getPort() != -1 ? ":" + uri.getPort() : "");
+	}
+
+	private String normalizeHost(String url) {
+		URI uri = parseHttpUri(url);
+		return uri == null ? null : uri.getHost().toLowerCase(Locale.ROOT);
+	}
+
+	private URI parseHttpUri(String url) {
+		try {
+			URI uri = new URI(url);
+			String scheme = uri.getScheme();
+			if ((scheme == null || (!"http".equalsIgnoreCase(scheme) && !"https".equalsIgnoreCase(scheme)))
+					|| StringUtils.isBlank(uri.getHost()) || uri.getUserInfo() != null) {
+				return null;
+			}
+			return uri;
+		} catch (Exception exception) {
+			return null;
+		}
 	}
 }
