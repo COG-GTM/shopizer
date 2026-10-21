@@ -15,6 +15,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.salesmanager.core.business.exception.ServiceException;
+import com.salesmanager.core.business.services.catalog.catalog.CatalogEntryService;
+import com.salesmanager.core.business.services.catalog.catalog.CatalogService;
 import com.salesmanager.core.business.services.catalog.category.CategoryService;
 import com.salesmanager.core.business.services.catalog.pricing.PricingService;
 import com.salesmanager.core.business.services.catalog.product.ProductService;
@@ -104,6 +106,12 @@ public class AbstractSalesManagerCoreTestCase {
 	
 	@Inject
 	protected CategoryService categoryService;
+
+	@Inject
+	protected CatalogService catalogService;
+
+	@Inject
+	protected CatalogEntryService catalogEntryService;
 	
 	@Inject
 	protected MerchantStoreService merchantService;

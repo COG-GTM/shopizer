@@ -9,11 +9,14 @@ import org.springframework.context.annotation.ImportResource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import com.salesmanager.core.business.repositories.support.NewEntityIdNormalizingRepository;
+
 @Configuration
 @ComponentScan({"com.salesmanager.core.business"})
 @EnableAutoConfiguration
 @EnableConfigurationProperties(ApplicationSearchConfiguration.class)
-@EnableJpaRepositories(basePackages = "com.salesmanager.core.business.repositories")
+@EnableJpaRepositories(basePackages = "com.salesmanager.core.business.repositories",
+		repositoryBaseClass = NewEntityIdNormalizingRepository.class)
 @EntityScan(basePackages = "com.salesmanager.core.model")
 @EnableTransactionManagement
 @ImportResource("classpath:/spring/shopizer-core-context.xml")
