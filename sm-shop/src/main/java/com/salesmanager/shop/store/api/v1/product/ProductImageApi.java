@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -35,12 +36,14 @@ import com.salesmanager.core.model.catalog.product.Product;
 import com.salesmanager.core.model.catalog.product.image.ProductImage;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
+import com.salesmanager.shop.constants.Constants;
 import com.salesmanager.shop.mapper.catalog.ReadableProductImageMapper;
 import com.salesmanager.shop.model.catalog.product.ReadableImage;
 import com.salesmanager.shop.model.entity.NameEntity;
 import com.salesmanager.shop.store.api.exception.ResourceNotFoundException;
 import com.salesmanager.shop.store.api.exception.ServiceRuntimeException;
 import com.salesmanager.shop.store.api.exception.UnauthorizedException;
+import com.salesmanager.shop.store.controller.user.facade.UserFacade;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -64,6 +67,9 @@ public class ProductImageApi {
 
 	@Inject
 	private ProductService productService;
+
+	@Inject
+	private UserFacade userFacade;
 	
 	@Autowired
 	private ReadableProductImageMapper readableProductImageMapper;
@@ -80,7 +86,7 @@ public class ProductImageApi {
 	 * @throws Exception
 	 */
 	@ResponseStatus(HttpStatus.CREATED)
-	@RequestMapping(value = { "/private/product/{id}/image", "/auth/product/{id}/image" }, consumes = {
+	@RequestMapping(value = { "/private/product/{id}/image" }, consumes = {
 			MediaType.MULTIPART_FORM_DATA_VALUE }, method = RequestMethod.POST)
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
@@ -90,6 +96,13 @@ public class ProductImageApi {
 			@RequestParam(value = "order", required = false, defaultValue = "0") Integer position,
 			@RequestParam(value = "defaultImage", required = false, defaultValue = "false") boolean defaultImage,
 			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) throws IOException {
+
+		String authenticatedUser = userFacade.authenticatedUser();
+		if (authenticatedUser == null) {
+			throw new UnauthorizedException();
+		}
+
+		userFacade.authorizedGroup(authenticatedUser, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN, Constants.GROUP_ADMIN_CATALOGUE, Constants.GROUP_ADMIN_RETAIL).collect(Collectors.toList()));
 
 		try {
 
@@ -147,18 +160,27 @@ public class ProductImageApi {
 	}
 
 	@ResponseStatus(HttpStatus.OK)
-	@RequestMapping(value = { "/private/product/image/{id}",
-			"/auth/product/images/{id}" }, method = RequestMethod.DELETE)
-	public void deleteImage(@PathVariable Long id, HttpServletRequest request, HttpServletResponse response)
+	@RequestMapping(value = { "/private/product/image/{id}" }, method = RequestMethod.DELETE)
+	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT") })
+	public void deleteImage(@PathVariable Long id, HttpServletRequest request, HttpServletResponse response,
+			@ApiIgnore MerchantStore merchantStore)
 			throws Exception {
+
+		String authenticatedUser = userFacade.authenticatedUser();
+		if (authenticatedUser == null) {
+			throw new UnauthorizedException();
+		}
+
+		userFacade.authorizedGroup(authenticatedUser, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN, Constants.GROUP_ADMIN_CATALOGUE, Constants.GROUP_ADMIN_RETAIL).collect(Collectors.toList()));
 
 		try {
 			ProductImage productImage = productImageService.getById(id);
 
-			if (productImage != null) {
-				productImageService.delete(productImage);
-			} else {
+			if (productImage == null || productImage.getProduct() == null
+					|| !productImage.getProduct().getMerchantStore().getId().equals(merchantStore.getId())) {
 				response.sendError(404, "No ProductImage found for ID : " + id);
+			} else {
+				productImageService.delete(productImage);
 			}
 
 		} catch (Exception e) {
@@ -175,6 +197,12 @@ public class ProductImageApi {
 	public void deleteImage(@PathVariable Long id, @PathVariable Long imageId, @Valid NameEntity imageName,
 			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) {
 
+		String authenticatedUser = userFacade.authenticatedUser();
+		if (authenticatedUser == null) {
+			throw new UnauthorizedException();
+		}
+
+		userFacade.authorizedGroup(authenticatedUser, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN, Constants.GROUP_ADMIN_CATALOGUE, Constants.GROUP_ADMIN_RETAIL).collect(Collectors.toList()));
 
 			Optional<ProductImage> productImage = productImageService.getProductImage(imageId, id, merchantStore);
 
@@ -264,13 +292,19 @@ public class ProductImageApi {
 	 */
 
 	@ResponseStatus(HttpStatus.OK)
-	@RequestMapping(value = { "/private/product/{id}/image/{imageId}",
-			"/auth/product/{id}/image/{id}" }, method = RequestMethod.PATCH)
+	@RequestMapping(value = { "/private/product/{id}/image/{imageId}" }, method = RequestMethod.PATCH)
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public void imageDetails(@PathVariable Long id, @PathVariable Long imageId,
 			@RequestParam(value = "order", required = false, defaultValue = "0") Integer position,
 			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) throws IOException {
+
+		String authenticatedUser = userFacade.authenticatedUser();
+		if (authenticatedUser == null) {
+			throw new UnauthorizedException();
+		}
+
+		userFacade.authorizedGroup(authenticatedUser, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN, Constants.GROUP_ADMIN_CATALOGUE, Constants.GROUP_ADMIN_RETAIL).collect(Collectors.toList()));
 
 		try {
 			
