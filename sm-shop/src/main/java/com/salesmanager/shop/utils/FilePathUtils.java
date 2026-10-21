@@ -245,12 +245,35 @@ public class FilePathUtils {
 				return false;
 			}
 
-			String requestedHost = normalizeHost(url);
-			String storeHost = normalizeHost(validUrl(store.getDomainName()));
-			return requestedHost != null && requestedHost.equals(storeHost);
+			String domain = store.getDomainName().trim();
+			String lower = domain.toLowerCase(Locale.ROOT);
+			String storeUrl = (lower.startsWith(HTTP) || lower.startsWith(HTTPS)) ? domain : HTTPS + domain;
+			URI requestedUri = parseHttpUri(url);
+			URI storeUri = parseHttpUri(storeUrl);
+			if (requestedUri == null || storeUri == null
+					|| !requestedUri.getHost().equalsIgnoreCase(storeUri.getHost())) {
+				return false;
+			}
+
+			return hasMatchingStorePort(requestedUri, storeUri);
 		} catch (Exception exception) {
 			return false;
 		}
+	}
+
+	private boolean hasMatchingStorePort(URI requestedUri, URI storeUri) {
+		int storePort = storeUri.getPort();
+		int requestedPort = requestedUri.getPort();
+		if (storePort != -1) {
+			return requestedPort == storePort;
+		}
+
+		if (requestedPort == -1) {
+			return true;
+		}
+
+		return ("http".equalsIgnoreCase(requestedUri.getScheme()) && requestedPort == 80)
+				|| ("https".equalsIgnoreCase(requestedUri.getScheme()) && requestedPort == 443);
 	}
 
 	private String normalizeOrigin(String url) {
@@ -263,17 +286,15 @@ public class FilePathUtils {
 				+ (uri.getPort() != -1 ? ":" + uri.getPort() : "");
 	}
 
-	private String normalizeHost(String url) {
-		URI uri = parseHttpUri(url);
-		return uri == null ? null : uri.getHost().toLowerCase(Locale.ROOT);
-	}
-
 	private URI parseHttpUri(String url) {
 		try {
 			URI uri = new URI(url);
 			String scheme = uri.getScheme();
 			if ((scheme == null || (!"http".equalsIgnoreCase(scheme) && !"https".equalsIgnoreCase(scheme)))
 					|| StringUtils.isBlank(uri.getHost()) || uri.getUserInfo() != null) {
+				return null;
+			}
+			if (uri.getRawQuery() != null || uri.getRawFragment() != null) {
 				return null;
 			}
 			return uri;

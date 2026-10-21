@@ -104,7 +104,7 @@ public class UserFacadeImpl implements UserFacade {
 	@Autowired
 	private FilePathUtils filePathUtils;
 
-	@Value("${config.admin.passwordReset.allowedReturnUrls:http://localhost:4200}")
+	@Value("${config.admin.passwordReset.allowedReturnUrls:}")
 	private String allowedPasswordResetReturnUrls;
 
 	@Autowired
