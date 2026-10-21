@@ -76,6 +76,7 @@
 		<swagger.version>2.9.2</swagger.version>
 
 		<!-- jacoco coverage -->
+		<jacoco.version>0.8.12</jacoco.version>
 		<coverage.lines>.30</coverage.lines>
 		<coverage.branches>.37</coverage.branches>
 
@@ -472,6 +473,25 @@
 	<build>
 		<plugins>
 
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>${jacoco.version}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
