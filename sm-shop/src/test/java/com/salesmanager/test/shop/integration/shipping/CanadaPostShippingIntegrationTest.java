@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -51,6 +52,7 @@ import com.salesmanager.core.business.services.shipping.ShippingService;
 import com.salesmanager.core.model.system.IntegrationConfiguration;
 import com.salesmanager.core.model.shipping.ShippingOption;
 import com.salesmanager.core.modules.integration.shipping.canadapost.CanadaPostQuoteModule;
+import com.salesmanager.core.modules.integration.shipping.model.ShippingQuotePrePostProcessModule;
 import com.salesmanager.core.modules.integration.shipping.model.ShippingQuoteModule;
 import com.salesmanager.shop.application.ShopApplication;
 import com.salesmanager.shop.model.catalog.category.Category;
@@ -93,8 +95,12 @@ public class CanadaPostShippingIntegrationTest extends ServicesTestSupport {
 	@Resource(name = "shippingModules")
 	private Map<String, ShippingQuoteModule> shippingModules;
 
+	@Resource(name = "shippingModulePreProcessors")
+	private List<ShippingQuotePrePostProcessModule> shippingModulePreProcessors;
+
 	private org.springframework.http.client.ClientHttpRequestFactory originalRequestFactory;
 	private MockRestServiceServer canadaPostServer;
+	private List<ShippingQuotePrePostProcessModule> originalShippingModulePreProcessors;
 
 	@Override
 	protected ReadableProduct sampleProduct(String code) {
@@ -221,6 +227,11 @@ public class CanadaPostShippingIntegrationTest extends ServicesTestSupport {
 			canadaPost.getRestTemplate().setRequestFactory(originalRequestFactory);
 			originalRequestFactory = null;
 		}
+		if (originalShippingModulePreProcessors != null) {
+			shippingModulePreProcessors.clear();
+			shippingModulePreProcessors.addAll(originalShippingModulePreProcessors);
+			originalShippingModulePreProcessors = null;
+		}
 		canadaPostServer = null;
 		ensureInitialConfiguration();
 		adminExchange("/api/v1/private/modules/shipping", HttpMethod.POST,
@@ -228,6 +239,11 @@ public class CanadaPostShippingIntegrationTest extends ServicesTestSupport {
 	}
 
 	private void prepareShipping() throws Exception {
+		// Legacy Drools requires --add-opens on JDK 17+; it is unrelated to Canada Post.
+		originalShippingModulePreProcessors = new ArrayList<ShippingQuotePrePostProcessModule>(
+				shippingModulePreProcessors);
+		shippingModulePreProcessors.clear();
+
 		ensureInitialConfiguration();
 		deactivateOtherShippingModules();
 		ResponseEntity<Void> moduleConfiguration = adminExchange("/api/v1/private/modules/shipping",
