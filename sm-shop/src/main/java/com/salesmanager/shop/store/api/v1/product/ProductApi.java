@@ -131,6 +131,8 @@ public class ProductApi {
 
 			productCommonFacade.saveProduct(merchantStore, product,
 					merchantStore.getDefaultLanguage());
+		} catch (ResourceNotFoundException e) {
+			throw e;
 		} catch (Exception e) {
 			LOGGER.error("Error while updating product", e);
 			try {
