@@ -1,0 +1,98 @@
+package com.salesmanager.test.shop.util;
+
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
+class ShopTestSourceHygieneTest {
+
+	@Test
+	void testSourcesUseOnlyJupiterAnnotationsAndDocumentDisabledTests() throws Exception {
+		Path classRoot = Paths.get(getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
+		Path testPackage = classRoot.resolve("com/salesmanager/test");
+		List<Path> classFiles;
+		try (Stream<Path> paths = Files.walk(testPackage)) {
+			classFiles = paths.filter(path -> path.toString().endsWith(".class"))
+					.filter(path -> !path.getFileName().toString().equals("package-info.class"))
+					.collect(Collectors.toList());
+		}
+
+		ClassLoader loader = getClass().getClassLoader();
+		List<String> loadFailures = new ArrayList<>();
+		List<String> disabledWithoutReason = new ArrayList<>();
+		List<String> legacyAnnotations = new ArrayList<>();
+		for (Path classFile : classFiles) {
+			String className = testPackage.relativize(classFile).toString()
+					.replace(classFile.getFileSystem().getSeparator(), ".");
+			className = className.substring(0, className.length() - ".class".length());
+			Class<?> testClass;
+			try {
+				testClass = Class.forName("com.salesmanager.test." + className, false, loader);
+			} catch (ClassNotFoundException | LinkageError error) {
+				loadFailures.add(className + ": " + error.getClass().getSimpleName());
+				continue;
+			}
+
+			Disabled classDisabled = testClass.getDeclaredAnnotation(Disabled.class);
+			if (classDisabled != null && classDisabled.value().trim().isEmpty()) {
+				disabledWithoutReason.add(testClass.getName());
+			}
+			checkAnnotations(testClass.getName(), testClass.getDeclaredAnnotations(), legacyAnnotations);
+			for (Method method : testClass.getDeclaredMethods()) {
+				Disabled methodDisabled = method.getDeclaredAnnotation(Disabled.class);
+				if (methodDisabled != null && methodDisabled.value().trim().isEmpty()) {
+					disabledWithoutReason.add(testClass.getName() + "#" + method.getName());
+				}
+				checkAnnotations(testClass.getName() + "#" + method.getName(),
+						method.getDeclaredAnnotations(), legacyAnnotations);
+			}
+			for (Field field : testClass.getDeclaredFields()) {
+				checkAnnotations(testClass.getName() + "." + field.getName(),
+						field.getDeclaredAnnotations(), legacyAnnotations);
+			}
+		}
+
+		Disabled orderDisabled = Class.forName(
+				"com.salesmanager.test.shop.integration.order.OrderApiIntegrationTest", false, loader)
+				.getDeclaredAnnotation(Disabled.class);
+		Disabled searchDisabled = Class.forName(
+				"com.salesmanager.test.shop.integration.search.SearchApiIntegrationTest", false, loader)
+				.getDeclaredAnnotation(Disabled.class);
+
+		assertAll(
+				() -> assertTrue(loadFailures.isEmpty(), () -> "Could not load: " + loadFailures),
+				() -> assertTrue(disabledWithoutReason.isEmpty(),
+						() -> "Disabled tests without reasons: " + disabledWithoutReason),
+				() -> assertTrue(legacyAnnotations.isEmpty(),
+						() -> "JUnit 4 annotations: " + legacyAnnotations),
+				() -> assertTrue(orderDisabled != null && !orderDisabled.value().trim().isEmpty(),
+						"OrderApiIntegrationTest must document why it is disabled"),
+				() -> assertTrue(searchDisabled != null && !searchDisabled.value().trim().isEmpty(),
+						"SearchApiIntegrationTest must document why it is disabled"));
+	}
+
+	private static void checkAnnotations(
+			String element,
+			Annotation[] annotations,
+			List<String> offenders) {
+		for (Annotation annotation : annotations) {
+			String annotationName = annotation.annotationType().getName();
+			if (annotationName.startsWith("org.junit.")
+					&& !annotationName.startsWith("org.junit.jupiter.")) {
+				offenders.add(element + " -> " + annotationName);
+			}
+		}
+	}
+}
