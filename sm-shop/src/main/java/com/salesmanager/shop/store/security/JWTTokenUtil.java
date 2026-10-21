@@ -39,6 +39,10 @@ public class JWTTokenUtil implements Serializable {
 	 	static final String CLAIM_KEY_USERNAME = "sub";
 	    static final String CLAIM_KEY_AUDIENCE = "aud";
 	    static final String CLAIM_KEY_CREATED = "iat";
+	    static final String CLAIM_KEY_PRINCIPAL_TYPE = "principal_type";
+
+	    public static final String PRINCIPAL_TYPE_ADMIN = "admin";
+	    public static final String PRINCIPAL_TYPE_CUSTOMER = "customer";
 
 	    static final String AUDIENCE_UNKNOWN = "unknown";
 	    static final String AUDIENCE_API = "api";
@@ -116,8 +120,17 @@ public class JWTTokenUtil implements Serializable {
 	        return (AUDIENCE_TABLET.equals(audience) || AUDIENCE_MOBILE.equals(audience));
 	    }
 
-	    public String generateToken(UserDetails userDetails) {
+	    public String getPrincipalTypeFromToken(String token) {
+	        return getClaimFromToken(token, claims -> claims.get(CLAIM_KEY_PRINCIPAL_TYPE, String.class));
+	    }
+
+	    public boolean isTokenOfPrincipalType(String token, String principalType) {
+	        return principalType != null && principalType.equals(getPrincipalTypeFromToken(token));
+	    }
+
+	    public String generateToken(UserDetails userDetails, String principalType) {
 	        Map<String, Object> claims = new HashMap<>();
+	        claims.put(CLAIM_KEY_PRINCIPAL_TYPE, principalType);
 	        return doGenerateToken(claims, userDetails.getUsername(), generateAudience());
 	    }
 
@@ -170,7 +183,10 @@ public class JWTTokenUtil implements Serializable {
 	                .compact();
 	    }
 
-	    public Boolean validateToken(String token, UserDetails userDetails) {
+	    public Boolean validateToken(String token, UserDetails userDetails, String principalType) {
+	        if (!isTokenOfPrincipalType(token, principalType)) {
+	            return false;
+	        }
 	        JWTUser user = (JWTUser) userDetails;
 	        final String username = getUsernameFromToken(token);
 	        final Date created = getIssuedAtDateFromToken(token);
