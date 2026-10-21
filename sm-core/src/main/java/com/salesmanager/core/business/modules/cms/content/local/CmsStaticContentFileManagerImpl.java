@@ -96,13 +96,6 @@ public class CmsStaticContentFileManagerImpl implements ContentAssetsManager {
 	@Override
 	public void addFile(final String merchantStoreCode, Optional<String> folderPath,
 			final InputContentFile inputStaticContentData) throws ServiceException {
-		/*
-		 * if ( cacheManager.getTreeCache() == null ) { LOGGER.error(
-		 * "Unable to find cacheManager.getTreeCache() in Infinispan.." ); throw
-		 * new ServiceException(
-		 * "CmsStaticContentFileManagerInfinispanImpl has a null cacheManager.getTreeCache()"
-		 * ); }
-		 */
 		try {
 
 			// base path
@@ -135,15 +128,6 @@ public class CmsStaticContentFileManagerImpl implements ContentAssetsManager {
 			// Path path = Paths.get(nodePath.toString());
 
 			Files.copy(inputStaticContentData.getFile(), path, StandardCopyOption.REPLACE_EXISTING);
-
-			// String nodePath = this.getNodePath(merchantStoreCode,
-			// inputStaticContentData.getFileContentType());
-
-			// final Node<String, Object> merchantNode = this.getNode(nodePath);
-
-			// merchantNode.put(inputStaticContentData.getFileName(),
-			// IOUtils.toByteArray(
-			// inputStaticContentData.getFile() ));
 
 			LOGGER.info("Content data added successfully.");
 		} catch (final Exception e) {
@@ -179,13 +163,6 @@ public class CmsStaticContentFileManagerImpl implements ContentAssetsManager {
 	@Override
 	public void addFiles(final String merchantStoreCode, Optional<String> folderPath,
 			final List<InputContentFile> inputStaticContentDataList) throws ServiceException {
-		/*
-		 * if ( cacheManager.getTreeCache() == null ) { LOGGER.error(
-		 * "Unable to find cacheManager.getTreeCache() in Infinispan.." ); throw
-		 * new ServiceException(
-		 * "CmsStaticContentFileManagerInfinispanImpl has a null cacheManager.getTreeCache()"
-		 * ); }
-		 */
 		try {
 
 			// base path
@@ -214,15 +191,6 @@ public class CmsStaticContentFileManagerImpl implements ContentAssetsManager {
 
 				Files.copy(inputStaticContentData.getFile(), path, StandardCopyOption.REPLACE_EXISTING);
 
-				// String nodePath = this.getNodePath(merchantStoreCode,
-				// inputStaticContentData.getFileContentType());
-
-				// final Node<String, Object> merchantNode =
-				// this.getNode(nodePath);
-				// merchantNode.put(inputStaticContentData.getFileName(),
-				// IOUtils.toByteArray(
-				// inputStaticContentData.getFile() ));
-
 			}
 
 			LOGGER.info("Total {} files added successfully.", inputStaticContentDataList.size());
@@ -236,7 +204,7 @@ public class CmsStaticContentFileManagerImpl implements ContentAssetsManager {
 
 	/**
 	 * Method to return static data for given Merchant store based on the file
-	 * name. Content data will be searched in underlying Infinispan cache tree
+	 * name. Content data will be searched in underlying flat cache
 	 * and {@link OutputStaticContentData} will be returned on finding an
 	 * associated file. In case of no file, null be returned.
 	 * 

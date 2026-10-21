@@ -51,11 +51,11 @@ public class CacheUtils {
 	
 	public List<String> getCacheKeys(MerchantStore store) throws Exception {
 		
-		  net.sf.ehcache.Cache cacheImpl = (net.sf.ehcache.Cache) cache.getNativeCache();
+		  javax.cache.Cache<Object, Object> cacheImpl =
+				  (javax.cache.Cache<Object, Object>) cache.getNativeCache();
 		  List<String> returnKeys = new ArrayList<String>();
-		  for (Object key: cacheImpl.getKeys()) {
-		    
-			  
+		  for (javax.cache.Cache.Entry<Object, Object> entry : cacheImpl) {
+			  Object key = entry.getKey();
 				try {
 					String sKey = (String)key;
 					
@@ -70,7 +70,7 @@ public class CacheUtils {
 					}
 
 				} catch (Exception e) {
-					LOGGER.equals("key " + key + " cannot be converted to a String or parsed");
+					LOGGER.warn("key {} cannot be converted to a String or parsed", key);
 				}  
 		  }
 
@@ -86,8 +86,11 @@ public class CacheUtils {
 	}
 	
 	public void removeAllFromCache(MerchantStore store) throws Exception {
-		  net.sf.ehcache.Cache cacheImpl = (net.sf.ehcache.Cache) cache.getNativeCache();
-		  for (Object key: cacheImpl.getKeys()) {
+		  javax.cache.Cache<Object, Object> cacheImpl =
+				  (javax.cache.Cache<Object, Object>) cache.getNativeCache();
+		  List<Object> keysToRemove = new ArrayList<Object>();
+		  for (javax.cache.Cache.Entry<Object, Object> entry : cacheImpl) {
+				Object key = entry.getKey();
 				try {
 					String sKey = (String)key;
 					
@@ -95,15 +98,16 @@ public class CacheUtils {
 					int delimiterPosition = sKey.indexOf(KEY_DELIMITER);
 					
 					if(delimiterPosition>0 && Character.isDigit(sKey.charAt(0))) {
-					
-
-						cache.evict(key);
+						keysToRemove.add(key);
 					
 					}
 
 				} catch (Exception e) {
-					LOGGER.equals("key " + key + " cannot be converted to a String or parsed");
+					LOGGER.warn("key {} cannot be converted to a String or parsed", key);
 				}  
+		  }
+		  for (Object key : keysToRemove) {
+			  cache.evict(key);
 		  }
 	}
 	

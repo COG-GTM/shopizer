@@ -1,14 +1,18 @@
 package com.salesmanager.core.business.configuration;
 
+import java.io.IOException;
 import java.util.Properties;
 
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.SharedCacheMode;
+import javax.cache.Caching;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
@@ -80,10 +84,16 @@ public class DataConfiguration {
     	dataSource.setConnectionTestQuery(testQuery);
     	
     	return dataSource;
-    }
+	}
+
+	@Bean(destroyMethod = "close")
+	public javax.cache.CacheManager jCacheManager() throws IOException {
+		return Caching.getCachingProvider("org.ehcache.jsr107.EhcacheCachingProvider")
+				.getCacheManager(new ClassPathResource("spring/ehcache.xml").getURI(), getClass().getClassLoader());
+	}
 
 	@Bean
-	public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
+	public LocalContainerEntityManagerFactoryBean entityManagerFactory(javax.cache.CacheManager jCacheManager) {
 
 		HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
 		vendorAdapter.setGenerateDdl(true);
@@ -91,7 +101,9 @@ public class DataConfiguration {
 		LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
 		factory.setJpaVendorAdapter(vendorAdapter);
 		factory.setPackagesToScan("com.salesmanager.core.model");
+		factory.setSharedCacheMode(SharedCacheMode.ENABLE_SELECTIVE);
 		factory.setJpaProperties(additionalProperties());
+		factory.getJpaPropertyMap().put("hibernate.javax.cache.cache_manager", jCacheManager);
 		factory.setDataSource(dataSource());
 		return factory;
 	}
@@ -105,7 +117,7 @@ public class DataConfiguration {
         hibernateProperties.setProperty("hibernate.show_sql", showSql);
         hibernateProperties.setProperty("hibernate.cache.use_second_level_cache", "true");
         hibernateProperties.setProperty("hibernate.cache.use_query_cache", "true");
-        hibernateProperties.setProperty("hibernate.cache.region.factory_class", "org.hibernate.cache.ehcache.EhCacheRegionFactory");
+        hibernateProperties.setProperty("hibernate.cache.region.factory_class", "org.hibernate.cache.jcache.internal.JCacheRegionFactory");
         hibernateProperties.setProperty("hibernate.connection.CharSet", "utf8");
         hibernateProperties.setProperty("hibernate.connection.characterEncoding", "utf8");
         hibernateProperties.setProperty("hibernate.connection.useUnicode", "true");
