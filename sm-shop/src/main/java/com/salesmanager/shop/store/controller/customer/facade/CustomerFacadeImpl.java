@@ -465,13 +465,7 @@ public class CustomerFacadeImpl implements CustomerFacade {
       boolean isBillingAddress) throws Exception {
     LOG.info("Fetching customer for id {} ", userId);
     Address address = null;
-    final Customer customerModel = customerService.getById(userId);
-
-    if (customerModel == null) {
-      LOG.error("Customer with ID {} does not exists..", userId);
-      // throw new CustomerNotFoundException( "customer with given id does not exists" );
-      throw new Exception("customer with given id does not exists");
-    }
+    final Customer customerModel = getCustomerByIdAndStore(userId, merchantStore);
 
     if (isBillingAddress) {
       LOG.info("getting billing address..");
@@ -496,16 +490,10 @@ public class CustomerFacadeImpl implements CustomerFacade {
   public void updateAddress(Long userId, MerchantStore merchantStore, Address address,
       final Language language) throws Exception {
 
-    Customer customerModel = customerService.getById(userId);
+    Customer customerModel = getCustomerByIdAndStore(userId, merchantStore);
     Map<String, Country> countriesMap = countryService.getCountriesMap(language);
     Country country = countriesMap.get(address.getCountry());
 
-    if (customerModel == null) {
-      LOG.error("Customer with ID {} does not exists..", userId);
-      // throw new CustomerNotFoundException( "customer with given id does not exists" );
-      throw new Exception("customer with given id does not exists");
-
-    }
     if (address.isBillingAddress()) {
       LOG.info("updating customer billing address..");
       PersistableCustomerBillingAddressPopulator billingAddressPopulator =
@@ -557,8 +545,7 @@ public class CustomerFacadeImpl implements CustomerFacade {
   public ReadableCustomer getCustomerById(final Long id, final MerchantStore merchantStore,
       final Language language) {
 
-    Customer customerModel = Optional.ofNullable(customerService.getById(id))
-        .orElseThrow(() -> new ResourceNotFoundException("No Customer found for ID : " + id));
+    Customer customerModel = getCustomerByIdAndStore(id, merchantStore);
 
     return convertCustomerToReadableCustomer(customerModel, merchantStore, language);
   }
@@ -696,7 +683,7 @@ public class CustomerFacadeImpl implements CustomerFacade {
       throw new ServiceRuntimeException("Can't update a customer with null id");
     }
 
-    Customer cust = customerService.getById(customer.getId());
+    Customer cust = getCustomerByIdAndStore(customer.getId(), store);
 
     try{
       customerPopulator.populate(customer, cust, store, store.getDefaultLanguage());
@@ -777,6 +764,16 @@ public class CustomerFacadeImpl implements CustomerFacade {
   private Customer getCustomerById(Long customerId) {
     return Optional.ofNullable(customerService.getById(customerId))
           .orElseThrow(() -> new ResourceNotFoundException("Customer id " + customerId + " does not exists"));
+  }
+
+  private Customer getCustomerByIdAndStore(Long customerId, MerchantStore store) {
+    Validate.notNull(store, "MerchantStore cannot be null");
+    Customer customer = customerService.getById(customerId);
+    if (customer == null || customer.getMerchantStore() == null
+        || !customer.getMerchantStore().getId().equals(store.getId())) {
+      throw new ResourceNotFoundException("No Customer found for ID : " + customerId);
+    }
+    return customer;
   }
 
 
@@ -1023,8 +1020,8 @@ public class CustomerFacadeImpl implements CustomerFacade {
 
 
   @Override
-  public void deleteById(Long id) {
-    Customer customer = getCustomerById(id);
+  public void deleteById(Long id, MerchantStore store) {
+    Customer customer = getCustomerByIdAndStore(id, store);
     delete(customer);
     
   }
@@ -1032,7 +1029,7 @@ public class CustomerFacadeImpl implements CustomerFacade {
 
   @Override
   public void updateAddress(PersistableCustomer customer, MerchantStore store) {
-
+    getCustomerByIdAndStore(customer.getId(), store);
 
     if(customer.getBilling() != null) {
         Validate.notNull(customer.getBilling(), "Billing address can not be null");
