@@ -1,5 +1,6 @@
 package com.salesmanager.test.shop.integration.system;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import javax.inject.Inject;
@@ -17,6 +18,9 @@ import com.salesmanager.core.model.catalog.product.Product;
 import com.salesmanager.shop.application.ShopApplication;
 import com.salesmanager.test.shop.common.ServicesTestSupport;
 
+/**
+ * Pins today's Hibernate 5 generator behavior for the AB-544 cut-over.
+ */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = ShopApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class Hibernate5GeneratorConfigurationTest extends ServicesTestSupport {
@@ -25,14 +29,14 @@ public class Hibernate5GeneratorConfigurationTest extends ServicesTestSupport {
 	private EntityManagerFactory entityManagerFactory;
 
 	@Test
-	public void reportProductIdentifierGenerator() {
+	public void productIdentifierGeneratorUsesLegacyConfiguration() {
 		SessionFactoryImplementor sessionFactory = entityManagerFactory.unwrap(SessionFactoryImplementor.class);
 		AbstractEntityPersister persister = (AbstractEntityPersister) sessionFactory.getMetamodel()
 				.entityPersister(Product.class);
 		assertNotNull(persister.getIdentifierGenerator());
-		System.out.println("sm-shop Product identifier generator: "
-				+ persister.getIdentifierGenerator().getClass().getName());
-		System.out.println("sm-shop hibernate.id.new_generator_mappings: "
-				+ entityManagerFactory.getProperties().get("hibernate.id.new_generator_mappings"));
+		assertEquals("org.hibernate.id.MultipleHiLoPerTableGenerator",
+				persister.getIdentifierGenerator().getClass().getName());
+		assertEquals("false", String.valueOf(
+				entityManagerFactory.getProperties().get("hibernate.id.new_generator_mappings")));
 	}
 }

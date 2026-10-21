@@ -11,8 +11,7 @@ public interface MerchantRepository extends JpaRepository<MerchantStore, Integer
 
 
 	@Query("select m from MerchantStore m "
-			+ "left join fetch m.parent mp"
-			+ " "
+			+ "left join fetch m.parent mp "
 			+ "left join fetch m.country mc "
 			+ "left join fetch m.currency mcu "
 			+ "left join fetch m.zone mz "
