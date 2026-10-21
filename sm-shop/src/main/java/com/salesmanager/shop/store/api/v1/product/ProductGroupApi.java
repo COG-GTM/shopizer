@@ -4,6 +4,9 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -23,9 +26,12 @@ import com.salesmanager.core.business.services.catalog.product.ProductService;
 import com.salesmanager.core.model.catalog.product.Product;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
+import com.salesmanager.shop.constants.Constants;
 import com.salesmanager.shop.model.catalog.product.ReadableProductList;
 import com.salesmanager.shop.model.catalog.product.group.ProductGroup;
+import com.salesmanager.shop.store.api.exception.UnauthorizedException;
 import com.salesmanager.shop.store.controller.items.facade.ProductItemsFacade;
+import com.salesmanager.shop.store.controller.user.facade.UserFacade;
 
 import antlr.collections.List;
 import io.swagger.annotations.Api;
@@ -51,6 +57,8 @@ public class ProductGroupApi {
   @Inject private ProductService productService;
 
   @Inject private ProductItemsFacade productItemsFacade;
+
+  @Inject private UserFacade userFacade;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ProductGroupApi.class);
 
@@ -236,7 +244,7 @@ public class ProductGroupApi {
   }
   
   @ResponseStatus(HttpStatus.OK)
-  @DeleteMapping("/products/group/{code}")
+  @DeleteMapping("/private/products/group/{code}")
   @ApiOperation(httpMethod = "DELETE", value = "Delete product group by group code", notes = "", response = Void.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
@@ -247,7 +255,13 @@ public class ProductGroupApi {
 	  @ApiIgnore MerchantStore merchantStore,
 	  @ApiIgnore Language language,
       HttpServletResponse response) {
-	  
+
+    String authenticatedUser = userFacade.authenticatedUser();
+    if (authenticatedUser == null) {
+      throw new UnauthorizedException();
+    }
+    userFacade.authorizedGroup(authenticatedUser, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN, Constants.GROUP_ADMIN_CATALOGUE, Constants.GROUP_ADMIN_RETAIL).collect(Collectors.toList()));
+
 	  productItemsFacade.deleteGroup(code, merchantStore);
 
   }
