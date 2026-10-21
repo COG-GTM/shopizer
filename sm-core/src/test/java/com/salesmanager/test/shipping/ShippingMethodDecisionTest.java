@@ -6,8 +6,8 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
-import org.junit.Ignore;
 import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 import com.salesmanager.core.business.modules.integration.shipping.impl.ShippingDecisionPreProcessorImpl;
 import com.salesmanager.core.model.common.Delivery;
@@ -19,22 +19,40 @@ import com.salesmanager.core.model.system.IntegrationModule;
 
 
 
-@Ignore
 public class ShippingMethodDecisionTest extends com.salesmanager.test.common.AbstractSalesManagerCoreTestCase {
 	
 	@Inject
 	ShippingDecisionPreProcessorImpl shippingMethodDecisionProcess;
 
 	@Test
-	@Ignore
-	public void validateShippingMethod() throws Exception {
-		
+	public void keepsCurrentModuleWhenRuleSelectsUnavailableModule() throws Exception {
+		assertSelectedModule(70, 20, 10, 78, "canadapost", "canadapost", false);
+	}
+
+	@Test
+	public void selectsRuleModuleWhenItIsAvailable() throws Exception {
+		assertSelectedModule(70, 20, 10, 78, "canadapost", "priceByDistance", true);
+	}
+
+	@Test
+	public void selectsCanadaPostForLightPackage() throws Exception {
+		assertSelectedModule(10, 10, 10, 10, "ups", "canadapost", false);
+	}
+
+	private void assertSelectedModule(
+			double weight,
+			double height,
+			double length,
+			double width,
+			String initialModuleCode,
+			String expectedModuleCode,
+			boolean includeDistanceModule) throws Exception {
 		ShippingQuote quote = new ShippingQuote();
 		PackageDetails pDetail = new PackageDetails();
-		pDetail.setShippingHeight(20);
-		pDetail.setShippingLength(10);
-		pDetail.setShippingWeight(70);
-		pDetail.setShippingWidth(78);
+		pDetail.setShippingHeight(height);
+		pDetail.setShippingLength(length);
+		pDetail.setShippingWeight(weight);
+		pDetail.setShippingWidth(width);
 		List<PackageDetails> details = new ArrayList<PackageDetails>();
 		details.add(pDetail);
 
@@ -62,7 +80,7 @@ public class ShippingMethodDecisionTest extends com.salesmanager.test.common.Abs
 		delivery.setZone(zone);
 		
 		IntegrationModule currentModule = new IntegrationModule();
-		currentModule.setCode("canadapost");
+		currentModule.setCode(initialModuleCode);
 		quote.setCurrentShippingModule(currentModule);
 		quote.setShippingModuleCode(currentModule.getCode());
 		
@@ -79,10 +97,14 @@ public class ShippingMethodDecisionTest extends com.salesmanager.test.common.Abs
 		allModules.add(canadapost);
 		allModules.add(ups);
 		allModules.add(inhouse);
+		if (includeDistanceModule) {
+			IntegrationModule distanceModule = new IntegrationModule();
+			distanceModule.setCode("priceByDistance");
+			allModules.add(distanceModule);
+		}
 
 		shippingMethodDecisionProcess.prePostProcessShippingQuotes(quote, details, null, delivery, null, null, null, currentModule, null, allModules, Locale.CANADA);
-		
-		System.out.println("Done : " + quote.getCurrentShippingModule()!=null ? quote.getCurrentShippingModule().getCode() : currentModule.getCode());
 
+		assertEquals(expectedModuleCode, quote.getCurrentShippingModule().getCode());
 	}
 }
