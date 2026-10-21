@@ -1,8 +1,11 @@
 package com.salesmanager.shop.store.api.v1.payment;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,10 +23,12 @@ import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.core.model.system.IntegrationConfiguration;
 import com.salesmanager.core.model.system.IntegrationModule;
+import com.salesmanager.shop.constants.Constants;
 import com.salesmanager.shop.model.system.IntegrationModuleConfiguration;
 import com.salesmanager.shop.model.system.IntegrationModuleSummaryEntity;
 import com.salesmanager.shop.store.api.exception.ResourceNotFoundException;
 import com.salesmanager.shop.store.api.exception.ServiceRuntimeException;
+import com.salesmanager.shop.utils.AuthorizationUtils;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -48,8 +53,18 @@ public class PaymentApi {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PaymentApi.class);
 
+	static final String MASKED_VALUE = "********";
+
+	private static final Pattern SECRET_KEY_NAME = Pattern
+			.compile("(?i).*(password|passwd|secret|private|signature|token|api|key|merchant).*");
+
+	private static final Pattern PUBLIC_KEY_NAME = Pattern.compile("(?i)^(public|publishable).*");
+
 	@Autowired
 	private PaymentService paymentService;
+
+	@Autowired
+	private AuthorizationUtils authorizationUtils;
 
 	/**
 	 * Get available payment modules
@@ -64,6 +79,8 @@ public class PaymentApi {
 	public List<IntegrationModuleSummaryEntity> paymentModules(
 			@ApiIgnore MerchantStore merchantStore,
 			@ApiIgnore Language language) {
+
+		authorize(merchantStore);
 
 		try {
 			List<IntegrationModule> modules = paymentService.getPaymentMethods(merchantStore);
@@ -84,7 +101,9 @@ public class PaymentApi {
 	public void configure(
 			@RequestBody IntegrationModuleConfiguration configuration,
 			@ApiIgnore MerchantStore merchantStore) {
-		
+
+		authorize(merchantStore);
+
 		try {
 			
 			List<IntegrationModule> modules = paymentService.getPaymentMethods(merchantStore);
@@ -103,15 +122,18 @@ public class PaymentApi {
 			
 			IntegrationConfiguration integrationConfiguration = configuredModules.get(configuration.getCode());
 			
+			Map<String, String> existingKeys = null;
 			if(integrationConfiguration == null) {
 				integrationConfiguration = new IntegrationConfiguration();
 				integrationConfiguration.setModuleCode(configuration.getCode());
+			} else {
+				existingKeys = integrationConfiguration.getIntegrationKeys();
 			}
 
 
 			integrationConfiguration.setActive(configuration.isActive());
 			integrationConfiguration.setDefaultSelected(configuration.isDefaultSelected());
-			integrationConfiguration.setIntegrationKeys(configuration.getIntegrationKeys());
+			integrationConfiguration.setIntegrationKeys(unmaskKeys(configuration.getIntegrationKeys(), existingKeys));
 			integrationConfiguration.setIntegrationOptions(configuration.getIntegrationOptions());
 
 			
@@ -136,6 +158,8 @@ public class PaymentApi {
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT") })
 	public IntegrationModuleConfiguration paymentModule(@PathVariable String code,
 			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) {
+
+		authorize(merchantStore);
 
 		try {
 			
@@ -169,7 +193,7 @@ public class PaymentApi {
 			returnConfig.setActive(config.isActive());
 			returnConfig.setDefaultSelected(config.isDefaultSelected());
 			returnConfig.setCode(code);
-			returnConfig.setIntegrationKeys(config.getIntegrationKeys());
+			returnConfig.setIntegrationKeys(maskKeys(config.getIntegrationKeys()));
 			returnConfig.setIntegrationOptions(config.getIntegrationOptions());
 
 			return returnConfig;
@@ -179,6 +203,45 @@ public class PaymentApi {
 			throw new ServiceRuntimeException("Error getting payment module [" + code + "]", e);
 		}
 
+	}
+
+	private void authorize(MerchantStore merchantStore) {
+		String user = authorizationUtils.authenticatedUser();
+		authorizationUtils.authorizeUser(user,
+				Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN).collect(Collectors.toList()),
+				merchantStore);
+	}
+
+	static boolean isSecretKey(String name) {
+		return name != null && SECRET_KEY_NAME.matcher(name).matches() && !PUBLIC_KEY_NAME.matcher(name).matches();
+	}
+
+	static Map<String, String> maskKeys(Map<String, String> keys) {
+		if (keys == null) {
+			return null;
+		}
+		Map<String, String> masked = new HashMap<String, String>();
+		keys.forEach((name, value) -> masked.put(name,
+				isSecretKey(name) && value != null && !value.isEmpty() ? MASKED_VALUE : value));
+		return masked;
+	}
+
+	/**
+	 * Masked values submitted back by the client keep the currently stored secret
+	 */
+	static Map<String, String> unmaskKeys(Map<String, String> submitted, Map<String, String> existing) {
+		if (submitted == null) {
+			return null;
+		}
+		Map<String, String> keys = new HashMap<String, String>();
+		submitted.forEach((name, value) -> {
+			if (MASKED_VALUE.equals(value) && existing != null && existing.containsKey(name)) {
+				keys.put(name, existing.get(name));
+			} else {
+				keys.put(name, value);
+			}
+		});
+		return keys;
 	}
 
 	private IntegrationModuleSummaryEntity integrationModule(IntegrationModule module,
