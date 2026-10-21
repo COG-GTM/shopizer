@@ -2,11 +2,11 @@
 
 ## Running the baseline
 
-Use the system Maven installation (3.6.3), not the Maven wrapper. The full verification gates used:
+CI (`.github/workflows/build.yml`) runs `./mvnw -B verify` on JDK 17 and JDK 21. The numbers below were recorded locally with the same goal:
 
 ```bash
-JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 mvn -B verify
-JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 mvn -B verify
+JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 ./mvnw -B verify
+JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./mvnw -B verify
 ```
 
 Surefire XML and text reports are under each module's `target/surefire-reports/`. Module JaCoCo CSVs are under `sm-core/target/site/jacoco/jacoco.csv` and `sm-shop/target/site/jacoco/jacoco.csv`; the reactor aggregate is `sm-shop/target/site/jacoco-aggregate/jacoco.csv`. JaCoCo is reporting-only; there is no coverage gate.
@@ -14,7 +14,7 @@ Surefire XML and text reports are under each module's `target/surefire-reports/`
 Regenerate the Swagger 2 snapshot from the live `/v2/api-docs` endpoint with:
 
 ```bash
-JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 mvn -B -pl sm-shop -am test \
+JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 ./mvnw -B -pl sm-shop -am test \
   -Dtest=ContractSnapshotTest \
   -Dcontract.update=true \
   -Dsurefire.failIfNoSpecifiedTests=false
@@ -56,7 +56,7 @@ The aggregate CSV includes class coverage grouped by module, including `sm-shop`
 | `sm-shop-model` | 1,134 / 2,899 | 39.12% | 2 / 64 | 3.12% |
 | **Aggregate** | **8,507 / 30,679** | **27.73%** | **1,267 / 7,632** | **16.60%** |
 
-`sm-core-modules` has no aggregate module group. JDK 17 source CSVs were preserved before the JDK 21 run under `~/ab533-evidence/jacoco-jdk17/`.
+`sm-core-modules` has no aggregate module group. Coverage figures are from the JDK 17 run.
 
 ## Contract inventory
 
@@ -80,7 +80,7 @@ The committed Swagger 2 inventory contains 309 operation records: 210 `admin-jwt
 
 | ID | Endpoint and expected/actual | Evidence | Test | Status |
 | --- | --- | --- | --- | --- |
-| KF-1 | `GET /api/v1/private/customers` with malformed Bearer token; expected 401, actual 500 | `MalformedJwtException` escapes `AuthenticationTokenFilter`; see `~/ab533-evidence/smoke-retry2.log` and `~/ab533-evidence/jdk17-verify-rebased.log` | `AuthorizationSmokeTest.malformedBearerOnPrivateApiIsRejectedWith401` (`@Disabled`, `@Tag("known-failure")`) | To be filed separately (not filed in Jira by request) |
+| KF-1 | `GET /api/v1/private/customers` with malformed Bearer token; expected 401, actual 500 | `MalformedJwtException` escapes `AuthenticationTokenFilter` (stack trace in the sm-shop test log when the test is enabled) | `AuthorizationSmokeTest.malformedBearerOnPrivateApiIsRejectedWith401` (`@Disabled`, `@Tag("known-failure")`) | To be filed separately (not filed in Jira by request) |
 
 ## Observed behaviours (not failures)
 
