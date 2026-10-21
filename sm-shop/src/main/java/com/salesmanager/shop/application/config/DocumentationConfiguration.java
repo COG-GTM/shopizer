@@ -3,7 +3,7 @@ package com.salesmanager.shop.application.config;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 import org.springdoc.core.GroupedOpenApi;
-import org.springdoc.core.customizers.OpenApiCustomiser;
+import org.springdoc.core.customizers.GlobalOpenApiCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -57,14 +57,15 @@ public class DocumentationConfiguration {
 		return GroupedOpenApi.builder()
 				.group(GROUP)
 				.packagesToScan(API_PACKAGES)
-				.addOpenApiCustomiser(globalGetResponses())
 				.build();
 	}
 
 	/**
-	 * Same global GET responses the previous Swagger 2 Docket declared.
+	 * Same global GET responses the previous Swagger 2 Docket declared, applied to
+	 * both the ungrouped /v3/api-docs and every group.
 	 */
-	private OpenApiCustomiser globalGetResponses() {
+	@Bean
+	public GlobalOpenApiCustomizer globalGetResponses() {
 		return openApi -> openApi.getPaths().values().stream()
 				.filter(path -> path.getGet() != null)
 				.forEach(path -> {
