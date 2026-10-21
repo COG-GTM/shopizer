@@ -4,6 +4,7 @@ import static io.swagger.models.auth.In.HEADER;
 import static java.util.Collections.singletonList;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -12,9 +13,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.HandlerMapping;
+import org.springframework.web.servlet.mvc.method.RequestMappingInfoHandlerMapping;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
@@ -34,6 +40,7 @@ import springfox.documentation.service.VendorExtension;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
+import springfox.documentation.spring.web.plugins.WebMvcRequestHandlerProvider;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @Configuration
@@ -43,6 +50,30 @@ public class DocumentationConfiguration {
 	public static final Contact DEFAULT_CONTACT = new Contact("Shopizer", "https://www.shopizer.com", "");
 	
 	private static final String HOST = "localhost:8080";
+
+	@Bean
+	public static BeanPostProcessor springfoxHandlerProviderBeanPostProcessor() {
+		return new BeanPostProcessor() {
+			@Override
+			public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+				if (bean instanceof WebMvcRequestHandlerProvider) {
+					Field handlerMappingsField = ReflectionUtils.findField(bean.getClass(), "handlerMappings");
+					if (handlerMappingsField != null) {
+						ReflectionUtils.makeAccessible(handlerMappingsField);
+						@SuppressWarnings("unchecked")
+						List<HandlerMapping> handlerMappings =
+								(List<HandlerMapping>) ReflectionUtils.getField(handlerMappingsField, bean);
+						if (handlerMappings != null) {
+							handlerMappings.removeIf(handlerMapping ->
+									handlerMapping instanceof RequestMappingInfoHandlerMapping
+											&& ((RequestMappingInfoHandlerMapping) handlerMapping).getPatternParser() != null);
+						}
+					}
+				}
+				return bean;
+			}
+		};
+	}
 
 	/**
 	 * http://localhost:8080/swagger-ui.html#/ http://localhost:8080/v2/api-docs
