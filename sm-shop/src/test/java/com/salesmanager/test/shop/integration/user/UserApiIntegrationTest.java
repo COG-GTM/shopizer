@@ -7,11 +7,13 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
+import com.salesmanager.core.business.services.system.EmailService;
 import com.salesmanager.shop.application.ShopApplication;
 import com.salesmanager.shop.model.security.PersistableGroup;
 import com.salesmanager.shop.model.user.PersistableUser;
@@ -22,6 +24,9 @@ import com.salesmanager.test.shop.common.ServicesTestSupport;
 @SpringBootTest(classes = ShopApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 @RunWith(SpringRunner.class)
 public class UserApiIntegrationTest extends ServicesTestSupport {
+
+  @MockBean
+  private EmailService emailService;
   
   private static Long DEFAULT_USER_ID = 1L;
   private static String CREATED_PASSWORD = "Password1";

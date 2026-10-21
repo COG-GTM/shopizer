@@ -1,7 +1,9 @@
 package com.salesmanager.shop.store.facade.user;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -18,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -65,7 +68,6 @@ import com.salesmanager.shop.store.controller.security.facade.SecurityFacade;
 import com.salesmanager.shop.store.controller.user.facade.UserFacade;
 import com.salesmanager.shop.utils.DateUtil;
 import com.salesmanager.shop.utils.EmailUtils;
-import com.salesmanager.shop.utils.FilePathUtils;
 import com.salesmanager.shop.utils.ImageFilePath;
 import com.salesmanager.shop.utils.LabelUtils;
 
@@ -100,8 +102,8 @@ public class UserFacadeImpl implements UserFacade {
 	@Inject
 	private SecurityFacade securityFacade;
 
-	@Autowired
-	private FilePathUtils filePathUtils;
+	@Value("${config.admin.passwordReset.allowedHosts:}")
+	private String passwordResetAllowedHosts;
 
 	@Autowired
 	private LanguageService lamguageService;
@@ -795,6 +797,11 @@ public class UserFacadeImpl implements UserFacade {
 		
 		Validate.notNull(userName, "Username cannot be empty");
 		Validate.notNull(userContextPath, "Return url cannot be empty");
+
+		if (!isAllowedResetReturnUrl(userContextPath, store)) {
+			throw new ServiceRuntimeException("400", "Request url [" + userContextPath + "] is not allowed",
+					new IllegalArgumentException("Invalid password reset return URL"));
+		}
 		
 		try {
 			// get user by user name
@@ -820,9 +827,6 @@ public class UserFacadeImpl implements UserFacade {
 			// reset password link
 			// this will build http | https ://domain/contextPath
 			String baseUrl = userContextPath; 
-			if(!filePathUtils.isValidURL(baseUrl)) {
-				throw new ServiceRuntimeException("Request url [" + baseUrl + "] is invalid");
-			}
 
 			// need to add link to controller receiving user reset password
 			// request
@@ -836,6 +840,52 @@ public class UserFacadeImpl implements UserFacade {
 			throw new ServiceRuntimeException("Error while executing resetPassword request", e);
 		}
 
+	}
+
+	private boolean isAllowedResetReturnUrl(String value, MerchantStore store) {
+		URL returnUrl;
+		try {
+			returnUrl = new URL(value);
+			returnUrl.toURI();
+		} catch (Exception e) {
+			return false;
+		}
+
+		String protocol = returnUrl.getProtocol();
+		if (!"http".equalsIgnoreCase(protocol) && !"https".equalsIgnoreCase(protocol)) {
+			return false;
+		}
+		if (StringUtils.isBlank(returnUrl.getHost()) || returnUrl.getUserInfo() != null) {
+			return false;
+		}
+
+		Set<String> allowedHosts = new HashSet<>();
+		if (store != null) {
+			addAllowedResetHost(allowedHosts, store.getDomainName());
+		}
+		for (String allowedHost : passwordResetAllowedHosts.split(",")) {
+			addAllowedResetHost(allowedHosts, allowedHost.trim());
+		}
+
+		return allowedHosts.contains(returnUrl.getHost().toLowerCase(Locale.ROOT));
+	}
+
+	private void addAllowedResetHost(Set<String> allowedHosts, String value) {
+		if (StringUtils.isBlank(value)) {
+			return;
+		}
+
+		String trimmedValue = value.trim();
+		String urlValue = trimmedValue.contains("://") ? trimmedValue : "http://" + trimmedValue;
+		try {
+			URL allowedUrl = new URL(urlValue);
+			allowedUrl.toURI();
+			if (StringUtils.isNotBlank(allowedUrl.getHost())) {
+				allowedHosts.add(allowedUrl.getHost().toLowerCase(Locale.ROOT));
+			}
+		} catch (Exception e) {
+			return;
+		}
 	}
 
 	@Override
@@ -855,6 +905,7 @@ public class UserFacadeImpl implements UserFacade {
 
 		User user = verifyUserLink(token, store);// reverify
 		user.setAdminPassword(passwordEncoder.encode(password));
+		user.setCredentialsResetRequest(null);
 		
 		try {
 			userService.save(user);
