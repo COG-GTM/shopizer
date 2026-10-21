@@ -41,10 +41,14 @@ public abstract class SalesManagerEntityServiceImpl<K extends Serializable & Com
 
 	
 	public void save(E entity) throws ServiceException {
+		normalizeNewEntityId(entity);
 		repository.saveAndFlush(entity);
 	}
 	
 	public void saveAll(Iterable<E> entities) throws ServiceException {
+		for (E entity : entities) {
+			normalizeNewEntityId(entity);
+		}
 		repository.saveAll(entities);
 	}
 	
@@ -81,7 +85,17 @@ public abstract class SalesManagerEntityServiceImpl<K extends Serializable & Com
 	}
 	
 	protected E saveAndFlush(E entity) {
+		normalizeNewEntityId(entity);
 		return repository.saveAndFlush(entity);
+	}
+
+	/**
+	 * Hibernate 6 treats a non-null identifier as a detached entity.
+	 */
+	private void normalizeNewEntityId(E entity) {
+		if (entity.getId() instanceof Number && ((Number) entity.getId()).longValue() == 0L) {
+			entity.setId(null);
+		}
 	}
 
 }
