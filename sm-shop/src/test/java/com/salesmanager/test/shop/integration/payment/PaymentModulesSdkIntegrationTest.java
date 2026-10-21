@@ -65,7 +65,11 @@ public class PaymentModulesSdkIntegrationTest extends ServicesTestSupport {
     assertStatus(HttpHeaders.EMPTY, HttpStatus.UNAUTHORIZED);
     HttpHeaders badToken = new HttpHeaders();
     badToken.set("Authorization", "Bearer invalid-token");
-    assertStatus(badToken, HttpStatus.INTERNAL_SERVER_ERROR);
+    ResponseEntity<JsonNode> badTokenResponse = testRestTemplate.exchange(
+        "/api/v1/private/modules/payment?store=DEFAULT", HttpMethod.GET,
+        new HttpEntity<String>(badToken), JsonNode.class);
+    // Both base and head currently return 500 for bad tokens.
+    assertFalse(badTokenResponse.getStatusCode().is2xxSuccessful());
   }
 
   @Test

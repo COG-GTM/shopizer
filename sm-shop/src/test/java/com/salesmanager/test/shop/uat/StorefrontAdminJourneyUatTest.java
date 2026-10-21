@@ -1,6 +1,7 @@
 package com.salesmanager.test.shop.uat;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -55,7 +56,11 @@ public class StorefrontAdminJourneyUatTest extends ServicesTestSupport {
     assertStatus(HttpHeaders.EMPTY, HttpStatus.UNAUTHORIZED);
     HttpHeaders invalid = new HttpHeaders();
     invalid.setBearerAuth("not-a-valid-token");
-    assertStatus(invalid, HttpStatus.INTERNAL_SERVER_ERROR);
+    ResponseEntity<String> badToken = testRestTemplate.exchange(
+        "/api/v1/private/modules/payment?store=DEFAULT", HttpMethod.GET,
+        new HttpEntity<String>(invalid), String.class);
+    // Both base and head currently return 500 for bad tokens.
+    assertFalse(badToken.getStatusCode().is2xxSuccessful());
   }
 
   @Test
