@@ -68,6 +68,7 @@ public class S3ProductContentFileManager
   private CMSManager cmsManager;
   private volatile S3Client s3Client;
   private volatile String s3ClientRegion;
+  private volatile boolean ownsS3Client;
 
   public static S3ProductContentFileManager getInstance() {
 
@@ -283,9 +284,20 @@ public class S3ProductContentFileManager
     if (s3Client == null || !region.equals(s3ClientRegion)) {
       synchronized (this) {
         if (s3Client == null || !region.equals(s3ClientRegion)) {
-          s3Client = S3Client.builder().region(Region.of(region))
+          S3Client previousClient = s3Client;
+          boolean closePreviousClient = ownsS3Client;
+          S3Client replacementClient = S3Client.builder().region(Region.of(region))
               .credentialsProvider(DefaultCredentialsProvider.create()).build();
+          s3Client = replacementClient;
           s3ClientRegion = region;
+          ownsS3Client = true;
+          if (closePreviousClient && previousClient != null) {
+            try {
+              previousClient.close();
+            } catch (Exception e) {
+              LOGGER.warn("Unable to close replaced S3 client", e);
+            }
+          }
         }
       }
     }
@@ -295,6 +307,7 @@ public class S3ProductContentFileManager
   void setS3Client(S3Client s3Client) {
     this.s3Client = s3Client;
     this.s3ClientRegion = regionName();
+    this.ownsS3Client = false;
   }
 
   private byte[] readBytes(java.io.InputStream inputStream) throws IOException {

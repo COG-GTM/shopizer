@@ -27,6 +27,8 @@ The `paypal-express-checkout` module's configuration labels in
 `sm-shop/src/main/resources/bundles/payment.properties` and
 `payment_fr.properties` remain unchanged for this migration. Updating labels
 for `clientId` and `clientSecret` is tracked as follow-up AB-549.
+Existing stores' persisted `paypal-express-checkout` module `config1` URL must
+also be updated to PayPal's Orders v2 `checkoutnow` URL as an AB-549 follow-up.
 
 ## SDK versions
 

@@ -4,6 +4,8 @@ import java.io.StringWriter;
 import java.util.Locale;
 import javax.inject.Inject;
 import org.jsoup.helper.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailPreparationException;
 import org.springframework.stereotype.Component;
@@ -29,6 +31,8 @@ import freemarker.template.TemplateException;
 @Component("sesEmailSender")
 public class SESEmailSenderImpl implements EmailModule {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(SESEmailSenderImpl.class);
+
   @Inject
   private Configuration freemarkerMailConfiguration;
   
@@ -36,6 +40,7 @@ public class SESEmailSenderImpl implements EmailModule {
   private String region;
   private volatile SesV2Client sesV2Client;
   private volatile String sesRegion;
+  private volatile boolean ownsSesV2Client;
 
   private final static String TEMPLATE_PATH = "templates/email";
 
@@ -83,9 +88,20 @@ public class SESEmailSenderImpl implements EmailModule {
     if (sesV2Client == null || !normalizedRegion.equals(sesRegion)) {
       synchronized (this) {
         if (sesV2Client == null || !normalizedRegion.equals(sesRegion)) {
-          sesV2Client = SesV2Client.builder().region(Region.of(normalizedRegion))
+          SesV2Client previousClient = sesV2Client;
+          boolean closePreviousClient = ownsSesV2Client;
+          SesV2Client replacementClient = SesV2Client.builder().region(Region.of(normalizedRegion))
               .credentialsProvider(DefaultCredentialsProvider.create()).build();
+          sesV2Client = replacementClient;
           sesRegion = normalizedRegion;
+          ownsSesV2Client = true;
+          if (closePreviousClient && previousClient != null) {
+            try {
+              previousClient.close();
+            } catch (Exception e) {
+              LOGGER.warn("Unable to close replaced SES client", e);
+            }
+          }
         }
       }
     }
@@ -96,6 +112,7 @@ public class SESEmailSenderImpl implements EmailModule {
     this.sesV2Client = sesV2Client;
     this.sesRegion = region == null ? null
         : region.trim().replace('_', '-').toLowerCase(Locale.ROOT);
+    this.ownsSesV2Client = false;
   }
 
   private String prepareHtml(Email email) throws Exception {

@@ -2,7 +2,9 @@ package com.salesmanager.test.modules;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -14,6 +16,7 @@ import java.util.function.Consumer;
 
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -144,10 +147,84 @@ public class S3SdkV2MigrationTest {
     assertEquals("image/png", request.getValue().contentType());
   }
 
+  @Test
+  public void closesOnlyOwnedStaticClientWhenRegionChanges() {
+    CMSManager ownedCms = mock(CMSManager.class);
+    when(ownedCms.getLocation()).thenReturn("us-west-2");
+    ExposedStaticContentManager ownedManager = new ExposedStaticContentManager();
+    ownedManager.setCmsManager(ownedCms);
+    S3Client ownedClient = mock(S3Client.class);
+    doThrow(new IllegalStateException("close failed")).when(ownedClient).close();
+    ReflectionTestUtils.setField(ownedManager, "s3Client", ownedClient);
+    ReflectionTestUtils.setField(ownedManager, "s3ClientRegion", "us-east-1");
+    ReflectionTestUtils.setField(ownedManager, "ownsS3Client", true);
+
+    S3Client replacement = ownedManager.client();
+
+    verify(ownedClient).close();
+    replacement.close();
+
+    CMSManager injectedCms = mock(CMSManager.class);
+    when(injectedCms.getLocation()).thenReturn("us-east-1");
+    ExposedStaticContentManager injectedManager = new ExposedStaticContentManager();
+    injectedManager.setCmsManager(injectedCms);
+    S3Client injectedClient = mock(S3Client.class);
+    ReflectionTestUtils.invokeMethod(injectedManager, "setS3Client", injectedClient);
+    when(injectedCms.getLocation()).thenReturn("us-west-2");
+
+    S3Client injectedReplacement = injectedManager.client();
+
+    verify(injectedClient, never()).close();
+    injectedReplacement.close();
+  }
+
+  @Test
+  public void closesOnlyOwnedProductClientWhenRegionChanges() {
+    CMSManager ownedCms = mock(CMSManager.class);
+    when(ownedCms.getLocation()).thenReturn("us-west-2");
+    ExposedProductContentManager ownedManager = new ExposedProductContentManager();
+    ownedManager.setCmsManager(ownedCms);
+    S3Client ownedClient = mock(S3Client.class);
+    doThrow(new IllegalStateException("close failed")).when(ownedClient).close();
+    ReflectionTestUtils.setField(ownedManager, "s3Client", ownedClient);
+    ReflectionTestUtils.setField(ownedManager, "s3ClientRegion", "us-east-1");
+    ReflectionTestUtils.setField(ownedManager, "ownsS3Client", true);
+
+    S3Client replacement = ownedManager.client();
+
+    verify(ownedClient).close();
+    replacement.close();
+
+    CMSManager injectedCms = mock(CMSManager.class);
+    when(injectedCms.getLocation()).thenReturn("us-east-1");
+    ExposedProductContentManager injectedManager = new ExposedProductContentManager();
+    injectedManager.setCmsManager(injectedCms);
+    S3Client injectedClient = mock(S3Client.class);
+    ReflectionTestUtils.invokeMethod(injectedManager, "setS3Client", injectedClient);
+    when(injectedCms.getLocation()).thenReturn("us-west-2");
+
+    S3Client injectedReplacement = injectedManager.client();
+
+    verify(injectedClient, never()).close();
+    injectedReplacement.close();
+  }
+
   private CMSManager cmsManager() {
     CMSManager cms = mock(CMSManager.class);
     when(cms.getRootName()).thenReturn("media-bucket");
     when(cms.getLocation()).thenReturn("us-east-1");
     return cms;
+  }
+
+  private static class ExposedStaticContentManager extends S3StaticContentAssetsManagerImpl {
+    private S3Client client() {
+      return super.s3Client();
+    }
+  }
+
+  private static class ExposedProductContentManager extends S3ProductContentFileManager {
+    private S3Client client() {
+      return super.s3Client();
+    }
   }
 }

@@ -109,20 +109,27 @@ public class PayPalExpressCheckoutPayment implements PaymentModule {
 
     try {
       String currency = store.getCurrency().getCode();
-      CheckoutPaymentIntent intent = TransactionType.AUTHORIZECAPTURE.name()
-          .equalsIgnoreCase(configuration.getIntegrationKeys().get("transaction"))
-              ? CheckoutPaymentIntent.CAPTURE : CheckoutPaymentIntent.AUTHORIZE;
+      Map<String, String> keys = configuration.getIntegrationKeys();
+      String configuredTransaction = keys == null ? null : keys.get("transaction");
+      CheckoutPaymentIntent intent = TransactionType.AUTHORIZE.name().equalsIgnoreCase(configuredTransaction)
+          ? CheckoutPaymentIntent.AUTHORIZE : CheckoutPaymentIntent.CAPTURE;
 
       List<ItemRequest> orderItems = new ArrayList<ItemRequest>();
+      BigDecimal itemTotal = BigDecimal.ZERO;
       for (ShoppingCartItem cartItem : items) {
+        BigDecimal finalPrice = cartItem.getFinalPrice().getFinalPrice();
+        itemTotal = itemTotal.add(finalPrice.multiply(BigDecimal.valueOf(cartItem.getQuantity())));
         orderItems.add(new ItemRequest.Builder(
             cartItem.getProduct().getProductDescription().getName(),
-            money(currency, cartItem.getFinalPrice().getFinalPrice(), store),
+            money(currency, finalPrice, store),
             String.valueOf(cartItem.getQuantity())).build());
       }
 
       AmountBreakdown.Builder breakdown = new AmountBreakdown.Builder()
-          .itemTotal(money(currency, summary.getSubTotal(), store));
+          .itemTotal(money(currency, itemTotal, store));
+      if (itemTotal.compareTo(summary.getSubTotal()) > 0) {
+        breakdown.discount(money(currency, itemTotal.subtract(summary.getSubTotal()), store));
+      }
       BigDecimal tax = null;
       if (summary.getTotals() != null) {
         for (OrderTotal total : summary.getTotals()) {

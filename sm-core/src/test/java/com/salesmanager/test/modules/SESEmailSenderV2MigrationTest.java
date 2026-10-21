@@ -5,7 +5,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -79,5 +81,34 @@ public class SESEmailSenderV2MigrationTest {
     assertNotNull(client);
     assertEquals(Region.US_EAST_1, client.serviceClientConfiguration().region());
     client.close();
+  }
+
+  @Test
+  public void closesOnlyOwnedClientWhenRegionChanges() {
+    SESEmailSenderImpl sender = new SESEmailSenderImpl();
+    ReflectionTestUtils.setField(sender, "region", "us-west-2");
+    SesV2Client ownedClient = mock(SesV2Client.class);
+    doThrow(new IllegalStateException("close failed")).when(ownedClient).close();
+    ReflectionTestUtils.setField(sender, "sesV2Client", ownedClient);
+    ReflectionTestUtils.setField(sender, "sesRegion", "us-east-1");
+    ReflectionTestUtils.setField(sender, "ownsSesV2Client", true);
+
+    SesV2Client replacement =
+        (SesV2Client) ReflectionTestUtils.invokeMethod(sender, "sesV2Client");
+
+    verify(ownedClient).close();
+    replacement.close();
+
+    SESEmailSenderImpl injectedSender = new SESEmailSenderImpl();
+    ReflectionTestUtils.setField(injectedSender, "region", "us-east-1");
+    SesV2Client injectedClient = mock(SesV2Client.class);
+    ReflectionTestUtils.invokeMethod(injectedSender, "setSesV2Client", injectedClient);
+    ReflectionTestUtils.setField(injectedSender, "region", "us-west-2");
+
+    SesV2Client injectedReplacement =
+        (SesV2Client) ReflectionTestUtils.invokeMethod(injectedSender, "sesV2Client");
+
+    verify(injectedClient, never()).close();
+    injectedReplacement.close();
   }
 }
