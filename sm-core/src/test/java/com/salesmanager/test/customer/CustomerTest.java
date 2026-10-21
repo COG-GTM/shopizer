@@ -5,8 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.model.common.Billing;
@@ -25,8 +25,7 @@ import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.core.model.reference.zone.Zone;
 
 
-
-@Ignore
+@Disabled("Incomplete test with no assertions")
 public class CustomerTest extends com.salesmanager.test.common.AbstractSalesManagerCoreTestCase {
 	
 	@Test

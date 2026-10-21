@@ -4,9 +4,11 @@ import com.salesmanager.core.business.utils.DataUtils;
 import com.salesmanager.core.constants.MeasureUnit;
 import com.salesmanager.core.model.merchant.MerchantStore;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import org.junit.jupiter.api.Test;
 
 public class DataUtilsTest {
 

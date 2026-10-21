@@ -6,8 +6,8 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import com.salesmanager.core.business.modules.integration.shipping.impl.ShippingDecisionPreProcessorImpl;
 import com.salesmanager.core.model.common.Delivery;
@@ -18,15 +18,14 @@ import com.salesmanager.core.model.shipping.ShippingQuote;
 import com.salesmanager.core.model.system.IntegrationModule;
 
 
-
-@Ignore
+@Disabled("Re-enabled in AB-542")
 public class ShippingMethodDecisionTest extends com.salesmanager.test.common.AbstractSalesManagerCoreTestCase {
 	
 	@Inject
 	ShippingDecisionPreProcessorImpl shippingMethodDecisionProcess;
 
 	@Test
-	@Ignore
+	@Disabled("Re-enabled in AB-542")
 	public void validateShippingMethod() throws Exception {
 		
 		ShippingQuote quote = new ShippingQuote();
