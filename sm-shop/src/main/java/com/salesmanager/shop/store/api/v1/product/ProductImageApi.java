@@ -80,7 +80,7 @@ public class ProductImageApi {
 	 * @throws Exception
 	 */
 	@ResponseStatus(HttpStatus.CREATED)
-	@RequestMapping(value = { "/private/product/{id}/image", "/auth/product/{id}/image" }, consumes = {
+	@RequestMapping(value = { "/private/product/{id}/image" }, consumes = {
 			MediaType.MULTIPART_FORM_DATA_VALUE }, method = RequestMethod.POST)
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
@@ -147,18 +147,22 @@ public class ProductImageApi {
 	}
 
 	@ResponseStatus(HttpStatus.OK)
-	@RequestMapping(value = { "/private/product/image/{id}",
-			"/auth/product/images/{id}" }, method = RequestMethod.DELETE)
-	public void deleteImage(@PathVariable Long id, HttpServletRequest request, HttpServletResponse response)
+	@RequestMapping(value = { "/private/product/image/{id}" }, method = RequestMethod.DELETE)
+	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
+			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
+	public void deleteImage(@PathVariable Long id, @ApiIgnore MerchantStore merchantStore, HttpServletRequest request,
+			HttpServletResponse response)
 			throws Exception {
 
 		try {
 			ProductImage productImage = productImageService.getById(id);
 
-			if (productImage != null) {
-				productImageService.delete(productImage);
-			} else {
+			if (productImage == null || productImage.getProduct() == null
+					|| productImage.getProduct().getMerchantStore() == null
+					|| !productImage.getProduct().getMerchantStore().getId().equals(merchantStore.getId())) {
 				response.sendError(404, "No ProductImage found for ID : " + id);
+			} else {
+				productImageService.delete(productImage);
 			}
 
 		} catch (Exception e) {
@@ -224,7 +228,7 @@ public class ProductImageApi {
 						+ "] and merchant [" + merchantStore.getCode() + "]");
 			}
 			
-			if(p.getMerchantStore().getId() != merchantStore.getId()) {
+			if(!p.getMerchantStore().getId().equals(merchantStore.getId())) {
 				throw new ResourceNotFoundException("Product images not found for product id [" + productId
 						+ "] and merchant [" + merchantStore.getCode() + "]");
 			}
@@ -264,8 +268,7 @@ public class ProductImageApi {
 	 */
 
 	@ResponseStatus(HttpStatus.OK)
-	@RequestMapping(value = { "/private/product/{id}/image/{imageId}",
-			"/auth/product/{id}/image/{id}" }, method = RequestMethod.PATCH)
+	@RequestMapping(value = { "/private/product/{id}/image/{imageId}" }, method = RequestMethod.PATCH)
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public void imageDetails(@PathVariable Long id, @PathVariable Long imageId,
@@ -281,7 +284,7 @@ public class ProductImageApi {
 						+ "] and merchant [" + merchantStore.getCode() + "]");
 			}
 			
-			if(p.getMerchantStore().getId() != merchantStore.getId()) {
+			if(!p.getMerchantStore().getId().equals(merchantStore.getId())) {
 				throw new ResourceNotFoundException("Product image [" + imageId + "] not found for product id [" + id
 						+ "] and merchant [" + merchantStore.getCode() + "]");
 			}
