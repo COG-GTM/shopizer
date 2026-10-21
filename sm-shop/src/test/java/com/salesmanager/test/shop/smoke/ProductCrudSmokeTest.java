@@ -46,6 +46,7 @@ class ProductCrudSmokeTest extends SmokeTestSupport {
 		assertEquals(200, deleted.getStatusCodeValue());
 		ResponseEntity<String> afterDelete = testRestTemplate.exchange(readPath, HttpMethod.GET,
 				new HttpEntity<>(bearerHeaders(fixture.adminToken)), String.class);
-		assertEquals(404, afterDelete.getStatusCodeValue());
+		// The V2 read API returns 400 after deletion.
+		assertEquals(400, afterDelete.getStatusCodeValue());
 	}
 }
