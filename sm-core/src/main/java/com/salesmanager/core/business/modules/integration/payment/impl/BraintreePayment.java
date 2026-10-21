@@ -91,17 +91,7 @@ public class BraintreePayment implements PaymentModule {
 		Validate.notNull(publicKey,"public_key cannot be null");
 		Validate.notNull(privateKey,"private_key cannot be null");
 		
-		Environment environment= Environment.PRODUCTION;
-		if (configuration.getEnvironment().equals("TEST")) {// sandbox
-			environment= Environment.SANDBOX;
-		}
-		
-	    BraintreeGateway gateway = new BraintreeGateway(
-	    		   environment,
-	    		   merchantId,
-	    		   publicKey,
-	    		   privateKey
-				);
+	    BraintreeGateway gateway = gateway(configuration);
 		
 		String clientToken = gateway.clientToken().generate();
 
@@ -142,17 +132,7 @@ public class BraintreePayment implements PaymentModule {
 			throw te;
 	    }
 		
-		Environment environment= Environment.PRODUCTION;
-		if (configuration.getEnvironment().equals("TEST")) {// sandbox
-			environment= Environment.SANDBOX;
-		}
-		
-	    BraintreeGateway gateway = new BraintreeGateway(
-	    		   environment,
-	    		   merchantId,
-	    		   publicKey,
-	    		   privateKey
-				);
+	    BraintreeGateway gateway = gateway(configuration);
 	    
 	   
 
@@ -232,17 +212,7 @@ public class BraintreePayment implements PaymentModule {
 			throw te;
 	    }
 		
-		Environment environment= Environment.PRODUCTION;
-		if (configuration.getEnvironment().equals("TEST")) {// sandbox
-			environment= Environment.SANDBOX;
-		}
-		
-	    BraintreeGateway gateway = new BraintreeGateway(
-	    		   environment,
-	    		   merchantId,
-	    		   publicKey,
-	    		   privateKey
-				);
+	    BraintreeGateway gateway = gateway(configuration);
 	    
 	   
 	    BigDecimal amount = order.getTotal();
@@ -319,17 +289,7 @@ public class BraintreePayment implements PaymentModule {
 			throw te;
 	    }
 		
-		Environment environment= Environment.PRODUCTION;
-		if (configuration.getEnvironment().equals("TEST")) {// sandbox
-			environment= Environment.SANDBOX;
-		}
-		
-	    BraintreeGateway gateway = new BraintreeGateway(
-	    		   environment,
-	    		   merchantId,
-	    		   publicKey,
-	    		   privateKey
-				);
+	    BraintreeGateway gateway = gateway(configuration);
 	    
 	   
 
@@ -408,17 +368,7 @@ public class BraintreePayment implements PaymentModule {
 			throw te;
 	    }
 		
-		Environment environment= Environment.PRODUCTION;
-		if (configuration.getEnvironment().equals("TEST")) {// sandbox
-			environment= Environment.SANDBOX;
-		}
-		
-	    BraintreeGateway gateway = new BraintreeGateway(
-	    		   environment,
-	    		   merchantId,
-	    		   publicKey,
-	    		   privateKey
-				);
+	    BraintreeGateway gateway = gateway(configuration);
 	    
 
         Result<com.braintreegateway.Transaction> result = gateway.transaction().refund(auth, amount);
@@ -462,8 +412,18 @@ public class BraintreePayment implements PaymentModule {
         trx.getTransactionDetails().put("TRNORDERNUMBER", trxId);
         trx.getTransactionDetails().put("MESSAGETEXT", null);
         
-        return trx;
+		return trx;
 		
+	}
+
+	protected BraintreeGateway gateway(IntegrationConfiguration configuration) {
+		Map<String,String> keys = configuration.getIntegrationKeys();
+		Environment environment = Environment.PRODUCTION;
+		if (IntegrationConfiguration.TEST_ENVIRONMENT.equals(configuration.getEnvironment())) {
+			environment = Environment.SANDBOX;
+		}
+		return new BraintreeGateway(environment, keys.get("merchant_id"),
+				keys.get("public_key"), keys.get("private_key"));
 	}
 
 }
