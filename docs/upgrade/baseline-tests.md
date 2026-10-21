@@ -3,7 +3,7 @@
 ## JDK 17 clean-room run
 
 - JDK: OpenJDK 17.0.20.1
-- Maven: Apache Maven 3.9.16, bootstrapped by Maven Wrapper 3.3.2
+- Maven: Apache Maven 3.9.16, bootstrapped by Maven Wrapper 3.3.4
 - Result: `BUILD SUCCESS`
 - Command:
 
