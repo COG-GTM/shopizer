@@ -1,19 +1,21 @@
 package com.salesmanager.core.business.modules.email;
 
 import java.io.StringWriter;
+import java.util.Locale;
 import javax.inject.Inject;
 import org.jsoup.helper.Validate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailPreparationException;
 import org.springframework.stereotype.Component;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
-import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClientBuilder;
-import com.amazonaws.services.simpleemail.model.Body;
-import com.amazonaws.services.simpleemail.model.Content;
-import com.amazonaws.services.simpleemail.model.Destination;
-import com.amazonaws.services.simpleemail.model.Message;
-import com.amazonaws.services.simpleemail.model.SendEmailRequest;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.sesv2.SesV2Client;
+import software.amazon.awssdk.services.sesv2.model.Body;
+import software.amazon.awssdk.services.sesv2.model.Content;
+import software.amazon.awssdk.services.sesv2.model.Destination;
+import software.amazon.awssdk.services.sesv2.model.EmailContent;
+import software.amazon.awssdk.services.sesv2.model.Message;
+import software.amazon.awssdk.services.sesv2.model.SendEmailRequest;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -32,6 +34,8 @@ public class SESEmailSenderImpl implements EmailModule {
   
   @Value("${config.emailSender.region}")
   private String region;
+  private volatile SesV2Client sesV2Client;
+  private volatile String sesRegion;
 
   private final static String TEMPLATE_PATH = "templates/email";
 
@@ -54,23 +58,44 @@ public class SESEmailSenderImpl implements EmailModule {
 
       Validate.notNull(region,"AWS region is null");
 
-      AmazonSimpleEmailService client = AmazonSimpleEmailServiceClientBuilder.standard()
-          // Replace US_WEST_2 with the AWS Region you're using for
-          // Amazon SES.
-          .withRegion(Regions.valueOf(region.toUpperCase())).build();
-      SendEmailRequest request = new SendEmailRequest()
-          .withDestination(new Destination().withToAddresses(email.getTo()))
-          .withMessage(new Message()
-              .withBody(new Body().withHtml(new Content().withCharset("UTF-8").withData(prepareHtml(email)))
-                  .withText(new Content().withCharset("UTF-8").withData(TEXTBODY)))
-              .withSubject(new Content().withCharset("UTF-8").withData(email.getSubject())))
-          .withSource(email.getFromEmail());
+      SesV2Client client = sesV2Client();
+      SendEmailRequest request = SendEmailRequest.builder()
+          .destination(Destination.builder().toAddresses(email.getTo()).build())
+          .content(EmailContent.builder().simple(Message.builder()
+              .body(Body.builder()
+                  .html(Content.builder().charset("UTF-8").data(prepareHtml(email)).build())
+                  .text(Content.builder().charset("UTF-8").data(TEXTBODY).build())
+                  .build())
+              .subject(Content.builder().charset("UTF-8").data(email.getSubject()).build())
+              .build()).build())
+          .fromEmailAddress(email.getFromEmail()).build();
           // Comment or remove the next line if you are not using a
           // configuration set
           //.withConfigurationSetName(CONFIGSET);
       client.sendEmail(request);
 
 
+  }
+
+  protected SesV2Client sesV2Client() {
+    Validate.notNull(region, "AWS region is null");
+    String normalizedRegion = region.trim().replace('_', '-').toLowerCase(Locale.ROOT);
+    if (sesV2Client == null || !normalizedRegion.equals(sesRegion)) {
+      synchronized (this) {
+        if (sesV2Client == null || !normalizedRegion.equals(sesRegion)) {
+          sesV2Client = SesV2Client.builder().region(Region.of(normalizedRegion))
+              .credentialsProvider(DefaultCredentialsProvider.create()).build();
+          sesRegion = normalizedRegion;
+        }
+      }
+    }
+    return sesV2Client;
+  }
+
+  void setSesV2Client(SesV2Client sesV2Client) {
+    this.sesV2Client = sesV2Client;
+    this.sesRegion = region == null ? null
+        : region.trim().replace('_', '-').toLowerCase(Locale.ROOT);
   }
 
   private String prepareHtml(Email email) throws Exception {
