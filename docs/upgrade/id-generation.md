@@ -2,12 +2,12 @@
 
 ## New-entity id semantics
 
-`SalesManagerEntityServiceImpl` normalizes a numeric identifier of zero to `null`
-before `save`, `saveAll`, and `saveAndFlush` delegate to Spring Data. The entity
-model and API mapper defaults remain unchanged, so incoming DTOs may continue to
-use `0` to represent a new entity. Hibernate 6.6 treats a non-null identifier as
-an existing/detached entity; clearing the sentinel before the repository save
-allows the configured generator to assign the identifier.
+`NewEntityIdNormalizingRepository` normalizes a numeric identifier of zero to
+`null` at the repository boundary, including direct repository saves that bypass
+service implementations. Entity models and API mappers are unchanged, so DTOs
+may continue to default the id to `0`. Hibernate 6.6 treats a non-null id as
+detached; clearing the sentinel before persistence allows the configured
+generator to assign the identifier.
 
 ## Current generator configuration
 

@@ -9,6 +9,8 @@ import java.util.UUID;
 
 import org.junit.Test;
 
+import com.salesmanager.core.model.catalog.catalog.Catalog;
+import com.salesmanager.core.model.catalog.catalog.CatalogCategoryEntry;
 import com.salesmanager.core.model.catalog.category.Category;
 import com.salesmanager.core.model.catalog.category.CategoryDescription;
 import com.salesmanager.core.model.catalog.product.Product;
@@ -146,6 +148,67 @@ public class NewEntityIdSemanticsTest extends AbstractSalesManagerCoreTestCase {
 		assertEquals(count + 1, categoryService.count().longValue());
 		assertNotNull(categoryService.getById(category.getId(), store.getId()));
 		assertEquals("/" + category.getId() + "/", category.getLineage());
+	}
+
+	@Test
+	public void catalogWithZeroIdIsCreated() throws Exception {
+		MerchantStore store = merchantService.getByCode(MerchantStore.DEFAULT_STORE);
+		long count = catalogService.count();
+
+		Catalog catalog = new Catalog(store);
+		catalog.setId(0L);
+		catalog.setCode("ab541-" + UUID.randomUUID());
+		catalogService.saveOrUpdate(catalog, store);
+
+		assertCreatedId(catalog.getId());
+		assertEquals(count + 1, catalogService.count().longValue());
+		assertTrue(catalogService.getById(catalog.getId(), store).isPresent());
+	}
+
+	@Test
+	public void catalogEntryWithZeroIdIsCreated() throws Exception {
+		MerchantStore store = merchantService.getByCode(MerchantStore.DEFAULT_STORE);
+		Language language = languageService.getByCode("en");
+		String code = "ab541-" + UUID.randomUUID();
+
+		Product product = new Product();
+		product.setMerchantStore(store);
+		product.setSku(code);
+		ProductDescription productDescription = new ProductDescription();
+		productDescription.setProduct(product);
+		productDescription.setLanguage(language);
+		productDescription.setName(code);
+		product.getDescriptions().add(productDescription);
+		ProductAvailability availability = new ProductAvailability();
+		availability.setProduct(product);
+		availability.setProductQuantity(1);
+		availability.setProductDateAvailable(new Date());
+		product.getAvailabilities().add(availability);
+		productService.create(product);
+
+		Category category = new Category();
+		category.setMerchantStore(store);
+		category.setCode(code);
+		CategoryDescription categoryDescription = new CategoryDescription();
+		categoryDescription.setCategory(category);
+		categoryDescription.setLanguage(language);
+		categoryDescription.setName(code);
+		category.getDescriptions().add(categoryDescription);
+		categoryService.create(category);
+
+		Catalog catalog = new Catalog(store);
+		catalog.setCode(code);
+		catalogService.saveOrUpdate(catalog, store);
+
+		long count = catalogEntryService.count();
+		CatalogCategoryEntry entry = new CatalogCategoryEntry();
+		entry.setId(0L);
+		entry.setCategory(category);
+		catalogEntryService.add(entry, catalog);
+
+		assertCreatedId(entry.getId());
+		assertEquals(count + 1, catalogEntryService.count().longValue());
+		assertNotNull(catalogEntryService.getById(entry.getId()));
 	}
 
 	private void assertCreatedId(Long id) {
