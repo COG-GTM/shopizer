@@ -4,25 +4,19 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.AopTestUtils;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.util.ReflectionUtils;
 
 import com.salesmanager.core.business.constants.Constants;
 import com.salesmanager.core.business.services.user.UserService;
@@ -32,10 +26,11 @@ import com.salesmanager.shop.application.ShopApplication;
 import com.salesmanager.shop.store.security.ResetPasswordRequest;
 import com.salesmanager.test.shop.common.ServicesTestSupport;
 
+/**
+ * Overrides the facade field directly so this test reuses the cached context.
+ */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = ShopApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
-@TestPropertySource(properties = "config.admin.passwordReset.allowedReturnUrls=https://admin.example.com, https://ops.example.com:8443")
-@Import(AdminPasswordResetCustomAllowlistIntegrationTest.SharedCacheConfiguration.class)
 public class AdminPasswordResetCustomAllowlistIntegrationTest extends ServicesTestSupport {
 
 	private static final String ADMIN_USERNAME = "admin@shopizer.com";
@@ -45,28 +40,24 @@ public class AdminPasswordResetCustomAllowlistIntegrationTest extends ServicesTe
 	private UserService userService;
 
 	@Autowired
-	private Environment environment;
-
-	@Autowired
 	private ApplicationContext applicationContext;
 
-	@TestConfiguration
-	static class SharedCacheConfiguration {
-
-		@Bean
-		static BeanFactoryPostProcessor sharedEhCacheManager() {
-			return beanFactory -> beanFactory.getBeanDefinition("springCacheManager")
-					.getPropertyValues().add("shared", true);
-		}
-	}
+	private String savedAllowedPasswordResetReturnUrls;
 
 	@Before
 	public void applyTestAllowlistProperty() {
 		Object facade = AopTestUtils.getUltimateTargetObject(applicationContext.getBean("userFacade"));
-		if (ReflectionUtils.findField(facade.getClass(), "allowedPasswordResetReturnUrls") != null) {
-			ReflectionTestUtils.setField(facade, "allowedPasswordResetReturnUrls",
-					environment.getProperty("config.admin.passwordReset.allowedReturnUrls"));
-		}
+		savedAllowedPasswordResetReturnUrls =
+				(String) ReflectionTestUtils.getField(facade, "allowedPasswordResetReturnUrls");
+		ReflectionTestUtils.setField(facade, "allowedPasswordResetReturnUrls",
+				"https://admin.example.com, https://ops.example.com:8443");
+	}
+
+	@After
+	public void restorePasswordResetAllowlist() {
+		Object facade = AopTestUtils.getUltimateTargetObject(applicationContext.getBean("userFacade"));
+		ReflectionTestUtils.setField(facade, "allowedPasswordResetReturnUrls",
+				savedAllowedPasswordResetReturnUrls);
 	}
 
 	@Test

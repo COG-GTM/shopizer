@@ -12,6 +12,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -23,7 +24,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.util.ReflectionUtils;
 
 import com.salesmanager.core.business.modules.email.Email;
 import com.salesmanager.core.business.services.reference.language.LanguageService;
@@ -99,6 +102,16 @@ public class UserFacadeImplPasswordResetTest {
 			return;
 		}
 		throw new AssertionError("Expected OperationNotAllowedException");
+	}
+
+	@Test
+	public void declaresAllowedReturnUrlsPropertyPlaceholder() {
+		Field field = ReflectionUtils.findField(UserFacadeImpl.class, "allowedPasswordResetReturnUrls");
+		assertNotNull(field);
+
+		Value value = field.getAnnotation(Value.class);
+		assertNotNull(value);
+		assertEquals("${config.admin.passwordReset.allowedReturnUrls:http://localhost:4200}", value.value());
 	}
 
 	@Test
