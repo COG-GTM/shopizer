@@ -125,7 +125,6 @@ public class JWTTokenUtil implements Serializable {
 	        final Date createdDate = DateUtil.getDate();
 	        final Date expirationDate = calculateExpirationDate(createdDate);
 
-	        System.out.println("doGenerateToken " + createdDate);
 
 	        return Jwts.builder()
 	                .setClaims(claims)
