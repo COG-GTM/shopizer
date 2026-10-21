@@ -5,7 +5,11 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
+
+import javax.annotation.PostConstruct;
+import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,7 +20,8 @@ import com.salesmanager.shop.utils.DateUtil;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 
 /**
  * Used for managing token based authentication for customer and user
@@ -33,6 +38,9 @@ public class JWTTokenUtil implements Serializable {
 	
 	
 	    static final int GRACE_PERIOD = 200;
+
+	    /** HS512 requires a key of at least 512 bits. */
+	    static final int MIN_SECRET_BYTES = 64;
 	
 	
 	
@@ -47,11 +55,44 @@ public class JWTTokenUtil implements Serializable {
 	    static final String AUDIENCE_TABLET = "tablet";
 
 
+	    /** Base64-encoded HMAC key, decoded the same way JJWT 0.8 decoded String keys. */
 	    @Value("${jwt.secret}")
 	    private String secret;
 
 	    @Value("${jwt.expiration}")
 	    private Long expiration;
+
+	    private transient SecretKey signingKey;
+
+	    @PostConstruct
+	    void init() {
+	        this.signingKey = createSigningKey(secret);
+	    }
+
+	    static SecretKey createSigningKey(String base64Secret) {
+	        if (base64Secret == null || base64Secret.trim().isEmpty()) {
+	            throw new IllegalStateException("jwt.secret is not configured");
+	        }
+	        byte[] keyBytes;
+	        try {
+	            keyBytes = Decoders.BASE64.decode(base64Secret.trim());
+	        } catch (RuntimeException e) {
+	            throw new IllegalStateException("jwt.secret must be Base64 encoded", e);
+	        }
+	        if (keyBytes.length < MIN_SECRET_BYTES) {
+	            throw new IllegalStateException("jwt.secret decodes to " + (keyBytes.length * 8)
+	                    + " bits; HS512 requires at least " + (MIN_SECRET_BYTES * 8)
+	                    + " bits (e.g. generate one with: openssl rand -base64 64)");
+	        }
+	        return Keys.hmacShaKeyFor(keyBytes);
+	    }
+
+	    private SecretKey getSigningKey() {
+	        if (signingKey == null) {
+	            signingKey = createSigningKey(secret);
+	        }
+	        return signingKey;
+	    }
 
 	    public String getUsernameFromToken(String token) {
 	        return getClaimFromToken(token, Claims::getSubject);
@@ -66,7 +107,12 @@ public class JWTTokenUtil implements Serializable {
 	    }
 
 	    public String getAudienceFromToken(String token) {
-	        return getClaimFromToken(token, Claims::getAudience);
+	        return getClaimFromToken(token, JWTTokenUtil::singleAudience);
+	    }
+
+	    private static String singleAudience(Claims claims) {
+	        Set<String> audience = claims.getAudience();
+	        return (audience == null || audience.isEmpty()) ? null : audience.iterator().next();
 	    }
 
 	    public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
@@ -76,9 +122,10 @@ public class JWTTokenUtil implements Serializable {
 
 	    private Claims getAllClaimsFromToken(String token) {
 	        return Jwts.parser()
-	                .setSigningKey(secret)
-	                .parseClaimsJws(token)
-	                .getBody();
+	                .verifyWith(getSigningKey())
+	                .build()
+	                .parseSignedClaims(token)
+	                .getPayload();
 	    }
 
 	    private Boolean isTokenExpired(String token) {
@@ -128,12 +175,12 @@ public class JWTTokenUtil implements Serializable {
 	        System.out.println("doGenerateToken " + createdDate);
 
 	        return Jwts.builder()
-	                .setClaims(claims)
-	                .setSubject(subject)
-	                .setAudience(audience)
-	                .setIssuedAt(createdDate)
-	                .setExpiration(expirationDate)
-	                .signWith(SignatureAlgorithm.HS512, secret)
+	                .claims(claims)
+	                .subject(subject)
+	                .audience().single(audience)
+	                .issuedAt(createdDate)
+	                .expiration(expirationDate)
+	                .signWith(getSigningKey(), Jwts.SIG.HS512)
 	                .compact();
 	    }
 	    
@@ -161,12 +208,13 @@ public class JWTTokenUtil implements Serializable {
 	        final Date expirationDate = calculateExpirationDate(createdDate);
 
 	        final Claims claims = getAllClaimsFromToken(token);
-	        claims.setIssuedAt(createdDate);
-	        claims.setExpiration(expirationDate);
 
 	        return Jwts.builder()
-	                .setClaims(claims)
-	                .signWith(SignatureAlgorithm.HS512, secret)
+	                .claims(claims)
+	                .audience().single(singleAudience(claims))
+	                .issuedAt(createdDate)
+	                .expiration(expirationDate)
+	                .signWith(getSigningKey(), Jwts.SIG.HS512)
 	                .compact();
 	    }
 
