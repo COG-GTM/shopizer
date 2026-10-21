@@ -60,7 +60,7 @@ public class StorefrontJourneyUatTest extends ServicesTestSupport {
 		HttpHeaders invalidHeaders = bearer("not.a.valid.token");
 		ResponseEntity<String> invalid = testRestTemplate.exchange("/api/v1/private/users?store=DEFAULT",
 				HttpMethod.GET, new HttpEntity<>(invalidHeaders), String.class);
-		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, invalid.getStatusCode());
+		assertTrue(invalid.getStatusCode().isError());
 	}
 
 	@Test

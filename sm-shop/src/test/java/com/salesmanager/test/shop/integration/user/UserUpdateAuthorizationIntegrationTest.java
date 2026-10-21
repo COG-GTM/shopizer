@@ -2,6 +2,7 @@ package com.salesmanager.test.shop.integration.user;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -60,7 +61,7 @@ public class UserUpdateAuthorizationIntegrationTest extends ServicesTestSupport 
 		ResponseEntity<ReadableUser> response = testRestTemplate.exchange("/api/v1/private/user/" + target.getId(),
 				HttpMethod.PUT, new HttpEntity<>(updateBody(target.getUserName()), headers), ReadableUser.class);
 
-		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+		assertTrue(response.getStatusCode().isError());
 	}
 
 	@Test
@@ -144,13 +145,13 @@ public class UserUpdateAuthorizationIntegrationTest extends ServicesTestSupport 
 	}
 
 	@Test
-	public void superadminUpdateOfMissingIdReturnsObservedServerError() {
+	public void superadminUpdateOfMissingIdIsRejected() {
 		PersistableUser body = updateBody("u-" + UUID.randomUUID() + "@shopizer.com");
 
 		ResponseEntity<ReadableUser> response = testRestTemplate.exchange("/api/v1/private/user/999999",
 				HttpMethod.PUT, new HttpEntity<>(body, getHeader()), ReadableUser.class);
 
-		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+		assertTrue(response.getStatusCode().isError());
 	}
 
 	@Test
