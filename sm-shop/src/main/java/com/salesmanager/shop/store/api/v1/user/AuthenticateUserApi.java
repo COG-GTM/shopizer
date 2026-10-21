@@ -16,6 +16,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,6 +27,7 @@ import com.salesmanager.shop.store.security.AuthenticationResponse;
 import com.salesmanager.shop.store.security.JWTTokenUtil;
 import com.salesmanager.shop.store.security.user.JWTUser;
 
+import io.jsonwebtoken.JwtException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
@@ -97,7 +99,7 @@ public class AuthenticateUserApi {
         // Reload password post-security so we can generate token
         final JWTUser userDetails = (JWTUser)jwtAdminDetailsService.loadUserByUsername(authenticationRequest.getUsername());
         
-        final String token = jwtTokenUtil.generateToken(userDetails);
+        final String token = jwtTokenUtil.generateToken(userDetails, JWTTokenUtil.TOKEN_TYPE_ADMIN);
 
         // Return the token
         return ResponseEntity.ok(new AuthenticationResponse(userDetails.getId(),token));
@@ -108,14 +110,30 @@ public class AuthenticateUserApi {
     public ResponseEntity<AuthenticationResponse> refreshAndGetAuthenticationToken(HttpServletRequest request) {
         String token = request.getHeader(tokenHeader);
 
-        if(token != null && token.contains("Bearer")) {
-          token = token.substring("Bearer ".length(),token.length());
+        if(token == null || token.trim().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
-        
-        String username = jwtTokenUtil.getUsernameFromToken(token);
-        JWTUser user = (JWTUser) jwtAdminDetailsService.loadUserByUsername(username);
 
-        if (jwtTokenUtil.canTokenBeRefreshedWithGrace(token, user.getLastPasswordResetDate())) {
+        if(token.startsWith("Bearer ")) {
+          token = token.substring("Bearer ".length());
+        }
+        if(token.trim().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+
+        JWTUser user;
+        try {
+            String username = jwtTokenUtil.getUsernameFromToken(token);
+            user = (JWTUser) jwtAdminDetailsService.loadUserByUsername(username);
+        } catch (JwtException | IllegalArgumentException | UsernameNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+
+        if (!jwtTokenUtil.isTokenBoundTo(token, user, JWTTokenUtil.TOKEN_TYPE_ADMIN)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+
+        if (jwtTokenUtil.canTokenBeRefreshedWithGrace(token, user, JWTTokenUtil.TOKEN_TYPE_ADMIN)) {
             String refreshedToken = jwtTokenUtil.refreshToken(token);
             return ResponseEntity.ok(new AuthenticationResponse(user.getId(),refreshedToken));
         } else {

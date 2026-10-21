@@ -21,6 +21,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -46,6 +47,7 @@ import com.salesmanager.shop.store.security.PasswordRequest;
 import com.salesmanager.shop.store.security.user.JWTUser;
 import com.salesmanager.shop.utils.AuthorizationUtils;
 
+import io.jsonwebtoken.JwtException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -139,7 +141,7 @@ public class AuthenticateCustomerApi {
 
             // Reload password post-security so we can generate token
             final JWTUser userDetails = (JWTUser)jwtCustomerDetailsService.loadUserByUsername(customer.getUserName());
-            final String token = jwtTokenUtil.generateToken(userDetails);
+            final String token = jwtTokenUtil.generateToken(userDetails, JWTTokenUtil.TOKEN_TYPE_CUSTOMER);
 
             // Return the token
             return ResponseEntity.ok(new AuthenticationResponse(customer.getId(),token));
@@ -189,7 +191,7 @@ public class AuthenticateCustomerApi {
         // todo create one for social
         final JWTUser userDetails = (JWTUser)jwtCustomerDetailsService.loadUserByUsername(authenticationRequest.getUsername());
         
-        final String token = jwtTokenUtil.generateToken(userDetails);
+        final String token = jwtTokenUtil.generateToken(userDetails, JWTTokenUtil.TOKEN_TYPE_CUSTOMER);
 
         // Return the token
         return ResponseEntity.ok(new AuthenticationResponse(userDetails.getId(),token));
@@ -199,10 +201,30 @@ public class AuthenticateCustomerApi {
     public ResponseEntity<?> refreshToken(HttpServletRequest request) {
         String token = request.getHeader(tokenHeader);
 
-        String username = jwtTokenUtil.getUsernameFromToken(token);
-        JWTUser user = (JWTUser) jwtCustomerDetailsService.loadUserByUsername(username);
+        if(token == null || token.trim().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
 
-        if (jwtTokenUtil.canTokenBeRefreshed(token, user.getLastPasswordResetDate())) {
+        if(token.startsWith("Bearer ")) {
+            token = token.substring("Bearer ".length());
+        }
+        if(token.trim().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+
+        JWTUser user;
+        try {
+            String username = jwtTokenUtil.getUsernameFromToken(token);
+            user = (JWTUser) jwtCustomerDetailsService.loadUserByUsername(username);
+        } catch (JwtException | IllegalArgumentException | UsernameNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+
+        if (!jwtTokenUtil.isTokenBoundTo(token, user, JWTTokenUtil.TOKEN_TYPE_CUSTOMER)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+
+        if (jwtTokenUtil.canTokenBeRefreshed(token, user, JWTTokenUtil.TOKEN_TYPE_CUSTOMER)) {
             String refreshedToken = jwtTokenUtil.refreshToken(token);
             return ResponseEntity.ok(new AuthenticationResponse(user.getId(),refreshedToken));
         } else {
