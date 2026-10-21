@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -102,6 +103,9 @@ public class UserFacadeImpl implements UserFacade {
 
 	@Autowired
 	private FilePathUtils filePathUtils;
+
+	@Value("${config.admin.passwordReset.allowedReturnUrls:}")
+	private String allowedPasswordResetReturnUrls;
 
 	@Autowired
 	private LanguageService lamguageService;
@@ -795,6 +799,10 @@ public class UserFacadeImpl implements UserFacade {
 		
 		Validate.notNull(userName, "Username cannot be empty");
 		Validate.notNull(userContextPath, "Return url cannot be empty");
+
+		if (!filePathUtils.isAllowedReturnUrl(userContextPath, store, allowedPasswordResetReturnUrls)) {
+			throw new OperationNotAllowedException("Return url [" + userContextPath + "] is not allowed");
+		}
 		
 		try {
 			// get user by user name
@@ -822,6 +830,9 @@ public class UserFacadeImpl implements UserFacade {
 			String baseUrl = userContextPath; 
 			if(!filePathUtils.isValidURL(baseUrl)) {
 				throw new ServiceRuntimeException("Request url [" + baseUrl + "] is invalid");
+			}
+			if (baseUrl.endsWith(Constants.SLASH)) {
+				baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
 			}
 
 			// need to add link to controller receiving user reset password
