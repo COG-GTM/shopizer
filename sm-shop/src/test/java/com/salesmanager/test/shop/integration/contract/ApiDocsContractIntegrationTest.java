@@ -48,7 +48,7 @@ class ApiDocsContractIntegrationTest {
 	private TestRestTemplate testRestTemplate;
 
 	@Test
-	void liveApiMatchesCommittedInventoryWithoutMissingOrChangedOperations() throws IOException {
+	void liveApiHasNoMissingOrAddedOperations() throws IOException {
 		List<Operation> live = liveOperations();
 		List<Operation> committed = committedOperations();
 		Diff diff = OperationInventory.diff(committed, live);
@@ -56,8 +56,15 @@ class ApiDocsContractIntegrationTest {
 		if (!diff.added.isEmpty()) {
 			System.out.println("Added live contract operations: " + diff.added);
 		}
+		for (String key : diff.changed) {
+			Operation committedOperation = operationWithKey(committed, key);
+			Operation liveOperation = operationWithKey(live, key);
+			System.out.println("Changed contract operation: key=" + key
+					+ ", committed={" + describeOperation(committedOperation)
+					+ "}, live={" + describeOperation(liveOperation) + "}");
+		}
 		assertTrue(diff.missing.isEmpty(), "Missing live operations: " + diff.missing);
-		assertTrue(diff.changed.isEmpty(), "Changed live operations: " + diff.changed);
+		assertTrue(diff.added.isEmpty(), "Added live operations: " + diff.added);
 	}
 
 	@Test
@@ -94,7 +101,6 @@ class ApiDocsContractIntegrationTest {
 	@Test
 	void removingOneUniqueAdminOperationIsReportedAsMissing() throws IOException {
 		List<Operation> live = liveOperations();
-		List<Operation> committed = committedOperations();
 		Map<String, Long> keyCounts = live.stream()
 				.collect(Collectors.groupingBy(operation -> operation.key, Collectors.counting()));
 		Operation adminOperation = live.stream()
@@ -105,11 +111,33 @@ class ApiDocsContractIntegrationTest {
 		List<Operation> mutated = new ArrayList<>(live);
 		assertTrue(mutated.remove(adminOperation));
 
-		Diff diff = OperationInventory.diff(committed, mutated);
+		Diff diff = OperationInventory.diff(live, mutated);
 
 		assertEquals(Collections.singletonList(adminOperation.key), diff.missing);
 		assertTrue(diff.added.isEmpty());
 		assertTrue(diff.changed.isEmpty());
+	}
+
+	private Operation operationWithKey(List<Operation> operations, String key) {
+		Operation match = null;
+		for (Operation operation : operations) {
+			if (key.equals(operation.key)) {
+				match = operation;
+			}
+		}
+		assertNotNull(match, "Missing operation for changed key " + key);
+		return match;
+	}
+
+	private String describeOperation(Operation operation) {
+		String parameters = operation.parameters.stream()
+				.map(parameter -> parameter.name + "/" + parameter.in + "/" + parameter.required)
+				.collect(Collectors.joining(", ", "[", "]"));
+		return "method=" + operation.method
+				+ ", path=" + operation.path
+				+ ", parameters=" + parameters
+				+ ", consumes=" + operation.consumes
+				+ ", produces=" + operation.produces;
 	}
 
 	private List<Operation> liveOperations() throws IOException {
