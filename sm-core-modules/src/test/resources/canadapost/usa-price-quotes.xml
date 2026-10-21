@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<price-quotes xmlns="http://www.canadapost.ca/ws/ship/rate-v4">
+  <price-quote>
+    <service-code>USA.EP</service-code>
+    <service-link rel="details" href="https://ct.soa-gw.canadapost.ca/rs/ship/price/USA.EP"/>
+    <service-name>Expedited Parcel USA</service-name>
+    <price-details><base>21.00</base><taxes><gst>0.00</gst></taxes><due>21.00</due><adjustments><adjustment><adjustment-code>FUEL</adjustment-code><adjustment-name>Fuel surcharge</adjustment-name><adjustment-cost>2.00</adjustment-cost></adjustment></adjustments></price-details>
+    <weight-details><cubed-weight>1.000</cubed-weight></weight-details>
+    <service-standard><am-delivery>false</am-delivery><guaranteed-delivery>false</guaranteed-delivery><expected-transit-time>5</expected-transit-time><expected-delivery-date>2026-11-03</expected-delivery-date></service-standard>
+  </price-quote>
+  <price-quote>
+    <service-code>USA.XP</service-code>
+    <service-link rel="details" href="https://ct.soa-gw.canadapost.ca/rs/ship/price/USA.XP"/>
+    <service-name>Tracked Packet USA</service-name>
+    <price-details><base>16.75</base><taxes><gst>0.00</gst></taxes><due>16.75</due><adjustments><adjustment><adjustment-code>FUEL</adjustment-code><adjustment-name>Fuel surcharge</adjustment-name><adjustment-cost>1.25</adjustment-cost></adjustment></adjustments></price-details>
+    <weight-details><cubed-weight>1.000</cubed-weight></weight-details>
+    <service-standard><am-delivery>false</am-delivery><guaranteed-delivery>false</guaranteed-delivery><expected-transit-time>6</expected-transit-time><expected-delivery-date>2026-11-04</expected-delivery-date></service-standard>
+  </price-quote>
+</price-quotes>

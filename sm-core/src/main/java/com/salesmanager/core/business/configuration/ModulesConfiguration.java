@@ -6,7 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
+import com.salesmanager.core.modules.integration.shipping.canadapost.CanadaPostConfiguration;
 import com.salesmanager.core.modules.integration.payment.model.PaymentModule;
 import com.salesmanager.core.modules.integration.shipping.model.ShippingQuoteModule;
 
@@ -17,14 +19,14 @@ import com.salesmanager.core.modules.integration.shipping.model.ShippingQuoteMod
  *
  */
 @Configuration
+@Import(CanadaPostConfiguration.class)
 public class ModulesConfiguration {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(ModulesConfiguration.class);
 	
 	
 	/**
-	 * Goes along with
-	 * shipping-canadapost-spring-boot-starter
+	 * Canada Post shipping integration from sm-core-modules
 	 */
     @Autowired
     private ShippingQuoteModule canadapost;
