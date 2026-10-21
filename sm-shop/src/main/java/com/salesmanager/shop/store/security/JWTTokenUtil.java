@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import org.apache.commons.lang3.Validate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -36,9 +37,14 @@ public class JWTTokenUtil implements Serializable {
 	
 	
 	
-	 	static final String CLAIM_KEY_USERNAME = "sub";
+	    static final String CLAIM_KEY_USERNAME = "sub";
 	    static final String CLAIM_KEY_AUDIENCE = "aud";
 	    static final String CLAIM_KEY_CREATED = "iat";
+	    public static final String CLAIM_KEY_TOKEN_TYPE = "tokenType";
+	    public static final String CLAIM_KEY_USER_ID = "uid";
+
+	    public static final String TOKEN_TYPE_ADMIN = "admin";
+	    public static final String TOKEN_TYPE_CUSTOMER = "customer";
 
 	    static final String AUDIENCE_UNKNOWN = "unknown";
 	    static final String AUDIENCE_API = "api";
@@ -67,6 +73,15 @@ public class JWTTokenUtil implements Serializable {
 
 	    public String getAudienceFromToken(String token) {
 	        return getClaimFromToken(token, Claims::getAudience);
+	    }
+
+	    public String getTokenTypeFromToken(String token) {
+	        return getClaimFromToken(token, claims -> claims.get(CLAIM_KEY_TOKEN_TYPE, String.class));
+	    }
+
+	    public Long getUserIdFromToken(String token) {
+	        final Object userId = getClaimFromToken(token, claims -> claims.get(CLAIM_KEY_USER_ID));
+	        return userId instanceof Number ? ((Number) userId).longValue() : null;
 	    }
 
 	    public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
@@ -116,16 +131,19 @@ public class JWTTokenUtil implements Serializable {
 	        return (AUDIENCE_TABLET.equals(audience) || AUDIENCE_MOBILE.equals(audience));
 	    }
 
-	    public String generateToken(UserDetails userDetails) {
+	    public String generateToken(UserDetails userDetails, String tokenType) {
+	        Validate.notBlank(tokenType, "Token type must not be blank");
 	        Map<String, Object> claims = new HashMap<>();
+	        claims.put(CLAIM_KEY_TOKEN_TYPE, tokenType);
+	        if (userDetails instanceof JWTUser && ((JWTUser) userDetails).getId() != null) {
+	            claims.put(CLAIM_KEY_USER_ID, ((JWTUser) userDetails).getId());
+	        }
 	        return doGenerateToken(claims, userDetails.getUsername(), generateAudience());
 	    }
 
 	    private String doGenerateToken(Map<String, Object> claims, String subject, String audience) {
 	        final Date createdDate = DateUtil.getDate();
 	        final Date expirationDate = calculateExpirationDate(createdDate);
-
-	        System.out.println("doGenerateToken " + createdDate);
 
 	        return Jwts.builder()
 	                .setClaims(claims)
@@ -137,22 +155,17 @@ public class JWTTokenUtil implements Serializable {
 	                .compact();
 	    }
 	    
-        public Boolean canTokenBeRefreshedWithGrace(String token, Date lastPasswordReset) {
+        public Boolean canTokenBeRefreshedWithGrace(String token, JWTUser user, String expectedTokenType) {
           final Date created = getIssuedAtDateFromToken(token);
-          boolean t = isCreatedBeforeLastPasswordResetWithGrace(created, lastPasswordReset);
-          boolean u = isTokenExpiredWithGrace(token);
-          boolean v =  ignoreTokenExpiration(token);
-          System.out.println(t + " " +  u + " " + v);
-          System.out.println(!isCreatedBeforeLastPasswordResetWithGrace(created, lastPasswordReset)
-                  && (!isTokenExpiredWithGrace(token) || ignoreTokenExpiration(token)));
-          //return !isCreatedBeforeLastPasswordResetWithGrace(created, lastPasswordReset)
-          //        && (!isTokenExpired(token) || ignoreTokenExpiration(token));
-          return true;
-        }	    
+          return isTokenBoundTo(token, user, expectedTokenType)
+                  && !isCreatedBeforeLastPasswordResetWithGrace(created, user.getLastPasswordResetDate())
+                  && (!isTokenExpiredWithGrace(token) || ignoreTokenExpiration(token));
+        }
 
-	    public Boolean canTokenBeRefreshed(String token, Date lastPasswordReset) {
+	    public Boolean canTokenBeRefreshed(String token, JWTUser user, String expectedTokenType) {
 	        final Date created = getIssuedAtDateFromToken(token);
-	        return !isCreatedBeforeLastPasswordReset(created, lastPasswordReset)
+	        return isTokenBoundTo(token, user, expectedTokenType)
+	                && !isCreatedBeforeLastPasswordReset(created, user.getLastPasswordResetDate())
 	                && (!isTokenExpired(token) || ignoreTokenExpiration(token));
 	    }
 
@@ -170,20 +183,20 @@ public class JWTTokenUtil implements Serializable {
 	                .compact();
 	    }
 
-	    public Boolean validateToken(String token, UserDetails userDetails) {
+	    public Boolean validateToken(String token, UserDetails userDetails, String expectedTokenType) {
 	        JWTUser user = (JWTUser) userDetails;
-	        final String username = getUsernameFromToken(token);
 	        final Date created = getIssuedAtDateFromToken(token);
-	        //final Date expiration = getExpirationDateFromToken(token);
-	        
-	        boolean usernameEquals = username.equals(user.getUsername());
 	        boolean isTokenExpired = isTokenExpired(token);
 	        boolean isTokenCreatedBeforeLastPasswordReset = isCreatedBeforeLastPasswordReset(created, user.getLastPasswordResetDate());
-	        
-	        return (
 
-	        		usernameEquals && !isTokenExpired && !isTokenCreatedBeforeLastPasswordReset
-	        );
+	        return isTokenBoundTo(token, user, expectedTokenType)
+	                && !isTokenExpired && !isTokenCreatedBeforeLastPasswordReset;
+	    }
+
+	    private boolean isTokenBoundTo(String token, JWTUser user, String expectedTokenType) {
+	        return user.getUsername().equals(getUsernameFromToken(token))
+	                && expectedTokenType.equals(getTokenTypeFromToken(token))
+	                && user.getId() != null && user.getId().equals(getUserIdFromToken(token));
 	    }
 
 	    private Date calculateExpirationDate(Date createdDate) {
