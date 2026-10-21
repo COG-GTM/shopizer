@@ -396,17 +396,20 @@ public class UserFacadeImpl implements UserFacade {
 		Validate.notNull(store, "store cannot be null");
 
 		try {
+			User auth = userService.getByUserName(authenticatedUser);
+			if (auth == null) {
+				throw new UnauthorizedException();
+			}
 			User userModel = userService.getById(id);
 			if (userModel == null) {
-				throw new ServiceRuntimeException("Cannot find user [" + user.getUserName() + "]");
+				throw new ResourceNotFoundException("User [" + id + "] not found");
+			}
+			if (StringUtils.isBlank(user.getStore())) {
+				user.setStore(userModel.getMerchantStore().getCode());
 			}
 			if (userModel.getId().longValue() != id.longValue()) {
 				throw new ServiceRuntimeException(
 						"Cannot find user [" + user.getUserName() + "] id or name does not match");
-			}
-			User auth = userService.getByUserName(authenticatedUser);
-			if (auth == null) {
-				throw new ServiceRuntimeException("Cannot find user [" + authenticatedUser + "]");
 			}
 			User adminName = getByUserName(user.getUserName());
 			if (adminName != null) {
@@ -415,57 +418,53 @@ public class UserFacadeImpl implements UserFacade {
 							"User id [" + userModel.getId() + "] does not match [" + user.getUserName() + "]");
 				}
 			}
-			boolean isActive = userModel.isActive();
-			List<Group> originalGroups = userModel.getGroups();
-			Group superadmin = originalGroups.stream()
-					.filter(group -> Constants.GROUP_SUPERADMIN.equals(group.getGroupName())).findAny().orElse(null);
 
-			// changing store ?
-			/**
-			 * Can't change self store Only admin and superadmin can change
-			 * another user store
-			 */
+			boolean callerSuperadmin = auth.getGroups().stream()
+					.anyMatch(group -> Constants.GROUP_SUPERADMIN.equals(group.getGroupName()));
+			boolean callerAdmin = callerSuperadmin || auth.getGroups().stream()
+					.anyMatch(group -> Constants.GROUP_ADMIN.equals(group.getGroupName())
+							|| Constants.GROUP_ADMIN_RETAIL.equals(group.getGroupName()));
+			List<Group> originalGroups = new ArrayList<>(userModel.getGroups());
+			boolean targetSuperadmin = originalGroups.stream()
+					.anyMatch(group -> Constants.GROUP_SUPERADMIN.equals(group.getGroupName()));
+			boolean isSelf = auth.getId().longValue() == userModel.getId().longValue();
+			String effectiveStoreCode = user.getStore();
 
-			// i'm i editing my own profile ?
-			if (authenticatedUser.equals(adminName)) {
-
-				if (!userModel.getMerchantStore().getCode().equals(store.getCode())) {
-					throw new OperationNotAllowedException("User [" + adminName + "] cannot change owning store");
+			if (!isSelf) {
+				if (!callerAdmin) {
+					throw new UnauthorizedException(
+							"User [" + authenticatedUser + "] not authorized to update user [" + id + "]");
 				}
-
-			} else {
-				// i am an admin or super admin
-				Group adminOrSuperadmin = originalGroups.stream()
-						.filter(group -> (Constants.GROUP_SUPERADMIN.equals(group.getGroupName())
-								|| Constants.ADMIN_USER.equals(group.getGroupName())
-								|| Constants.ADMIN_STORE.equals(group.getGroupName())))
-						.findAny().orElse(null);
-
-				if (!userModel.getMerchantStore().getCode().equals(store.getCode()) && adminOrSuperadmin == null) {
-					throw new OperationNotAllowedException("User [" + adminName + "] cannot change owning store");
+				if (targetSuperadmin && !callerSuperadmin) {
+					throw new UnauthorizedException(
+							"User [" + authenticatedUser + "] not authorized to update user [" + id + "]");
 				}
-
+				if (!callerSuperadmin && (!authorizedStore(authenticatedUser, userModel.getMerchantStore().getCode())
+						|| !authorizedStore(authenticatedUser, effectiveStoreCode))) {
+					throw new UnauthorizedException(
+							"User [" + authenticatedUser + "] not authorized to update user [" + id + "]");
+				}
+			} else if (!userModel.getMerchantStore().getCode().equals(effectiveStoreCode)) {
+				throw new OperationNotAllowedException("User [" + authenticatedUser + "] cannot change owning store");
 			}
 
+			boolean isActive = userModel.isActive();
+			String originalPassword = userModel.getAdminPassword();
+			user.setPassword(null);
 			userModel = converPersistabletUserToUser(store, languageService.defaultLanguage(), userModel, user);
+			userModel.setAdminPassword(originalPassword);
 
 			// if superadmin set original permissions, prevent removing super
 			// admin
-			if (superadmin != null) {
+			if (targetSuperadmin) {
 				userModel.setGroups(originalGroups);
 			}
 
-			Group adminGroup = auth.getGroups().stream()
-					.filter((group) -> Constants.GROUP_SUPERADMIN.equals(group.getGroupName())
-							|| Constants.GROUP_SUPERADMIN.equals(group.getGroupName()))
-					.findAny().orElse(null);
-
-			if (adminGroup == null) {
+			if (!callerSuperadmin) {
 				userModel.setGroups(originalGroups);
 				userModel.setActive(isActive);
 			}
 
-			user.setPassword(userModel.getAdminPassword());
 			userService.update(userModel);
 			return this.convertUserToReadableUser(languageService.defaultLanguage(), userModel);
 		} catch (ServiceException e) {
