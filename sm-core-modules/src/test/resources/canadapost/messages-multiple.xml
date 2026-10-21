@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<messages xmlns="http://www.canadapost.ca/ws/messages">
+  <message>
+    <code>c1</code>
+    <description>d1</description>
+  </message>
+  <message>
+    <code>c2</code>
+    <description>d2</description>
+  </message>
+</messages>
