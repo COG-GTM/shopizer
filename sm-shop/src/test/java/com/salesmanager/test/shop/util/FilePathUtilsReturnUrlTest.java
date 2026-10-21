@@ -66,6 +66,13 @@ public class FilePathUtilsReturnUrlTest {
 		store.setDomainName("shop.example.com");
 		Assert.assertTrue(filePathUtils.isAllowedReturnUrl("https://shop.example.com:443/admin", store, allowedUrls));
 		Assert.assertFalse(filePathUtils.isAllowedReturnUrl("https://shop.example.com:8443", store, allowedUrls));
+
+		store.setDomainName("shop.example.com:443");
+		Assert.assertTrue(filePathUtils.isAllowedReturnUrl("https://shop.example.com/admin", store, allowedUrls));
+		Assert.assertFalse(filePathUtils.isAllowedReturnUrl("http://shop.example.com", store, allowedUrls));
+
+		store.setDomainName("http://shop.example.com:80");
+		Assert.assertTrue(filePathUtils.isAllowedReturnUrl("http://shop.example.com", store, allowedUrls));
 	}
 
 	@Test

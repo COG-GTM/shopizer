@@ -265,7 +265,11 @@ public class FilePathUtils {
 		int storePort = storeUri.getPort();
 		int requestedPort = requestedUri.getPort();
 		if (storePort != -1) {
-			return requestedPort == storePort;
+			int effectiveRequestedPort = requestedPort;
+			if (effectiveRequestedPort == -1) {
+				effectiveRequestedPort = "http".equalsIgnoreCase(requestedUri.getScheme()) ? 80 : 443;
+			}
+			return effectiveRequestedPort == storePort;
 		}
 
 		if (requestedPort == -1) {
