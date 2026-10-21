@@ -19,6 +19,7 @@ import com.salesmanager.shop.store.security.user.JWTUser;
 import com.salesmanager.shop.utils.DateUtil;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -209,9 +210,13 @@ public class JWTTokenUtil implements Serializable {
 
 	        final Claims claims = getAllClaimsFromToken(token);
 
-	        return Jwts.builder()
-	                .claims(claims)
-	                .audience().single(singleAudience(claims))
+	        JwtBuilder builder = Jwts.builder().claims(claims);
+	        Set<String> audience = claims.getAudience();
+	        if (audience != null && audience.size() == 1) {
+	            // jjwt 0.12 parses "aud" into a Set; keep a single audience serialized as a string like jjwt 0.8
+	            builder.audience().single(audience.iterator().next());
+	        }
+	        return builder
 	                .issuedAt(createdDate)
 	                .expiration(expirationDate)
 	                .signWith(getSigningKey(), Jwts.SIG.HS512)

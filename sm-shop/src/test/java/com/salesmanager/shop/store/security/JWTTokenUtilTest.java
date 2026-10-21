@@ -150,6 +150,23 @@ public class JWTTokenUtilTest {
 	}
 
 	@Test
+	public void refreshKeepsAllAudiencesOfMultiAudienceToken() {
+		String token = Jwts.builder()
+				.subject(USERNAME)
+				.audience().add("api").add("mobile").and()
+				.issuedAt(new Date(1792540800000L))
+				.expiration(new Date(4102444800000L))
+				.signWith(Keys.hmacShaKeyFor(Base64.getDecoder().decode(SECRET)), Jwts.SIG.HS512)
+				.compact();
+
+		String refreshed = util.refreshToken(token);
+
+		String payload = decodePart(refreshed, 1);
+		assertTrue(payload, payload.contains("\"aud\":[\"api\",\"mobile\"]"));
+		assertTrue(util.validateToken(refreshed, user(USERNAME, null)));
+	}
+
+	@Test
 	public void secretShorterThan512BitsIsRejectedAtStartup() {
 		// The previous default "aSecret" Base64-decodes to only 3 bytes (24 bits).
 		IllegalStateException e = assertThrows(IllegalStateException.class, () -> newUtil("aSecret", 60L));
