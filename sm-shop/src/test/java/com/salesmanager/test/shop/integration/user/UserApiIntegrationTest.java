@@ -1,6 +1,8 @@
 package com.salesmanager.test.shop.integration.user;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import java.util.UUID;
 import javax.inject.Inject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,6 +19,8 @@ import com.salesmanager.shop.model.security.PersistableGroup;
 import com.salesmanager.shop.model.user.PersistableUser;
 import com.salesmanager.shop.model.user.ReadableUser;
 import com.salesmanager.shop.model.user.UserPassword;
+import com.salesmanager.shop.store.security.AuthenticationRequest;
+import com.salesmanager.shop.store.security.AuthenticationResponse;
 import com.salesmanager.test.shop.common.ServicesTestSupport;
 
 @SpringBootTest(classes = ShopApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -93,7 +97,85 @@ public class UserApiIntegrationTest extends ServicesTestSupport {
       
       
   }
-  
 
+  @Test
+  public void lowPrivilegeUserCannotUpdateSuperadmin() throws Exception {
+      ReadableUser user = createUser("ADMIN_CATALOGUE");
 
+      final ResponseEntity<ReadableUser> response = testRestTemplate.exchange("/api/v1/private/user/1",
+              HttpMethod.PUT, new HttpEntity<>(userUpdate("admin@shopizer.com", "Hacked123"), getHeader(user.getUserName(), CREATED_PASSWORD)),
+              ReadableUser.class);
+      assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+      assertCanLogin("admin@shopizer.com", "password");
+  }
+
+  @Test
+  public void adminCannotUpdateSuperadmin() throws Exception {
+      ReadableUser user = createUser("ADMIN");
+
+      final ResponseEntity<ReadableUser> response = testRestTemplate.exchange("/api/v1/private/user/1",
+              HttpMethod.PUT, new HttpEntity<>(userUpdate("admin@shopizer.com", "Hacked123"), getHeader(user.getUserName(), CREATED_PASSWORD)),
+              ReadableUser.class);
+      assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+      assertCanLogin("admin@shopizer.com", "password");
+  }
+
+  @Test
+  public void updateDoesNotChangePassword() throws Exception {
+      ReadableUser user = createUser("ADMIN_CATALOGUE");
+      PersistableUser update = userUpdate(user.getUserName(), "Password9");
+      update.setFirstName("Updated");
+      PersistableGroup group = new PersistableGroup();
+      group.setName("ADMIN_CATALOGUE");
+      update.getGroups().add(group);
+
+      final ResponseEntity<ReadableUser> response = testRestTemplate.exchange("/api/v1/private/user/" + user.getId(),
+              HttpMethod.PUT, new HttpEntity<>(update, getHeader()), ReadableUser.class);
+      assertEquals(HttpStatus.OK, response.getStatusCode());
+      assertCanLogin(user.getUserName(), CREATED_PASSWORD);
+
+      ResponseEntity<AuthenticationResponse> rejectedLogin = testRestTemplate.postForEntity("/api/v1/private/login",
+              new HttpEntity<>(new AuthenticationRequest(user.getUserName(), "Password9")), AuthenticationResponse.class);
+      assertEquals(HttpStatus.UNAUTHORIZED, rejectedLogin.getStatusCode());
+  }
+
+  private ReadableUser createUser(String groupName) {
+      String username = "user-" + UUID.randomUUID() + "@shopizer.com";
+      PersistableUser newUser = new PersistableUser();
+      newUser.setDefaultLanguage("en");
+      newUser.setEmailAddress(username);
+      newUser.setFirstName("Test");
+      newUser.setLastName("User");
+      newUser.setUserName(username);
+      newUser.setPassword(CREATED_PASSWORD);
+      newUser.setRepeatPassword(CREATED_PASSWORD);
+
+      PersistableGroup group = new PersistableGroup();
+      group.setName(groupName);
+      newUser.getGroups().add(group);
+
+      ResponseEntity<ReadableUser> response = testRestTemplate.exchange("/api/v1/private/user/", HttpMethod.POST,
+              new HttpEntity<>(newUser, getHeader()), ReadableUser.class);
+      assertEquals(HttpStatus.OK, response.getStatusCode());
+      assertNotNull(response.getBody());
+      return response.getBody();
+  }
+
+  private PersistableUser userUpdate(String username, String password) {
+      PersistableUser user = new PersistableUser();
+      user.setDefaultLanguage("en");
+      user.setEmailAddress(username);
+      user.setFirstName("Changed");
+      user.setLastName("User");
+      user.setUserName(username);
+      user.setPassword(password);
+      return user;
+  }
+
+  private void assertCanLogin(String username, String password) {
+      ResponseEntity<AuthenticationResponse> response = testRestTemplate.postForEntity("/api/v1/private/login",
+              new HttpEntity<>(new AuthenticationRequest(username, password)), AuthenticationResponse.class);
+      assertEquals(HttpStatus.OK, response.getStatusCode());
+      assertNotNull(response.getBody().getToken());
+  }
 }
