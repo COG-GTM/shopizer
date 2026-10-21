@@ -1,11 +1,14 @@
 package com.salesmanager.shop.store.security;
 
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+
+import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -33,6 +36,7 @@ public class JWTTokenUtil implements Serializable {
 	
 	
 	    static final int GRACE_PERIOD = 200;
+	    static final int MIN_SECRET_BYTES = 64;
 	
 	
 	
@@ -52,6 +56,19 @@ public class JWTTokenUtil implements Serializable {
 
 	    @Value("${jwt.expiration}")
 	    private Long expiration;
+
+	    @PostConstruct
+	    void validateSecret() {
+	        if (secret == null || secret.trim().isEmpty()) {
+	            secret = System.getProperty("jwt.secret");
+	        }
+
+	        if (secret == null || secret.trim().isEmpty()
+	                || secret.getBytes(StandardCharsets.UTF_8).length < MIN_SECRET_BYTES) {
+	            throw new IllegalStateException(
+	                    "JWT signing secret must be configured via JWT_SECRET (or -Djwt.secret) and contain at least 64 UTF-8 bytes");
+	        }
+	    }
 
 	    public String getUsernameFromToken(String token) {
 	        return getClaimFromToken(token, Claims::getSubject);

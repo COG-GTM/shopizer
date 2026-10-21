@@ -38,8 +38,12 @@ Headless demo Available soon
 From the command line:
 
 ```
-docker run -p 8080:8080 shopizerecomm/shopizer:latest
+docker run -e "JWT_SECRET=$(openssl rand -base64 64)" -p 8080:8080 shopizerecomm/shopizer:latest
 ```
+
+### JWT signing secret
+
+The backend requires a JWT signing secret supplied at startup. Set `JWT_SECRET` to at least 64 random bytes (for example, `export JWT_SECRET="$(openssl rand -base64 64)"`), or provide it as the `-Djwt.secret` JVM system property. When running Docker, pass it with `-e JWT_SECRET=...`; do not bake it into the image.
        
 2. Run the administration tool
 
