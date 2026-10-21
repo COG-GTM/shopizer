@@ -4,9 +4,9 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
-import org.junit.Ignore;
-
 import com.salesmanager.core.business.exception.ServiceException;
+
+import org.junit.jupiter.api.Disabled;
 import com.salesmanager.core.business.services.content.ContentService;
 import com.salesmanager.core.model.merchant.MerchantStore;
 
@@ -16,18 +16,18 @@ import com.salesmanager.core.model.merchant.MerchantStore;
  * @author Carl Samson
  *
  */
-@Ignore
+@Disabled("Incomplete content-folder tests")
 public class ContentFolderTest extends com.salesmanager.test.common.AbstractSalesManagerCoreTestCase {
 
 	@Inject
 	private ContentService contentService;
 
 
-	@Ignore
+	@Disabled("Incomplete content-folder tests")
 	public void listImages() {	
 	}
 	
-	@Ignore
+	@Disabled("Incomplete content-folder tests")
 	public void addFolder() {
 		
 		MerchantStore store;
@@ -51,12 +51,12 @@ public class ContentFolderTest extends com.salesmanager.test.common.AbstractSale
 		
 	}
 	
-	@Ignore
+	@Disabled("Incomplete content-folder tests")
 	public void listFolders() {
 		
 	}
 	
-	@Ignore
+	@Disabled("Incomplete content-folder tests")
 	public void removeFolder() {
 		
 	}

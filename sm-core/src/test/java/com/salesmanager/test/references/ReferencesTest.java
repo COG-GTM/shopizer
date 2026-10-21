@@ -4,10 +4,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.junit.Ignore;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.services.reference.country.CountryService;
@@ -17,9 +15,8 @@ import com.salesmanager.core.model.reference.country.CountryDescription;
 import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.test.configuration.ConfigurationTest;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest	(classes = {ConfigurationTest.class})
-@Ignore
+@Disabled("Incomplete reference test with no assertions")
 public class ReferencesTest {
 	
 
@@ -31,7 +28,7 @@ public class ReferencesTest {
 	CountryService countryService;
 	
 	//@Test
-	@Ignore
+	@Disabled("Incomplete reference test with no assertions")
 	public void testReferences() throws ServiceException {
 		
 		Language en = new Language();

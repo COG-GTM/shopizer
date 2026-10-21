@@ -12,8 +12,8 @@ import java.io.OutputStream;
 import javax.inject.Inject;
 
 import org.apache.commons.io.IOUtils;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.services.content.ContentService;
@@ -21,7 +21,6 @@ import com.salesmanager.core.model.content.FileContentType;
 import com.salesmanager.core.model.content.InputContentFile;
 import com.salesmanager.core.model.content.OutputContentFile;
 import com.salesmanager.core.model.merchant.MerchantStore;
-
 
 
 /**
@@ -32,7 +31,7 @@ import com.salesmanager.core.model.merchant.MerchantStore;
  * @author Carl Samson
  *
  */
-@Ignore
+@Disabled("Requires image files at hard-coded local paths")
 public class StaticContentTest extends com.salesmanager.test.common.AbstractSalesManagerCoreTestCase {
 	
 

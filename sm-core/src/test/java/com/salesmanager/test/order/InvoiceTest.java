@@ -1,6 +1,6 @@
 package com.salesmanager.test.order;
 
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 
 
 /**
@@ -8,14 +8,14 @@ import org.junit.Ignore;
  * @author c.samson
  *
  */
-@Ignore
+@Disabled("Incomplete test")
 public class InvoiceTest extends com.salesmanager.test.common.AbstractSalesManagerCoreTestCase {
 /*	
 	@Inject
 	ProductPriceUtils priceUtil;
 
 
-	@Ignore
+	@Disabled("Incomplete test")
 	public void createInvoice() throws ServiceException {
 		
 
