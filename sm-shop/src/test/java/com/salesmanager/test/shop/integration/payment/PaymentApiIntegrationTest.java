@@ -58,6 +58,7 @@ public class PaymentApiIntegrationTest extends ServicesTestSupport {
 		keys.put("merchantid", "merchant-123");
 		keys.put("username", "gateway-user");
 		keys.put("password", SECRET);
+		keys.put("address", "Old payee");
 
 		IntegrationModuleConfiguration configuration = new IntegrationModuleConfiguration();
 		configuration.setCode(MODULE);
@@ -80,6 +81,8 @@ public class PaymentApiIntegrationTest extends ServicesTestSupport {
 		// re-submitting the masked values must not overwrite stored secrets
 		IntegrationModuleConfiguration resubmit = read.getBody();
 		resubmit.getIntegrationKeys().put("username", "gateway-user-2");
+		// non secret keys accept the placeholder literally
+		resubmit.getIntegrationKeys().put("address", "********");
 		saved = testRestTemplate.exchange("/api/v1/private/modules/payment", HttpMethod.POST,
 				new HttpEntity<IntegrationModuleConfiguration>(resubmit, admin), Void.class);
 		assertEquals(HttpStatus.OK, saved.getStatusCode());
@@ -89,6 +92,7 @@ public class PaymentApiIntegrationTest extends ServicesTestSupport {
 		assertEquals(SECRET, stored.getIntegrationKeys().get("password"));
 		assertEquals("merchant-123", stored.getIntegrationKeys().get("merchantid"));
 		assertEquals("gateway-user-2", stored.getIntegrationKeys().get("username"));
+		assertEquals("********", stored.getIntegrationKeys().get("address"));
 
 		// low privilege admin user cannot read or write payment configuration
 		PersistableUser newUser = new PersistableUser();

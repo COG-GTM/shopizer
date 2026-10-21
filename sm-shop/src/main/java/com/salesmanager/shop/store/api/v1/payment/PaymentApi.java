@@ -227,7 +227,7 @@ public class PaymentApi {
 	}
 
 	/**
-	 * Masked values submitted back by the client keep the currently stored secret
+	 * Masked secret values submitted back by the client keep the currently stored secret
 	 */
 	static Map<String, String> unmaskKeys(Map<String, String> submitted, Map<String, String> existing) {
 		if (submitted == null) {
@@ -235,7 +235,7 @@ public class PaymentApi {
 		}
 		Map<String, String> keys = new HashMap<String, String>();
 		submitted.forEach((name, value) -> {
-			if (MASKED_VALUE.equals(value) && existing != null && existing.containsKey(name)) {
+			if (isSecretKey(name) && MASKED_VALUE.equals(value) && existing != null && existing.containsKey(name)) {
 				keys.put(name, existing.get(name));
 			} else {
 				keys.put(name, value);
