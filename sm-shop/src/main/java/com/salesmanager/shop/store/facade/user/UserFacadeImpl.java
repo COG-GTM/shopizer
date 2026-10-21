@@ -420,31 +420,33 @@ public class UserFacadeImpl implements UserFacade {
 			Group superadmin = originalGroups.stream()
 					.filter(group -> Constants.GROUP_SUPERADMIN.equals(group.getGroupName())).findAny().orElse(null);
 
-			// changing store ?
-			/**
-			 * Can't change self store Only admin and superadmin can change
-			 * another user store
-			 */
+			boolean isSelf = auth.getId().longValue() == userModel.getId().longValue();
+			boolean callerSuperadmin = auth.getGroups().stream()
+					.anyMatch(g -> Constants.GROUP_SUPERADMIN.equals(g.getGroupName()));
+			boolean callerAdmin = auth.getGroups().stream()
+					.anyMatch(g -> Constants.GROUP_SUPERADMIN.equals(g.getGroupName())
+							|| Constants.GROUP_ADMIN.equals(g.getGroupName())
+							|| Constants.GROUP_ADMIN_RETAIL.equals(g.getGroupName()));
+			String targetStoreCode = StringUtils.isBlank(user.getStore()) ? store.getCode() : user.getStore();
 
-			// i'm i editing my own profile ?
-			if (authenticatedUser.equals(adminName)) {
-
-				if (!userModel.getMerchantStore().getCode().equals(store.getCode())) {
-					throw new OperationNotAllowedException("User [" + adminName + "] cannot change owning store");
+			if (isSelf) {
+				if (!userModel.getMerchantStore().getCode().equals(targetStoreCode)) {
+					throw new OperationNotAllowedException(
+							"User [" + authenticatedUser + "] cannot change owning store");
 				}
-
 			} else {
-				// i am an admin or super admin
-				Group adminOrSuperadmin = originalGroups.stream()
-						.filter(group -> (Constants.GROUP_SUPERADMIN.equals(group.getGroupName())
-								|| Constants.ADMIN_USER.equals(group.getGroupName())
-								|| Constants.ADMIN_STORE.equals(group.getGroupName())))
-						.findAny().orElse(null);
-
-				if (!userModel.getMerchantStore().getCode().equals(store.getCode()) && adminOrSuperadmin == null) {
-					throw new OperationNotAllowedException("User [" + adminName + "] cannot change owning store");
+				if (!callerAdmin) {
+					throw new UnauthorizedException(
+							"User [" + authenticatedUser + "] not authorized to update user [" + id + "]");
 				}
-
+				if (!callerSuperadmin) {
+					if (superadmin != null
+							|| !authorizedStore(authenticatedUser, userModel.getMerchantStore().getCode())
+							|| !authorizedStore(authenticatedUser, targetStoreCode)) {
+						throw new UnauthorizedException(
+								"User [" + authenticatedUser + "] not authorized to update user [" + id + "]");
+					}
+				}
 			}
 
 			userModel = converPersistabletUserToUser(store, languageService.defaultLanguage(), userModel, user);
@@ -455,12 +457,7 @@ public class UserFacadeImpl implements UserFacade {
 				userModel.setGroups(originalGroups);
 			}
 
-			Group adminGroup = auth.getGroups().stream()
-					.filter((group) -> Constants.GROUP_SUPERADMIN.equals(group.getGroupName())
-							|| Constants.GROUP_SUPERADMIN.equals(group.getGroupName()))
-					.findAny().orElse(null);
-
-			if (adminGroup == null) {
+			if (!callerSuperadmin) {
 				userModel.setGroups(originalGroups);
 				userModel.setActive(isActive);
 			}

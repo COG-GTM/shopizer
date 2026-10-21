@@ -145,6 +145,9 @@ public class UserApi {
 																	// user
 																	// doing
 																	// action
+		if (authenticatedUser == null) {
+			throw new UnauthorizedException();
+		}
 
 		userFacade.authorizedGroups(authenticatedUser, user);
 
