@@ -103,6 +103,7 @@ public class ProductTypeFacadeImpl implements ProductTypeFacade {
 						"Product type [" + type.getCode() + "] already exist for store [" + store.getCode() + "]");
 			}
 
+			type.setId(null);
 			ProductType model = persistableProductTypeMapper.convert(type, store, language);
 			model.setMerchantStore(store);
 			ProductType saved = productTypeService.saveOrUpdate(model);

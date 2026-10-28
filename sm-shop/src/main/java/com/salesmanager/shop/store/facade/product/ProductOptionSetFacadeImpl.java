@@ -79,6 +79,7 @@ public class ProductOptionSetFacadeImpl implements ProductOptionSetFacade {
 			throw new OperationNotAllowedException("Option set with code [" + optionSet.getCode() + "] already exist");
 		}
 
+		optionSet.setId(null);
 		ProductOptionSet opt = persistableProductOptionSetMapper.convert(optionSet, store, language);
 		try {
 			opt.setStore(store);
@@ -105,6 +106,7 @@ public class ProductOptionSetFacadeImpl implements ProductOptionSetFacade {
 		optionSet.setCode(opt.getCode());
 		ProductOptionSet model = persistableProductOptionSetMapper.convert(optionSet, store, language);
 		try {
+			model.setId(opt.getId());
 			model.setStore(store);
 			productOptionSetService.save(model);
 		} catch (ServiceException e) {
