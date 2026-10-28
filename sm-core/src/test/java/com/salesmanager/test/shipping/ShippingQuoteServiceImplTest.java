@@ -90,7 +90,7 @@ public class ShippingQuoteServiceImplTest {
 	private void stubRequote(ShippingQuote current) throws ServiceException {
 		when(shoppingCartService.createShippingProduct(cart))
 				.thenReturn(Collections.singletonList(new ShippingProduct(null)));
-		when(shippingService.getShippingQuote(eq(CART_ID), eq(store), any(Delivery.class), any(), eq(language)))
+		when(shippingService.calculateShippingQuote(eq(CART_ID), eq(store), any(Delivery.class), any(), eq(language)))
 				.thenReturn(current);
 	}
 
@@ -160,6 +160,7 @@ public class ShippingQuoteServiceImplTest {
 		stubRequote(currentQuote("weightBased", "STD", "45"));
 		ShippingSummary summary = service.getCheckoutShippingSummary(QUOTE_ID, cart, store, language);
 		assertEquals(0, new BigDecimal("45").compareTo(summary.getShipping()));
+		verify(shippingService, never()).getShippingQuote(any(), any(), any(), any(), any());
 	}
 
 	@Test
@@ -206,7 +207,7 @@ public class ShippingQuoteServiceImplTest {
 		} catch (ServiceException e) {
 			assertRejected(e, "shipping.quote.invalid");
 		}
-		verify(shippingService, never()).getShippingQuote(any(), any(), any(), any(), any());
+		verify(shippingService, never()).calculateShippingQuote(any(), any(), any(), any(), any());
 	}
 
 	@Test

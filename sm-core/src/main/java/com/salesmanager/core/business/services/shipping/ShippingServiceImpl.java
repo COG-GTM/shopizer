@@ -372,6 +372,15 @@ public class ShippingServiceImpl implements ShippingService {
 
 	@Override
 	public ShippingQuote getShippingQuote(Long shoppingCartId, MerchantStore store, Delivery delivery, List<ShippingProduct> products, Language language) throws ServiceException  {
+		return getShippingQuote(shoppingCartId, store, delivery, products, language, true);
+	}
+
+	@Override
+	public ShippingQuote calculateShippingQuote(Long shoppingCartId, MerchantStore store, Delivery delivery, List<ShippingProduct> products, Language language) throws ServiceException  {
+		return getShippingQuote(shoppingCartId, store, delivery, products, language, false);
+	}
+
+	private ShippingQuote getShippingQuote(Long shoppingCartId, MerchantStore store, Delivery delivery, List<ShippingProduct> products, Language language, boolean persistQuotes) throws ServiceException  {
 		
 		
 		//ShippingConfiguration -> Global configuration of a given store
@@ -689,7 +698,7 @@ public class ShippingServiceImpl implements ShippingService {
 	    		ipAddress = context.getIpAddress();
 	    	}
 			
-			if(shippingQuote!=null && CollectionUtils.isNotEmpty(shippingQuote.getShippingOptions())) {
+			if(persistQuotes && shippingQuote!=null && CollectionUtils.isNotEmpty(shippingQuote.getShippingOptions())) {
 				//save SHIPPING OPTIONS
 				List<ShippingOption> finalShippingOptions = shippingQuote.getShippingOptions();
 				for(ShippingOption option : finalShippingOptions) {

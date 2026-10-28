@@ -118,6 +118,14 @@ public interface ShippingService {
 	ShippingQuote getShippingQuote(Long shoppingCartId, MerchantStore store, Delivery delivery,
 			List<ShippingProduct> products, Language language)
 			throws ServiceException;
+
+	/**
+	 * Same calculation as {@link #getShippingQuote(Long, MerchantStore, Delivery, List, Language)}
+	 * without persisting the returned options as quotes. Used to re-check a quote at checkout.
+	 */
+	ShippingQuote calculateShippingQuote(Long shoppingCartId, MerchantStore store, Delivery delivery,
+			List<ShippingProduct> products, Language language)
+			throws ServiceException;
 	
 
 	/**

@@ -1162,6 +1162,13 @@ public class OrderFacadeImpl implements OrderFacade {
 			return null;// products are virtual
 		}
 
+		ShippingQuote quote = shippingService.getShippingQuote(cart.getId(), store, deliveryAddress(customer, store),
+				shippingProducts, language);
+		return quote;
+	}
+
+	private Delivery deliveryAddress(Customer customer, MerchantStore store) {
+
 		Delivery delivery = new Delivery();
 		Billing billing = new Billing();
 		//default value
@@ -1183,10 +1190,7 @@ public class OrderFacadeImpl implements OrderFacade {
 		} else {
 			delivery = customer.getDelivery();
 		}
-
-		ShippingQuote quote = shippingService.getShippingQuote(cart.getId(), store, delivery, shippingProducts,
-				language);
-		return quote;
+		return delivery;
 	}
 
 	/**
@@ -1361,9 +1365,8 @@ public class OrderFacadeImpl implements OrderFacade {
 
 	/**
 	 * Shipping for an api checkout. A cart that requires shipping must reference a
-	 * quote issued for that cart, unless the store currently charges nothing to ship it
-	 * (free shipping or no shipping module configured). The quoted price is re-checked
-	 * against the current cart content.
+	 * quote issued for that cart, unless the store ships it for free or has no shipping
+	 * module configured. The quoted price is re-checked against the current cart content.
 	 */
 	private ShippingSummary resolveShippingSummary(Long quoteId, ShoppingCart cart, List<ShoppingCartItem> items,
 			Customer customer, MerchantStore store, Language language) throws Exception {
@@ -1376,8 +1379,16 @@ public class OrderFacadeImpl implements OrderFacade {
 			return shippingQuoteService.getCheckoutShippingSummary(quoteId, cart, store, language);
 		}
 
-		ShippingQuote quote = getShippingQuote(customer, cart, store, language);
-		if (quote != null && !quote.isFreeShipping() && CollectionUtils.isNotEmpty(quote.getShippingOptions())) {
+		List<ShippingProduct> shippingProducts = shoppingCartService.createShippingProduct(cart);
+		if (CollectionUtils.isEmpty(shippingProducts)) {
+			return null;
+		}
+
+		ShippingQuote quote = shippingService.calculateShippingQuote(cart.getId(), store,
+				deliveryAddress(customer, store), shippingProducts, language);
+		boolean nothingToCharge = quote != null && (quote.isFreeShipping()
+				|| ShippingQuote.NO_SHIPPING_MODULE_CONFIGURED.equals(quote.getShippingReturnCode()));
+		if (!nothingToCharge) {
 			throw new ServiceException(ServiceException.EXCEPTION_VALIDATION,
 					"Shopping cart requires shipping, a shippingQuote must be provided", "shipping.required");
 		}

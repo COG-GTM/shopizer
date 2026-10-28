@@ -96,7 +96,7 @@ public class ShippingQuoteServiceImpl extends SalesManagerEntityServiceImpl<Long
 			return null;
 		}
 
-		ShippingQuote current = shippingService.getShippingQuote(cart.getId(), store, copyOf(q.getDelivery()),
+		ShippingQuote current = shippingService.calculateShippingQuote(cart.getId(), store, copyOf(q.getDelivery()),
 				products, language);
 
 		ShippingSummary summary = toShippingSummary(q, store);

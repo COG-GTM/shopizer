@@ -84,7 +84,8 @@ public class OrderFacadeShippingQuoteTest {
 	private void storeQuotes(ShippingQuote quote) throws ServiceException {
 		when(shoppingCartService.createShippingProduct(cart))
 				.thenReturn(Collections.singletonList(new ShippingProduct(null)));
-		when(shippingService.getShippingQuote(eq(CART_ID), eq(store), any(), any(), eq(language))).thenReturn(quote);
+		when(shippingService.calculateShippingQuote(eq(CART_ID), eq(store), any(), any(), eq(language)))
+				.thenReturn(quote);
 	}
 
 	private static ShippingQuote paidShipping() {
@@ -111,6 +112,21 @@ public class OrderFacadeShippingQuoteTest {
 			}
 		}
 		verify(shippingQuoteService, never()).getCheckoutShippingSummary(any(), any(), any(), any());
+		verify(shippingService, never()).getShippingQuote(any(), any(), any(), any(), any());
+	}
+
+	@Test
+	public void shippableCartWithoutQuoteToUnsupportedDestinationIsRejected() throws Exception {
+		shippable(true);
+		ShippingQuote unsupported = new ShippingQuote();
+		unsupported.setShippingReturnCode(ShippingQuote.NO_SHIPPING_TO_SELECTED_COUNTRY + " ZZ");
+		storeQuotes(unsupported);
+		try {
+			resolve(null);
+			fail("expected rejection");
+		} catch (ServiceException e) {
+			assertEquals("shipping.required", e.getMessageCode());
+		}
 	}
 
 	@Test
@@ -145,9 +161,11 @@ public class OrderFacadeShippingQuoteTest {
 	}
 
 	@Test
-	public void shippableCartWithoutQuoteIsAllowedWhenStoreHasNoShippingOption() throws Exception {
+	public void shippableCartWithoutQuoteIsAllowedWhenStoreHasNoShippingModule() throws Exception {
 		shippable(true);
-		storeQuotes(new ShippingQuote());
+		ShippingQuote noModule = new ShippingQuote();
+		noModule.setShippingReturnCode(ShippingQuote.NO_SHIPPING_MODULE_CONFIGURED);
+		storeQuotes(noModule);
 		assertNull(resolve(null));
 	}
 
