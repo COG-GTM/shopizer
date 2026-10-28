@@ -379,7 +379,7 @@ public class UserFacadeImpl implements UserFacade {
 			}
 
 			// cannot delete superadmin
-			if (user.getGroups().contains(Constants.GROUP_SUPERADMIN)) {
+			if (user.getGroups().stream().anyMatch(g -> Constants.GROUP_SUPERADMIN.equals(g.getGroupName()))) {
 				throw new ServiceRuntimeException("Cannot delete superadmin user [" + id + "]");
 			}
 
