@@ -5,6 +5,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -49,6 +50,20 @@ public class Stripe3PaymentAuthorizeValidationTest {
 	public void rejectsIntentInAnotherCurrency() {
 		PaymentIntent intent = intent("requires_capture", 12000L, 12000L);
 		intent.setCurrency("eur");
+		assertRejected(intent);
+	}
+
+	@Test
+	public void rejectsIntentWithoutCurrency() {
+		PaymentIntent intent = intent("requires_capture", 12000L, 12000L);
+		intent.setCurrency(null);
+		assertRejected(intent);
+	}
+
+	@Test
+	public void rejectsIntentAlreadyUsedByAnotherOrder() {
+		PaymentIntent intent = intent("requires_capture", 12000L, 12000L);
+		intent.setMetadata(Collections.singletonMap(Stripe3Payment.AUTHORIZED_METADATA, "true"));
 		assertRejected(intent);
 	}
 

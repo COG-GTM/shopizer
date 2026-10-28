@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
+import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -190,12 +191,18 @@ public class OrderPaymentApi {
 
 		ShippingSummary shippingSummary = null;
 		if (payment.getShippingQuote() != null) {
-			Quote quote = shippingQuoteService.getById(payment.getShippingQuote());
-			if (quote == null || quote.getCartId() == null || !quote.getCartId().equals(cart.getId())) {
+			Long quoteCartId = null;
+			try {
+				Quote quote = shippingQuoteService.getById(payment.getShippingQuote());
+				quoteCartId = quote == null ? null : quote.getCartId();
+			} catch (EntityNotFoundException e) {
+				LOGGER.debug("Shipping quote " + payment.getShippingQuote() + " not found", e);
+			}
+			if (quoteCartId == null || !quoteCartId.equals(cart.getId())) {
 				throw new RestApiException(INVALID_PAYMENT_INIT,
 						"Shipping quote " + payment.getShippingQuote() + " does not belong to cart " + cart.getShoppingCartCode());
 			}
-			shippingSummary = shippingQuoteService.getShippingSummary(quote.getId(), merchantStore);
+			shippingSummary = shippingQuoteService.getShippingSummary(payment.getShippingQuote(), merchantStore);
 		}
 
 		try {

@@ -35,6 +35,7 @@ import com.stripe.model.PaymentIntent;
 import com.stripe.model.Refund;
 import com.stripe.param.PaymentIntentCaptureParams;
 import com.stripe.param.PaymentIntentCreateParams;
+import com.stripe.param.PaymentIntentUpdateParams;
 
 // import com.stripe.exception.APIConnectionException;
 
@@ -183,6 +184,10 @@ public class Stripe3Payment implements PaymentModule {
 			);
 
 			validateAuthorizedIntent(paymentIntent, store, amount);
+
+			paymentIntent = paymentIntent.update(PaymentIntentUpdateParams.builder()
+					.putMetadata(AUTHORIZED_METADATA, "true")
+					.build());
 			
 			transaction.setAmount(amount);
 			//transaction.setOrder(order);
@@ -206,6 +211,7 @@ public class Stripe3Payment implements PaymentModule {
 	}
 
 	private static final String PAYMENT_INTENT_REQUIRES_CAPTURE = "requires_capture";
+	static final String AUTHORIZED_METADATA = "shopizer_order_authorized";
 
 	void validateAuthorizedIntent(PaymentIntent paymentIntent, MerchantStore store, BigDecimal amount)
 			throws IntegrationException {
@@ -215,10 +221,15 @@ public class Stripe3Payment implements PaymentModule {
 					+ (paymentIntent == null ? null : paymentIntent.getStatus()) + ")");
 		}
 
-		if (paymentIntent.getCurrency() != null && store.getCurrency() != null
-				&& !paymentIntent.getCurrency().equalsIgnoreCase(store.getCurrency().getCode())) {
+		if (paymentIntent.getMetadata() != null && paymentIntent.getMetadata().containsKey(AUTHORIZED_METADATA)) {
+			throw declined("Stripe payment intent " + paymentIntent.getId() + " is already used by another order");
+		}
+
+		String storeCurrency = store.getCurrency() == null ? null : store.getCurrency().getCode();
+		if (paymentIntent.getCurrency() == null || storeCurrency == null
+				|| !paymentIntent.getCurrency().equalsIgnoreCase(storeCurrency)) {
 			throw declined("Stripe payment intent currency " + paymentIntent.getCurrency()
-					+ " does not match store currency " + store.getCurrency().getCode());
+					+ " does not match store currency " + storeCurrency);
 		}
 
 		Long authorized = paymentIntent.getAmountCapturable() != null && paymentIntent.getAmountCapturable() > 0

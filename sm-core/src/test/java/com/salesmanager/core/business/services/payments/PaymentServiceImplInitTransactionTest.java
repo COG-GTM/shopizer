@@ -102,7 +102,7 @@ public class PaymentServiceImplInitTransactionTest {
 		assertEquals(0, CART_TOTAL.compareTo(amount.getValue()));
 		assertEquals(0, CART_TOTAL.compareTo(transaction.getAmount()));
 		assertEquals("42", transaction.getTransactionDetails().get(PaymentServiceImpl.INIT_SHOPPING_CART_ID));
-		verify(transactionService).save(transaction);
+		verify(transactionService).create(transaction);
 	}
 
 	@Test
@@ -145,7 +145,7 @@ public class PaymentServiceImplInitTransactionTest {
 			assertEquals(ServiceException.EXCEPTION_VALIDATION, e.getExceptionType());
 		}
 		verify(paymentModule, never()).initTransaction(any(), any(), any(), any(), any(), any());
-		verify(transactionService, never()).save(any(Transaction.class));
+		verify(transactionService, never()).create(any(Transaction.class));
 	}
 
 	private Payment payment(BigDecimal amount) {

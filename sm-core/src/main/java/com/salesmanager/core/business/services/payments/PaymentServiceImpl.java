@@ -805,7 +805,7 @@ public class PaymentServiceImpl implements PaymentService {
 		transaction.setAmount(amount);
 		transaction.getTransactionDetails().put(INIT_SHOPPING_CART_ID, String.valueOf(cart.getId()));
 		
-		transactionService.save(transaction);
+		transactionService.create(transaction);
 
 		return transaction;
 	}
