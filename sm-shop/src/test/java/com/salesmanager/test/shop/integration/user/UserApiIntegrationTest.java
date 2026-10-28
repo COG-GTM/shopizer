@@ -167,6 +167,8 @@ public class UserApiIntegrationTest extends ServicesTestSupport {
       assertEquals(HttpStatus.UNAUTHORIZED, testRestTemplate.exchange("/api/v1/auth/refresh", HttpMethod.GET,
           new HttpEntity<String>(oldHeaders), String.class).getStatusCode());
 
+      // tokens issued in the same second as the change are revoked as well
+      Thread.sleep(1100);
       assertEquals(HttpStatus.OK, getUserWith(getHeader(userName, NEW_CREATED_PASSWORD), user.getId()));
   }
 

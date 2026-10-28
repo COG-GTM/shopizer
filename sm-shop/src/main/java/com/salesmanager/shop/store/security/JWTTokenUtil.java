@@ -96,8 +96,16 @@ public class JWTTokenUtil implements Serializable {
 	        return (lastPasswordReset != null && created.before(lastPasswordReset));
 	    }
 
+	    /**
+	     * issued-at has second precision, so a token issued in the same second
+	     * as the password change is also considered revoked
+	     */
+	    private Boolean isRevokedByPasswordChange(Date created, Date lastPasswordReset) {
+	        return (lastPasswordReset != null && !created.after(lastPasswordReset));
+	    }
+
 	    public Boolean isIssuedBeforeLastPasswordReset(String token, Date lastPasswordReset) {
-	        return isCreatedBeforeLastPasswordReset(getIssuedAtDateFromToken(token), lastPasswordReset);
+	        return isRevokedByPasswordChange(getIssuedAtDateFromToken(token), lastPasswordReset);
 	    }
 	    
 	    private Boolean isCreatedBeforeLastPasswordResetWithGrace(Date created, Date lastPasswordReset) {
@@ -182,7 +190,7 @@ public class JWTTokenUtil implements Serializable {
 	        
 	        boolean usernameEquals = username.equals(user.getUsername());
 	        boolean isTokenExpired = isTokenExpired(token);
-	        boolean isTokenCreatedBeforeLastPasswordReset = isCreatedBeforeLastPasswordReset(created, user.getLastPasswordResetDate());
+	        boolean isTokenCreatedBeforeLastPasswordReset = isRevokedByPasswordChange(created, user.getLastPasswordResetDate());
 	        
 	        return (
 

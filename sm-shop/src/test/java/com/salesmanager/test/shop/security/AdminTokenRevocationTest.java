@@ -114,14 +114,17 @@ public class AdminTokenRevocationTest {
 	}
 
 	@Test
-	public void validateTokenRejectsTokenIssuedBeforePasswordChange() {
+	public void validateTokenRejectsTokenIssuedUpToPasswordChange() {
 		String token = tokenUtil.generateToken(jwtUser(true, null));
 		Date issuedAt = tokenUtil.getIssuedAtDateFromToken(token);
 		Date later = new Date(issuedAt.getTime() + 1000);
 		assertFalse(tokenUtil.validateToken(token, jwtUser(true, later)));
 		assertTrue(tokenUtil.isIssuedBeforeLastPasswordReset(token, later));
-		assertTrue(tokenUtil.validateToken(token, jwtUser(true, issuedAt)));
-		assertFalse(tokenUtil.isIssuedBeforeLastPasswordReset(token, issuedAt));
+		assertFalse(tokenUtil.validateToken(token, jwtUser(true, issuedAt)));
+		assertTrue(tokenUtil.isIssuedBeforeLastPasswordReset(token, issuedAt));
+		Date earlier = new Date(issuedAt.getTime() - 1000);
+		assertTrue(tokenUtil.validateToken(token, jwtUser(true, earlier)));
+		assertFalse(tokenUtil.isIssuedBeforeLastPasswordReset(token, earlier));
 	}
 
 	@Test
@@ -130,6 +133,16 @@ public class AdminTokenRevocationTest {
 		assertNotNull(authenticate(token, servicesFor(user(true))));
 
 		SecurityContextHolder.clearContext();
+		assertNull(authenticate(token, servicesFor(user(false))));
+	}
+
+	@Test
+	public void adminAuthenticationManagerRevalidatesExistingContext() throws Exception {
+		String token = tokenUtil.generateToken(jwtUser(true, null));
+		Authentication existing = authenticate(token, servicesFor(user(true)));
+		assertNotNull(existing);
+
+		SecurityContextHolder.getContext().setAuthentication(existing);
 		assertNull(authenticate(token, servicesFor(user(false))));
 	}
 
