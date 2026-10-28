@@ -61,6 +61,9 @@ public class PersistableCustomerReviewPopulator extends AbstractDataPopulator<Pe
 			
 			Customer reviewer = customerService.getById(source.getCustomerId());
 			Customer reviewed = customerService.getById(source.getReviewedCustomer());
+			if(!belongsToStore(reviewer, store) || !belongsToStore(reviewed, store)) {
+				throw new ConversionException("Reviewer and reviewed customer must belong to the current store");
+			}
 			
 			target.setReviewRating(source.getRating());
 			
@@ -89,6 +92,14 @@ public class PersistableCustomerReviewPopulator extends AbstractDataPopulator<Pe
 		
 		
 		return target;
+	}
+
+	private static boolean belongsToStore(Customer customer, MerchantStore store) {
+		return customer != null
+				&& store != null
+				&& store.getId() != null
+				&& customer.getMerchantStore() != null
+				&& store.getId().equals(customer.getMerchantStore().getId());
 	}
 
 	@Override

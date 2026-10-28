@@ -752,12 +752,11 @@ public class CustomerFacadeImpl implements CustomerFacade {
   public List<ReadableCustomerReview> getAllCustomerReviewsByReviewed(Long customerId,
       MerchantStore store, Language language) {
 
-    //customer exist
-    Customer customer = getCustomerById(customerId);
-    Validate.notNull(customer, "Reviewed customer cannot be null");
+    Customer customer = getStoreCustomer(customerId, store);
 
     return customerReviewService.getByReviewedCustomer(customer)
         .stream()
+        .filter(customerReview -> belongsToStore(customerReview.getCustomer(), store))
         .map(
             customerReview ->
                 convertCustomerReviewToReadableCustomerReview(customerReview, store, language))
@@ -780,20 +779,39 @@ public class CustomerFacadeImpl implements CustomerFacade {
   }
 
 
-  @Override
-  public void deleteCustomerReview(Long customerId, Long reviewId, MerchantStore store, Language language) {
-
-    CustomerReview customerReview = getCustomerReviewById(reviewId);
-
-    if(!customerReview.getReviewedCustomer().getId().equals(customerId)) {
-      throw new ResourceNotFoundException("Customer review with id " + reviewId + " does not exist for this customer");
+  private Customer getStoreCustomer(Long customerId, MerchantStore store) {
+    Customer customer = customerId == null ? null : customerService.getById(customerId);
+    if (!belongsToStore(customer, store)) {
+      throw new ResourceNotFoundException("Customer id " + customerId + " does not exists");
     }
-    deleteCustomerReview(customerReview);
+    return customer;
   }
 
-  private CustomerReview getCustomerReviewById(Long reviewId) {
-    return Optional.ofNullable(customerReviewService.getById(reviewId))
-        .orElseThrow(() -> new ResourceNotFoundException("Customer review with id " + reviewId + " does not exist"));
+  private static boolean belongsToStore(Customer customer, MerchantStore store) {
+    return customer != null
+        && store != null
+        && store.getId() != null
+        && customer.getMerchantStore() != null
+        && store.getId().equals(customer.getMerchantStore().getId());
+  }
+
+  private CustomerReview getStoreCustomerReview(Long customerId, Long reviewId, MerchantStore store) {
+    getStoreCustomer(customerId, store);
+    CustomerReview customerReview = reviewId == null ? null : customerReviewService.getById(reviewId);
+    if (customerReview == null
+        || customerReview.getReviewedCustomer() == null
+        || !customerId.equals(customerReview.getReviewedCustomer().getId())
+        || !belongsToStore(customerReview.getReviewedCustomer(), store)) {
+      throw new ResourceNotFoundException("Customer review with id " + reviewId + " does not exist for this customer");
+    }
+    return customerReview;
+  }
+
+
+  @Override
+  public void deleteCustomerReview(Long customerId, Long reviewId, MerchantStore store, Language language) {
+    CustomerReview customerReview = getStoreCustomerReview(customerId, reviewId, store);
+    deleteCustomerReview(customerReview);
   }
 
   private void deleteCustomerReview(CustomerReview review) {
@@ -981,6 +999,9 @@ public class CustomerFacadeImpl implements CustomerFacade {
       MerchantStore merchantStore,
       Language language) {
 
+    getStoreCustomer(customerId, merchantStore);
+    getStoreCustomer(review.getCustomerId(), merchantStore);
+
     // rating already exist
     Optional<CustomerReview> customerReview =
         Optional.ofNullable(
@@ -1006,11 +1027,7 @@ public class CustomerFacadeImpl implements CustomerFacade {
   public PersistableCustomerReview updateCustomerReview(Long id, Long reviewId, PersistableCustomerReview review,
       MerchantStore store, Language language) {
 
-    CustomerReview customerReview = getCustomerReviewById(reviewId);
-
-    if(! customerReview.getReviewedCustomer().getId().equals(id)) {
-      throw new ResourceNotFoundException("Customer review with id " + reviewId + " does not exist for this customer");
-    }
+    getStoreCustomerReview(id, reviewId, store);
 
     //rating maximum 5
     if(review.getRating()>Constants.MAX_REVIEW_RATING_SCORE) {
