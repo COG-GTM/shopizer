@@ -82,10 +82,12 @@ public class ProductVariationFacadeImpl implements ProductVariationFacade {
 			throw new OperationNotAllowedException("Option set with code [" + var.getCode() + "] already exist");
 		}
 		
+		var.setId(null);
 		ProductVariation p = persistableProductVariationMapper.convert(var, store, language);
+		p.setId(null);
 		p.setMerchantStore(store);
 		try {
-			productVariationService.saveOrUpdate(p);
+			productVariationService.save(p);
 		} catch (ServiceException e) {
 			throw new ServiceRuntimeException("Exception while creating ProductOptionSet", e);
 		}
@@ -108,9 +110,9 @@ public class ProductVariationFacadeImpl implements ProductVariationFacade {
 		
 		ProductVariation productVariant = p.get();
 		
-		productVariant.setId(variationId);
-		productVariant.setCode(var.getCode());
+		var.setId(variationId);
 		ProductVariation model = persistableProductVariationMapper.merge(var, productVariant, store, language);
+		model.setId(variationId);
 		try {
 			model.setMerchantStore(store);
 			productVariationService.save(model);
