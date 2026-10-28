@@ -213,6 +213,7 @@ public class CustomerFacadeImpl implements CustomerFacade {
 
 		Customer customer = verifyCustomerLink(token, store);// reverify
 		customer.setPassword(passwordEncoder.encode(password));
+		customer.setCredentialsResetRequest(null);
 		try {
 			customerService.save(customer);
 		} catch (ServiceException e) {
@@ -233,6 +234,10 @@ public class CustomerFacadeImpl implements CustomerFacade {
 
 		} catch (Exception e) {
 			throw new ServiceRuntimeException("Cannot verify customer token", e);
+		}
+
+		if (customer.getCredentialsResetRequest() == null) {
+			throw new GenericRuntimeException("No reset request found for token [" + token + "]");
 		}
 
 		Date tokenExpiry = customer.getCredentialsResetRequest().getCredentialsRequestExpiry();

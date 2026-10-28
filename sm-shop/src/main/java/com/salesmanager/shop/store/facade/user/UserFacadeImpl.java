@@ -855,6 +855,7 @@ public class UserFacadeImpl implements UserFacade {
 
 		User user = verifyUserLink(token, store);// reverify
 		user.setAdminPassword(passwordEncoder.encode(password));
+		user.setCredentialsResetRequest(null);
 		
 		try {
 			userService.save(user);
@@ -876,6 +877,10 @@ public class UserFacadeImpl implements UserFacade {
 
 		} catch (Exception e) {
 			throw new ServiceRuntimeException("Cannot verify customer token", e);
+		}
+
+		if (user.getCredentialsResetRequest() == null) {
+			throw new GenericRuntimeException("No reset request found for token [" + token + "]");
 		}
 
 		Date tokenExpiry = user.getCredentialsResetRequest().getCredentialsRequestExpiry();
