@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -35,12 +36,14 @@ import com.salesmanager.core.model.catalog.product.Product;
 import com.salesmanager.core.model.catalog.product.image.ProductImage;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
+import com.salesmanager.shop.constants.Constants;
 import com.salesmanager.shop.mapper.catalog.ReadableProductImageMapper;
 import com.salesmanager.shop.model.catalog.product.ReadableImage;
 import com.salesmanager.shop.model.entity.NameEntity;
 import com.salesmanager.shop.store.api.exception.ResourceNotFoundException;
 import com.salesmanager.shop.store.api.exception.ServiceRuntimeException;
 import com.salesmanager.shop.store.api.exception.UnauthorizedException;
+import com.salesmanager.shop.utils.AuthorizationUtils;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -67,6 +70,9 @@ public class ProductImageApi {
 	
 	@Autowired
 	private ReadableProductImageMapper readableProductImageMapper;
+
+	@Inject
+	private AuthorizationUtils authorizationUtils;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ProductImageApi.class);
 
@@ -147,20 +153,28 @@ public class ProductImageApi {
 	}
 
 	@ResponseStatus(HttpStatus.OK)
-	@RequestMapping(value = { "/private/product/image/{id}",
-			"/auth/product/images/{id}" }, method = RequestMethod.DELETE)
-	public void deleteImage(@PathVariable Long id, HttpServletRequest request, HttpServletResponse response)
-			throws Exception {
+	@RequestMapping(value = { "/private/product/image/{id}" }, method = RequestMethod.DELETE)
+	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT") })
+	public void deleteImage(@PathVariable Long id, @ApiIgnore MerchantStore merchantStore,
+			HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+		String authenticatedUser = authorizationUtils.authenticatedUser();
+		authorizationUtils.authorizeUser(authenticatedUser,
+				Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN, Constants.GROUP_ADMIN_CATALOGUE,
+						Constants.GROUP_ADMIN_RETAIL).collect(Collectors.toList()),
+				merchantStore);
+
+		ProductImage productImage = productImageService.getById(id);
+
+		if (productImage == null || productImage.getProduct() == null
+				|| productImage.getProduct().getMerchantStore() == null
+				|| !productImage.getProduct().getMerchantStore().getId().equals(merchantStore.getId())) {
+			throw new ResourceNotFoundException(
+					"Product image [" + id + "] not found for merchant [" + merchantStore.getCode() + "]");
+		}
 
 		try {
-			ProductImage productImage = productImageService.getById(id);
-
-			if (productImage != null) {
-				productImageService.delete(productImage);
-			} else {
-				response.sendError(404, "No ProductImage found for ID : " + id);
-			}
-
+			productImageService.delete(productImage);
 		} catch (Exception e) {
 			LOGGER.error("Error while deleting ProductImage", e);
 			try {
