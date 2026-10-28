@@ -34,6 +34,53 @@ public class ProductGroupStoreScopeIntegrationTest extends ServicesTestSupport {
 	private static final String SECOND_STORE = "GROUPSTORE";
 
 	@Test
+	public void missingProductRemovalReturns404() {
+		ResponseEntity<String> response = testRestTemplate.exchange(
+				"/api/v1/private/products/999999999/group/FEATURED_ITEM?store=" + Constants.DEFAULT_STORE,
+				HttpMethod.DELETE, new HttpEntity<>(getHeader()), String.class);
+		assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+	}
+
+	@Test
+	public void rejectedForeignRemovalPreservesExistingOwnerMembership() {
+		ensureSecondStoreExists();
+		String suffix = UUID.randomUUID().toString().replace("-", "").substring(0, 12);
+		String group = "GRP" + suffix.toUpperCase();
+		ReadableProduct product = sampleProduct("grppreserve" + suffix);
+		ProductGroup definition = new ProductGroup();
+		definition.setCode(group);
+		definition.setActive(true);
+		for (String store : Arrays.asList(Constants.DEFAULT_STORE, SECOND_STORE)) {
+			ResponseEntity<String> created = testRestTemplate.exchange(
+					"/api/v1/private/products/group?store=" + store, HttpMethod.POST,
+					new HttpEntity<>(definition, getHeader()), String.class);
+			assertEquals(HttpStatus.OK, created.getStatusCode());
+		}
+		String itemUrl = "/api/v1/private/products/" + product.getId() + "/group/" + group;
+		ResponseEntity<String> added = testRestTemplate.exchange(itemUrl + "?store=" + Constants.DEFAULT_STORE,
+				HttpMethod.POST, new HttpEntity<>(getHeader()), String.class);
+		assertEquals(HttpStatus.CREATED, added.getStatusCode());
+
+		ResponseEntity<String> rejected = testRestTemplate.exchange(itemUrl + "?store=" + SECOND_STORE,
+				HttpMethod.DELETE, new HttpEntity<>(getHeader()), String.class);
+		assertEquals(HttpStatus.UNAUTHORIZED, rejected.getStatusCode());
+		ResponseEntity<ReadableProductList> ownerGroup = testRestTemplate.getForEntity(
+				"/api/v1/products/group/" + group + "?store=" + Constants.DEFAULT_STORE, ReadableProductList.class);
+		assertEquals(HttpStatus.OK, ownerGroup.getStatusCode());
+		assertNotNull(ownerGroup.getBody());
+		assertTrue(ownerGroup.getBody().getProducts().stream().anyMatch(p -> p.getId().equals(product.getId())));
+
+		ResponseEntity<String> removed = testRestTemplate.exchange(itemUrl + "?store=" + Constants.DEFAULT_STORE,
+				HttpMethod.DELETE, new HttpEntity<>(getHeader()), String.class);
+		assertEquals(HttpStatus.OK, removed.getStatusCode());
+		ResponseEntity<ReadableProductList> emptyGroup = testRestTemplate.getForEntity(
+				"/api/v1/products/group/" + group + "?store=" + Constants.DEFAULT_STORE, ReadableProductList.class);
+		assertEquals(HttpStatus.OK, emptyGroup.getStatusCode());
+		assertNotNull(emptyGroup.getBody());
+		assertFalse(emptyGroup.getBody().getProducts().stream().anyMatch(p -> p.getId().equals(product.getId())));
+	}
+
+	@Test
 	public void cannotAddOrRemoveAnotherStoresProductInGroup() {
 		ensureSecondStoreExists();
 
