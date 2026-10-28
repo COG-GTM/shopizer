@@ -1,6 +1,8 @@
 package com.salesmanager.core.business.services.tax;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -67,11 +69,28 @@ public class TaxRateServiceImpl extends SalesManagerEntityServiceImpl<Long, TaxR
 	@Override
 	public TaxRate saveOrUpdate(TaxRate taxRate) throws ServiceException {
 		if(taxRate.getId()!=null && taxRate.getId() > 0) {
+			TaxRate existing = taxRateRepository.findById(taxRate.getId()).orElse(null);
+			if(existing == null || !sameStore(existing.getMerchantStore(), taxRate.getMerchantStore())) {
+				throw new ServiceException("TaxRate [" + taxRate.getId() + "] does not belong to the target store");
+			}
+			Set<Long> ownedDescriptions = new HashSet<>(taxRateRepository.findDescriptionIds(taxRate.getId()));
+			if(taxRate.getDescriptions() != null
+					&& taxRate.getDescriptions().stream().anyMatch(d -> d.getId() != null && !ownedDescriptions.contains(d.getId()))) {
+				throw new ServiceException("TaxRate [" + taxRate.getId() + "] cannot reference descriptions of another tax rate");
+			}
 			this.update(taxRate);
 		} else {
+			if(taxRate.getDescriptions() != null
+					&& taxRate.getDescriptions().stream().anyMatch(d -> d.getId() != null)) {
+				throw new ServiceException("A new TaxRate cannot reference existing descriptions");
+			}
 			taxRate = super.saveAndFlush(taxRate);
 		}
 		return taxRate;
+	}
+
+	private static boolean sameStore(MerchantStore a, MerchantStore b) {
+		return a != null && b != null && a.getId() != null && a.getId().equals(b.getId());
 	}
 
 	@Override

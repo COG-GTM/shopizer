@@ -275,6 +275,11 @@ public class TaxFacadeImpl implements TaxFacade {
 			}
 
 			
+			taxRate.setId(null);
+			if(taxRate.getDescriptions() != null) {
+				taxRate.getDescriptions().forEach(d -> d.setId(null));
+			}
+
 			model = persistableTaxRateMapper.convert(taxRate, store, language);
 			
 			model = taxRateService.saveOrUpdate(model);
