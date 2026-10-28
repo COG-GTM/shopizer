@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.salesmanager.core.business.services.user.UserService;
 import com.salesmanager.core.model.customer.Customer;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
@@ -89,9 +88,6 @@ public class AuthenticateCustomerApi {
     @Autowired
     private UserFacade userFacade;
 
-    @Inject
-    private UserService userService;
-
     /**
      * Create new customer for a given MerchantStore, then authenticate that customer
      */
@@ -109,8 +105,7 @@ public class AuthenticateCustomerApi {
 
             customer.setUserName(customer.getEmailAddress());
             
-			if(customerFacade.checkIfUserExists(customer.getUserName(),  merchantStore)
-					|| userService.getByUserName(customer.getUserName()) != null) {
+			if(customerFacade.checkIfUserExists(customer.getUserName(),  merchantStore)) {
 				//409 Conflict
 				throw new GenericRuntimeException("409", "Customer with email [" + customer.getEmailAddress() + "] is already registered");
 			}
