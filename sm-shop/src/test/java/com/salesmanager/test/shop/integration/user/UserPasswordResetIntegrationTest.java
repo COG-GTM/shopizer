@@ -136,9 +136,12 @@ public class UserPasswordResetIntegrationTest extends ServicesTestSupport {
 		User admin = admin();
 		String token = admin.getCredentialsResetRequest().getCredentialsRequest();
 
-		assertFalse(userService.consumePasswordResetToken(admin.getId(), "not-the-token"));
-		assertTrue(userService.consumePasswordResetToken(admin.getId(), token));
-		assertFalse(userService.consumePasswordResetToken(admin.getId(), token));
+		assertFalse(userService.resetPasswordWithToken(admin.getId(), "not-the-token", passwordEncoder.encode("Wrong1")));
+		assertTrue(passwordEncoder.matches("password", admin().getAdminPassword()));
+		assertTrue(userService.resetPasswordWithToken(admin.getId(), token, passwordEncoder.encode("First1")));
+		assertFalse(userService.resetPasswordWithToken(admin.getId(), token, passwordEncoder.encode("Second1")));
+		assertTrue(passwordEncoder.matches("First1", admin().getAdminPassword()));
+		assertNull(admin().getCredentialsResetRequest());
 	}
 
 	@Test

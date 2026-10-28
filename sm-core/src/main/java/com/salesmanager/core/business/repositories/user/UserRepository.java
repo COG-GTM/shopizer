@@ -42,4 +42,8 @@ public interface UserRepository extends JpaRepository<User, Long>, UserRepositor
 	@Query("update User u set u.credentialsResetRequest.credentialsRequest = null "
 			+ "where u.id = ?1 and u.credentialsResetRequest.credentialsRequest = ?2")
 	int clearResetPasswordToken(Long userId, String token);
+
+	@Modifying(clearAutomatically = true)
+	@Query("update User u set u.adminPassword = ?2 where u.id = ?1")
+	int updateAdminPassword(Long userId, String encodedPassword);
 }
