@@ -346,6 +346,7 @@ public class CustomerFacadeImpl implements CustomerFacade {
   public PersistableCustomer registerCustomer(final PersistableCustomer customer,
       final MerchantStore merchantStore, Language language) throws Exception {
     LOG.info("Starting customer registration process..");
+    customer.setId(null);
 
     if (userExist(customer.getUserName())) {
       throw new UserAlreadyExistException("User already exist");
@@ -583,6 +584,7 @@ public class CustomerFacadeImpl implements CustomerFacade {
 
 	Validate.notNull(customer, "Customer cannot be null");
 	Validate.notNull(customer.getEmailAddress(), "Customer email address is required");
+	customer.setId(null);
 
 	//set customer user name
 	customer.setUserName(customer.getEmailAddress());
