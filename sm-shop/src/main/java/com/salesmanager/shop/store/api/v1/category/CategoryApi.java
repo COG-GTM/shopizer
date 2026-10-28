@@ -160,6 +160,7 @@ public class CategoryApi {
 
 		userFacade.authorizedGroup(authenticatedUser, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN, Constants.GROUP_ADMIN_CATALOGUE, Constants.GROUP_ADMIN_RETAIL).collect(Collectors.toList()));
 
+		category.setId(0L);
 		return categoryFacade.saveCategory(merchantStore, category);
 	}
 
