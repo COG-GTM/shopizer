@@ -3,6 +3,7 @@ package com.salesmanager.shop.store.api.v1.category;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -72,8 +73,34 @@ public class CategoryApi {
 			@PathVariable(name = "id") Long categoryId, 
 			@ApiIgnore MerchantStore merchantStore,
 			@ApiIgnore Language language) {
-		ReadableCategory category = categoryFacade.getById(merchantStore, categoryId, language);
-		return category;
+		return categoryFacade.getVisibleById(merchantStore, categoryId, language);
+	}
+
+	@GetMapping(value = "/private/category/{id}", produces = { APPLICATION_JSON_VALUE })
+	@ApiOperation(httpMethod = "GET", value = "Get a category of the store by id, including non visible categories", notes = "List current Category and child category")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Category found", response = ReadableCategory.class) })
+	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT"),
+			@ApiImplicitParam(name = "lang", dataType = "string", defaultValue = "en") })
+	public ReadableCategory getPrivate(
+			@PathVariable(name = "id") Long categoryId,
+			@ApiIgnore MerchantStore merchantStore,
+			@ApiIgnore Language language) {
+
+		String authenticatedUser = userFacade.authenticatedUser();
+		if (authenticatedUser == null) {
+			throw new UnauthorizedException();
+		}
+
+		userFacade.authorizedGroup(authenticatedUser, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN, Constants.GROUP_ADMIN_CATALOGUE, Constants.GROUP_ADMIN_RETAIL).collect(Collectors.toList()));
+
+		if (!userFacade.userInRoles(authenticatedUser, Arrays.asList(Constants.GROUP_SUPERADMIN))
+				&& !userFacade.authorizedStore(authenticatedUser, merchantStore.getCode())) {
+			throw new UnauthorizedException("Operation unauthorized for user [" + authenticatedUser
+					+ "] and store [" + merchantStore.getCode() + "]");
+		}
+
+		return categoryFacade.getById(merchantStore, categoryId, language);
 	}
 
 	@GetMapping(value = "/category/{friendlyUrl}", produces = { APPLICATION_JSON_VALUE })

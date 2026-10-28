@@ -242,31 +242,32 @@ public class CategoryFacadeImpl implements CategoryFacade {
 
 	@Override
 	public ReadableCategory getById(MerchantStore store, Long id, Language language) {
+		return getReadableById(store, id, language, false);
+	}
 
-			Category categoryModel = null;
-			if (language != null) {
-				categoryModel = getCategoryById(id, language);
-			} else {// all langs
-				categoryModel = getById(store, id);
-			}
+	@Override
+	public ReadableCategory getVisibleById(MerchantStore store, Long id, Language language) {
+		return getReadableById(store, id, language, true);
+	}
 
-			if (categoryModel == null)
-				throw new ResourceNotFoundException("Categori id [" + id + "] not found");
+	private ReadableCategory getReadableById(MerchantStore store, Long id, Language language, boolean visibleOnly) {
 
-			StringBuilder lineage = new StringBuilder().append(categoryModel.getLineage());
+		Category categoryModel = getById(store, id);
 
-			ReadableCategory readableCategory = readableCategoryMapper.convert(categoryModel, store,
-					language);
+		if (visibleOnly && !categoryModel.isVisible()) {
+			throw new ResourceNotFoundException("Category with id [" + id + "] not found");
+		}
 
-			// get children
-			List<Category> children = getListByLineage(store, lineage.toString());
+		ReadableCategory readableCategory = readableCategoryMapper.convert(categoryModel, store, language);
 
-			List<ReadableCategory> childrenCats = children.stream()
-					.map(cat -> readableCategoryMapper.convert(cat, store, language))
-					.collect(Collectors.toList());
+		// children whose parent is filtered out are not attached
+		List<ReadableCategory> childrenCats = getListByLineage(store, categoryModel.getLineage()).stream()
+				.filter(cat -> !visibleOnly || cat.isVisible())
+				.map(cat -> readableCategoryMapper.convert(cat, store, language))
+				.collect(Collectors.toList());
 
-			addChildToParent(readableCategory, childrenCats);
-			return readableCategory;
+		addChildToParent(readableCategory, childrenCats);
+		return readableCategory;
 
 	}
 
@@ -294,11 +295,6 @@ public class CategoryFacadeImpl implements CategoryFacade {
 		} catch (ServiceException e) {
 			throw new ServiceRuntimeException(String.format("Error while getting root category %s", e.getMessage()), e);
 		}
-	}
-
-	private Category getCategoryById(Long id, Language language) {
-		return Optional.ofNullable(categoryService.getOneByLanguage(id, language))
-				.orElseThrow(() -> new ResourceNotFoundException("Category id [" + id + "] not found"));
 	}
 
 	@Override
