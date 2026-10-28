@@ -31,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.services.catalog.product.ProductService;
 import com.salesmanager.core.business.services.catalog.product.image.ProductImageService;
+import com.salesmanager.core.business.utils.FileNameValidator;
 import com.salesmanager.core.model.catalog.product.Product;
 import com.salesmanager.core.model.catalog.product.image.ProductImage;
 import com.salesmanager.core.model.merchant.MerchantStore;
@@ -90,6 +91,13 @@ public class ProductImageApi {
 			@RequestParam(value = "order", required = false, defaultValue = "0") Integer position,
 			@RequestParam(value = "defaultImage", required = false, defaultValue = "false") boolean defaultImage,
 			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) throws IOException {
+
+		for (MultipartFile multipartFile : files) {
+			if (!multipartFile.isEmpty()
+					&& !FileNameValidator.isSafeFileName(multipartFile.getOriginalFilename())) {
+				throw new ServiceRuntimeException("Invalid image file name");
+			}
+		}
 
 		try {
 

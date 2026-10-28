@@ -3,6 +3,7 @@ package com.salesmanager.core.business.modules.cms.product.local;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -15,6 +16,7 @@ import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.modules.cms.impl.CMSManager;
 import com.salesmanager.core.business.modules.cms.impl.LocalCacheManagerImpl;
 import com.salesmanager.core.business.modules.cms.product.ProductAssetsManager;
+import com.salesmanager.core.business.utils.FileNameValidator;
 import com.salesmanager.core.model.catalog.product.Product;
 import com.salesmanager.core.model.catalog.product.file.ProductImageSize;
 import com.salesmanager.core.model.catalog.product.image.ProductImage;
@@ -87,38 +89,29 @@ public class CmsImageFileManagerImpl
     try {
 
       // base path
-      String rootPath = this.buildRootPath();
-      Path confDir = Paths.get(rootPath);
-      this.createDirectoryIfNorExist(confDir);
+      Path root = rootPath();
+      this.createDirectories(root);
 
-      // node path
-      StringBuilder nodePath = new StringBuilder();
-      nodePath.append(rootPath).append(productImage.getProduct().getMerchantStore().getCode());
-      Path merchantPath = Paths.get(nodePath.toString());
-      this.createDirectoryIfNorExist(merchantPath);
-
-      // product path
-      nodePath.append(Constants.SLASH).append(productImage.getProduct().getSku())
-          .append(Constants.SLASH);
-      Path dirPath = Paths.get(nodePath.toString());
-      this.createDirectoryIfNorExist(dirPath);
+      String merchantCode = productImage.getProduct().getMerchantStore().getCode();
+      String sku = productImage.getProduct().getSku();
 
       // small large
+      String size;
       if (contentImage.getFileContentType().name().equals(FileContentType.PRODUCT.name())) {
-        nodePath.append(SMALL);
+        size = SMALL;
       } else if (contentImage.getFileContentType().name()
           .equals(FileContentType.PRODUCTLG.name())) {
-        nodePath.append(LARGE);
+        size = LARGE;
+      } else {
+        throw new ServiceException("Unsupported product image content type "
+            + contentImage.getFileContentType());
       }
-      Path sizePath = Paths.get(nodePath.toString());
-      this.createDirectoryIfNorExist(sizePath);
 
+      Path sizePath = resolveWithin(root, merchantCode, sku, size);
+      this.createDirectories(sizePath);
 
       // file creation
-      nodePath.append(Constants.SLASH).append(contentImage.getFileName());
-
-
-      Path path = Paths.get(nodePath.toString());
+      Path path = resolveWithin(sizePath, contentImage.getFileName());
       InputStream isFile = contentImage.getFile();
 
       Files.copy(isFile, path, StandardCopyOption.REPLACE_EXISTING);
@@ -166,10 +159,7 @@ public class CmsImageFileManagerImpl
     try {
 
 
-      StringBuilder merchantPath = new StringBuilder();
-      merchantPath.append(buildRootPath()).append(Constants.SLASH).append(merchantStoreCode);
-
-      Path path = Paths.get(merchantPath.toString());
+      Path path = resolveWithin(rootPath(), merchantStoreCode);
 
       Files.deleteIfExists(path);
 
@@ -188,31 +178,21 @@ public class CmsImageFileManagerImpl
 
     try {
 
+      if (!FileNameValidator.isSafeFileName(productImage.getProductImage())) {
+        LOGGER.warn("Not deleting product image file with unsafe name [{}]",
+            productImage.getProductImage());
+        return;
+      }
 
-      StringBuilder nodePath = new StringBuilder();
-      nodePath.append(buildRootPath()).append(Constants.SLASH)
-          .append(productImage.getProduct().getMerchantStore().getCode()).append(Constants.SLASH)
-          .append(productImage.getProduct().getSku());
+      Path productPath = resolveWithin(rootPath(),
+          productImage.getProduct().getMerchantStore().getCode(),
+          productImage.getProduct().getSku());
 
       // delete small
-      StringBuilder smallPath = new StringBuilder(nodePath);
-      smallPath.append(Constants.SLASH).append(SMALL).append(Constants.SLASH)
-          .append(productImage.getProductImage());
-
-
-      Path path = Paths.get(smallPath.toString());
-
-      Files.deleteIfExists(path);
+      Files.deleteIfExists(resolveWithin(productPath, SMALL, productImage.getProductImage()));
 
       // delete large
-      StringBuilder largePath = new StringBuilder(nodePath);
-      largePath.append(Constants.SLASH).append(LARGE).append(Constants.SLASH)
-          .append(productImage.getProductImage());
-
-
-      path = Paths.get(largePath.toString());
-
-      Files.deleteIfExists(path);
+      Files.deleteIfExists(resolveWithin(productPath, LARGE, productImage.getProductImage()));
 
     } catch (Exception e) {
       throw new ServiceException(e);
@@ -226,14 +206,7 @@ public class CmsImageFileManagerImpl
 
     try {
 
-
-      StringBuilder nodePath = new StringBuilder();
-      nodePath.append(buildRootPath()).append(Constants.SLASH)
-          .append(product.getMerchantStore().getCode()).append(Constants.SLASH)
-          .append(product.getSku());
-
-
-      Path path = Paths.get(nodePath.toString());
+      Path path = resolveWithin(rootPath(), product.getMerchantStore().getCode(), product.getSku());
 
       Files.deleteIfExists(path);
 
@@ -281,10 +254,55 @@ public class CmsImageFileManagerImpl
   }
 
 
-  private void createDirectoryIfNorExist(Path path) throws IOException {
+  private Path rootPath() {
+    return Paths.get(buildRootPath()).toAbsolutePath().normalize();
+  }
+
+  /**
+   * Resolves each segment as a single file name under base and rejects any result that is not
+   * contained in base.
+   */
+  private static Path resolveWithin(Path base, String... segments) throws ServiceException {
+    Path normalizedBase = base.toAbsolutePath().normalize();
+    Path resolved = normalizedBase;
+    for (String segment : segments) {
+      if (!FileNameValidator.isSafeFileName(segment)) {
+        throw new ServiceException("Invalid path segment [" + segment + "]");
+      }
+      resolved = resolved.resolve(segment);
+    }
+    resolved = resolved.normalize();
+    if (!resolved.startsWith(normalizedBase) || resolved.equals(normalizedBase)) {
+      throw new ServiceException("Path escapes the product image folder");
+    }
+    ensureRealPathWithin(normalizedBase, resolved);
+    return resolved;
+  }
+
+  /**
+   * Rejects paths whose closest existing ancestor resolves (following symbolic links) outside base.
+   */
+  private static void ensureRealPathWithin(Path base, Path path) throws ServiceException {
+    if (Files.notExists(base)) {
+      return;
+    }
+    Path existing = path;
+    while (existing != null && Files.notExists(existing, LinkOption.NOFOLLOW_LINKS)) {
+      existing = existing.getParent();
+    }
+    try {
+      if (existing == null || !existing.toRealPath().startsWith(base.toRealPath())) {
+        throw new ServiceException("Path escapes the product image folder");
+      }
+    } catch (IOException e) {
+      throw new ServiceException("Cannot resolve product image path", e);
+    }
+  }
+
+  private void createDirectories(Path path) throws IOException {
 
     if (Files.notExists(path)) {
-      Files.createDirectory(path);
+      Files.createDirectories(path);
     }
   }
 
