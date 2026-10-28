@@ -1,5 +1,6 @@
 package com.salesmanager.core.business.services.user;
 
+import java.util.Date;
 import java.util.List;
 import javax.inject.Inject;
 
@@ -145,7 +146,7 @@ public class UserServiceImpl extends SalesManagerEntityServiceImpl<Long, User> i
 		if (userRepository.clearResetPasswordToken(userId, token) != 1) {
 			return false;
 		}
-		userRepository.updateAdminPassword(userId, encodedPassword);
+		userRepository.updateAdminPassword(userId, encodedPassword, new Date());
 		return true;
 	}
 

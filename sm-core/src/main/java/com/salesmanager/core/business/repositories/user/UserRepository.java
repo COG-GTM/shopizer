@@ -1,5 +1,6 @@
 package com.salesmanager.core.business.repositories.user;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -44,6 +45,6 @@ public interface UserRepository extends JpaRepository<User, Long>, UserRepositor
 	int clearResetPasswordToken(Long userId, String token);
 
 	@Modifying(clearAutomatically = true)
-	@Query("update User u set u.adminPassword = ?2 where u.id = ?1")
-	int updateAdminPassword(Long userId, String encodedPassword);
+	@Query("update User u set u.adminPassword = ?2, u.auditSection.dateModified = ?3 where u.id = ?1")
+	int updateAdminPassword(Long userId, String encodedPassword, Date dateModified);
 }
