@@ -128,6 +128,9 @@ public class UserApi {
 			}
 		}
 
+		/** only superadmin can grant the superadmin group */
+		userFacade.authorizedGroups(authenticatedUser, user);
+
 		return userFacade.create(user, merchantStore);
 	}
 
