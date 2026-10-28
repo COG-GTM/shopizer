@@ -181,6 +181,8 @@ public class Stripe3Payment implements PaymentModule {
 			PaymentIntent paymentIntent = PaymentIntent.retrieve(
 					token
 			);
+
+			validateAuthorizedIntent(paymentIntent, store, amount);
 			
 			transaction.setAmount(amount);
 			//transaction.setOrder(order);
@@ -201,6 +203,47 @@ public class Stripe3Payment implements PaymentModule {
 		return transaction;
 
 		
+	}
+
+	private static final String PAYMENT_INTENT_REQUIRES_CAPTURE = "requires_capture";
+
+	void validateAuthorizedIntent(PaymentIntent paymentIntent, MerchantStore store, BigDecimal amount)
+			throws IntegrationException {
+
+		if (paymentIntent == null || !PAYMENT_INTENT_REQUIRES_CAPTURE.equals(paymentIntent.getStatus())) {
+			throw declined("Stripe payment intent is not authorized (status "
+					+ (paymentIntent == null ? null : paymentIntent.getStatus()) + ")");
+		}
+
+		if (paymentIntent.getCurrency() != null && store.getCurrency() != null
+				&& !paymentIntent.getCurrency().equalsIgnoreCase(store.getCurrency().getCode())) {
+			throw declined("Stripe payment intent currency " + paymentIntent.getCurrency()
+					+ " does not match store currency " + store.getCurrency().getCode());
+		}
+
+		Long authorized = paymentIntent.getAmountCapturable() != null && paymentIntent.getAmountCapturable() > 0
+				? paymentIntent.getAmountCapturable()
+				: paymentIntent.getAmount();
+		long required = toStripeAmount(amount);
+
+		if (authorized == null || authorized < required) {
+			throw declined("Stripe payment intent authorized amount " + authorized
+					+ " is lower than the order total " + required);
+		}
+	}
+
+	private long toStripeAmount(BigDecimal amount) {
+		String strAmount = String.valueOf(amount);
+		strAmount = strAmount.replace(".","");
+		return Long.parseLong(strAmount);
+	}
+
+	private IntegrationException declined(String message) {
+		IntegrationException te = new IntegrationException(message);
+		te.setExceptionType(IntegrationException.TRANSACTION_EXCEPTION);
+		te.setMessageCode("message.payment.declined");
+		te.setErrorCode(IntegrationException.TRANSACTION_EXCEPTION);
+		return te;
 	}
 
 	@Override

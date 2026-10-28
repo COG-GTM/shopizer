@@ -27,10 +27,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.services.catalog.pricing.PricingService;
 import com.salesmanager.core.business.services.customer.CustomerService;
 import com.salesmanager.core.business.services.order.OrderService;
 import com.salesmanager.core.business.services.payments.PaymentService;
+import com.salesmanager.core.business.services.shipping.ShippingQuoteService;
 import com.salesmanager.core.business.services.shoppingcart.ShoppingCartService;
 import com.salesmanager.core.model.customer.Customer;
 import com.salesmanager.core.model.merchant.MerchantStore;
@@ -38,6 +40,8 @@ import com.salesmanager.core.model.payments.Payment;
 import com.salesmanager.core.model.payments.Transaction;
 import com.salesmanager.core.model.payments.TransactionType;
 import com.salesmanager.core.model.reference.language.Language;
+import com.salesmanager.core.model.shipping.Quote;
+import com.salesmanager.core.model.shipping.ShippingSummary;
 import com.salesmanager.core.model.shoppingcart.ShoppingCart;
 import com.salesmanager.shop.constants.Constants;
 import com.salesmanager.shop.model.order.transaction.PersistablePayment;
@@ -46,6 +50,7 @@ import com.salesmanager.shop.model.order.v0.ReadableOrderList;
 import com.salesmanager.shop.populator.order.transaction.PersistablePaymentPopulator;
 import com.salesmanager.shop.populator.order.transaction.ReadableTransactionPopulator;
 import com.salesmanager.shop.store.api.exception.ResourceNotFoundException;
+import com.salesmanager.shop.store.api.exception.RestApiException;
 import com.salesmanager.shop.store.controller.order.facade.OrderFacade;
 import com.salesmanager.shop.utils.AuthorizationUtils;
 
@@ -64,6 +69,8 @@ public class OrderPaymentApi {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(OrderPaymentApi.class);
 
+	private static final String INVALID_PAYMENT_INIT = "400";
+
 	@Inject
 	private CustomerService customerService;
 
@@ -78,6 +85,9 @@ public class OrderPaymentApi {
 
 	@Inject
 	private PaymentService paymentService;
+
+	@Inject
+	private ShippingQuoteService shippingQuoteService;
 
 	@Inject
 	private OrderFacade orderFacade;
@@ -97,14 +107,7 @@ public class OrderPaymentApi {
 			throw new ResourceNotFoundException("Cart code " + code + " does not exist");
 		}
 
-		PersistablePaymentPopulator populator = new PersistablePaymentPopulator();
-		populator.setPricingService(pricingService);
-
-		Payment paymentModel = new Payment();
-
-		populator.populate(payment, paymentModel, merchantStore, language);
-
-		Transaction transactionModel = paymentService.initTransaction(null, paymentModel, merchantStore);
+		Transaction transactionModel = initCartTransaction(null, cart, payment, merchantStore, language);
 
 		ReadableTransaction transaction = new ReadableTransaction();
 		ReadableTransactionPopulator trxPopulator = new ReadableTransactionPopulator();
@@ -152,14 +155,7 @@ public class OrderPaymentApi {
 				return null;
 			}
 
-			PersistablePaymentPopulator populator = new PersistablePaymentPopulator();
-			populator.setPricingService(pricingService);
-
-			Payment paymentModel = new Payment();
-
-			populator.populate(payment, paymentModel, merchantStore, language);
-
-			Transaction transactionModel = paymentService.initTransaction(customer, paymentModel, merchantStore);
+			Transaction transactionModel = initCartTransaction(customer, cart, payment, merchantStore, language);
 
 			ReadableTransaction transaction = new ReadableTransaction();
 			ReadableTransactionPopulator trxPopulator = new ReadableTransactionPopulator();
@@ -170,6 +166,8 @@ public class OrderPaymentApi {
 
 			return transaction;
 
+		} catch (RestApiException e) {
+			throw e;
 		} catch (Exception e) {
 			LOGGER.error("Error while initializing the payment", e);
 			try {
@@ -177,6 +175,36 @@ public class OrderPaymentApi {
 			} catch (Exception ignore) {
 			}
 			return null;
+		}
+	}
+
+	private Transaction initCartTransaction(Customer customer, ShoppingCart cart, PersistablePayment payment,
+			MerchantStore merchantStore, Language language) throws Exception {
+
+		PersistablePaymentPopulator populator = new PersistablePaymentPopulator();
+		populator.setPricingService(pricingService);
+
+		Payment paymentModel = new Payment();
+
+		populator.populate(payment, paymentModel, merchantStore, language);
+
+		ShippingSummary shippingSummary = null;
+		if (payment.getShippingQuote() != null) {
+			Quote quote = shippingQuoteService.getById(payment.getShippingQuote());
+			if (quote == null || quote.getCartId() == null || !quote.getCartId().equals(cart.getId())) {
+				throw new RestApiException(INVALID_PAYMENT_INIT,
+						"Shipping quote " + payment.getShippingQuote() + " does not belong to cart " + cart.getShoppingCartCode());
+			}
+			shippingSummary = shippingQuoteService.getShippingSummary(quote.getId(), merchantStore);
+		}
+
+		try {
+			return paymentService.initTransaction(customer, cart, shippingSummary, paymentModel, merchantStore, language);
+		} catch (ServiceException e) {
+			if (e.getExceptionType() == ServiceException.EXCEPTION_VALIDATION) {
+				throw new RestApiException(INVALID_PAYMENT_INIT, e.getMessage());
+			}
+			throw e;
 		}
 	}
 

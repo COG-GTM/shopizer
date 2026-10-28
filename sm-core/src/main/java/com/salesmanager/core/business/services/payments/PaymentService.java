@@ -12,6 +12,9 @@ import com.salesmanager.core.model.payments.CreditCardType;
 import com.salesmanager.core.model.payments.Payment;
 import com.salesmanager.core.model.payments.PaymentMethod;
 import com.salesmanager.core.model.payments.Transaction;
+import com.salesmanager.core.model.reference.language.Language;
+import com.salesmanager.core.model.shipping.ShippingSummary;
+import com.salesmanager.core.model.shoppingcart.ShoppingCart;
 import com.salesmanager.core.model.shoppingcart.ShoppingCartItem;
 import com.salesmanager.core.model.system.IntegrationConfiguration;
 import com.salesmanager.core.model.system.IntegrationModule;
@@ -97,14 +100,19 @@ public interface PaymentService {
 	Transaction initTransaction(Order order, Customer customer, Payment payment, MerchantStore store) throws ServiceException;
 	
 	/**
-	 * Initializes a transaction without an order
-	 * @param order
-	 * @param customer
+	 * Initializes a transaction for a shopping cart before an order exists.
+	 * The amount sent to the payment module is the cart total calculated
+	 * server side (including the optional shipping summary); a client supplied
+	 * payment amount that does not match is rejected.
+	 * @param customer may be null for anonymous carts
+	 * @param cart
+	 * @param shippingSummary may be null
 	 * @param payment
 	 * @param store
+	 * @param language
 	 * @return Transaction
 	 */
-	Transaction initTransaction(Customer customer, Payment payment, MerchantStore store) throws ServiceException;
+	Transaction initTransaction(Customer customer, ShoppingCart cart, ShippingSummary shippingSummary, Payment payment, MerchantStore store, Language language) throws ServiceException;
 
 	List<PaymentMethod> getAcceptedPaymentMethods(MerchantStore store)
 			throws ServiceException;

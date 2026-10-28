@@ -3,6 +3,7 @@ package com.salesmanager.shop.populator.order.transaction;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 import com.salesmanager.core.business.exception.ConversionException;
@@ -34,10 +35,14 @@ public class PersistablePaymentPopulator extends AbstractDataPopulator<Persistab
 		
 		try {
 		
-			target.setAmount(pricingService.getAmount(source.getAmount()));
+			if(!StringUtils.isBlank(source.getAmount())) {
+				target.setAmount(pricingService.getAmount(source.getAmount()));
+			}
 			target.setModuleName(source.getPaymentModule());
 			target.setPaymentType(PaymentType.valueOf(source.getPaymentType()));
-			target.setTransactionType(TransactionType.valueOf(source.getTransactionType()));
+			if(!StringUtils.isBlank(source.getTransactionType())) {
+				target.setTransactionType(TransactionType.valueOf(source.getTransactionType()));
+			}
 			
 			Map<String,String> metadata = new HashMap<String,String>();
 			metadata.put("paymentToken", source.getPaymentToken());
