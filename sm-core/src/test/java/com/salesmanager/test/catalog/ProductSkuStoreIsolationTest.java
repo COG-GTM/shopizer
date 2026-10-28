@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.sql.Date;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,7 +14,9 @@ import org.junit.Test;
 
 import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.model.catalog.product.Product;
+import com.salesmanager.core.model.catalog.product.availability.ProductAvailability;
 import com.salesmanager.core.model.catalog.product.description.ProductDescription;
+import com.salesmanager.core.model.catalog.product.price.ProductPrice;
 import com.salesmanager.core.model.catalog.product.type.ProductType;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
@@ -96,6 +99,17 @@ public class ProductSkuStoreIsolationTest extends com.salesmanager.test.common.A
 		description.setLanguage(en);
 		description.setProduct(product);
 		product.getDescriptions().add(description);
+
+		ProductAvailability availability = new ProductAvailability();
+		availability.setProduct(product);
+		availability.setRegion("*");
+		availability.setProductQuantity(10);
+		ProductPrice price = new ProductPrice();
+		price.setDefaultPrice(true);
+		price.setProductPriceAmount(BigDecimal.TEN);
+		price.setProductAvailability(availability);
+		availability.getPrices().add(price);
+		product.getAvailabilities().add(availability);
 
 		productService.saveProduct(product);
 		return product;
