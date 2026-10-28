@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -16,10 +17,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.salesmanager.core.business.services.system.MerchantConfigurationService;
+import com.salesmanager.core.model.system.MerchantConfiguration;
+import com.salesmanager.core.business.constants.Constants;
 import com.salesmanager.test.shop.common.SkuStoreTestSupport;
 
 @RunWith(SpringRunner.class)
 public class StorefrontContractJourneyTest extends SkuStoreTestSupport {
+
+	@Autowired
+	private MerchantConfigurationService configurationService;
 
 	@Test
 	public void healthAndSpringfoxDocumentsRemainAvailable() {
@@ -55,7 +62,7 @@ public class StorefrontContractJourneyTest extends SkuStoreTestSupport {
 	}
 
 	@Test
-	public void customerRegistersAuthenticatesChecksOutAndReadsTheirOrder() {
+	public void customerRegistersAuthenticatesChecksOutAndReadsTheirOrder() throws Exception {
 		String email = "upgrade_" + UUID.randomUUID().toString().replace("-", "").substring(0, 12) + "@example.test";
 		Map<String, String> address = Map.of("firstName", "Upgrade", "lastName", "Test", "country", "CA",
 				"zone", "QC", "city", "Montreal", "postalCode", "H2X1Y4", "address", "123 Test Street",
@@ -70,19 +77,36 @@ public class StorefrontContractJourneyTest extends SkuStoreTestSupport {
 		customer.setBearerAuth(login.path("token").asText());
 		assertEquals(email, get("/api/v1/auth/customer/profile", customer).path("emailAddress").asText());
 
-		post("/api/v1/private/modules/payment", Map.of("code", "moneyorder", "active", true,
-				"defaultSelected", true, "integrationKeys", Map.of("address", "Test fixture only",
-						"transaction", "AUTHORIZECAPTURE")), getHeader(), HttpStatus.OK);
-		JsonNode cart = post("/api/v1/cart", Map.of("product", sharedSku, "quantity", 1),
-				new HttpHeaders(), HttpStatus.CREATED);
-		assertEquals(defaultProduct.getId().longValue(), cart.path("products").get(0).path("id").asLong());
-		JsonNode order = post("/api/v1/auth/cart/" + cart.path("code").asText() + "/checkout",
-				Map.of("currency", "CAD", "customerAgreement", true, "payment", Map.of("paymentModule", "moneyorder",
-						"paymentType", "MONEYORDER", "transactionType", "AUTHORIZECAPTURE",
-						"amount", cart.path("total").asText())), customer, HttpStatus.OK);
-		assertTrue(order.path("id").isIntegralNumber());
-		assertEquals(order.path("id").asLong(),
-				get("/api/v1/auth/orders/" + order.path("id").asText(), customer).path("id").asLong());
+		MerchantConfiguration previous = configurationService.getMerchantConfiguration(Constants.PAYMENT_MODULES, defaultStore);
+		String previousValue = previous == null ? null : previous.getValue();
+		try {
+			post("/api/v1/private/modules/payment", Map.of("code", "moneyorder", "active", true,
+					"defaultSelected", true, "integrationKeys", Map.of("address", "Test fixture only",
+							"transaction", "AUTHORIZECAPTURE")), getHeader(), HttpStatus.OK);
+			JsonNode cart = post("/api/v1/cart", Map.of("product", sharedSku, "quantity", 1),
+					new HttpHeaders(), HttpStatus.CREATED);
+			assertEquals(defaultProduct.getId().longValue(), cart.path("products").get(0).path("id").asLong());
+			JsonNode order = post("/api/v1/auth/cart/" + cart.path("code").asText() + "/checkout",
+					Map.of("currency", "CAD", "customerAgreement", true, "payment", Map.of("paymentModule", "moneyorder",
+							"paymentType", "MONEYORDER", "transactionType", "AUTHORIZECAPTURE",
+							"amount", cart.path("total").asText())), customer, HttpStatus.OK);
+			assertTrue(order.path("id").isIntegralNumber());
+			assertEquals(order.path("id").asLong(),
+					get("/api/v1/auth/orders/" + order.path("id").asText(), customer).path("id").asLong());
+		} finally {
+			if (previous == null) {
+				MerchantConfiguration created = configurationService.getMerchantConfiguration(Constants.PAYMENT_MODULES, defaultStore);
+				if (created != null) {
+					configurationService.delete(created);
+				}
+			} else {
+				previous.setValue(previousValue);
+				configurationService.saveOrUpdate(previous);
+			}
+			MerchantConfiguration restored = configurationService.getMerchantConfiguration(Constants.PAYMENT_MODULES, defaultStore);
+			assertTrue("Payment settings must be restored", previous == null ? restored == null
+					: restored != null && java.util.Objects.equals(previousValue, restored.getValue()));
+		}
 	}
 
 	private JsonNode get(String path, HttpHeaders headers) {

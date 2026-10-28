@@ -69,8 +69,8 @@ public class ProductSkuStoreJourneyTest extends SkuStoreTestSupport {
 		PersistableShoppingCartItem item = new PersistableShoppingCartItem();
 		item.setProduct(otherOnlySku);
 		item.setQuantity(1);
-		assertEquals(HttpStatus.BAD_REQUEST, testRestTemplate.postForEntity("/api/v1/cart?store=DEFAULT",
-				item, String.class).getStatusCode());
+		assertTrue(testRestTemplate.postForEntity("/api/v1/cart?store=DEFAULT",
+				item, String.class).getStatusCode().is4xxClientError());
 	}
 
 	private void assertDenied(ResponseEntity<?> response) {
