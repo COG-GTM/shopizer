@@ -3,10 +3,13 @@ package com.salesmanager.core.business.modules.integration.payment.impl;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -51,6 +54,9 @@ public class Stripe3Payment implements PaymentModule {
 
 	static final String STATUS_REQUIRES_CAPTURE = "requires_capture";
 	static final String STATUS_SUCCEEDED = "succeeded";
+
+	// zero-decimal in ISO 4217 but represented with two decimals by Stripe
+	private static final Set<String> STRIPE_TWO_DECIMAL_CURRENCIES = new HashSet<>(Arrays.asList("ISK", "UGX"));
 
 
 	@Override
@@ -465,7 +471,10 @@ public class Stripe3Payment implements PaymentModule {
 			te.setErrorCode(IntegrationException.TRANSACTION_EXCEPTION);
 			throw te;
 		}
-		int fractionDigits = Math.max(store.getCurrency().getCurrency().getDefaultFractionDigits(), 0);
+		String currencyCode = store.getCurrency().getCode();
+		int fractionDigits = STRIPE_TWO_DECIMAL_CURRENCIES.contains(currencyCode.toUpperCase())
+				? 2
+				: Math.max(store.getCurrency().getCurrency().getDefaultFractionDigits(), 0);
 		return amount.movePointRight(fractionDigits).setScale(0, RoundingMode.HALF_UP).longValueExact();
 	}
 

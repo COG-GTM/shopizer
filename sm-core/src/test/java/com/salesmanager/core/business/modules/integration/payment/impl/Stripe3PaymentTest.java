@@ -134,6 +134,17 @@ public class Stripe3PaymentTest {
 		MerchantStore yenStore = new MerchantStore();
 		yenStore.setCurrency(yen);
 		assertEquals(900L, Stripe3Payment.toStripeAmount(new BigDecimal("900"), yenStore));
+
+		assertEquals(50000L, Stripe3Payment.toStripeAmount(new BigDecimal("500"), storeWithCurrency("ISK")));
+		assertEquals(50000L, Stripe3Payment.toStripeAmount(new BigDecimal("500"), storeWithCurrency("UGX")));
+	}
+
+	private static MerchantStore storeWithCurrency(String code) {
+		Currency currency = new Currency();
+		currency.setCurrency(java.util.Currency.getInstance(code));
+		MerchantStore merchantStore = new MerchantStore();
+		merchantStore.setCurrency(currency);
+		return merchantStore;
 	}
 
 	@Test(expected = IntegrationException.class)

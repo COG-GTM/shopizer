@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.StringUtils;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -193,7 +194,7 @@ public class OrderPaymentApi {
 
 	/**
 	 * The init amount comes from the client. Shipping and customer taxes are only known at
-	 * checkout, so the amount can't be lower than the server side cart sub total. The
+	 * checkout, so the amount can't be lower than the server side (discounted) cart total. The
 	 * payment module re-checks the authorized amount against the order total at checkout.
 	 */
 	private void validateInitAmount(Payment payment, ShoppingCart cart, MerchantStore store, Language language)
@@ -209,12 +210,22 @@ public class OrderPaymentApi {
 
 		OrderSummary summary = new OrderSummary();
 		summary.setProducts(new ArrayList<>(cart.getLineItems()));
+		// same promo validity rule as checkout (promo valid 1 day)
+		if (!StringUtils.isBlank(cart.getPromoCode()) && cart.getPromoAdded() != null
+				&& cart.getPromoAdded().toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+						.isBefore(LocalDate.now().plusDays(1))) {
+			summary.setPromoCode(cart.getPromoCode());
+		}
 		OrderTotalSummary totals = orderService.caculateOrderTotal(summary, store, language);
-		BigDecimal cartSubTotal = totals.getSubTotal();
 
-		if (cartSubTotal != null && amount.compareTo(cartSubTotal) < 0) {
+		BigDecimal minimum = totals.getSubTotal();
+		if (totals.getTotal() != null && (minimum == null || totals.getTotal().compareTo(minimum) < 0)) {
+			minimum = totals.getTotal(); // discount applied
+		}
+
+		if (minimum != null && amount.compareTo(minimum) < 0) {
 			throw new ConversionRuntimeException("Payment.amount " + amount.toPlainString()
-					+ " is lower than the cart total " + cartSubTotal.toPlainString());
+					+ " is lower than the cart total " + minimum.toPlainString());
 		}
 	}
 
