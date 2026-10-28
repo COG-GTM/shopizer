@@ -3,10 +3,6 @@
  */
 package com.salesmanager.shop.store.controller.shoppingCart.facade;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -37,6 +33,7 @@ import com.salesmanager.core.business.services.catalog.product.ProductService;
 import com.salesmanager.core.business.services.catalog.product.attribute.ProductAttributeService;
 import com.salesmanager.core.business.services.shoppingcart.ShoppingCartCalculationService;
 import com.salesmanager.core.business.services.shoppingcart.ShoppingCartService;
+import com.salesmanager.core.business.utils.PromoCodeUtils;
 //import com.salesmanager.core.business.utils.ProductPriceUtils;
 import com.salesmanager.core.model.catalog.product.Product;
 import com.salesmanager.core.model.catalog.product.attribute.ProductAttribute;
@@ -928,8 +925,10 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 
 		// if cart items are null just return cart with no items
 
-		// promo code added to the cart but no promo cart exists
-		if (!StringUtils.isBlank(item.getPromoCode()) && StringUtils.isBlank(cartModel.getPromoCode())) {
+		// promo code submitted and the cart has no active promo code
+		if (!StringUtils.isBlank(item.getPromoCode())
+				&& (StringUtils.isBlank(cartModel.getPromoCode())
+						|| !PromoCodeUtils.isPromoCodeActive(cartModel.getPromoAdded()))) {
 			cartModel.setPromoCode(item.getPromoCode());
 			cartModel.setPromoAdded(new Date());
 		}
@@ -1114,16 +1113,7 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 			readableCart = readableShoppingCartMapper.convert(cart, store, language);
 
 			if (!StringUtils.isBlank(cart.getPromoCode())) {
-				Date promoDateAdded = cart.getPromoAdded();// promo valid 1 day
-				if (promoDateAdded == null) {
-					promoDateAdded = new Date();
-				}
-				Instant instant = promoDateAdded.toInstant();
-				ZonedDateTime zdt = instant.atZone(ZoneId.systemDefault());
-				LocalDate date = zdt.toLocalDate();
-				// date added < date + 1 day
-				LocalDate tomorrow = LocalDate.now().plusDays(1);
-				if (date.isBefore(tomorrow)) {
+				if (PromoCodeUtils.isPromoCodeActive(cart.getPromoAdded())) {
 					readableCart.setPromoCode(cart.getPromoCode());
 				}
 			}
