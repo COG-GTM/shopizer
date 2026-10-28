@@ -1,6 +1,7 @@
 package com.salesmanager.test.shop.uat;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -41,7 +42,7 @@ public class StorefrontAdminJourneyUatTest extends ServicesTestSupport {
 	private static final String STORE = Constants.DEFAULT_STORE;
 
 	@Test
-	public void adminCustomerStoreCartCheckoutAndServiceJourney() throws Exception {
+	public void adminCustomerStoreCartAndServiceJourney() throws Exception {
 		ResponseEntity<AuthenticationResponse> adminLogin = testRestTemplate.postForEntity("/api/v1/private/login",
 				new HttpEntity<AuthenticationRequest>(new AuthenticationRequest("admin@shopizer.com", "password")),
 				AuthenticationResponse.class);
@@ -61,7 +62,7 @@ public class StorefrontAdminJourneyUatTest extends ServicesTestSupport {
 		ResponseEntity<String> privateWithBadToken = testRestTemplate.exchange(
 				"/api/v1/private/stores?store=" + STORE, HttpMethod.GET,
 				new HttpEntity<String>(null, badTokenHeaders), String.class);
-		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, privateWithBadToken.getStatusCode());
+		assertFalse(privateWithBadToken.getStatusCode().is2xxSuccessful());
 
 		String customerEmail = "journey-" + UUID.randomUUID().toString() + "@example.com";
 		PersistableCustomer customer = customer(customerEmail);

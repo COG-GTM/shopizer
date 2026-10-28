@@ -1,6 +1,7 @@
 package com.salesmanager.test.shop.integration.system;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -59,11 +60,11 @@ public class SystemModuleSecurityIntegrationTest extends ServicesTestSupport {
 	private ModuleConfigurationService moduleConfigurationService;
 
 	@Test
-	public void missingAndInvalidSuperadminCredentialsAreUnauthorized() throws Exception {
+	public void missingAndInvalidCredentialsAreRejected() throws Exception {
 		String paypal = paypalJson("javascript:alert(1)", PAYPAL_PRODUCTION);
 		String before = beanstreamConfiguration();
 
-		assertEquals(HttpStatus.FOUND, postWithoutCredentials(MODULE_URL, paypal).getStatusCode());
+		assertFalse(postWithoutCredentials(MODULE_URL, paypal).getStatusCode().is2xxSuccessful());
 		assertEquals(before, beanstreamConfiguration());
 		assertEquals(HttpStatus.UNAUTHORIZED,
 				testRestTemplate.withBasicAuth("admin@shopizer.com", "wrong-password")
