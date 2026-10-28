@@ -56,6 +56,7 @@ import com.salesmanager.shop.model.user.UserPassword;
 import com.salesmanager.shop.populator.user.PersistableUserPopulator;
 import com.salesmanager.shop.populator.user.ReadableUserPopulator;
 import com.salesmanager.shop.store.api.exception.ConversionRuntimeException;
+import com.salesmanager.shop.store.api.exception.ForbiddenException;
 import com.salesmanager.shop.store.api.exception.GenericRuntimeException;
 import com.salesmanager.shop.store.api.exception.OperationNotAllowedException;
 import com.salesmanager.shop.store.api.exception.ResourceNotFoundException;
@@ -121,6 +122,9 @@ public class UserFacadeImpl implements UserFacade {
 
 	@Inject
 	private PasswordEncoder passwordEncoder;
+
+	@Inject
+	private PasswordChangeAttemptLimiter passwordChangeAttemptLimiter;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserFacadeImpl.class);
 
@@ -481,33 +485,28 @@ public class UserFacadeImpl implements UserFacade {
 		Validate.notNull(changePassword.getPassword(), "Original password request must not be null");
 		Validate.notNull(changePassword.getChangePassword(), "New password request must not be null");
 
-		/**
-		 * Only admin and superadmin can change other user password
-		 */
-		User auth = null;
 		try {
-			auth = userService.getByUserName(authenticatedUser);
+			User auth = userService.getByUserName(authenticatedUser);
 
 			if (auth == null) {
-				throw new ServiceRuntimeException("Cannot find user [" + authenticatedUser + "]");
+				throw new UnauthorizedException("Cannot find user [" + authenticatedUser + "]");
 			}
 
 			User userModel = userService.getById(userId);
 			if (userModel == null) {
-				throw new ServiceRuntimeException("Cannot find user [" + userId + "]");
+				throw new ResourceNotFoundException("Cannot find user [" + userId + "]");
 			}
 
-			/**
-			 * need to validate if actual password match
-			 */
+			authorizePasswordChange(auth, userModel);
+
+			passwordChangeAttemptLimiter.checkAllowed(userModel.getId());
 
 			if (!securityFacade.matchPassword(userModel.getAdminPassword(), changePassword.getPassword())) {
+				passwordChangeAttemptLimiter.recordFailure(userModel.getId());
 				throw new ServiceRuntimeException("Actual password does not match for user [" + userId + "]");
 			}
+			passwordChangeAttemptLimiter.reset(userModel.getId());
 
-			/**
-			 * Validate new password
-			 */
 			if (!securityFacade.validateUserPassword(changePassword.getChangePassword())) {
 				throw new ServiceRuntimeException("New password does not apply to format policy");
 			}
@@ -522,6 +521,43 @@ public class UserFacadeImpl implements UserFacade {
 			throw new ServiceRuntimeException(e);
 		}
 
+	}
+
+	/**
+	 * A user may change their own password. Superadmin may change any password;
+	 * an admin may change passwords of non-superadmin users of their store or of
+	 * its child stores.
+	 */
+	private void authorizePasswordChange(User auth, User target) {
+		if (auth.getId() != null && auth.getId().equals(target.getId())) {
+			return;
+		}
+		if (hasGroup(auth, Constants.GROUP_SUPERADMIN)) {
+			return;
+		}
+		if (!hasGroup(target, Constants.GROUP_SUPERADMIN)
+				&& (hasGroup(auth, Constants.GROUP_ADMIN) || hasGroup(auth, Constants.GROUP_ADMIN_RETAIL))
+				&& managesStore(auth.getMerchantStore(), target.getMerchantStore())) {
+			return;
+		}
+		throw new ForbiddenException(
+				"User [" + auth.getAdminName() + "] is not allowed to change password of user [" + target.getId() + "]");
+	}
+
+	private boolean hasGroup(User user, String groupName) {
+		return user.getGroups() != null
+				&& user.getGroups().stream().anyMatch(group -> groupName.equals(group.getGroupName()));
+	}
+
+	private boolean managesStore(MerchantStore adminStore, MerchantStore targetStore) {
+		if (adminStore == null || targetStore == null || adminStore.getCode() == null) {
+			return false;
+		}
+		if (adminStore.getCode().equals(targetStore.getCode())) {
+			return true;
+		}
+		MerchantStore parent = targetStore.getParent();
+		return parent != null && adminStore.getCode().equals(parent.getCode());
 	}
 
 	@Override
