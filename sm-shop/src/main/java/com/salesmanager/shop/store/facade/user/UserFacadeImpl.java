@@ -639,7 +639,7 @@ public class UserFacadeImpl implements UserFacade {
 						"User with id [" + user.getId() + "] not found for store [" + store.getCode() + "]");
 			}
 
-			if (isSuperadmin(modelUser) && !userInRoles(null, Arrays.asList(Constants.GROUP_SUPERADMIN))) {
+			if (isSuperadmin(modelUser) && !userInRoles(authenticatedUser(), Arrays.asList(Constants.GROUP_SUPERADMIN))) {
 				throw new UnauthorizedException("Only a superadmin can change the enabled flag of a superadmin user");
 			}
 
