@@ -854,12 +854,14 @@ public class UserFacadeImpl implements UserFacade {
 		Validate.notNull(password, "New password cannot be null");
 
 		User user = verifyUserLink(token, store);// reverify
-		user.setAdminPassword(passwordEncoder.encode(password));
-		
+		boolean reset;
 		try {
-			userService.save(user);
+			reset = userService.resetPassword(user, token, passwordEncoder.encode(password));
 		} catch (ServiceException e) {
 			throw new ServiceRuntimeException("Error while saving user",e);
+		}
+		if (!reset) {
+			throw new GenericRuntimeException("Token [" + token + "] has already been used");
 		}
 
 	}
@@ -876,6 +878,10 @@ public class UserFacadeImpl implements UserFacade {
 
 		} catch (Exception e) {
 			throw new ServiceRuntimeException("Cannot verify customer token", e);
+		}
+
+		if (user.getCredentialsResetRequest() == null) {
+			throw new GenericRuntimeException("No reset request found for token [" + token + "]");
 		}
 
 		Date tokenExpiry = user.getCredentialsResetRequest().getCredentialsRequestExpiry();
