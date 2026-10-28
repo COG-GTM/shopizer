@@ -82,6 +82,7 @@ public class ProductVariationFacadeImpl implements ProductVariationFacade {
 			throw new OperationNotAllowedException("Option set with code [" + var.getCode() + "] already exist");
 		}
 		
+		var.setId(null);
 		ProductVariation p = persistableProductVariationMapper.convert(var, store, language);
 		p.setMerchantStore(store);
 		try {
@@ -108,6 +109,7 @@ public class ProductVariationFacadeImpl implements ProductVariationFacade {
 		
 		ProductVariation productVariant = p.get();
 		
+		var.setId(variationId);
 		productVariant.setId(variationId);
 		productVariant.setCode(var.getCode());
 		ProductVariation model = persistableProductVariationMapper.merge(var, productVariant, store, language);

@@ -101,6 +101,7 @@ public class ProductApiV2 {
 			@ApiIgnore MerchantStore merchantStore, 
 			@ApiIgnore Language language) {
 
+		product.setId(null);
 		Long id = productCommonFacade.saveProduct(merchantStore, product, language);
 		Entity returnEntity = new Entity();
 		returnEntity.setId(id);
