@@ -1,6 +1,9 @@
 package com.salesmanager.shop.application.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
+import org.springframework.boot.actuate.health.HealthEndpoint;
+import org.springframework.boot.actuate.info.InfoEndpoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -275,6 +278,30 @@ public class MultipleEntryPointsSecurityConfig {
 
 	}
 	**/
+
+	/**
+	 * actuator - only health and info are public, every other endpoint is denied
+	 */
+	@Configuration
+	@Order(4)
+	public static class ActuatorConfigurationAdapter extends WebSecurityConfigurerAdapter {
+
+		public ActuatorConfigurationAdapter() {
+			super();
+		}
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+					.requestMatcher(EndpointRequest.toAnyEndpoint())
+					.authorizeRequests()
+					.requestMatchers(EndpointRequest.to(HealthEndpoint.class, InfoEndpoint.class)).permitAll()
+					.anyRequest().denyAll()
+					.and()
+					.csrf().disable();
+		}
+
+	}
 
 	/**
 	 * api - private

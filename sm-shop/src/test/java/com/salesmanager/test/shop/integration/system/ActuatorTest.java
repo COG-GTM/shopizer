@@ -41,4 +41,15 @@ public class ActuatorTest {
 	      }
 	  }
 
+	  @Test
+	  public void testSensitiveEndpointsNotAccessibleAnonymously() throws Exception {
+		  for (String endpoint : new String[] {"/actuator/heapdump", "/actuator/env", "/actuator/beans",
+				  "/actuator/mappings", "/actuator/threaddump", "/actuator/loggers", "/actuator/configprops"}) {
+			  final ResponseEntity<String> response = testRestTemplate.getForEntity(endpoint, String.class);
+			  if (response.getStatusCode().is2xxSuccessful()) {
+				  throw new Exception(endpoint + " is accessible anonymously: " + response.getStatusCode());
+			  }
+		  }
+	  }
+
 }
