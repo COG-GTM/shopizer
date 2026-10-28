@@ -14,6 +14,7 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -220,7 +221,8 @@ public class MerchantStoreApi {
 		
 		userFacade.authorizedGroup(authenticatedUser, Stream.of("SUPERADMIN", "ADMIN_RETAILER").collect(Collectors.toList()));
 
-		
+		validateRetailerStore(authenticatedUser, store, null);
+
 		storeFacade.create(store);
 	}
 
@@ -233,7 +235,32 @@ public class MerchantStoreApi {
 		String userName = getUserFromRequest(request);
 		validateUserPermission(userName, code);
 		store.setCode(code);
+		validateRetailerStore(userName, store, storeFacade.getByCode(code));
 		storeFacade.update(store);
+	}
+
+	/**
+	 * Only superadmins can attach a store to an arbitrary parent (retailer)
+	 * store. Other users may only keep the existing parent or, when creating
+	 * a store, attach it to a store they administer.
+	 */
+	private void validateRetailerStore(String userName, PersistableMerchantStore store, MerchantStore existing) {
+		String retailerStore = store.getRetailerStore();
+		if (StringUtils.isBlank(retailerStore)) {
+			return;
+		}
+		if (userFacade.userInRoles(userName, Arrays.asList(Constants.GROUP_SUPERADMIN))) {
+			return;
+		}
+		if (existing != null) {
+			if (existing.getParent() != null && retailerStore.equals(existing.getParent().getCode())) {
+				return;
+			}
+		} else if (userFacade.authorizedStore(userName, retailerStore)) {
+			return;
+		}
+		throw new UnauthorizedException(
+				"User " + userName + " not authorized to set parent store [" + retailerStore + "]");
 	}
 
 	private String getUserFromRequest(HttpServletRequest request) {
