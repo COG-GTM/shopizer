@@ -53,6 +53,8 @@ public class StoreHierarchyAuthorizationIntegrationTest extends ServicesTestSupp
 
     @Before
     public void createHierarchyOnce() {
+        // PageableMerchantRepository.listByStore uses an unqualified MERCHANT_STORE native query (no {h-schema}),
+        // which fails on the H2 test schema SALESMANAGER for non-superadmin /private/stores calls.
         jdbcTemplate.execute(
                 "CREATE VIEW IF NOT EXISTS PUBLIC.MERCHANT_STORE AS SELECT * FROM SALESMANAGER.MERCHANT_STORE");
         if (setupComplete) {
