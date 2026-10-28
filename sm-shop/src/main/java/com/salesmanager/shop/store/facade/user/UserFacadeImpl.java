@@ -689,24 +689,9 @@ public class UserFacadeImpl implements UserFacade {
 					}
 				}
 
-				boolean authorized = false;
-
 				// user store can be parent and requested store is child
-				// get parent
-				// TODO CACHE
-				MerchantStore parent = null;
-						
-				if(store.getParent()!=null) {
-					parent=merchantStoreService.getParent(merchant);
-				}
-
-				// user can be in parent
-				if (parent != null && parent.getCode().equals(store.getCode())) {
-					authorized = true;
-				}
-
-				// else false
-				return authorized;
+				MerchantStore parent = store.getParent();
+				return parent != null && parent.getCode().equals(merchant);
 			} catch (Exception e) {
 				throw new UnauthorizedException("Cannot authorize user " + authentication.getPrincipal().toString()
 						+ " for store " + store.getCode(), e.getMessage());
