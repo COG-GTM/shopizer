@@ -84,7 +84,7 @@ public class StripeRequestApiKeyTest {
 		module.authorizeAndCapture(store, null, null, new BigDecimal("10.00"), payment("pi_1"), config, null);
 		module.refund(false, store, transaction("pi_1"), order(), new BigDecimal("10.00"), config, null);
 
-		assertOnlyKey(ACME_KEY, 9);
+		assertOnlyKey(ACME_KEY, 8);
 	}
 
 	@Test
