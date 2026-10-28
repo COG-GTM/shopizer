@@ -19,6 +19,7 @@ import com.salesmanager.core.business.services.catalog.product.variant.ProductVa
 import com.salesmanager.core.business.services.catalog.product.variant.ProductVariantImageService;
 import com.salesmanager.core.business.services.catalog.product.variant.ProductVariantService;
 import com.salesmanager.core.business.services.content.ContentService;
+import com.salesmanager.core.business.utils.FileNameValidator;
 import com.salesmanager.core.model.catalog.product.variant.ProductVariantImage;
 import com.salesmanager.core.model.catalog.product.variant.ProductVariant;
 import com.salesmanager.core.model.catalog.product.variant.ProductVariantGroup;
@@ -154,6 +155,9 @@ public class ProductVariantGroupFacadeImpl implements ProductVariantGroupFacade 
 		Validate.notNull(instanceGroupId,"productVariantGroupId must not be null");
 		Validate.notNull(image,"Image must not be null");
 		Validate.notNull(store,"MerchantStore must not be null");
+		if (!FileNameValidator.isSafeFileName(image.getOriginalFilename())) {
+			throw new ServiceRuntimeException("Invalid image file name");
+		}
 		//get option group
 		
 		ProductVariantGroup group = this.group(instanceGroupId, store);

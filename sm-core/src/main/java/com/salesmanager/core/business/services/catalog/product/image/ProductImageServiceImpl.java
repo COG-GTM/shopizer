@@ -20,6 +20,7 @@ import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.modules.cms.product.ProductFileManager;
 import com.salesmanager.core.business.repositories.catalog.product.image.ProductImageRepository;
 import com.salesmanager.core.business.services.common.generic.SalesManagerEntityServiceImpl;
+import com.salesmanager.core.business.utils.FileNameValidator;
 import com.salesmanager.core.model.catalog.product.Product;
 import com.salesmanager.core.model.catalog.product.file.ProductImageSize;
 import com.salesmanager.core.model.catalog.product.image.ProductImage;
@@ -84,6 +85,11 @@ public class ProductImageServiceImpl extends SalesManagerEntityServiceImpl<Long,
 		try {
 			if (productImage.getImageType() == 0) {
 				Assert.notNull(inputImage.getFile(), "ImageContentFile.file cannot be null");
+				if (!FileNameValidator.isSafeFileName(productImage.getProductImage())
+						|| !FileNameValidator.isSafeFileName(inputImage.getFileName())) {
+					throw new ServiceException(ServiceException.EXCEPTION_VALIDATION,
+							"Invalid product image file name", "message.image.invalid.name");
+				}
 				productFileManager.addProductImage(productImage, inputImage);
 			}
 
