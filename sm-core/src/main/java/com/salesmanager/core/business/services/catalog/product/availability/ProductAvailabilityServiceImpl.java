@@ -73,7 +73,7 @@ public class ProductAvailabilityServiceImpl extends SalesManagerEntityServiceImp
 	@Override
 	public Optional<ProductAvailability> getById(Long availabilityId, MerchantStore store) {
 		Validate.notNull(store, "Merchant must not be null");
-		return Optional.ofNullable(productAvailabilityRepository.getById(availabilityId));
+		return Optional.ofNullable(productAvailabilityRepository.getById(availabilityId, store.getId()));
 	}
 
 	@Override
