@@ -26,6 +26,7 @@ import com.salesmanager.core.model.catalog.product.availability.ProductAvailabil
 import com.salesmanager.core.model.catalog.product.manufacturer.Manufacturer;
 import com.salesmanager.core.model.catalog.product.price.ProductPrice;
 import com.salesmanager.core.model.catalog.product.review.ProductReview;
+import com.salesmanager.core.model.catalog.product.review.ProductReviewDescription;
 import com.salesmanager.core.model.catalog.product.variant.ProductVariant;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
@@ -312,7 +313,27 @@ public class ProductCommonFacadeImpl implements ProductCommonFacade {
 		if (review.getId() == null) {
 			productReviewService.create(rev);
 		} else {
-			productReviewService.update(rev);
+			ProductReview existing = productReviewService.getById(review.getId());
+			if (existing == null || !isStoreReview(existing, store)
+					|| !existing.getProduct().getId().equals(rev.getProduct().getId())
+					|| !existing.getCustomer().getId().equals(rev.getCustomer().getId())) {
+				throw new ServiceRuntimeException("Product review " + review.getId() + " cannot be updated");
+			}
+			existing.setReviewRating(rev.getReviewRating());
+			existing.setReviewDate(rev.getReviewDate());
+			for (ProductReviewDescription description : rev.getDescriptions()) {
+				ProductReviewDescription current = existing.getDescriptions().stream()
+						.filter(d -> d.getLanguage().getId().equals(description.getLanguage().getId()))
+						.findFirst().orElse(null);
+				if (current == null) {
+					description.setProductReview(existing);
+					existing.getDescriptions().add(description);
+				} else {
+					current.setDescription(description.getDescription());
+				}
+			}
+			productReviewService.update(existing);
+			rev = existing;
 		}
 
 		review.setId(rev.getId());
@@ -321,8 +342,18 @@ public class ProductCommonFacadeImpl implements ProductCommonFacade {
 
 	@Override
 	public void deleteReview(ProductReview review, MerchantStore store, Language language) throws Exception {
+		Validate.notNull(review, "ProductReview cannot be null");
+		Validate.notNull(store, "MerchantStore cannot be null");
+		if (!isStoreReview(review, store)) {
+			throw new ServiceRuntimeException("Product review " + review.getId() + " does not belong to store " + store.getCode());
+		}
 		productReviewService.delete(review);
 
+	}
+
+	private boolean isStoreReview(ProductReview review, MerchantStore store) {
+		return review.getProduct() != null && review.getProduct().getMerchantStore() != null
+				&& review.getProduct().getMerchantStore().getId().equals(store.getId());
 	}
 
 	@Override
