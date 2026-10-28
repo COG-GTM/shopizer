@@ -18,36 +18,23 @@ public class EmailComponent implements HtmlEmailSender {
 
   @Override
   public void send(Email email) throws Exception {
+    send(email, null);
+  }
+
+  @Override
+  public void send(Email email, EmailConfig emailConfig) throws Exception {
     switch(emailSender) 
     { 
         case "default": 
-          defaultEmailSender.send(email);
+          defaultEmailSender.send(email, emailConfig);
             break; 
         case "ses": 
-          sesEmailSender.send(email);
+          sesEmailSender.send(email, emailConfig);
             break; 
         default: 
             throw new Exception("No email implementation for " + emailSender); 
     }
     
   }
-
-  @Override
-  public void setEmailConfig(EmailConfig emailConfig) {
-    switch(emailSender) 
-    { 
-        case "default": 
-          defaultEmailSender.setEmailConfig(emailConfig);
-            break; 
-        case "ses": 
-          sesEmailSender.setEmailConfig(emailConfig);
-            break; 
-        default: 
- 
-    }
-    
-  }
-
-
 
 }

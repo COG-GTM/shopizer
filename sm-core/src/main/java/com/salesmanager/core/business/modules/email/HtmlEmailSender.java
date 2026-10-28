@@ -5,6 +5,9 @@ public interface HtmlEmailSender {
 	
 	void send(final Email email) throws Exception;
 
-	void setEmailConfig(EmailConfig emailConfig);
+	/**
+	 * Sends using the given per-store configuration, or the platform default when null.
+	 */
+	void send(final Email email, EmailConfig emailConfig) throws Exception;
 
 }

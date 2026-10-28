@@ -12,9 +12,16 @@ import com.salesmanager.core.business.modules.email.EmailConfig;
 import com.salesmanager.core.business.modules.email.HtmlEmailSender;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.system.MerchantConfiguration;
+import com.salesmanager.core.model.system.MerchantConfigurationType;
 
 @Service("emailService")
 public class EmailServiceImpl implements EmailService {
+
+	/**
+	 * Type written by {@link #saveEmailConfiguration}; rows of any other type (e.g. SOCIAL rows
+	 * created through the store branding API) are never used as SMTP settings.
+	 */
+	static final MerchantConfigurationType EMAIL_CONFIG_TYPE = MerchantConfigurationType.INTEGRATION;
 
 	@Inject
 	private MerchantConfigurationService merchantConfigurationService;
@@ -26,9 +33,7 @@ public class EmailServiceImpl implements EmailService {
 	public void sendHtmlEmail(MerchantStore store, Email email) throws ServiceException, Exception {
 
 		EmailConfig emailConfig = getEmailConfiguration(store);
-		
-		sender.setEmailConfig(emailConfig);
-		sender.send(email);
+		sender.send(email, emailConfig);
 	}
 
 	@Override
@@ -36,14 +41,14 @@ public class EmailServiceImpl implements EmailService {
 		
 		MerchantConfiguration configuration = merchantConfigurationService.getMerchantConfiguration(Constants.EMAIL_CONFIG, store);
 		EmailConfig emailConfig = null;
-		if(configuration!=null) {
+		if(configuration!=null && configuration.getMerchantConfigurationType() == EMAIL_CONFIG_TYPE) {
 			String value = configuration.getValue();
 			
 			ObjectMapper mapper = new ObjectMapper();
 			try {
 				emailConfig = mapper.readValue(value, EmailConfig.class);
 			} catch(Exception e) {
-				throw new ServiceException("Cannot parse json string " + value);
+				throw new ServiceException("Cannot parse email configuration for store " + store.getCode());
 			}
 		}
 		return emailConfig;
@@ -58,6 +63,7 @@ public class EmailServiceImpl implements EmailService {
 			configuration.setMerchantStore(store);
 			configuration.setKey(Constants.EMAIL_CONFIG);
 		}
+		configuration.setMerchantConfigurationType(EMAIL_CONFIG_TYPE);
 		
 		String value = emailConfig.toJSONString();
 		configuration.setValue(value);
