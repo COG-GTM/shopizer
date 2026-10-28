@@ -1,6 +1,8 @@
 package com.salesmanager.core.business.services.tax;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -70,6 +72,11 @@ public class TaxRateServiceImpl extends SalesManagerEntityServiceImpl<Long, TaxR
 			TaxRate existing = taxRateRepository.findById(taxRate.getId()).orElse(null);
 			if(existing == null || !sameStore(existing.getMerchantStore(), taxRate.getMerchantStore())) {
 				throw new ServiceException("TaxRate [" + taxRate.getId() + "] does not belong to the target store");
+			}
+			Set<Long> ownedDescriptions = new HashSet<>(taxRateRepository.findDescriptionIds(taxRate.getId()));
+			if(taxRate.getDescriptions() != null
+					&& taxRate.getDescriptions().stream().anyMatch(d -> d.getId() != null && !ownedDescriptions.contains(d.getId()))) {
+				throw new ServiceException("TaxRate [" + taxRate.getId() + "] cannot reference descriptions of another tax rate");
 			}
 			this.update(taxRate);
 		} else {

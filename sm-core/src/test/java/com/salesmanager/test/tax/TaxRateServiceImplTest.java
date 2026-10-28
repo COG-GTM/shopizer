@@ -8,6 +8,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -72,6 +73,41 @@ public class TaxRateServiceImplTest {
 	public void updateOfOwnTaxRateIsSaved() throws Exception {
 		when(repository.findById(12L)).thenReturn(Optional.of(rate(12L, store(2))));
 		TaxRate rate = rate(12L, store(2));
+
+		service.saveOrUpdate(rate);
+
+		verify(repository).saveAndFlush(rate);
+	}
+
+	@Test
+	public void updateReferencingForeignDescriptionIsRejected() {
+		when(repository.findById(12L)).thenReturn(Optional.of(rate(12L, store(2))));
+		when(repository.findDescriptionIds(12L)).thenReturn(Arrays.asList(3L));
+		TaxRate rate = rate(12L, store(2));
+		TaxRateDescription own = new TaxRateDescription();
+		own.setId(3L);
+		TaxRateDescription foreign = new TaxRateDescription();
+		foreign.setId(7L);
+		rate.getDescriptions().add(own);
+		rate.getDescriptions().add(foreign);
+
+		try {
+			service.saveOrUpdate(rate);
+			fail("expected ServiceException");
+		} catch (ServiceException expected) {
+		}
+		verify(repository, never()).saveAndFlush(any());
+	}
+
+	@Test
+	public void updateKeepingOwnDescriptionsIsSaved() throws Exception {
+		when(repository.findById(12L)).thenReturn(Optional.of(rate(12L, store(2))));
+		when(repository.findDescriptionIds(12L)).thenReturn(Arrays.asList(3L));
+		TaxRate rate = rate(12L, store(2));
+		TaxRateDescription own = new TaxRateDescription();
+		own.setId(3L);
+		rate.getDescriptions().add(own);
+		rate.getDescriptions().add(new TaxRateDescription());
 
 		service.saveOrUpdate(rate);
 
