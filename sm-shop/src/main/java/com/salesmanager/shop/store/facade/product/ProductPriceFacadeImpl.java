@@ -44,8 +44,13 @@ public class ProductPriceFacadeImpl implements ProductPriceFacade {
 
 	@Override
 	public Long save(PersistableProductPrice price, MerchantStore store) {
-		
-		
+		Validate.notNull(price, "Product price cannot be null");
+		Validate.notNull(store, "MerchantStore cannot be null");
+
+		if (isPositive(price.getId())) {
+			validateExistingPrice(price, store);
+		}
+
 		ProductPrice productPrice = persistableProductPriceMapper.convert(price, store, store.getDefaultLanguage());
 		try {
 			if(!isPositive(productPrice.getId())) {
@@ -62,6 +67,19 @@ public class ProductPriceFacadeImpl implements ProductPriceFacade {
 			throw new ServiceRuntimeException("An exception occured while creating a ProductPrice");
 		}
 		return productPrice.getId();
+	}
+
+
+	private void validateExistingPrice(PersistableProductPrice price, MerchantStore store) {
+		ProductPrice existing = price.getSku() == null ? null
+				: productPriceService.findById(price.getId(), price.getSku(), store);
+		boolean sameInventory = existing != null
+				&& (!isPositive(price.getProductAvailabilityId()) || (existing.getProductAvailability() != null
+						&& price.getProductAvailabilityId().equals(existing.getProductAvailability().getId())));
+		if (!sameInventory) {
+			throw new ResourceNotFoundException("ProductPrice with id [" + price.getId() + "] not found for product sku ["
+					+ price.getSku() + "] and Store [" + store.getCode() + "]");
+		}
 	}
 
 
@@ -111,7 +129,7 @@ public class ProductPriceFacadeImpl implements ProductPriceFacade {
 		Validate.notNull(sku, "Product sku cannot be null");
 		ProductPrice productPrice = productPriceService.findById(priceId, sku, store);
 		if(productPrice == null) {
-			throw new ServiceRuntimeException("An exception occured while getting product price [" + priceId + "] for product sku [" + sku + "] and Store [" + store.getCode() + "]");
+			throw new ResourceNotFoundException("ProductPrice with id [" + priceId + "] not found for product sku [" + sku + "] and Store [" + store.getCode() + "]");
 		}
 		
 		try {
