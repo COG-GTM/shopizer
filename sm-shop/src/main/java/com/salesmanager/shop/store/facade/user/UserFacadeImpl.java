@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -59,6 +60,7 @@ import com.salesmanager.shop.store.api.exception.ConversionRuntimeException;
 import com.salesmanager.shop.store.api.exception.GenericRuntimeException;
 import com.salesmanager.shop.store.api.exception.OperationNotAllowedException;
 import com.salesmanager.shop.store.api.exception.ResourceNotFoundException;
+import com.salesmanager.shop.store.api.exception.RestApiException;
 import com.salesmanager.shop.store.api.exception.ServiceRuntimeException;
 import com.salesmanager.shop.store.api.exception.UnauthorizedException;
 import com.salesmanager.shop.store.controller.security.facade.SecurityFacade;
@@ -81,6 +83,8 @@ public class UserFacadeImpl implements UserFacade {
 	private static final String RESET_PASSWORD_LINK = "RESET_PASSWORD_LINK";
 
 	private static final String RESET_PASSWORD_TEXT = "RESET_PASSWORD_TEXT";
+
+	private static final long RESET_TOKEN_VALIDITY_MINUTES = 60;
 
 	@Inject
 	private MerchantStoreService merchantStoreService;
@@ -794,46 +798,45 @@ public class UserFacadeImpl implements UserFacade {
 	public void requestPasswordReset(String userName, String userContextPath, MerchantStore store, Language language) {
 		
 		Validate.notNull(userName, "Username cannot be empty");
-		Validate.notNull(userContextPath, "Return url cannot be empty");
-		
+
+		String baseUrl = filePathUtils.resolveUserPasswordResetBaseUrl(userContextPath, store)
+				.orElseThrow(() -> new RestApiException("400", "Return url is missing or not allowed"));
+
+		User user = null;
 		try {
-			// get user by user name
-			User user = userService.getByUserName(userName, store.getCode());
-
-			if (user == null) {
-				throw new ResourceNotFoundException(
-						"User [" + userName + "] not found for store [" + store.getCode() + "]");
-			}
-
-			// generates unique token
-			String token = UUID.randomUUID().toString();
-
-			Date expiry = DateUtil.addDaysToCurrentDate(2);
-
-			CredentialsReset credsRequest = new CredentialsReset();
-			credsRequest.setCredentialsRequest(token);
-			credsRequest.setCredentialsRequestExpiry(expiry);
-			user.setCredentialsResetRequest(credsRequest);
-
-			userService.saveOrUpdate(user);
-
-			// reset password link
-			// this will build http | https ://domain/contextPath
-			String baseUrl = userContextPath; 
-			if(!filePathUtils.isValidURL(baseUrl)) {
-				throw new ServiceRuntimeException("Request url [" + baseUrl + "] is invalid");
-			}
-
-			// need to add link to controller receiving user reset password
-			// request
-			String customerResetLink = new StringBuilder().append(baseUrl)
-					.append(Constants.SLASH)
-					.append(String.format(resetUserLink, store.getCode(), token)).toString();
-
-			resetPasswordRequest(user, customerResetLink, store, lamguageService.toLocale(language, store));
-
-		} catch (Exception e) {
+			user = userService.getByUserName(userName, store.getCode());
+		} catch (ServiceException e) {
 			throw new ServiceRuntimeException("Error while executing resetPassword request", e);
+		}
+
+		// same response whether or not the user exists
+		if (user == null) {
+			LOGGER.info("Password reset requested for unknown user in store [{}]", store.getCode());
+			return;
+		}
+
+		String token = UUID.randomUUID().toString();
+		Date expiry = new Date(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(RESET_TOKEN_VALIDITY_MINUTES));
+
+		CredentialsReset credsRequest = new CredentialsReset();
+		credsRequest.setCredentialsRequest(token);
+		credsRequest.setCredentialsRequestExpiry(expiry);
+		user.setCredentialsResetRequest(credsRequest);
+
+		try {
+			userService.saveOrUpdate(user);
+		} catch (ServiceException e) {
+			throw new ServiceRuntimeException("Error while executing resetPassword request", e);
+		}
+
+		String userResetLink = new StringBuilder().append(baseUrl)
+				.append(Constants.SLASH)
+				.append(String.format(resetUserLink, store.getCode(), token)).toString();
+
+		try {
+			resetPasswordRequest(user, userResetLink, store, lamguageService.toLocale(language, store));
+		} catch (Exception e) {
+			LOGGER.error("Cannot send password reset email to user [{}]", user.getId(), e);
 		}
 
 	}
@@ -854,12 +857,8 @@ public class UserFacadeImpl implements UserFacade {
 		Validate.notNull(password, "New password cannot be null");
 
 		User user = verifyUserLink(token, store);// reverify
-		user.setAdminPassword(passwordEncoder.encode(password));
-		
-		try {
-			userService.save(user);
-		} catch (ServiceException e) {
-			throw new ServiceRuntimeException("Error while saving user",e);
+		if (!userService.resetPasswordWithToken(user.getId(), token, passwordEncoder.encode(password))) {
+			throw new GenericRuntimeException("Password reset token has already been used");
 		}
 
 	}

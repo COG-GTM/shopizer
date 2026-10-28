@@ -12,7 +12,13 @@ import static com.salesmanager.shop.constants.Constants.SLASH;
 import static com.salesmanager.shop.constants.Constants.STATIC_URI;
 import static com.salesmanager.shop.constants.Constants.URL_EXTENSION;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 import java.util.Properties;
 
 import javax.annotation.Resource;
@@ -39,6 +45,7 @@ public class FilePathUtils {
 	public static final String X_FORWARDED_HOST = "X-Forwarded-Host";
 	public static final String HTTP = "http://";
 	public static final String HTTPS = "https://";
+	public static final String USER_PASSWORD_RESET_ALLOWED_URLS = "USER_PASSWORD_RESET_ALLOWED_URLS";
 
 	@Inject
 	private CoreConfiguration coreConfiguration;
@@ -211,6 +218,96 @@ public class FilePathUtils {
 		return uri;
 	}
 	
+	/**
+	 * Base url used in administrator password reset emails. The returned value
+	 * always comes from server side configuration (USER_PASSWORD_RESET_ALLOWED_URLS
+	 * or https:// + store domain name). The client supplied url only selects which
+	 * configured entry is used: scheme, host and port must match exactly and, when
+	 * several entries share that origin, the longest matching path prefix wins.
+	 */
+	public Optional<String> resolveUserPasswordResetBaseUrl(String requestedUrl, MerchantStore store) {
+		if (StringUtils.isBlank(requestedUrl)) {
+			return Optional.empty();
+		}
+		String requestedOrigin = origin(requestedUrl.trim());
+		if (requestedOrigin == null) {
+			return Optional.empty();
+		}
+		String requestedPath = path(requestedUrl.trim());
+		String sameOrigin = null;
+		String bestPrefix = null;
+		for (String allowed : userPasswordResetAllowedUrls(store)) {
+			if (!requestedOrigin.equals(origin(allowed))) {
+				continue;
+			}
+			if (sameOrigin == null) {
+				sameOrigin = allowed;
+			}
+			String allowedPath = path(allowed);
+			if (isPathPrefix(requestedPath, allowedPath)
+					&& (bestPrefix == null || allowedPath.length() > path(bestPrefix).length())) {
+				bestPrefix = allowed;
+			}
+		}
+		String best = bestPrefix != null ? bestPrefix : sameOrigin;
+		return Optional.ofNullable(best);
+	}
+
+	private boolean isPathPrefix(String path, String prefix) {
+		return path.equals(prefix) || path.startsWith(prefix + SLASH);
+	}
+
+	private List<String> userPasswordResetAllowedUrls(MerchantStore store) {
+		List<String> allowed = new ArrayList<>();
+		for (String configured : StringUtils.split(properties.getProperty(USER_PASSWORD_RESET_ALLOWED_URLS, BLANK), ',')) {
+			addAllowedUrl(allowed, configured);
+		}
+		String domain = StringUtils.trimToEmpty(store.getDomainName());
+		if (StringUtils.isNotBlank(domain)) {
+			addAllowedUrl(allowed, domain.contains(DOUBLE_SLASH) ? domain : HTTPS + domain);
+		}
+		return allowed;
+	}
+
+	/**
+	 * Path of a url without trailing slash, query or fragment ("" for the root).
+	 */
+	private String path(String url) {
+		try {
+			return StringUtils.removeEnd(StringUtils.defaultString(new URI(url).getPath()), SLASH);
+		} catch (URISyntaxException e) {
+			return BLANK;
+		}
+	}
+
+	private void addAllowedUrl(List<String> allowed, String url) {
+		String normalized = StringUtils.removeEnd(StringUtils.trimToEmpty(url), SLASH);
+		if (origin(normalized) != null && !allowed.contains(normalized)) {
+			allowed.add(normalized);
+		}
+	}
+
+	/**
+	 * scheme://host:port of an absolute http(s) url, or null when the url is
+	 * malformed, not http(s) or carries user info.
+	 */
+	private String origin(String url) {
+		try {
+			URI uri = new URI(url);
+			String scheme = uri.getScheme() == null ? null : uri.getScheme().toLowerCase(Locale.ROOT);
+			if (!"http".equals(scheme) && !"https".equals(scheme)) {
+				return null;
+			}
+			if (uri.getRawUserInfo() != null || StringUtils.isBlank(uri.getHost())) {
+				return null;
+			}
+			int port = uri.getPort() != -1 ? uri.getPort() : ("https".equals(scheme) ? 443 : 80);
+			return scheme + DOUBLE_SLASH + uri.getHost().toLowerCase(Locale.ROOT) + ":" + port;
+		} catch (URISyntaxException e) {
+			return null;
+		}
+	}
+
 	public boolean isValidURL(String urlString)
 	{
 	    try

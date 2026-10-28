@@ -1,5 +1,6 @@
 package com.salesmanager.core.business.services.user;
 
+import java.util.Date;
 import java.util.List;
 import javax.inject.Inject;
 
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.repositories.user.PageableUserRepository;
@@ -136,6 +138,16 @@ public class UserServiceImpl extends SalesManagerEntityServiceImpl<Long, User> i
 	@Override
 	public User getByPasswordResetToken(String storeCode, String token) {
 		return userRepository.findByResetPasswordToken(token, storeCode);
+	}
+
+	@Override
+	@Transactional
+	public boolean resetPasswordWithToken(Long userId, String token, String encodedPassword) {
+		if (userRepository.clearResetPasswordToken(userId, token) != 1) {
+			return false;
+		}
+		userRepository.updateAdminPassword(userId, encodedPassword, new Date());
+		return true;
 	}
 
 }
