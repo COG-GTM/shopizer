@@ -324,12 +324,14 @@ public class MultipleEntryPointsSecurityConfig {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			http
-					.antMatcher(API_VERSION + "/private/**")
+					.requestMatchers()
+					.antMatchers(API_VERSION + "/private/**", API_VERSION + "/sec/private/**")
+					.and()
 					.authorizeRequests()
 					.antMatchers(API_VERSION + "/private/login*").permitAll()
 					.antMatchers(API_VERSION + "/private/refresh").permitAll()
-					.antMatchers(HttpMethod.OPTIONS, API_VERSION + "/private/**").permitAll()
-					.antMatchers(API_VERSION + "/private/**").hasRole("AUTH")
+					.antMatchers(HttpMethod.OPTIONS, API_VERSION + "/private/**", API_VERSION + "/sec/private/**").permitAll()
+					.antMatchers(API_VERSION + "/private/**", API_VERSION + "/sec/private/**").hasRole("AUTH")
 					.anyRequest().authenticated()
 					.and()
 					.httpBasic().authenticationEntryPoint(apiAdminAuthenticationEntryPoint())
