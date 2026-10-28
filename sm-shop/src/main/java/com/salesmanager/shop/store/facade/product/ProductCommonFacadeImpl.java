@@ -84,6 +84,8 @@ public class ProductCommonFacadeImpl implements ProductCommonFacade {
 	@Override
 	public Long saveProduct(MerchantStore store, PersistableProduct product, Language language) {
 
+		Validate.notNull(store, "store cannot be null");
+
 		String manufacturer = Manufacturer.DEFAULT_MANUFACTURER;
 		if (product.getProductSpecifications() != null) {
 			manufacturer = product.getProductSpecifications().getManufacturer();
@@ -94,7 +96,11 @@ public class ProductCommonFacadeImpl implements ProductCommonFacade {
 
 		Product target = null;
 		if (product.getId() != null && product.getId().longValue() > 0) {
-			target = productService.getById(product.getId());
+			target = productService.findOne(product.getId(), store);
+			if (target == null) {
+				throw new ResourceNotFoundException(
+						"Product with id [" + product.getId() + "] not found for store [" + store.getCode() + "]");
+			}
 		} else {
 			target = new Product();
 		}
@@ -390,10 +396,11 @@ public class ProductCommonFacadeImpl implements ProductCommonFacade {
 		Validate.notNull(id, "Product id cannot be null");
 		Validate.notNull(store, "store cannot be null");
 
-		Product p = productService.getById(id);
+		Product p = productService.findOne(id, store);
 
 		if (p == null) {
-			throw new ResourceNotFoundException("Product with id [" + id + " not found");
+			throw new ResourceNotFoundException(
+					"Product with id [" + id + "] not found for store [" + store.getCode() + "]");
 		}
 
 		if (p.getMerchantStore().getId().intValue() != store.getId().intValue()) {
