@@ -229,7 +229,7 @@ public class FilePathUtils {
 			origin = storeOrigin;
 		} else {
 			origin = origin(uri);
-			if (origin == null || !(origin.equals(storeOrigin) || allowedReturnOrigins().contains(origin))) {
+			if (origin == null || !(isStoreOrigin(origin, storeOrigin) || allowedReturnOrigins().contains(origin))) {
 				throw invalidReturnUrl();
 			}
 		}
@@ -280,14 +280,19 @@ public class FilePathUtils {
 		return origins;
 	}
 
+	/**
+	 * The store host is trusted with either scheme, so an explicit http return
+	 * URL works on stores served over plain http.
+	 */
+	private static boolean isStoreOrigin(String origin, String storeOrigin) {
+		return storeOrigin != null
+				&& StringUtils.substringAfter(origin, DOUBLE_SLASH).equals(StringUtils.substringAfter(storeOrigin, DOUBLE_SLASH));
+	}
+
 	private String storeOrigin(MerchantStore store) {
 		String domain = StringUtils.removeEnd(getDomainName(store.getDomainName()).trim(), SLASH);
-		if (!domain.startsWith(HTTP) && !domain.startsWith(HTTPS)) {
-			String scheme = properties.getProperty(Constants.SHOP_SCHEME);
-			domain = (StringUtils.isBlank(scheme) ? "https" : scheme.trim()) + DOUBLE_SLASH + domain;
-		}
 		try {
-			return origin(new URI(domain));
+			return origin(new URI(validUrl(domain)));
 		} catch (URISyntaxException e) {
 			return null;
 		}

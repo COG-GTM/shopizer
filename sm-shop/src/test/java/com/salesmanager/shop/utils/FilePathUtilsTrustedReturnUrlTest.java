@@ -8,7 +8,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.salesmanager.core.model.merchant.MerchantStore;
-import com.salesmanager.shop.constants.Constants;
 import com.salesmanager.shop.store.api.exception.ServiceRuntimeException;
 
 public class FilePathUtilsTrustedReturnUrlTest {
@@ -117,12 +116,17 @@ public class FilePathUtilsTrustedReturnUrlTest {
 	}
 
 	@Test
-	public void bareStoreDomainUsesConfiguredShopScheme() {
-		filePathUtils.properties.setProperty(Constants.SHOP_SCHEME, "http");
+	public void storeHostIsTrustedWithEitherScheme() {
 		store.setDomainName("localhost:8080");
-		assertEquals("http://localhost:8080/", filePathUtils.buildTrustedReturnBaseUrl(null, store));
+		assertEquals("https://localhost:8080/", filePathUtils.buildTrustedReturnBaseUrl(null, store));
 		assertEquals("http://localhost:8080/admin/",
 				filePathUtils.buildTrustedReturnBaseUrl("http://localhost:8080/admin", store));
+	}
+
+	@Test(expected = ServiceRuntimeException.class)
+	public void storeHostOnOtherPortIsRejected() {
+		store.setDomainName("localhost:8080");
+		filePathUtils.buildTrustedReturnBaseUrl("http://localhost:8081/", store);
 	}
 
 	@Test
