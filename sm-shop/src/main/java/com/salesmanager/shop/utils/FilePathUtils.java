@@ -12,8 +12,14 @@ import static com.salesmanager.shop.constants.Constants.SLASH;
 import static com.salesmanager.shop.constants.Constants.STATIC_URI;
 import static com.salesmanager.shop.constants.Constants.URL_EXTENSION;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.HashSet;
+import java.util.Locale;
 import java.util.Properties;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -29,6 +35,7 @@ import com.salesmanager.core.model.content.FileContentType;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.shop.constants.Constants;
 import com.salesmanager.shop.model.order.ReadableOrderProductDownload;
+import com.salesmanager.shop.store.api.exception.ServiceRuntimeException;
 
 @Component
 public class FilePathUtils {
@@ -39,6 +46,8 @@ public class FilePathUtils {
 	public static final String X_FORWARDED_HOST = "X-Forwarded-Host";
 	public static final String HTTP = "http://";
 	public static final String HTTPS = "https://";
+	public static final String PASSWORD_RESET_ALLOWED_ORIGINS = "PASSWORD_RESET_ALLOWED_ORIGINS";
+	private static final Pattern SAFE_URL_PATH = Pattern.compile("[A-Za-z0-9/._~-]*");
 
 	@Inject
 	private CoreConfiguration coreConfiguration;
@@ -167,7 +176,7 @@ public class FilePathUtils {
 	}
 
 	public String validUrl(final String url) {
-		if (!StringUtils.isBlank(url) && !url.startsWith(HTTP) && !url.startsWith(HTTP)) {
+		if (!StringUtils.isBlank(url) && !url.startsWith(HTTP) && !url.startsWith(HTTPS)) {
 			return HTTPS + url;
 		}
 		return url;
@@ -183,6 +192,131 @@ public class FilePathUtils {
 		String normalizePath = normalizePath(contextPath);
 		String scheme = getScheme(store);
 		return scheme + SLASH + normalizePath;
+	}
+
+	/**
+	 * Builds the base URL (ending with a slash) of a link sent by email, such
+	 * as a password reset link, from a client supplied return URL. The return
+	 * URL may be blank (store domain), a relative path on the store domain, or
+	 * an absolute http(s) URL whose origin is the store domain or one of the
+	 * origins listed in PASSWORD_RESET_ALLOWED_ORIGINS, optionally with a hash
+	 * route fragment. Anything else, and any query, user info or unusual path
+	 * character, is rejected.
+	 */
+	public String buildTrustedReturnBaseUrl(String returnUrl, MerchantStore store) {
+		String storeOrigin = storeOrigin(store);
+
+		if (StringUtils.isBlank(returnUrl)) {
+			if (storeOrigin == null) {
+				throw invalidReturnUrl();
+			}
+			return storeOrigin + SLASH;
+		}
+
+		URI uri;
+		try {
+			uri = new URI(returnUrl.trim());
+		} catch (URISyntaxException e) {
+			throw invalidReturnUrl();
+		}
+
+		if (uri.isOpaque() || uri.getRawUserInfo() != null || uri.getRawQuery() != null) {
+			throw invalidReturnUrl();
+		}
+
+		String origin;
+		if (uri.getScheme() == null && uri.getRawAuthority() == null) {
+			origin = storeOrigin;
+		} else {
+			origin = origin(uri);
+			if (origin == null || !(isStoreOrigin(origin, storeOrigin) || allowedReturnOrigins().contains(origin))) {
+				throw invalidReturnUrl();
+			}
+		}
+		if (origin == null) {
+			throw invalidReturnUrl();
+		}
+
+		String path = safePath(uri.getRawPath());
+		if (uri.getRawFragment() == null) {
+			return origin + path;
+		}
+		return origin + path + "#" + safePath(uri.getRawFragment());
+	}
+
+	private static String safePath(String rawPath) {
+		String path = StringUtils.defaultString(rawPath);
+		if (!SAFE_URL_PATH.matcher(path).matches()) {
+			throw invalidReturnUrl();
+		}
+		if (!path.startsWith(SLASH)) {
+			path = SLASH + path;
+		}
+		if (!path.endsWith(SLASH)) {
+			path = path + SLASH;
+		}
+		return path;
+	}
+
+	private Set<String> allowedReturnOrigins() {
+		Set<String> origins = new HashSet<>();
+		String configured = properties.getProperty(PASSWORD_RESET_ALLOWED_ORIGINS);
+		if (StringUtils.isBlank(configured)) {
+			return origins;
+		}
+		for (String value : configured.split(",")) {
+			if (StringUtils.isBlank(value)) {
+				continue;
+			}
+			try {
+				String origin = origin(new URI(value.trim()));
+				if (origin != null) {
+					origins.add(origin);
+				}
+			} catch (URISyntaxException e) {
+				// ignore malformed entries
+			}
+		}
+		return origins;
+	}
+
+	/**
+	 * The store host is trusted with either scheme, so an explicit http return
+	 * URL works on stores served over plain http.
+	 */
+	private static boolean isStoreOrigin(String origin, String storeOrigin) {
+		return storeOrigin != null
+				&& StringUtils.substringAfter(origin, DOUBLE_SLASH).equals(StringUtils.substringAfter(storeOrigin, DOUBLE_SLASH));
+	}
+
+	private String storeOrigin(MerchantStore store) {
+		String domain = StringUtils.removeEnd(getDomainName(store.getDomainName()).trim(), SLASH);
+		try {
+			return origin(new URI(validUrl(domain)));
+		} catch (URISyntaxException e) {
+			return null;
+		}
+	}
+
+	private static String origin(URI uri) {
+		String scheme = uri.getScheme();
+		String host = uri.getHost();
+		if (scheme == null || host == null || uri.getRawUserInfo() != null) {
+			return null;
+		}
+		scheme = scheme.toLowerCase(Locale.ROOT);
+		if (!"http".equals(scheme) && !"https".equals(scheme)) {
+			return null;
+		}
+		int port = uri.getPort();
+		boolean defaultPort = port == -1 || ("http".equals(scheme) && port == 80)
+				|| ("https".equals(scheme) && port == 443);
+		return scheme + DOUBLE_SLASH + host.toLowerCase(Locale.ROOT) + (defaultPort ? BLANK : ":" + port);
+	}
+
+	private static ServiceRuntimeException invalidReturnUrl() {
+		String message = "Return url is not allowed for this store";
+		return new ServiceRuntimeException("400", message, new IllegalArgumentException(message));
 	}
 
 	/**
