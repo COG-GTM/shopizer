@@ -33,11 +33,15 @@ import io.swagger.annotations.Tag;
 /**
  * Api for managing security
  * 
+ * Canonical paths live under /api/v1/private/security. The legacy
+ * /api/v1/sec/private aliases are kept for existing clients and are protected
+ * by the admin API security chain (see MultipleEntryPointsSecurityConfig).
+ * 
  * @author carlsamson
  *
  */
 @RestController
-@RequestMapping(value = "/api/v1/sec")
+@RequestMapping(value = "/api/v1")
 @Api(tags = { "Groups and permissions Api" })
 @SwaggerDefinition(tags = {
 		@Tag(name = "List of supported groups and permissions", description = "List groups and attached permissions for reference") })
@@ -52,7 +56,7 @@ public class SecurityApi {
 	private GroupService groupService;
 
 	@ResponseStatus(HttpStatus.OK)
-	@GetMapping({ "/private/{group}/permissions" })
+	@GetMapping({ "/private/security/{group}/permissions", "/sec/private/{group}/permissions" })
 	@ApiOperation(httpMethod = "GET", value = "Get permissions by group", notes = "", produces = MediaType.APPLICATION_JSON_VALUE, response = List.class)
 	public List<ReadablePermission> listPermissions(@PathVariable String group) {
 
@@ -84,7 +88,7 @@ public class SecurityApi {
 	 * 
 	 * @return
 	 */
-	@GetMapping("/private/permissions")
+	@GetMapping({ "/private/security/permissions", "/sec/private/permissions" })
 	public List<ReadablePermission> permissions() {
 		List<Permission> permissions = permissionService.list();
 		List<ReadablePermission> readablePermissions = new ArrayList<ReadablePermission>();
@@ -102,7 +106,7 @@ public class SecurityApi {
 	 * 
 	 * @return
 	 */
-	@GetMapping("/private/groups")
+	@GetMapping({ "/private/security/groups", "/sec/private/groups" })
 	public List<ReadableGroup> groups() {
 		List<Group> groups = groupService.list();
 		List<ReadableGroup> readableGroups = new ArrayList<ReadableGroup>();
