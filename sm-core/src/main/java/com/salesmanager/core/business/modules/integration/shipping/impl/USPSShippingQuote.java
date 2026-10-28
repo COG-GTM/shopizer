@@ -44,7 +44,6 @@ import com.salesmanager.core.model.shipping.ShippingQuote;
 import com.salesmanager.core.model.system.CustomIntegrationConfiguration;
 import com.salesmanager.core.model.system.IntegrationConfiguration;
 import com.salesmanager.core.model.system.IntegrationModule;
-import com.salesmanager.core.model.system.ModuleConfig;
 import com.salesmanager.core.modules.integration.IntegrationException;
 import com.salesmanager.core.modules.integration.shipping.model.ShippingQuoteModule;
 
@@ -202,17 +201,11 @@ public class USPSShippingQuote implements ShippingQuoteModule {
 				throw new IntegrationException("Can't use the service for store country code ");
 			}
 
-			Map<String, ModuleConfig> moduleConfigsMap = module.getModuleConfigs();
-			for(String key : moduleConfigsMap.keySet()) {
-				
-				ModuleConfig moduleConfig = moduleConfigsMap.get(key);
-				if(moduleConfig.getEnv().equals(env)) {
-					host = moduleConfig.getHost();
-					protocol = moduleConfig.getScheme();
-					port = moduleConfig.getPort();
-					url = moduleConfig.getUri();
-				}
-			}
+			CarrierEndpoints.Endpoint endpoint = CarrierEndpoints.resolve(CarrierEndpoints.USPS, env);
+			host = endpoint.getHost();
+			protocol = endpoint.getScheme();
+			port = endpoint.getPort();
+			url = endpoint.getUri();
 			
 
 			StringBuilder xmlheader = new StringBuilder();
@@ -471,7 +464,7 @@ public class USPSShippingQuote implements ShippingQuoteModule {
 			 * <ZipDestination>20770</ZipDestination>
 			 */
 
-			Digester digester = new Digester();
+			Digester digester = CarrierXml.newDigester();
 			digester.push(parsed);
 
 			if(store.getCountry().getIsoCode().equals(delivery.getCountry().getIsoCode())) {

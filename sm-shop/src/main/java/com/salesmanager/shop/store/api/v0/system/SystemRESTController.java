@@ -7,14 +7,17 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.services.system.ModuleConfigurationService;
 import com.salesmanager.core.business.utils.ajax.AjaxResponse;
+import com.salesmanager.shop.constants.Constants;
 
 
 /**
@@ -55,6 +58,7 @@ public class SystemRESTController {
 	 * @param response
 	 * @throws Exception
 	 */
+	@PreAuthorize("hasRole('" + Constants.GROUP_SUPERADMIN + "')")
 	@RequestMapping( value="/private/system/module", method=RequestMethod.POST, consumes = "text/plain;charset=UTF-8")
 	@ResponseBody
 	public AjaxResponse createOrUpdateModule(@RequestBody final String json, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -66,7 +70,7 @@ public class SystemRESTController {
 			
 			
 			
-			LOGGER.debug("Creating or updating an integration module : " + json);
+			LOGGER.debug("Creating or updating an integration module");
 			
 			moduleConfigurationService.createOrUpdateModule(json);
 			
@@ -74,6 +78,16 @@ public class SystemRESTController {
 			
 			resp.setStatus(200);
 			
+		} catch(ServiceException e) {
+			if(e.getExceptionType() == ServiceException.EXCEPTION_VALIDATION) {
+				resp.setStatus(400);
+				resp.setErrorString(e.getMessage());
+				response.sendError(400, e.getMessage());
+			} else {
+				resp.setStatus(500);
+				resp.setErrorMessage(e);
+				response.sendError(503, "Exception while creating or updating the module " + e.getMessage());
+			}
 		} catch(Exception e) {
 			resp.setStatus(500);
 			resp.setErrorMessage(e);
