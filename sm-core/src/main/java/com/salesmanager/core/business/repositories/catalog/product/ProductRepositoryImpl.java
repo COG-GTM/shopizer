@@ -669,7 +669,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 			if (criteria.getAvailable()) {
 				countBuilderWhere.append(" and p.available=true and p.dateAvailable<=:dt");
 			} else {
-				countBuilderWhere.append(" and p.available=false or p.dateAvailable>:dt");
+				countBuilderWhere.append(" and (p.available=false or p.dateAvailable>:dt)");
 			}
 		}
 		
