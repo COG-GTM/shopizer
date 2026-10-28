@@ -65,6 +65,14 @@ public class ProductReviewApi {
       HttpServletRequest request,
       HttpServletResponse response) {
 
+    if (review.getCustomerId() == null) {
+      try {
+        response.sendError(HttpServletResponse.SC_BAD_REQUEST, "customerId is required");
+      } catch (Exception ignore) {
+      }
+      return null;
+    }
+
     return createReview(id, review, merchantStore, language, response);
   }
 

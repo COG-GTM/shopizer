@@ -2,8 +2,6 @@ package com.salesmanager.shop.model.catalog.product;
 
 import java.io.Serializable;
 
-import javax.validation.constraints.NotNull;
-
 public class PersistableProductReview extends ProductReviewEntity implements
 		Serializable {
 
@@ -11,7 +9,7 @@ public class PersistableProductReview extends ProductReviewEntity implements
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	@NotNull
+	// required on the private (admin) route; set from the principal on the customer route
 	private Long customerId;
 	public Long getCustomerId() {
 		return customerId;

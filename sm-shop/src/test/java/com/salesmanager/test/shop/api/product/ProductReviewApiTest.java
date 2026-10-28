@@ -159,4 +159,40 @@ public class ProductReviewApiTest {
     verify(productReviewService).getByProductAndCustomer(PATH_PRODUCT_ID, VICTIM_ID);
     verify(customerFacade, never()).getCustomerByUserName(any(), any());
   }
+
+  @Test
+  public void authRouteAcceptsReviewWithoutBodyCustomerId() throws Exception {
+    authenticateAs("mallory@test.com", CALLER_ID);
+    PersistableProductReview review = impersonatingReview();
+    review.setCustomerId(null);
+
+    PersistableProductReview saved =
+        api.createAuthenticatedCustomerReview(PATH_PRODUCT_ID, review, store, language, request, response);
+
+    assertNotNull(saved);
+    assertEquals(CALLER_ID, saved.getCustomerId());
+  }
+
+  @Test
+  public void privateRouteRequiresCustomerId() throws Exception {
+    PersistableProductReview review = impersonatingReview();
+    review.setCustomerId(null);
+
+    PersistableProductReview saved = api.create(PATH_PRODUCT_ID, review, store, language, request, response);
+
+    assertNull(saved);
+    assertEquals(400, response.getStatus());
+    verify(productCommonFacade, never()).saveOrUpdateReview(any(), any(), any());
+  }
+
+  @Test
+  public void customerIdIsNoLongerBeanValidated() {
+    PersistableProductReview review = impersonatingReview();
+    review.setCustomerId(null);
+    javax.validation.Validator validator =
+        javax.validation.Validation.buildDefaultValidatorFactory().getValidator();
+    for (javax.validation.ConstraintViolation<PersistableProductReview> v : validator.validate(review)) {
+      org.junit.Assert.assertNotEquals("customerId", v.getPropertyPath().toString());
+    }
+  }
 }
