@@ -4,6 +4,7 @@ import static com.salesmanager.shop.util.ReadableEntityUtil.createReadableList;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -63,20 +64,23 @@ public class ProductInventoryFacadeImpl implements ProductInventoryFacade {
 
 	@Override
 	public void delete(Long productId, Long inventoryId, MerchantStore store) {
-		Optional<ProductAvailability> availability = productAvailabilityService.getById(inventoryId, store);
+		Validate.notNull(store, "MerchantStore cannot be null");
+		ProductAvailability availability = productAvailabilityService.getById(inventoryId, store)
+				.filter(a -> belongsTo(a, productId, store))
+				.orElseThrow(() -> new ResourceNotFoundException("Product with id [" + productId + "] and inventory id [" +  inventoryId + "] not found for store id [" + store.getId() + "]"));
 		try {
-			if (availability.isPresent()) {
-				if(availability.get().getProduct().getId() == productId) {
-					productAvailabilityService.delete(availability.get());
-				} else {
-					throw new ResourceNotFoundException("Product with id [" + productId + "] and inventory id [" +  inventoryId + "] not found for store id [" + store.getId() + "]");
-				}
-			} else {
-				throw new ResourceNotFoundException("Product with id [" + productId + "] and inventory id [" +  inventoryId + "] not found for store id [" + store.getId() + "]");
-			}
+			productAvailabilityService.delete(availability);
 		} catch (ServiceException e) {
 			throw new ServiceRuntimeException("Error while deleting inventory", e);
 		}
+	}
+
+	private boolean belongsTo(ProductAvailability availability, Long productId, MerchantStore store) {
+		Product product = availability.getProduct();
+		return product != null
+				&& Objects.equals(product.getId(), productId)
+				&& product.getMerchantStore() != null
+				&& Objects.equals(product.getMerchantStore().getId(), store.getId());
 	}
 
 	/*
