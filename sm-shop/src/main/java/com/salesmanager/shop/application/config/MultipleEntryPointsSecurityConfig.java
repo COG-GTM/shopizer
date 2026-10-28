@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -12,10 +13,12 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
@@ -332,7 +335,9 @@ public class MultipleEntryPointsSecurityConfig {
 					.antMatchers(API_VERSION + "/private/**").hasRole("AUTH")
 					.anyRequest().authenticated()
 					.and()
-					.httpBasic().authenticationEntryPoint(apiAdminAuthenticationEntryPoint())
+					.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+					.and()
+					.exceptionHandling().authenticationEntryPoint(apiAdminAuthenticationEntryPoint())
 					.and()
 					.addFilterAfter(authenticationTokenFilter, BasicAuthenticationFilter.class)
 					.csrf().disable();
@@ -348,9 +353,7 @@ public class MultipleEntryPointsSecurityConfig {
 
 		@Bean
 		public AuthenticationEntryPoint apiAdminAuthenticationEntryPoint() {
-			BasicAuthenticationEntryPoint entryPoint = new BasicAuthenticationEntryPoint();
-			entryPoint.setRealmName("api-admin-realm");
-			return entryPoint;
+			return new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED);
 		}
 
 	}
@@ -401,8 +404,11 @@ public class MultipleEntryPointsSecurityConfig {
 					.antMatchers(API_VERSION + "/auth/**")
 					.hasRole("AUTH_CUSTOMER").anyRequest().authenticated()
 					.and()
-					.httpBasic()
-					.authenticationEntryPoint(apiCustomerAuthenticationEntryPoint()).and().csrf().disable()
+					.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+					.and()
+					.exceptionHandling().authenticationEntryPoint(apiCustomerAuthenticationEntryPoint())
+					.and()
+					.csrf().disable()
 					.addFilterAfter(authenticationTokenFilter, BasicAuthenticationFilter.class);
 
 		}
@@ -416,9 +422,7 @@ public class MultipleEntryPointsSecurityConfig {
 
 		@Bean
 		public AuthenticationEntryPoint apiCustomerAuthenticationEntryPoint() {
-			BasicAuthenticationEntryPoint entryPoint = new BasicAuthenticationEntryPoint();
-			entryPoint.setRealmName("api-customer-realm");
-			return entryPoint;
+			return new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED);
 		}
 
 	}
