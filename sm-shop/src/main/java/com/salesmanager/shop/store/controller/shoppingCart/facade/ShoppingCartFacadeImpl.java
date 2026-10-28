@@ -925,8 +925,10 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 
 		// if cart items are null just return cart with no items
 
-		// promo code added to the cart but no promo cart exists
-		if (!StringUtils.isBlank(item.getPromoCode()) && StringUtils.isBlank(cartModel.getPromoCode())) {
+		// promo code submitted and the cart has no active promo code
+		if (!StringUtils.isBlank(item.getPromoCode())
+				&& (StringUtils.isBlank(cartModel.getPromoCode())
+						|| !PromoCodeUtils.isPromoCodeActive(cartModel.getPromoAdded()))) {
 			cartModel.setPromoCode(item.getPromoCode());
 			cartModel.setPromoAdded(new Date());
 		}
