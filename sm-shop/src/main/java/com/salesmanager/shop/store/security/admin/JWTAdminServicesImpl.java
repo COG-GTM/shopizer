@@ -63,7 +63,7 @@ public class JWTAdminServicesImpl implements UserDetailsService{
                 user.getAdminEmail(),
                 user.getAdminPassword(),
                 authorities,
-                true,
+                user.isActive(),
                 lastModified
         );
 	}

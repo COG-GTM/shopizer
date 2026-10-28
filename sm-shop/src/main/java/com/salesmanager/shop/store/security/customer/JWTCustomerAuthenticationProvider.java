@@ -3,6 +3,7 @@ package com.salesmanager.shop.store.security.customer;
 import javax.inject.Inject;
 
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.Authentication;
@@ -40,6 +41,10 @@ public class JWTCustomerAuthenticationProvider extends DaoAuthenticationProvider
         
         if(!passwordMatch(pass, usr)) {
         	throw new BadCredentialsException("Username/Password does not match for " + auth.getPrincipal());
+        }
+
+        if(!customer.isEnabled()) {
+        	throw new DisabledException("User " + name + " is disabled");
         }
         
         
