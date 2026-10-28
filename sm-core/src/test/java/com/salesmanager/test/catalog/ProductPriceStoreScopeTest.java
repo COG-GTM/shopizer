@@ -24,7 +24,7 @@ import com.salesmanager.test.common.AbstractSalesManagerCoreTestCase;
 
 /**
  * Price and inventory lookups must only return records owned by the requesting store
- * (the inventory's store, or the product's store when the inventory has none).
+ * (the inventory's store when the product belongs to it or its parent, otherwise the product's store).
  */
 public class ProductPriceStoreScopeTest extends AbstractSalesManagerCoreTestCase {
 
@@ -32,7 +32,7 @@ public class ProductPriceStoreScopeTest extends AbstractSalesManagerCoreTestCase
 	public void priceAndInventoryLookupsAreStoreScoped() throws Exception {
 		Language en = languageService.getByCode("en");
 		MerchantStore acme = merchantService.getByCode(MerchantStore.DEFAULT_STORE);
-		MerchantStore globex = createStore("GLOBEX", acme, en);
+		MerchantStore globex = createStore("GLOBEX", acme, null, en);
 
 		Product acmeProduct = createProduct(acme, en, "ACME-PRICE-SKU", new BigDecimal("29.99"));
 		createProduct(globex, en, "GLOBEX-PRICE-SKU", new BigDecimal("9.99"));
@@ -61,43 +61,56 @@ public class ProductPriceStoreScopeTest extends AbstractSalesManagerCoreTestCase
 	}
 
 	@Test
-	public void inventoryOwnedByAnotherStoreIsScopedToThatStore() throws Exception {
+	public void childStoreInventoryOnParentProductIsScopedToChild() throws Exception {
 		Language en = languageService.getByCode("en");
 		MerchantStore acme = merchantService.getByCode(MerchantStore.DEFAULT_STORE);
-		MerchantStore globex = createStore("GLOBEX", acme, en);
+		MerchantStore acmeChild = createStore("ACMECHILD", acme, acme, en);
+		MerchantStore globex = createStore("GLOBEX", acme, null, en);
 
 		Product acmeProduct = createProduct(acme, en, "ACME-SHARED-SKU", new BigDecimal("19.99"));
 
-		ProductAvailability globexInventory = new ProductAvailability();
-		globexInventory.setProductDateAvailable(new Date());
-		globexInventory.setProductQuantity(5);
-		globexInventory.setRegion("*");
-		globexInventory.setProduct(acmeProduct);
-		globexInventory.setMerchantStore(globex);
-		ProductPrice globexPrice = new ProductPrice();
-		globexPrice.setDefaultPrice(true);
-		globexPrice.setProductPriceAmount(new BigDecimal("17.99"));
-		globexPrice.setProductAvailability(globexInventory);
-		globexInventory.getPrices().add(globexPrice);
-		productAvailabilityService.create(globexInventory);
+		ProductAvailability childInventory = createInventory(acmeProduct, acmeChild, new BigDecimal("17.99"));
+		Long childInventoryId = childInventory.getId();
+		Long childPriceId = childInventory.getPrices().iterator().next().getId();
 
-		Long globexInventoryId = globexInventory.getId();
-		Long globexPriceId = globexInventory.getPrices().iterator().next().getId();
+		// the child store owning the inventory can reach it and its prices
+		assertTrue(productAvailabilityService.getById(childInventoryId, acmeChild).isPresent());
+		assertEquals(1, productAvailabilityService.getBySku("ACME-SHARED-SKU", acmeChild).size());
+		assertEquals(1, productPriceService.findByInventoryId(childInventoryId, "ACME-SHARED-SKU", acmeChild).size());
+		assertNotNull(productPriceService.findById(childPriceId, "ACME-SHARED-SKU", acmeChild));
 
-		// the store owning the inventory can reach it and its prices
-		assertTrue(productAvailabilityService.getById(globexInventoryId, globex).isPresent());
-		assertEquals(1, productAvailabilityService.getBySku("ACME-SHARED-SKU", globex).size());
-		assertEquals(1, productPriceService.findByInventoryId(globexInventoryId, "ACME-SHARED-SKU", globex).size());
-		assertNotNull(productPriceService.findById(globexPriceId, "ACME-SHARED-SKU", globex));
-
-		// the product owner cannot reach inventory or prices owned by another store
-		assertFalse(productAvailabilityService.getById(globexInventoryId, acme).isPresent());
+		// the parent (product owner) cannot reach inventory or prices owned by the child
+		assertFalse(productAvailabilityService.getById(childInventoryId, acme).isPresent());
 		assertEquals(1, productAvailabilityService.getBySku("ACME-SHARED-SKU", acme).size());
-		assertTrue(productPriceService.findByInventoryId(globexInventoryId, "ACME-SHARED-SKU", acme).isEmpty());
-		assertNull(productPriceService.findById(globexPriceId, "ACME-SHARED-SKU", acme));
+		assertTrue(productPriceService.findByInventoryId(childInventoryId, "ACME-SHARED-SKU", acme).isEmpty());
+		assertNull(productPriceService.findById(childPriceId, "ACME-SHARED-SKU", acme));
+
+		// an unrelated store holding inventory on the product still cannot reach it
+		ProductAvailability globexInventory = createInventory(acmeProduct, globex, new BigDecimal("1.00"));
+		Long globexPriceId = globexInventory.getPrices().iterator().next().getId();
+		assertFalse(productAvailabilityService.getById(globexInventory.getId(), globex).isPresent());
+		assertTrue(productAvailabilityService.getBySku("ACME-SHARED-SKU", globex).isEmpty());
+		assertTrue(productPriceService.findByProductSku("ACME-SHARED-SKU", globex).isEmpty());
+		assertNull(productPriceService.findById(globexPriceId, "ACME-SHARED-SKU", globex));
 	}
 
-	private MerchantStore createStore(String code, MerchantStore template, Language en) throws Exception {
+	private ProductAvailability createInventory(Product product, MerchantStore store, BigDecimal amount) throws Exception {
+		ProductAvailability inventory = new ProductAvailability();
+		inventory.setProductDateAvailable(new Date());
+		inventory.setProductQuantity(5);
+		inventory.setRegion("*");
+		inventory.setProduct(product);
+		inventory.setMerchantStore(store);
+		ProductPrice price = new ProductPrice();
+		price.setDefaultPrice(true);
+		price.setProductPriceAmount(amount);
+		price.setProductAvailability(inventory);
+		inventory.getPrices().add(price);
+		productAvailabilityService.create(inventory);
+		return inventory;
+	}
+
+	private MerchantStore createStore(String code, MerchantStore template, MerchantStore parent, Language en) throws Exception {
 		MerchantStore existing = merchantService.getByCode(code);
 		if (existing != null) {
 			return existing;
@@ -120,6 +133,7 @@ public class ProductPriceStoreScopeTest extends AbstractSalesManagerCoreTestCase
 		store.setStoreEmailAddress("contact@" + code.toLowerCase() + ".com");
 		store.setDomainName(code.toLowerCase() + ".localhost");
 		store.setStoreTemplate("december");
+		store.setParent(parent);
 		merchantService.create(store);
 		return store;
 	}
