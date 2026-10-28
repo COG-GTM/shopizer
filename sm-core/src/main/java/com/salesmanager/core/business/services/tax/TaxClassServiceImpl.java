@@ -66,11 +66,22 @@ public class TaxClassServiceImpl extends SalesManagerEntityServiceImpl<Long, Tax
 	@Override
 	public TaxClass saveOrUpdate(TaxClass taxClass) throws ServiceException {
 		if(taxClass.getId()!=null && taxClass.getId() > 0) {
+			TaxClass existing = taxClassRepository.findById(taxClass.getId()).orElse(null);
+			if(existing == null) {
+				throw new ServiceException(ServiceException.EXCEPTION_VALIDATION, "TaxClass [" + taxClass.getId() + "] does not exist");
+			}
+			if(!sameStore(existing.getMerchantStore(), taxClass.getMerchantStore())) {
+				throw new ServiceException(ServiceException.EXCEPTION_VALIDATION, "TaxClass [" + taxClass.getId() + "] does not belong to the requesting merchant store");
+			}
 			this.update(taxClass);
 		} else {
 			taxClass = super.saveAndFlush(taxClass);
 		}
 		return taxClass;
+	}
+
+	private static boolean sameStore(MerchantStore a, MerchantStore b) {
+		return a != null && b != null && a.getId() != null && a.getId().equals(b.getId());
 	}
 
 	
