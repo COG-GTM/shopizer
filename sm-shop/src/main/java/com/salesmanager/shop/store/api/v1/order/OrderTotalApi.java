@@ -121,7 +121,7 @@ public class OrderTotalApi {
 
       // get shipping quote if asked for
       if (quote != null) {
-        shippingSummary = shippingQuoteService.getShippingSummary(quote, merchantStore);
+        shippingSummary = shippingQuoteService.getShippingSummary(quote, shoppingCart, merchantStore);
       }
 
       OrderTotalSummary orderTotalSummary = null;
@@ -191,7 +191,7 @@ public class OrderTotalApi {
 
       // get shipping quote if asked for
       if (quote != null) {
-        shippingSummary = shippingQuoteService.getShippingSummary(quote, merchantStore);
+        shippingSummary = shippingQuoteService.getShippingSummary(quote, shoppingCart, merchantStore);
       }
 
       OrderTotalSummary orderTotalSummary = null;
