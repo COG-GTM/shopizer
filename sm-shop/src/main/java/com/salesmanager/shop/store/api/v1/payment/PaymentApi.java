@@ -3,6 +3,7 @@ package com.salesmanager.shop.store.api.v1.payment;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,10 +21,13 @@ import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.core.model.system.IntegrationConfiguration;
 import com.salesmanager.core.model.system.IntegrationModule;
+import com.salesmanager.shop.constants.Constants;
 import com.salesmanager.shop.model.system.IntegrationModuleConfiguration;
 import com.salesmanager.shop.model.system.IntegrationModuleSummaryEntity;
 import com.salesmanager.shop.store.api.exception.ResourceNotFoundException;
 import com.salesmanager.shop.store.api.exception.ServiceRuntimeException;
+import com.salesmanager.shop.utils.AuthorizationUtils;
+import com.salesmanager.shop.utils.IntegrationKeysMasker;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -51,6 +55,9 @@ public class PaymentApi {
 	@Autowired
 	private PaymentService paymentService;
 
+	@Autowired
+	private AuthorizationUtils authorizationUtils;
+
 	/**
 	 * Get available payment modules
 	 * 
@@ -64,6 +71,10 @@ public class PaymentApi {
 	public List<IntegrationModuleSummaryEntity> paymentModules(
 			@ApiIgnore MerchantStore merchantStore,
 			@ApiIgnore Language language) {
+
+		String user = authorizationUtils.authenticatedUser();
+		authorizationUtils.authorizeUser(user, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN,
+				Constants.GROUP_ADMIN_RETAIL).collect(Collectors.toList()), merchantStore);
 
 		try {
 			List<IntegrationModule> modules = paymentService.getPaymentMethods(merchantStore);
@@ -85,6 +96,10 @@ public class PaymentApi {
 			@RequestBody IntegrationModuleConfiguration configuration,
 			@ApiIgnore MerchantStore merchantStore) {
 		
+		String user = authorizationUtils.authenticatedUser();
+		authorizationUtils.authorizeUser(user, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN,
+				Constants.GROUP_ADMIN_RETAIL).collect(Collectors.toList()), merchantStore);
+
 		try {
 			
 			List<IntegrationModule> modules = paymentService.getPaymentMethods(merchantStore);
@@ -111,7 +126,8 @@ public class PaymentApi {
 
 			integrationConfiguration.setActive(configuration.isActive());
 			integrationConfiguration.setDefaultSelected(configuration.isDefaultSelected());
-			integrationConfiguration.setIntegrationKeys(configuration.getIntegrationKeys());
+			integrationConfiguration.setIntegrationKeys(IntegrationKeysMasker.merge(configuration.getIntegrationKeys(),
+					integrationConfiguration.getIntegrationKeys()));
 			integrationConfiguration.setIntegrationOptions(configuration.getIntegrationOptions());
 
 			
@@ -136,6 +152,10 @@ public class PaymentApi {
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT") })
 	public IntegrationModuleConfiguration paymentModule(@PathVariable String code,
 			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) {
+
+		String user = authorizationUtils.authenticatedUser();
+		authorizationUtils.authorizeUser(user, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN,
+				Constants.GROUP_ADMIN_RETAIL).collect(Collectors.toList()), merchantStore);
 
 		try {
 			
@@ -169,7 +189,7 @@ public class PaymentApi {
 			returnConfig.setActive(config.isActive());
 			returnConfig.setDefaultSelected(config.isDefaultSelected());
 			returnConfig.setCode(code);
-			returnConfig.setIntegrationKeys(config.getIntegrationKeys());
+			returnConfig.setIntegrationKeys(IntegrationKeysMasker.mask(config.getIntegrationKeys()));
 			returnConfig.setIntegrationOptions(config.getIntegrationOptions());
 
 			return returnConfig;
