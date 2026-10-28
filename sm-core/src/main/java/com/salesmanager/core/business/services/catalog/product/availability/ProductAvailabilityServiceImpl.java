@@ -84,12 +84,6 @@ public class ProductAvailabilityServiceImpl extends SalesManagerEntityServiceImp
 	}
 
 	@Override
-	public Page<ProductAvailability> getBySku(String sku, int page, int count) {
-		Pageable pageRequest = PageRequest.of(page, count);
-		return pageableProductAvailabilityRepository.getBySku(sku, pageRequest);
-	}
-
-	@Override
 	public List<ProductAvailability> getBySku(String sku, MerchantStore store) {
 		Validate.notNull(store, "MerchantStore cannot be null");
 		return productAvailabilityRepository.getBySku(sku, store.getCode());
