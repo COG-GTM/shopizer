@@ -67,6 +67,10 @@ public class TaxRateServiceImpl extends SalesManagerEntityServiceImpl<Long, TaxR
 	@Override
 	public TaxRate saveOrUpdate(TaxRate taxRate) throws ServiceException {
 		if(taxRate.getId()!=null && taxRate.getId() > 0) {
+			if(taxRate.getMerchantStore() == null
+					|| taxRateRepository.findByStoreAndId(taxRate.getMerchantStore().getId(), taxRate.getId()) == null) {
+				throw new ServiceException(ServiceException.EXCEPTION_VALIDATION, "TaxRate [" + taxRate.getId() + "] does not belong to the requesting merchant store");
+			}
 			this.update(taxRate);
 		} else {
 			taxRate = super.saveAndFlush(taxRate);

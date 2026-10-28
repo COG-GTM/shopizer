@@ -70,7 +70,8 @@ public class TaxFacadeImpl implements TaxFacade {
 
 			taxClass.setStore(store.getCode());
 			TaxClass model = persistableTaxClassMapper.convert(taxClass, store, language);
-			model = taxClassService.saveOrUpdate(model);;
+			model.setId(null);
+			model = taxClassService.saveOrUpdate(model);
 			Entity id = new Entity();
 			id.setId(model.getId());
 			return id;
@@ -146,7 +147,7 @@ public class TaxFacadeImpl implements TaxFacade {
 					throw new UnauthorizedException("MerchantStore [" + store.getCode() + "] cannot update tax class [" + taxClass.getCode() + "]");
 				}
 			}
-			model = persistableTaxClassMapper.convert(taxClass, store, language);
+			model = persistableTaxClassMapper.merge(taxClass, model, store, language);
 			taxClassService.saveOrUpdate(model);
 
 		} catch (ServiceException e) {
@@ -276,6 +277,7 @@ public class TaxFacadeImpl implements TaxFacade {
 
 			
 			model = persistableTaxRateMapper.convert(taxRate, store, language);
+			model.setId(null);
 			
 			model = taxRateService.saveOrUpdate(model);
 			
