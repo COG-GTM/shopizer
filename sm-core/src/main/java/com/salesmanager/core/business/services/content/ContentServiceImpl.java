@@ -25,6 +25,7 @@ import com.salesmanager.core.business.modules.cms.content.StaticContentFileManag
 import com.salesmanager.core.business.repositories.content.ContentRepository;
 import com.salesmanager.core.business.repositories.content.PageContentRepository;
 import com.salesmanager.core.business.services.common.generic.SalesManagerEntityServiceImpl;
+import com.salesmanager.core.business.utils.FilePathUtils;
 import com.salesmanager.core.model.content.Content;
 import com.salesmanager.core.model.content.ContentDescription;
 import com.salesmanager.core.model.content.ContentType;
@@ -149,6 +150,7 @@ public class ContentServiceImpl extends SalesManagerEntityServiceImpl<Long, Cont
 		Assert.notNull(contentFile, "InputContentFile image can not be null");
 		Assert.notNull(contentFile.getFileName(), "InputContentFile.fileName can not be null");
 		Assert.notNull(contentFile.getFileContentType(), "InputContentFile.fileContentType can not be null");
+		FilePathUtils.requireSafeFileName(contentFile.getFileName());
 
 		String mimeType = URLConnection.guessContentTypeFromName(contentFile.getFileName());
 		contentFile.setMimeType(mimeType);
@@ -262,6 +264,9 @@ public class ContentServiceImpl extends SalesManagerEntityServiceImpl<Long, Cont
 		Assert.notNull(merchantStoreCode, "Merchant store ID can not be null");
 		Assert.notEmpty(contentFilesList, "File list can not be empty");
 		LOG.info("Adding total {} images for given merchant", contentFilesList.size());
+		for (InputContentFile file : contentFilesList) {
+			FilePathUtils.requireSafeFileName(file.getFileName());
+		}
 
 		String p = null;
 		Optional<String> path = Optional.ofNullable(p);
@@ -299,6 +304,7 @@ public class ContentServiceImpl extends SalesManagerEntityServiceImpl<Long, Cont
 		Assert.notNull(merchantStoreCode, "Merchant Store Id can not be null");
 		Assert.notNull(fileContentType, "Content file type can not be null");
 		Assert.notNull(fileName, "Content Image type can not be null");
+		FilePathUtils.requireSafeFileName(fileName);
 
 		String p = null;
 		Optional<String> path = Optional.ofNullable(p);
@@ -310,6 +316,7 @@ public class ContentServiceImpl extends SalesManagerEntityServiceImpl<Long, Cont
 	@Override
 	public void removeFile(String storeCode, String fileName) throws ServiceException {
 
+		FilePathUtils.requireSafeFileName(fileName);
 		String fileType = "IMAGE";
 		String mimetype = URLConnection.guessContentTypeFromName(fileName);
 		String type = mimetype.split("/")[0];
@@ -460,6 +467,7 @@ public class ContentServiceImpl extends SalesManagerEntityServiceImpl<Long, Cont
 	public void addFolder(MerchantStore store, Optional<String> path, String folderName) throws ServiceException {
 		Validate.notNull(store, "MerchantStore cannot be null");
 		Validate.notNull(folderName, "Folder name cannot be null");
+		FilePathUtils.requireSafeFileName(folderName);
 		
 		if(path.isPresent()) {
 			if(!this.isValidLinuxDirectory(path.get())) {
@@ -482,6 +490,12 @@ public class ContentServiceImpl extends SalesManagerEntityServiceImpl<Long, Cont
 	public void removeFolder(MerchantStore store, Optional<String> path, String folderName) throws ServiceException {
 		Validate.notNull(store, "MerchantStore cannot be null");
 		Validate.notNull(folderName, "Folder name cannot be null");
+		FilePathUtils.requireSafeFileName(folderName);
+		if(path.isPresent()) {
+			if(!this.isValidLinuxDirectory(path.get())) {
+				throw new ServiceException("Path format [" + path.get() + "] not a valid directory format");
+			}
+		}
 		
 		contentFileManager.removeFolder(store.getCode(), folderName, path);
 
@@ -496,6 +510,8 @@ public class ContentServiceImpl extends SalesManagerEntityServiceImpl<Long, Cont
 	public void renameFile(String merchantStoreCode, FileContentType fileContentType, Optional<String> path,
 			String originalName, String newName) throws ServiceException{
 
+		FilePathUtils.requireSafeFileName(originalName);
+		FilePathUtils.requireSafeFileName(newName);
 		OutputContentFile file = contentFileManager.getFile(merchantStoreCode, path, fileContentType, originalName);
 		
 		if(file == null) {

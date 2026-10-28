@@ -27,7 +27,7 @@ public class RestErrorHandler {
     public @ResponseBody ErrorEntity handleServiceException(Exception exception) {
         log.error(exception.getMessage(), exception);
         Objects.requireNonNull(exception.getCause());
-        Throwable rootCause = exception.getCause();
+        Throwable rootCause = exception.getCause() != null ? exception.getCause() : exception;
         while (rootCause.getCause() != null && rootCause.getCause() != rootCause) {
             rootCause = rootCause.getCause();
         }
@@ -45,7 +45,7 @@ public class RestErrorHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public @ResponseBody ErrorEntity handleServiceException(ServiceRuntimeException exception) {
         log.error(exception.getErrorMessage(), exception);
-        Throwable rootCause = exception.getCause();
+        Throwable rootCause = exception.getCause() != null ? exception.getCause() : exception;
         while (rootCause.getCause() != null && rootCause.getCause() != rootCause) {
             rootCause = rootCause.getCause();
         }

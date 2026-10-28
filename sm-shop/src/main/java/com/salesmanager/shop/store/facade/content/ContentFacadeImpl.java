@@ -112,8 +112,13 @@ public class ContentFacadeImpl implements ContentFacade {
 	public void delete(MerchantStore store, String fileName, String fileType) {
 		Validate.notNull(store, "MerchantStore cannot be null");
 		Validate.notNull(fileName, "File name cannot be null");
+		FileContentType t;
 		try {
-			FileContentType t = FileContentType.valueOf(fileType);
+			t = FileContentType.valueOf(fileType);
+		} catch (IllegalArgumentException | NullPointerException e) {
+			throw new ServiceRuntimeException("Invalid content type [" + fileType + "]");
+		}
+		try {
 			contentService.removeFile(store.getCode(), t, fileName);
 		} catch (ServiceException e) {
 			throw new ServiceRuntimeException(e);

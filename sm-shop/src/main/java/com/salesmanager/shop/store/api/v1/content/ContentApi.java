@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.salesmanager.core.business.utils.FilePathUtils;
 import com.salesmanager.core.model.content.ContentType;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
@@ -418,7 +419,7 @@ public class ContentApi {
 
 		ContentFile f = new ContentFile();
 		f.setContentType(file.getContentType());
-		f.setName(file.getOriginalFilename());
+		f.setName(requireSafeFileName(file.getOriginalFilename()));
 		try {
 			f.setFile(file.getBytes());
 		} catch (IOException e) {
@@ -440,9 +441,13 @@ public class ContentApi {
 			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) {
 
 		for (MultipartFile f : files) {
+			requireSafeFileName(f.getOriginalFilename());
+		}
+
+		for (MultipartFile f : files) {
 			ContentFile cf = new ContentFile();
 			cf.setContentType(f.getContentType());
-			cf.setName(f.getName());
+			cf.setName(f.getOriginalFilename());
 			try {
 				cf.setFile(f.getBytes());
 				contentFacade.addContentFile(cf, merchantStore.getCode());
@@ -513,7 +518,14 @@ public class ContentApi {
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public void deleteFile(@Valid ContentName name, @ApiIgnore MerchantStore merchantStore,
 			@ApiIgnore Language language) {
-		contentFacade.delete(merchantStore, name.getName(), name.getContentType());
+		contentFacade.delete(merchantStore, requireSafeFileName(name.getName()), name.getContentType());
+	}
+
+	private static String requireSafeFileName(String fileName) {
+		if (!FilePathUtils.isSafeFileName(fileName)) {
+			throw new ServiceRuntimeException("Invalid file name");
+		}
+		return fileName;
 	}
 
 
