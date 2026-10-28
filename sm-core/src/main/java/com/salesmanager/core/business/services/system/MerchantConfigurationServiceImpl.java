@@ -44,10 +44,9 @@ public class MerchantConfigurationServiceImpl extends
 	
 	@Override
 	public void saveOrUpdate(MerchantConfiguration entity) throws ServiceException {
-		
 
-		
 		if(entity.getId()!=null && entity.getId()>0) {
+			assertSameStore(entity);
 			super.update(entity);
 		} else {
 			super.create(entity);
@@ -56,6 +55,15 @@ public class MerchantConfigurationServiceImpl extends
 	}
 	
 	
+	private void assertSameStore(MerchantConfiguration entity) throws ServiceException {
+		Integer existingStoreId = merchantConfigurationRepository.findMerchantStoreIdById(entity.getId());
+		MerchantStore store = entity.getMerchantStore();
+		if (existingStoreId == null || store == null || !existingStoreId.equals(store.getId())) {
+			throw new ServiceException(ServiceException.EXCEPTION_VALIDATION,
+					"MerchantConfiguration " + entity.getId() + " does not belong to the target merchant store");
+		}
+	}
+
 	@Override
 	public void delete(MerchantConfiguration merchantConfiguration) throws ServiceException {
 		MerchantConfiguration config = merchantConfigurationRepository.getOne(merchantConfiguration.getId());
