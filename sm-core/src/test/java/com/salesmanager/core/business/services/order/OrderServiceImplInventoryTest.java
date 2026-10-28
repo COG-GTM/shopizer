@@ -173,6 +173,22 @@ class OrderServiceImplInventoryTest {
 		verify(productService, never()).update(unrelated);
 	}
 
+	@Test
+	void ignoresAvailabilityOfAnotherStore() throws Exception {
+		Product purchased = product(10L, "CHEAP", store, 20);
+		ProductAvailability otherStoreStock = availability(103L, purchased, Constants.ALL_REGIONS, 50);
+		otherStoreStock.setMerchantStore(store(2));
+		purchased.getAvailabilities().add(otherStoreStock);
+		purchased.getAvailabilities().stream().filter(a -> a != otherStoreStock).forEach(a -> a.setMerchantStore(store));
+		when(productService.getBySku("CHEAP", store)).thenReturn(purchased);
+
+		process(order(line("CHEAP", 2)));
+
+		assertEquals(18, purchased.getAvailabilities().stream()
+				.filter(a -> a != otherStoreStock).findFirst().get().getProductQuantity().intValue());
+		assertEquals(50, otherStoreStock.getProductQuantity().intValue());
+	}
+
 	private void process(Order order) throws ServiceException {
 		orderService.processOrder(order, customer, Collections.singletonList(new ShoppingCartItem(new Product())),
 				new OrderTotalSummary(), mock(Payment.class), store);

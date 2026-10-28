@@ -17,6 +17,7 @@ import com.salesmanager.core.model.catalog.product.attribute.ProductAttribute;
 import com.salesmanager.core.model.catalog.product.file.DigitalProduct;
 import com.salesmanager.core.model.catalog.product.price.FinalPrice;
 import com.salesmanager.core.model.catalog.product.price.ProductPrice;
+import com.salesmanager.core.model.catalog.product.variant.ProductVariant;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.order.orderproduct.OrderProduct;
 import com.salesmanager.core.model.order.orderproduct.OrderProductAttribute;
@@ -89,7 +90,7 @@ public class OrderProductPopulator extends
 			target.setOneTimeCharge(source.getItemPrice());	
 			target.setProductName(source.getProduct().getDescriptions().iterator().next().getName());
 			target.setProductQuantity(source.getQuantity());
-			target.setSku(source.getProduct().getSku());
+			target.setSku(orderedSku(source, modelProduct));
 			
 			FinalPrice finalPrice = source.getFinalPrice();
 			if(finalPrice==null) {
@@ -188,4 +189,19 @@ public class OrderProductPopulator extends
 	}
 
 
+
+	/**
+	 * Sku of the variant selected in the cart when there is one, so that
+	 * inventory is taken from that variant, otherwise the product sku.
+	 */
+	private String orderedSku(ShoppingCartItem source, Product product) {
+		if(source.getVariant() != null && product.getVariants() != null) {
+			for(ProductVariant variant : product.getVariants()) {
+				if(source.getVariant().equals(variant.getId()) && variant.getSku() != null) {
+					return variant.getSku();
+				}
+			}
+		}
+		return source.getProduct().getSku();
+	}
 }

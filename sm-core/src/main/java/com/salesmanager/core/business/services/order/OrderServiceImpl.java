@@ -244,6 +244,10 @@ public class OrderServiceImpl  extends SalesManagerEntityServiceImpl<Long, Order
         ProductAvailability productLevel = null;
         ProductAvailability any = null;
         for(ProductAvailability availability : product.getAvailabilities()) {
+            if(availability.getMerchantStore() != null
+                    && !store.getId().equals(availability.getMerchantStore().getId())) {
+                continue;
+            }
             boolean allRegions = Constants.ALL_REGIONS.equals(availability.getRegion());
             if(any == null || allRegions) {
                 any = availability;
