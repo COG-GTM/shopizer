@@ -92,23 +92,34 @@ public class PersistableOrderApiPopulator extends AbstractDataPopulator<Persista
 			
 			//Customer
 			Customer customer = null;
-			if(source.getCustomerId() != null && source.getCustomerId().longValue() >0) {
+			if(source instanceof PersistableAnonymousOrder) {
+			  //anonymous checkout must never reference an existing customer
+			  if(source.getCustomerId() != null && source.getCustomerId().longValue() > 0) {
+			    throw new ConversionException("customerId is not accepted for anonymous checkout");
+			  }
+			  PersistableCustomer persistableCustomer = ((PersistableAnonymousOrder)source).getCustomer();
+			  if(persistableCustomer == null) {
+			    throw new ConversionException("Customer details not set in request");
+			  }
+			  if(persistableCustomer.getId() != null && persistableCustomer.getId().longValue() > 0) {
+			    throw new ConversionException("customer.id is not accepted for anonymous checkout");
+			  }
+			  customer = new Customer();
+			  customer = customerPopulator.populate(persistableCustomer, customer, store, language);
+			} else if(source.getCustomerId() != null && source.getCustomerId().longValue() >0) {
 			  Long customerId = source.getCustomerId();
 			  customer = customerService.getById(customerId);
 
-			  if(customer == null) {
-				throw new ConversionException("Curstomer with id " + source.getCustomerId() + " does not exist");
+			  if(customer == null || customer.getMerchantStore() == null
+			      || customer.getMerchantStore().getId() == null
+			      || store.getId() == null
+			      || customer.getMerchantStore().getId().intValue() != store.getId().intValue()) {
+				throw new ConversionException("Customer with id " + customerId + " does not exist");
 			  }
 			  target.setCustomerId(customerId);
-			
+
 			} else {
-			  if(source instanceof PersistableAnonymousOrder) {
-			    PersistableCustomer persistableCustomer = ((PersistableAnonymousOrder)source).getCustomer();
-			    customer = new Customer();
-			    customer = customerPopulator.populate(persistableCustomer, customer, store, language);
-			  } else {
-			    throw new ConversionException("Curstomer details or id not set in request");
-			  } 
+			  throw new ConversionException("Customer details or id not set in request");
 			}
 			
 			

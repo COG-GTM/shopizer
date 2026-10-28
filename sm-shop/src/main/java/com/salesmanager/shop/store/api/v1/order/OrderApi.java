@@ -421,6 +421,16 @@ public class OrderApi {
 				throw new ResourceNotFoundException("Cart code " + code + " does not exist");
 			}
 
+			//anonymous checkout cannot reference or update an existing customer
+			if (order.getCustomerId() != null && order.getCustomerId().longValue() > 0) {
+				throw new GenericRuntimeException("400", "customerId is not accepted for anonymous checkout");
+			}
+			if (order.getCustomer().getId() != null && order.getCustomer().getId().longValue() > 0) {
+				throw new GenericRuntimeException("400", "customer.id is not accepted for anonymous checkout");
+			}
+			order.setCustomerId(null);
+			order.getCustomer().setId(null);
+
 			//security password validation
 			PersistableCustomer presistableCustomer = order.getCustomer();
 			if(!StringUtils.isBlank(presistableCustomer.getPassword())) { //validate customer password
