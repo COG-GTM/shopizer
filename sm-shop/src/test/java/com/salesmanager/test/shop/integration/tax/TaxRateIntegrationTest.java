@@ -1,5 +1,7 @@
 package com.salesmanager.test.shop.integration.tax;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -19,6 +21,7 @@ import com.salesmanager.shop.model.entity.Entity;
 import com.salesmanager.shop.model.entity.EntityExists;
 import com.salesmanager.shop.model.tax.PersistableTaxClass;
 import com.salesmanager.shop.model.tax.PersistableTaxRate;
+import com.salesmanager.shop.model.tax.ReadableTaxRate;
 import com.salesmanager.shop.model.tax.TaxRateDescription;
 import com.salesmanager.test.shop.common.ServicesTestSupport;
 
@@ -111,6 +114,42 @@ public class TaxRateIntegrationTest extends ServicesTestSupport {
 
 
 	
+    }
+
+    @Test
+    public void createIgnoresClientSuppliedIds() throws Exception {
+
+    	final ResponseEntity<Entity> original = testRestTemplate.postForEntity("/api/v1/private/tax/rate/",
+    			new HttpEntity<>(taxRate("victimrate", new BigDecimal(9), null), getHeader()), Entity.class);
+    	final Long victimId = original.getBody().getId();
+    	assertNotNull(victimId);
+
+    	final ResponseEntity<Entity> hijack = testRestTemplate.postForEntity("/api/v1/private/tax/rate/",
+    			new HttpEntity<>(taxRate("attackerrate", BigDecimal.ZERO, victimId), getHeader()), Entity.class);
+    	assertNotNull(hijack.getBody().getId());
+    	assertNotEquals(victimId, hijack.getBody().getId());
+
+    	final ResponseEntity<ReadableTaxRate> victim = testRestTemplate.exchange("/api/v1/private/tax/rate/" + victimId, HttpMethod.GET,
+    			new HttpEntity<>(getHeader()), ReadableTaxRate.class);
+    	assertEquals("victimrate", victim.getBody().getCode());
+    }
+
+    private PersistableTaxRate taxRate(String code, BigDecimal rate, Long id) {
+    	PersistableTaxRate taxRate = new PersistableTaxRate();
+    	taxRate.setId(id);
+    	taxRate.setCode(code);
+    	taxRate.setCountry("US");
+    	taxRate.setPriority(0);
+    	taxRate.setRate(rate);
+    	taxRate.setStore("DEFAULT");
+    	taxRate.setTaxClass("DEFAULT");
+    	taxRate.setZone("NY");
+    	TaxRateDescription en = new TaxRateDescription();
+    	en.setId(id);
+    	en.setLanguage("en");
+    	en.setName(code);
+    	taxRate.getDescriptions().add(en);
+    	return taxRate;
     }
 
 }

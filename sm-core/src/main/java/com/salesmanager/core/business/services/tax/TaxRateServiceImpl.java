@@ -67,11 +67,23 @@ public class TaxRateServiceImpl extends SalesManagerEntityServiceImpl<Long, TaxR
 	@Override
 	public TaxRate saveOrUpdate(TaxRate taxRate) throws ServiceException {
 		if(taxRate.getId()!=null && taxRate.getId() > 0) {
+			TaxRate existing = taxRateRepository.findById(taxRate.getId()).orElse(null);
+			if(existing == null || !sameStore(existing.getMerchantStore(), taxRate.getMerchantStore())) {
+				throw new ServiceException("TaxRate [" + taxRate.getId() + "] does not belong to the target store");
+			}
 			this.update(taxRate);
 		} else {
+			if(taxRate.getDescriptions() != null
+					&& taxRate.getDescriptions().stream().anyMatch(d -> d.getId() != null)) {
+				throw new ServiceException("A new TaxRate cannot reference existing descriptions");
+			}
 			taxRate = super.saveAndFlush(taxRate);
 		}
 		return taxRate;
+	}
+
+	private static boolean sameStore(MerchantStore a, MerchantStore b) {
+		return a != null && b != null && a.getId() != null && a.getId().equals(b.getId());
 	}
 
 	@Override
