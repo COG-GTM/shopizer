@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.salesmanager.core.business.constants.Constants;
 import com.salesmanager.core.business.exception.ServiceException;
+import com.salesmanager.core.business.modules.integration.shipping.impl.CarrierEndpoints;
 import com.salesmanager.core.business.repositories.system.ModuleConfigurationRepository;
 import com.salesmanager.core.business.services.common.generic.SalesManagerEntityServiceImpl;
 import com.salesmanager.core.business.services.reference.loader.IntegrationModulesLoader;
@@ -172,12 +173,19 @@ public class ModuleConfigurationServiceImpl extends SalesManagerEntityServiceImp
 			Map object = mapper.readValue(json, Map.class);
 			IntegrationModule module = integrationModulesLoader.loadModule(object);
 			if (module != null) {
+				try {
+					CarrierEndpoints.validate(module);
+				} catch (IllegalArgumentException e) {
+					throw new ServiceException(ServiceException.EXCEPTION_VALIDATION, e.getMessage());
+				}
 				IntegrationModule m = this.getByCode(module.getCode());
 				if (m != null) {
 					this.delete(m);
 				}
 				this.create(module);
 			}
+		} catch (ServiceException e) {
+			throw e;
 		} catch (Exception e) {
 			throw new ServiceException(e);
 		}

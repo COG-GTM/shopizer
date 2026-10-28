@@ -20,6 +20,7 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationEn
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 import com.salesmanager.shop.admin.security.UserAuthenticationSuccessHandler;
+import com.salesmanager.shop.constants.Constants;
 import com.salesmanager.shop.admin.security.WebUserServices;
 import com.salesmanager.shop.store.controller.customer.facade.CustomerFacade;
 import com.salesmanager.shop.store.security.AuthenticationTokenFilter;
@@ -185,6 +186,7 @@ public class MultipleEntryPointsSecurityConfig {
 			.csrf().disable()
 					.authorizeRequests()
 					.antMatchers("/services/public/**").permitAll()
+					.antMatchers("/services/private/system/module/**").hasRole(Constants.GROUP_SUPERADMIN)
 					.antMatchers("/services/private/**").hasRole("AUTH")
 					.anyRequest().authenticated()
 					.and().httpBasic().authenticationEntryPoint(servicesAuthenticationEntryPoint())
