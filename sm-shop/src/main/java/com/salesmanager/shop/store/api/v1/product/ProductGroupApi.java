@@ -25,6 +25,8 @@ import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.shop.model.catalog.product.ReadableProductList;
 import com.salesmanager.shop.model.catalog.product.group.ProductGroup;
+import com.salesmanager.shop.store.api.exception.ResourceNotFoundException;
+import com.salesmanager.shop.store.api.exception.UnauthorizedException;
 import com.salesmanager.shop.store.controller.items.facade.ProductItemsFacade;
 
 import antlr.collections.List;
@@ -165,33 +167,8 @@ public class ProductGroupApi {
       @ApiIgnore Language language,
       HttpServletResponse response) {
 
-	  
-	Product product = null;
-    try {
-      // get the product
-    	product = productService.getById(productId);
-
-      if (product == null) {
-        response.sendError(404, "Product not fount for id " + productId);
-        return null;
-      }
-      
-    } catch (Exception e) {
-        LOGGER.error("Error while adding product to group", e);
-        try {
-          response.sendError(503, "Error while adding product to group " + e.getMessage());
-        } catch (Exception ignore) {
-        }
-
-        return null;
-      }
-
-      ReadableProductList list =
-          productItemsFacade.addItemToGroup(product, code, merchantStore, language);
-
-      return list;
-
-
+    Product product = getStoreProduct(productId, merchantStore);
+    return productItemsFacade.addItemToGroup(product, code, merchantStore, language);
   }
 
   @ResponseStatus(HttpStatus.OK)
@@ -210,15 +187,9 @@ public class ProductGroupApi {
       HttpServletRequest request,
       HttpServletResponse response) {
 
+    Product product = getStoreProduct(productId, merchantStore);
+
     try {
-      // get the product
-      Product product = productService.getById(productId);
-
-      if (product == null) {
-        response.sendError(404, "Product not fount for id " + productId);
-        return null;
-      }
-
       ReadableProductList list =
           productItemsFacade.removeItemFromGroup(product, code, merchantStore, language);
 
@@ -250,5 +221,18 @@ public class ProductGroupApi {
 	  
 	  productItemsFacade.deleteGroup(code, merchantStore);
 
+  }
+
+  private Product getStoreProduct(Long productId, MerchantStore merchantStore) {
+    Product product = productService.getProductWithOnlyMerchantStoreById(productId);
+    if (product == null) {
+      throw new ResourceNotFoundException("Product id [" + productId + "] is not found");
+    }
+    if (product.getMerchantStore() == null
+        || product.getMerchantStore().getId().intValue() != merchantStore.getId().intValue()) {
+      throw new UnauthorizedException(
+          "Product id [" + productId + "] does not belong to store [" + merchantStore.getCode() + "]");
+    }
+    return product;
   }
 }

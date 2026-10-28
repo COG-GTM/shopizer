@@ -28,6 +28,7 @@ import com.salesmanager.shop.populator.catalog.ReadableProductPopulator;
 import com.salesmanager.shop.store.api.exception.OperationNotAllowedException;
 import com.salesmanager.shop.store.api.exception.ResourceNotFoundException;
 import com.salesmanager.shop.store.api.exception.ServiceRuntimeException;
+import com.salesmanager.shop.store.api.exception.UnauthorizedException;
 import com.salesmanager.shop.store.controller.items.facade.ProductItemsFacade;
 import com.salesmanager.shop.utils.ImageFilePath;
 
@@ -149,6 +150,13 @@ public class ProductItemsFacadeImpl implements ProductItemsFacade {
 		
 		Validate.notNull(product,"Product must not be null");
 		Validate.notNull(group,"group must not be null");
+		Validate.notNull(store,"MerchantStore must not be null");
+
+		if (product.getMerchantStore() == null
+				|| product.getMerchantStore().getId().intValue() != store.getId().intValue()) {
+			throw new UnauthorizedException(
+					"Product id [" + product.getId() + "] does not belong to store [" + store.getCode() + "]");
+		}
 		
 		
 		//check if product is already in group
