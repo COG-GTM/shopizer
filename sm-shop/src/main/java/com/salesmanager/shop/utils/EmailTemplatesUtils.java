@@ -330,7 +330,7 @@ public class EmailTemplatesUtils {
 
 
 		           Email email = new Email();
-		           email.setFrom(contact.getName());
+		           email.setFrom(toDisplayName(contact.getName()));
 		           //since shopizer sends email to store email, sender is store email
 		           email.setFromEmail(merchantStore.getStoreEmailAddress());
 		           email.setSubject(messages.getMessage("email.contact.title",storeLocale));
@@ -348,6 +348,20 @@ public class EmailTemplatesUtils {
 			
 		}
 	
+	private static final int MAX_DISPLAY_NAME_LENGTH = 64;
+
+	/**
+	 * Visitor-supplied names are used as the From display name: strip control
+	 * characters (CR/LF etc.), collapse whitespace and cap the length.
+	 */
+	public static String toDisplayName(String name) {
+		if (name == null) {
+			return null;
+		}
+		String cleaned = name.replaceAll("[\\p{Cntrl}\\p{Zl}\\p{Zp}]", " ").replaceAll("\\s+", " ").trim();
+		return StringUtils.abbreviate(cleaned, MAX_DISPLAY_NAME_LENGTH);
+	}
+
 	/**
 	 * Send an email to the customer with last order status
 	 * @param request
