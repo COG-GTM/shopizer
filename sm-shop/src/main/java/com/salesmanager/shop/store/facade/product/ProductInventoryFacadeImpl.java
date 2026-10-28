@@ -219,7 +219,7 @@ public class ProductInventoryFacadeImpl implements ProductInventoryFacade {
 		Validate.notNull(store, "MerchantStore code cannot be null");
 		Validate.notNull(language, "Language cannot be null");
 		
-		Page<ProductAvailability> availabilities = productAvailabilityService.getBySku(sku, page, count);
+		Page<ProductAvailability> availabilities = productAvailabilityService.getBySku(sku, store, page, count);
 		
 		/**
 		 * br -> if availabilities is null, it may be bcz a variant is a decorated product with no specific inventory.
