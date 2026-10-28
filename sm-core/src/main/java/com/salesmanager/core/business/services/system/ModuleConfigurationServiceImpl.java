@@ -35,6 +35,8 @@ public class ModuleConfigurationServiceImpl extends SalesManagerEntityServiceImp
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ModuleConfigurationServiceImpl.class);
 
+	private static final String REFERENCE_MODULES = "reference/integrationmodules.json";
+
 	@Inject
 	private IntegrationModulesLoader integrationModulesLoader;
 
@@ -42,6 +44,8 @@ public class ModuleConfigurationServiceImpl extends SalesManagerEntityServiceImp
 
 	@Inject
 	private CacheUtils cache;
+
+	private volatile IntegrationModuleEndpointPolicy endpointPolicy;
 
 	@Autowired(required = false)
 	private List<ModuleStarter> payments = null; // all bound payment module starters if any
@@ -172,16 +176,27 @@ public class ModuleConfigurationServiceImpl extends SalesManagerEntityServiceImp
 			Map object = mapper.readValue(json, Map.class);
 			IntegrationModule module = integrationModulesLoader.loadModule(object);
 			if (module != null) {
+				getEndpointPolicy().validate(module);
 				IntegrationModule m = this.getByCode(module.getCode());
 				if (m != null) {
 					this.delete(m);
 				}
 				this.create(module);
 			}
+		} catch (ServiceException e) {
+			throw e;
 		} catch (Exception e) {
 			throw new ServiceException(e);
 		}
 
+	}
+
+	private IntegrationModuleEndpointPolicy getEndpointPolicy() throws Exception {
+		if (endpointPolicy == null) {
+			endpointPolicy = new IntegrationModuleEndpointPolicy(
+					integrationModulesLoader.loadIntegrationModules(REFERENCE_MODULES));
+		}
+		return endpointPolicy;
 	}
 
 }
