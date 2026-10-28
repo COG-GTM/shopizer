@@ -2,7 +2,6 @@ package com.salesmanager.shop.store.security.admin;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -21,7 +20,6 @@ import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.services.user.GroupService;
 import com.salesmanager.core.business.services.user.PermissionService;
 import com.salesmanager.core.business.services.user.UserService;
-import com.salesmanager.core.model.common.audit.AuditSection;
 import com.salesmanager.core.model.user.Group;
 import com.salesmanager.core.model.user.Permission;
 import com.salesmanager.core.model.user.User;
@@ -47,14 +45,7 @@ public class JWTAdminServicesImpl implements UserDetailsService{
 
 
 	private UserDetails userDetails(String userName, User user, Collection<GrantedAuthority> authorities) {
-        
-		AuditSection section = null;
-		section = user.getAuditSection();
-		Date lastModified = null;
-		//if(section != null) {//does not represent password change
-		//	lastModified = section.getDateModified();
-		//}
-		
+
 		return new JWTUser(
         		user.getId(),
         		userName,
@@ -63,8 +54,8 @@ public class JWTAdminServicesImpl implements UserDetailsService{
                 user.getAdminEmail(),
                 user.getAdminPassword(),
                 authorities,
-                true,
-                lastModified
+                user.isActive(),
+                user.getPasswordChangedDate()
         );
 	}
 
