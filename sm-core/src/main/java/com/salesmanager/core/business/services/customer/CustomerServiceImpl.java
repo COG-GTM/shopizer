@@ -7,6 +7,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.repositories.customer.CustomerRepository;
@@ -122,8 +123,15 @@ public class CustomerServiceImpl extends SalesManagerEntityServiceImpl<Long, Cus
 	}
 
 	@Override
-	public boolean consumePasswordResetToken(Customer customer, String token) {
-		return customerRepository.clearResetPasswordToken(customer.getId(), token) == 1;
+	@Transactional(rollbackFor = Exception.class)
+	public boolean resetPassword(Customer customer, String token, String encodedPassword) throws ServiceException {
+		if (customerRepository.clearResetPasswordToken(customer.getId(), token) != 1) {
+			return false;
+		}
+		customer.setPassword(encodedPassword);
+		customer.setCredentialsResetRequest(null);
+		save(customer);
+		return true;
 	}
 	
 

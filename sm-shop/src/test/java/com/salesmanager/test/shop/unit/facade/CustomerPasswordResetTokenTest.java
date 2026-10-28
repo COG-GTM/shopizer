@@ -62,9 +62,16 @@ public class CustomerPasswordResetTokenTest {
 		// mirrors CustomerRepository.findByResetPasswordToken
 		when(customerService.getByPasswordResetToken(anyString(), anyString()))
 				.thenAnswer(i -> i.getArgument(1).equals(storedToken.get()) ? customer : null);
-		// mirrors CustomerRepository.clearResetPasswordToken (conditional UPDATE)
-		when(customerService.consumePasswordResetToken(any(Customer.class), anyString()))
-				.thenAnswer(i -> storedToken.compareAndSet(i.getArgument(1), null));
+		// mirrors CustomerServiceImpl.resetPassword: conditional UPDATE, then password save
+		when(customerService.resetPassword(any(Customer.class), anyString(), anyString())).thenAnswer(i -> {
+			if (!storedToken.compareAndSet(i.getArgument(1), null)) {
+				return false;
+			}
+			Customer target = i.getArgument(0);
+			target.setPassword(i.getArgument(2));
+			target.setCredentialsResetRequest(null);
+			return true;
+		});
 	}
 
 	@Test
@@ -74,7 +81,7 @@ public class CustomerPasswordResetTokenTest {
 		assertEquals("encoded:NewPassword1", customer.getPassword());
 		assertNull(customer.getCredentialsResetRequest());
 		assertNull(storedToken.get());
-		verify(customerService).save(customer);
+		verify(customerService).resetPassword(customer, TOKEN, "encoded:NewPassword1");
 	}
 
 	@Test
@@ -89,7 +96,7 @@ public class CustomerPasswordResetTokenTest {
 		}
 
 		assertEquals("encoded:NewPassword1", customer.getPassword());
-		verify(customerService, times(1)).save(any(Customer.class));
+		verify(customerService, times(1)).resetPassword(any(Customer.class), anyString(), anyString());
 	}
 
 	@Test
@@ -106,7 +113,7 @@ public class CustomerPasswordResetTokenTest {
 		}
 
 		assertEquals("encoded:NewPassword1", customer.getPassword());
-		verify(customerService, times(1)).save(any(Customer.class));
+		verify(customerService, times(2)).resetPassword(any(Customer.class), anyString(), anyString());
 	}
 
 	@Test
@@ -130,7 +137,6 @@ public class CustomerPasswordResetTokenTest {
 		} catch (GenericRuntimeException expected) {
 		}
 
-		verify(customerService, never()).consumePasswordResetToken(any(Customer.class), anyString());
-		verify(customerService, never()).save(any(Customer.class));
+		verify(customerService, never()).resetPassword(any(Customer.class), anyString(), anyString());
 	}
 }

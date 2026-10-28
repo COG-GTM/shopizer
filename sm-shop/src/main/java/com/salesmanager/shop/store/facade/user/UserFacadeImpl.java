@@ -854,16 +854,14 @@ public class UserFacadeImpl implements UserFacade {
 		Validate.notNull(password, "New password cannot be null");
 
 		User user = verifyUserLink(token, store);// reverify
-		if (!userService.consumePasswordResetToken(user, token)) {
-			throw new GenericRuntimeException("Token [" + token + "] has already been used");
-		}
-		user.setAdminPassword(passwordEncoder.encode(password));
-		user.setCredentialsResetRequest(null);
-		
+		boolean reset;
 		try {
-			userService.save(user);
+			reset = userService.resetPassword(user, token, passwordEncoder.encode(password));
 		} catch (ServiceException e) {
 			throw new ServiceRuntimeException("Error while saving user",e);
+		}
+		if (!reset) {
+			throw new GenericRuntimeException("Token [" + token + "] has already been used");
 		}
 
 	}

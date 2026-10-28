@@ -62,9 +62,16 @@ public class UserPasswordResetTokenTest {
 		// mirrors UserRepository.findByResetPasswordToken
 		when(userService.getByPasswordResetToken(anyString(), anyString()))
 				.thenAnswer(i -> i.getArgument(1).equals(storedToken.get()) ? user : null);
-		// mirrors UserRepository.clearResetPasswordToken (conditional UPDATE)
-		when(userService.consumePasswordResetToken(any(User.class), anyString()))
-				.thenAnswer(i -> storedToken.compareAndSet(i.getArgument(1), null));
+		// mirrors UserServiceImpl.resetPassword: conditional UPDATE, then password save
+		when(userService.resetPassword(any(User.class), anyString(), anyString())).thenAnswer(i -> {
+			if (!storedToken.compareAndSet(i.getArgument(1), null)) {
+				return false;
+			}
+			User target = i.getArgument(0);
+			target.setAdminPassword(i.getArgument(2));
+			target.setCredentialsResetRequest(null);
+			return true;
+		});
 	}
 
 	@Test
@@ -74,7 +81,7 @@ public class UserPasswordResetTokenTest {
 		assertEquals("encoded:NewPassword1", user.getAdminPassword());
 		assertNull(user.getCredentialsResetRequest());
 		assertNull(storedToken.get());
-		verify(userService).save(user);
+		verify(userService).resetPassword(user, TOKEN, "encoded:NewPassword1");
 	}
 
 	@Test
@@ -89,7 +96,7 @@ public class UserPasswordResetTokenTest {
 		}
 
 		assertEquals("encoded:NewPassword1", user.getAdminPassword());
-		verify(userService, times(1)).save(any(User.class));
+		verify(userService, times(1)).resetPassword(any(User.class), anyString(), anyString());
 	}
 
 	@Test
@@ -106,7 +113,7 @@ public class UserPasswordResetTokenTest {
 		}
 
 		assertEquals("encoded:NewPassword1", user.getAdminPassword());
-		verify(userService, times(1)).save(any(User.class));
+		verify(userService, times(2)).resetPassword(any(User.class), anyString(), anyString());
 	}
 
 	@Test
@@ -130,7 +137,6 @@ public class UserPasswordResetTokenTest {
 		} catch (GenericRuntimeException expected) {
 		}
 
-		verify(userService, never()).consumePasswordResetToken(any(User.class), anyString());
-		verify(userService, never()).save(any(User.class));
+		verify(userService, never()).resetPassword(any(User.class), anyString(), anyString());
 	}
 }
