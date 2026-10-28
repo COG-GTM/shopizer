@@ -76,6 +76,12 @@ public class MerchantStoreApi {
 	@Inject
 	private UserFacade userFacade;
 
+	private static final List<String> STORE_ADMIN_GROUPS = Arrays.asList(Constants.GROUP_SUPERADMIN,
+			Constants.GROUP_ADMIN, Constants.GROUP_ADMIN_RETAIL, Constants.GROUP_ADMIN_RETAILER, Constants.ADMIN_STORE);
+
+	private static final List<String> STORE_DELETE_GROUPS = Arrays.asList(Constants.GROUP_SUPERADMIN,
+			Constants.GROUP_ADMIN_RETAIL, Constants.GROUP_ADMIN_RETAILER);
+
 	@GetMapping(value = { "/store/{code}" }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ApiOperation(httpMethod = "GET", value = "Get merchant store", notes = "", response = ReadableMerchantStore.class)
 	public ReadableMerchantStore store(@PathVariable String code,
@@ -239,11 +245,22 @@ public class MerchantStoreApi {
 	private String getUserFromRequest(HttpServletRequest request) {
 		// user doing action must be attached to the store being modified
 		Principal principal = request.getUserPrincipal();
+		if (principal == null) {
+			throw new UnauthorizedException();
+		}
 		return principal.getName();
 	}
 
 	private void validateUserPermission(String userName, String code) {
-		// TODO reviewed Spring Security should be used
+		validateUserPermission(userName, code, STORE_ADMIN_GROUPS);
+	}
+
+	/**
+	 * User must belong to one of the allowed groups and be attached to the store
+	 * (or its parent retailer), unless superadmin
+	 */
+	private void validateUserPermission(String userName, String code, List<String> allowedGroups) {
+		userFacade.authorizedGroup(userName, allowedGroups);
 		if (!userFacade.authorizedStore(userName, code)) {
 			throw new UnauthorizedException("User " + userName + " not authorized");
 		}
@@ -358,7 +375,7 @@ public class MerchantStoreApi {
 	@ApiOperation(httpMethod = "DELETE", value = "Deletes a store", notes = "", response = Void.class)
 	public void delete(@PathVariable String code, HttpServletRequest request) {
 		String userName = getUserFromRequest(request);
-		validateUserPermission(userName, code);
+		validateUserPermission(userName, code, STORE_DELETE_GROUPS);
 		storeFacade.delete(code);
 	}
 
