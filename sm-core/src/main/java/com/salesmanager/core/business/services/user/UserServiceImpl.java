@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.repositories.user.PageableUserRepository;
@@ -136,6 +137,12 @@ public class UserServiceImpl extends SalesManagerEntityServiceImpl<Long, User> i
 	@Override
 	public User getByPasswordResetToken(String storeCode, String token) {
 		return userRepository.findByResetPasswordToken(token, storeCode);
+	}
+
+	@Override
+	@Transactional
+	public boolean consumePasswordResetToken(Long userId, String token) {
+		return userRepository.clearResetPasswordToken(userId, token) == 1;
 	}
 
 }

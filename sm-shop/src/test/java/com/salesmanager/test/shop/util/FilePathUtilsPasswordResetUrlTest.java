@@ -26,18 +26,9 @@ public class FilePathUtilsPasswordResetUrlTest {
 	}
 
 	@Test
-	public void blankReturnUrlUsesFirstConfiguredUrl() {
-		assertEquals(Optional.of("https://admin.acme.example/console"),
-				filePathUtils.resolveUserPasswordResetBaseUrl(null, store));
-		assertEquals(Optional.of("https://admin.acme.example/console"),
-				filePathUtils.resolveUserPasswordResetBaseUrl("  ", store));
-	}
-
-	@Test
-	public void blankReturnUrlFallsBackToStoreDomain() {
-		filePathUtils.properties.remove(FilePathUtils.USER_PASSWORD_RESET_ALLOWED_URLS);
-		assertEquals(Optional.of("https://shop.acme.example"),
-				filePathUtils.resolveUserPasswordResetBaseUrl(null, store));
+	public void blankReturnUrlIsRejected() {
+		assertFalse(filePathUtils.resolveUserPasswordResetBaseUrl(null, store).isPresent());
+		assertFalse(filePathUtils.resolveUserPasswordResetBaseUrl("  ", store).isPresent());
 	}
 
 	@Test
@@ -48,8 +39,25 @@ public class FilePathUtilsPasswordResetUrlTest {
 				filePathUtils.resolveUserPasswordResetBaseUrl("http://localhost:4200/", store));
 		assertEquals(Optional.of("https://shop.acme.example"),
 				filePathUtils.resolveUserPasswordResetBaseUrl("https://shop.acme.example/admin", store));
-		assertEquals(Optional.of("http://shop.acme.example"),
-				filePathUtils.resolveUserPasswordResetBaseUrl("http://shop.acme.example", store));
+	}
+
+	@Test
+	public void bareStoreDomainIsHttpsOnly() {
+		assertFalse(filePathUtils.resolveUserPasswordResetBaseUrl("http://shop.acme.example", store).isPresent());
+	}
+
+	@Test
+	public void longestConfiguredPathPrefixWins() {
+		filePathUtils.properties.setProperty(FilePathUtils.USER_PASSWORD_RESET_ALLOWED_URLS,
+				"https://shop.acme.example/admin-ui, https://shop.acme.example/admin-ui/v2");
+		assertEquals(Optional.of("https://shop.acme.example/admin-ui"),
+				filePathUtils.resolveUserPasswordResetBaseUrl("https://shop.acme.example/admin-ui/#/login", store));
+		assertEquals(Optional.of("https://shop.acme.example/admin-ui/v2"),
+				filePathUtils.resolveUserPasswordResetBaseUrl("https://shop.acme.example/admin-ui/v2/x", store));
+		assertEquals(Optional.of("https://shop.acme.example"),
+				filePathUtils.resolveUserPasswordResetBaseUrl("https://shop.acme.example/admin-uix", store));
+		assertEquals(Optional.of("https://shop.acme.example"),
+				filePathUtils.resolveUserPasswordResetBaseUrl("https://shop.acme.example/../../evil", store));
 	}
 
 	@Test
@@ -77,7 +85,7 @@ public class FilePathUtilsPasswordResetUrlTest {
 	public void noConfigurationAndNoStoreDomainRejectsEverything() {
 		filePathUtils.properties.remove(FilePathUtils.USER_PASSWORD_RESET_ALLOWED_URLS);
 		store.setDomainName(null);
-		assertFalse(filePathUtils.resolveUserPasswordResetBaseUrl(null, store).isPresent());
+		assertFalse(filePathUtils.resolveUserPasswordResetBaseUrl("https://shop.acme.example", store).isPresent());
 		assertFalse(filePathUtils.resolveUserPasswordResetBaseUrl("https://mallory.example", store).isPresent());
 	}
 }

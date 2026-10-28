@@ -800,7 +800,7 @@ public class UserFacadeImpl implements UserFacade {
 		Validate.notNull(userName, "Username cannot be empty");
 
 		String baseUrl = filePathUtils.resolveUserPasswordResetBaseUrl(userContextPath, store)
-				.orElseThrow(() -> new RestApiException("400", "Return url is not allowed"));
+				.orElseThrow(() -> new RestApiException("400", "Return url is missing or not allowed"));
 
 		User user = null;
 		try {
@@ -857,6 +857,9 @@ public class UserFacadeImpl implements UserFacade {
 		Validate.notNull(password, "New password cannot be null");
 
 		User user = verifyUserLink(token, store);// reverify
+		if (!userService.consumePasswordResetToken(user.getId(), token)) {
+			throw new GenericRuntimeException("Password reset token has already been used");
+		}
 		user.setAdminPassword(passwordEncoder.encode(password));
 		user.setCredentialsResetRequest(null);
 		

@@ -1,6 +1,7 @@
 package com.salesmanager.test.shop.integration.user;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -42,6 +43,7 @@ public class UserPasswordResetIntegrationTest extends ServicesTestSupport {
 
 	private static final String ADMIN = "admin@shopizer.com";
 	private static final String STORE = "DEFAULT";
+	private static final String ADMIN_UI = "http://localhost:4200";
 	private static final String REQUEST_PATH = "/api/v1/user/password/reset/request?store=DEFAULT";
 
 	@MockBean
@@ -69,8 +71,8 @@ public class UserPasswordResetIntegrationTest extends ServicesTestSupport {
 
 	@Test
 	public void externalReturnUrlIsRejectedWithoutTokenOrEmail() throws Exception {
-		String[] urls = { "https://mallory.example", "http://localhost:8080@mallory.example",
-				"javascript://localhost:8080/x" };
+		String[] urls = { "https://mallory.example", "http://localhost:4200@mallory.example",
+				"javascript://localhost:4200/x", "" };
 		for (String url : urls) {
 			ResponseEntity<String> response = testRestTemplate.postForEntity(REQUEST_PATH, request(ADMIN, url),
 					String.class);
@@ -83,11 +85,11 @@ public class UserPasswordResetIntegrationTest extends ServicesTestSupport {
 	@Test
 	public void unknownUserGetsSameResponseAsKnownUser() throws Exception {
 		ResponseEntity<String> unknown = testRestTemplate.postForEntity(REQUEST_PATH,
-				request("nobody@shopizer.com", null), String.class);
+				request("nobody@shopizer.com", ADMIN_UI), String.class);
 		assertEquals(HttpStatus.OK, unknown.getStatusCode());
 		verify(emailService, never()).sendHtmlEmail(any(), any());
 
-		ResponseEntity<String> known = testRestTemplate.postForEntity(REQUEST_PATH, request(ADMIN, null),
+		ResponseEntity<String> known = testRestTemplate.postForEntity(REQUEST_PATH, request(ADMIN, ADMIN_UI),
 				String.class);
 		assertEquals(HttpStatus.OK, known.getStatusCode());
 		assertEquals(unknown.getBody(), known.getBody());
@@ -129,8 +131,19 @@ public class UserPasswordResetIntegrationTest extends ServicesTestSupport {
 	}
 
 	@Test
+	public void tokenCanOnlyBeConsumedOnce() throws Exception {
+		testRestTemplate.postForEntity(REQUEST_PATH, request(ADMIN, ADMIN_UI), String.class);
+		User admin = admin();
+		String token = admin.getCredentialsResetRequest().getCredentialsRequest();
+
+		assertFalse(userService.consumePasswordResetToken(admin.getId(), "not-the-token"));
+		assertTrue(userService.consumePasswordResetToken(admin.getId(), token));
+		assertFalse(userService.consumePasswordResetToken(admin.getId(), token));
+	}
+
+	@Test
 	public void expiredTokenIsRejected() throws Exception {
-		testRestTemplate.postForEntity(REQUEST_PATH, request(ADMIN, null), String.class);
+		testRestTemplate.postForEntity(REQUEST_PATH, request(ADMIN, ADMIN_UI), String.class);
 		User admin = admin();
 		String token = admin.getCredentialsResetRequest().getCredentialsRequest();
 		admin.getCredentialsResetRequest()

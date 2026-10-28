@@ -221,19 +221,40 @@ public class FilePathUtils {
 	/**
 	 * Base url used in administrator password reset emails. The returned value
 	 * always comes from server side configuration (USER_PASSWORD_RESET_ALLOWED_URLS
-	 * or the store domain name). A client supplied url only selects which configured
-	 * entry is used and must match its scheme, host and port exactly.
+	 * or https:// + store domain name). The client supplied url only selects which
+	 * configured entry is used: scheme, host and port must match exactly and, when
+	 * several entries share that origin, the longest matching path prefix wins.
 	 */
 	public Optional<String> resolveUserPasswordResetBaseUrl(String requestedUrl, MerchantStore store) {
-		List<String> allowedUrls = userPasswordResetAllowedUrls(store);
 		if (StringUtils.isBlank(requestedUrl)) {
-			return allowedUrls.stream().findFirst();
+			return Optional.empty();
 		}
 		String requestedOrigin = origin(requestedUrl.trim());
 		if (requestedOrigin == null) {
 			return Optional.empty();
 		}
-		return allowedUrls.stream().filter(allowed -> requestedOrigin.equals(origin(allowed))).findFirst();
+		String requestedPath = path(requestedUrl.trim());
+		String sameOrigin = null;
+		String bestPrefix = null;
+		for (String allowed : userPasswordResetAllowedUrls(store)) {
+			if (!requestedOrigin.equals(origin(allowed))) {
+				continue;
+			}
+			if (sameOrigin == null) {
+				sameOrigin = allowed;
+			}
+			String allowedPath = path(allowed);
+			if (isPathPrefix(requestedPath, allowedPath)
+					&& (bestPrefix == null || allowedPath.length() > path(bestPrefix).length())) {
+				bestPrefix = allowed;
+			}
+		}
+		String best = bestPrefix != null ? bestPrefix : sameOrigin;
+		return Optional.ofNullable(best);
+	}
+
+	private boolean isPathPrefix(String path, String prefix) {
+		return path.equals(prefix) || path.startsWith(prefix + SLASH);
 	}
 
 	private List<String> userPasswordResetAllowedUrls(MerchantStore store) {
@@ -243,14 +264,20 @@ public class FilePathUtils {
 		}
 		String domain = StringUtils.trimToEmpty(store.getDomainName());
 		if (StringUtils.isNotBlank(domain)) {
-			if (domain.contains(DOUBLE_SLASH)) {
-				addAllowedUrl(allowed, domain);
-			} else {
-				addAllowedUrl(allowed, HTTPS + domain);
-				addAllowedUrl(allowed, HTTP + domain);
-			}
+			addAllowedUrl(allowed, domain.contains(DOUBLE_SLASH) ? domain : HTTPS + domain);
 		}
 		return allowed;
+	}
+
+	/**
+	 * Path of a url without trailing slash, query or fragment ("" for the root).
+	 */
+	private String path(String url) {
+		try {
+			return StringUtils.removeEnd(StringUtils.defaultString(new URI(url).getPath()), SLASH);
+		} catch (URISyntaxException e) {
+			return BLANK;
+		}
 	}
 
 	private void addAllowedUrl(List<String> allowed, String url) {

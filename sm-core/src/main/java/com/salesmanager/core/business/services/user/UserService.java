@@ -26,6 +26,12 @@ public interface UserService extends SalesManagerEntityService<Long, User> {
   User getByPasswordResetToken(String storeCode, String token);
 
   /**
+   * Atomically clears the password reset token of a user.
+   * @return true only for the caller that cleared the token
+   */
+  boolean consumePasswordResetToken(Long userId, String token);
+
+  /**
    * Create or update a User
    * 
    * @param user
