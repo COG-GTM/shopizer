@@ -9,8 +9,10 @@ import com.salesmanager.core.model.user.Group;
 import com.salesmanager.core.model.user.GroupType;
 import com.salesmanager.core.model.user.Permission;
 import com.salesmanager.shop.constants.Constants;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -39,7 +41,10 @@ public class UserServicesImpl implements WebUserServices{
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserServicesImpl.class);
 	
-	private static final String DEFAULT_INITIAL_PASSWORD = "password";
+	public static final String DEFAULT_ADMIN_USER = "admin@shopizer.com";
+
+	@Value("${shopizer.admin.initial-password:}")
+	private String configuredInitialPassword;
 
 	@Inject
 	private UserService userService;
@@ -117,12 +122,11 @@ public class UserServicesImpl implements WebUserServices{
 
 		  MerchantStore store = merchantStoreService.getByCode(MerchantStore.DEFAULT_STORE);
 
-		  String password = passwordEncoder.encode(DEFAULT_INITIAL_PASSWORD);
+		  String password = passwordEncoder.encode(resolveInitialPassword());
 		  
 		  List<Group> groups = groupService.listGroup(GroupType.ADMIN);
 		  
-		  //creation of the super admin admin:password)
-		  com.salesmanager.core.model.user.User user = new com.salesmanager.core.model.user.User("admin@shopizer.com",password,"admin@shopizer.com");
+		  com.salesmanager.core.model.user.User user = new com.salesmanager.core.model.user.User(DEFAULT_ADMIN_USER,password,DEFAULT_ADMIN_USER);
 		  user.setFirstName("Administrator");
 		  user.setLastName("User");
 		  
@@ -136,6 +140,26 @@ public class UserServicesImpl implements WebUserServices{
 		  userService.create(user);
 		
 		
+	}
+
+	private String resolveInitialPassword() {
+		if (DefaultAdminPassword.isAcceptable(configuredInitialPassword)) {
+			LOGGER.info("Creating default administrator [{}] with the password from shopizer.admin.initial-password", DEFAULT_ADMIN_USER);
+			return configuredInitialPassword;
+		}
+		if (!StringUtils.isBlank(configuredInitialPassword)) {
+			LOGGER.warn("Ignoring shopizer.admin.initial-password: it must be at least {} characters and not a well-known default",
+					DefaultAdminPassword.MIN_CONFIGURED_LENGTH);
+		}
+		String generated = DefaultAdminPassword.generate();
+		LOGGER.warn("\n**************************************************************\n"
+				+ " Default administrator created: {}\n"
+				+ " Generated one-time password : {}\n"
+				+ " This password is shown only once. Change it after first login,\n"
+				+ " or set SHOPIZER_ADMIN_INITIAL_PASSWORD before the first start.\n"
+				+ "**************************************************************",
+				DEFAULT_ADMIN_USER, generated);
+		return generated;
 	}
 
 

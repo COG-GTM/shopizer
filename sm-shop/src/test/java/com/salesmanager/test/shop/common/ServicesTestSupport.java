@@ -48,11 +48,14 @@ import com.salesmanager.shop.store.security.AuthenticationResponse;
 @ExtendWith(SpringExtension.class)
 public class ServicesTestSupport {
 
+	protected static final String ADMIN_USER = "admin@shopizer.com";
+	protected static final String ADMIN_PASSWORD = "Sh0pizer-Test-Admin-1";
+
 	@Autowired
 	protected TestRestTemplate testRestTemplate;
 
 	protected HttpHeaders getHeader() {
-		return getHeader("admin@shopizer.com", "password");
+		return getHeader(ADMIN_USER, ADMIN_PASSWORD);
 	}
 
 	protected HttpHeaders getHeader(final String userName, final String password) {

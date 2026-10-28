@@ -40,6 +40,10 @@ From the command line:
 ```
 docker run -p 8080:8080 shopizerecomm/shopizer:latest
 ```
+
+On first start against an empty database Shopizer creates the super admin `admin@shopizer.com`.
+Its password is taken from the `SHOPIZER_ADMIN_INITIAL_PASSWORD` environment variable (at least 12 characters);
+when that is not set a random password is generated and printed once in the startup log. Change it after the first login.
        
 2. Run the administration tool
 
