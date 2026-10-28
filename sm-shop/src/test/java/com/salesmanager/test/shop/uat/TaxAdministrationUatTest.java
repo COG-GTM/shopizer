@@ -86,7 +86,10 @@ public class TaxAdministrationUatTest extends ServicesTestSupport {
 	public void cleanup() throws Exception {
 		for (Long id : createdRates) rates.delete(rates.getById(id, owner));
 		for (Long id : createdClasses) classes.delete(classes.getById(id));
-		if (victimRate != null) rates.delete(rates.getById(victimRate.getId(), foreign));
+		if (victimRate != null) {
+			TaxRate persisted = rates.getById(victimRate.getId());
+			if (persisted != null) rates.delete(persisted);
+		}
 		if (victimClass != null) classes.delete(classes.getById(victimClass.getId()));
 		if (foreign != null && foreign.getId() != null) stores.delete(foreign);
 	}
