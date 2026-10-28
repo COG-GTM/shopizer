@@ -9,9 +9,10 @@ import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -103,8 +104,9 @@ public class CategoryStoreScopeIntegrationTest extends ServicesTestSupport {
 			assertNotFound(() -> categoryFacade.getVisibleById(defaultStore, hidden.getId(), english));
 
 			ReadableCategory publicParent = categoryFacade.getVisibleById(defaultStore, parent.getId(), english);
-			assertEquals(Collections.singletonList(visibleChild.getId()),
-					Arrays.asList(publicParent.getChildren().get(0).getId()));
+			List<Long> publicChildIds = publicParent.getChildren().stream().map(ReadableCategory::getId)
+					.collect(Collectors.toList());
+			assertEquals(Collections.singletonList(visibleChild.getId()), publicChildIds);
 
 			ReadableCategory adminParent = categoryFacade.getById(defaultStore, parent.getId(), english);
 			assertEquals(2, adminParent.getChildren().size());
