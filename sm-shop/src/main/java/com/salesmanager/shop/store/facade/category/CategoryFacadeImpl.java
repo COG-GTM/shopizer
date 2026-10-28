@@ -43,7 +43,6 @@ import com.salesmanager.shop.populator.catalog.ReadableCategoryPopulator;
 import com.salesmanager.shop.store.api.exception.OperationNotAllowedException;
 import com.salesmanager.shop.store.api.exception.ResourceNotFoundException;
 import com.salesmanager.shop.store.api.exception.ServiceRuntimeException;
-import com.salesmanager.shop.store.api.exception.UnauthorizedException;
 import com.salesmanager.shop.store.controller.category.facade.CategoryFacade;
 
 @Service(value = "categoryFacade")
@@ -164,7 +163,7 @@ public class CategoryFacadeImpl implements CategoryFacade {
 			Category target = Optional.ofNullable(categoryId)
 					.filter(merchant -> store !=null)
 					.filter(id -> id > 0)
-					.map(categoryService::getById)
+					.map(id -> getById(store, id))
 					.orElse(new Category());
 
 			Category dbCategory = populateCategory(store, category, target);
@@ -347,24 +346,17 @@ public class CategoryFacadeImpl implements CategoryFacade {
 		Validate.notNull(id, "category id must not be null");
 		Validate.notNull(store, "MerchantStore must not be null");
 		Category category = categoryService.getById(id, store.getId());
-		if (category == null) {
+		if (category == null || category.getMerchantStore() == null
+				|| category.getMerchantStore().getId().intValue() != store.getId().intValue()) {
 			throw new ResourceNotFoundException("Category with id [" + id + "] not found");
-		}
-		if (category.getMerchantStore().getId().intValue() != store.getId().intValue()) {
-			throw new UnauthorizedException("Unauthorized");
 		}
 		return category;
 	}
 
 	@Override
 	public void deleteCategory(Long categoryId, MerchantStore store) {
-		Category category = getOne(categoryId, store.getId());
+		Category category = getById(store, categoryId);
 		deleteCategory(category);
-	}
-
-	private Category getOne(Long categoryId, int storeId) {
-		return Optional.ofNullable(categoryService.getById(categoryId)).orElseThrow(
-				() -> new ResourceNotFoundException(String.format("No Category found for ID : %s", categoryId)));
 	}
 
 	@Override
@@ -537,6 +529,8 @@ public class CategoryFacadeImpl implements CategoryFacade {
 			Category c = this.getById(store, category.getId());
 			c.setVisible(category.isVisible());
 			categoryService.saveOrUpdate(c);
+		} catch (ResourceNotFoundException e) {
+			throw e;
 		} catch (Exception e) {
 			throw new ServiceRuntimeException("Error while getting category [" + category.getId() + "]",e);
 		}
