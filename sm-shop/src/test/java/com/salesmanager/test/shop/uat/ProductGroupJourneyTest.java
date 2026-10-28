@@ -2,10 +2,12 @@ package com.salesmanager.test.shop.uat;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -14,6 +16,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.salesmanager.core.business.services.merchant.MerchantStoreService;
+import com.salesmanager.core.business.services.payments.PaymentService;
+import com.salesmanager.core.model.merchant.MerchantStore;
+import com.salesmanager.core.model.system.IntegrationConfiguration;
 import com.salesmanager.shop.constants.Constants;
 import com.salesmanager.shop.model.catalog.product.ReadableProduct;
 import com.salesmanager.shop.model.catalog.product.ReadableProductList;
@@ -30,6 +36,12 @@ import com.salesmanager.test.shop.common.ProductGroupTestSupport;
 
 @RunWith(SpringRunner.class)
 public class ProductGroupJourneyTest extends ProductGroupTestSupport {
+
+	@Autowired
+	private MerchantStoreService merchantStoreService;
+
+	@Autowired
+	private PaymentService paymentService;
 
 	@Test
 	public void catalogueAdminCanPublishAndRemoveProductsForAnonymousShoppers() {
@@ -121,44 +133,57 @@ public class ProductGroupJourneyTest extends ProductGroupTestSupport {
 	}
 
 	@Test
-	public void customerCanCheckOutWithMoneyOrderAndReadOrder() {
-		IntegrationModuleConfiguration configuration = new IntegrationModuleConfiguration();
-		configuration.setCode("moneyorder");
-		configuration.setActive(true);
-		configuration.getIntegrationKeys().put("address", "123 Test Street");
-		assertEquals(HttpStatus.OK, testRestTemplate.postForEntity("/api/v1/private/modules/payment",
-				new HttpEntity<>(configuration, getHeader()), String.class).getStatusCode());
-		HttpHeaders customer = registerCustomer(uniqueCode().toLowerCase(java.util.Locale.ROOT) + "@test.com");
-		ReadableProduct product = sampleProduct(uniqueCode());
-		PersistableShoppingCartItem item = new PersistableShoppingCartItem();
-		item.setProduct(product.getSku());
-		item.setQuantity(1);
-		ResponseEntity<ReadableShoppingCart> cart = testRestTemplate.postForEntity("/api/v1/cart", item,
-				ReadableShoppingCart.class);
-		assertEquals(HttpStatus.CREATED, cart.getStatusCode());
-		assertNotNull(cart.getBody());
-		PersistablePayment payment = new PersistablePayment();
-		payment.setPaymentModule("moneyorder");
-		payment.setPaymentType("MONEYORDER");
-		payment.setTransactionType("AUTHORIZECAPTURE");
-		payment.setAmount(cart.getBody().getTotal().toPlainString());
-		PersistableOrder order = new PersistableOrder();
-		order.setCurrency("CAD");
-		order.setCustomerAgreement(true);
-		order.setPayment(payment);
-		ResponseEntity<JsonNode> checkout = testRestTemplate.postForEntity(
-				"/api/v1/auth/cart/" + cart.getBody().getCode() + "/checkout",
-				new HttpEntity<>(order, customer), JsonNode.class);
-		assertEquals(HttpStatus.OK, checkout.getStatusCode());
-		assertNotNull(checkout.getBody());
-		assertTrue(checkout.getBody().get("id").asLong() > 0);
-		ResponseEntity<JsonNode> read = testRestTemplate.exchange(
-				"/api/v1/auth/orders/" + checkout.getBody().get("id").asLong(), HttpMethod.GET,
-				new HttpEntity<>(customer), JsonNode.class);
-		assertEquals(HttpStatus.OK, read.getStatusCode());
-		assertNotNull(read.getBody());
-		assertEquals(checkout.getBody().get("id"), read.getBody().get("id"));
-		assertEquals(product.getSku(), read.getBody().get("products").get(0).get("sku").asText());
+	public void customerCanCheckOutWithMoneyOrderAndReadOrder() throws Exception {
+		MerchantStore store = merchantStoreService.getByCode("DEFAULT");
+		IntegrationConfiguration previous = paymentService.getPaymentConfiguration("moneyorder", store);
+		try {
+			IntegrationModuleConfiguration configuration = new IntegrationModuleConfiguration();
+			configuration.setCode("moneyorder");
+			configuration.setActive(true);
+			configuration.getIntegrationKeys().put("address", "123 Test Street");
+			assertEquals(HttpStatus.OK, testRestTemplate.postForEntity("/api/v1/private/modules/payment",
+					new HttpEntity<>(configuration, getHeader()), String.class).getStatusCode());
+			HttpHeaders customer = registerCustomer(uniqueCode().toLowerCase(java.util.Locale.ROOT) + "@test.com");
+			ReadableProduct product = sampleProduct(uniqueCode());
+			PersistableShoppingCartItem item = new PersistableShoppingCartItem();
+			item.setProduct(product.getSku());
+			item.setQuantity(1);
+			ResponseEntity<ReadableShoppingCart> cart = testRestTemplate.postForEntity("/api/v1/cart", item,
+					ReadableShoppingCart.class);
+			assertEquals(HttpStatus.CREATED, cart.getStatusCode());
+			assertNotNull(cart.getBody());
+			PersistablePayment payment = new PersistablePayment();
+			payment.setPaymentModule("moneyorder");
+			payment.setPaymentType("MONEYORDER");
+			payment.setTransactionType("AUTHORIZECAPTURE");
+			payment.setAmount(cart.getBody().getTotal().toPlainString());
+			PersistableOrder order = new PersistableOrder();
+			order.setCurrency("CAD");
+			order.setCustomerAgreement(true);
+			order.setPayment(payment);
+			ResponseEntity<JsonNode> checkout = testRestTemplate.postForEntity(
+					"/api/v1/auth/cart/" + cart.getBody().getCode() + "/checkout",
+					new HttpEntity<>(order, customer), JsonNode.class);
+			assertEquals(HttpStatus.OK, checkout.getStatusCode());
+			assertNotNull(checkout.getBody());
+			assertTrue(checkout.getBody().get("id").asLong() > 0);
+			ResponseEntity<JsonNode> read = testRestTemplate.exchange(
+					"/api/v1/auth/orders/" + checkout.getBody().get("id").asLong(), HttpMethod.GET,
+					new HttpEntity<>(customer), JsonNode.class);
+			assertEquals(HttpStatus.OK, read.getStatusCode());
+			assertNotNull(read.getBody());
+			assertEquals(checkout.getBody().get("id"), read.getBody().get("id"));
+			assertEquals(product.getSku(), read.getBody().get("products").get(0).get("sku").asText());
+		} finally {
+			if (previous == null) {
+				paymentService.removePaymentModuleConfiguration("moneyorder", store);
+				assertNull(paymentService.getPaymentConfiguration("moneyorder", store));
+			} else {
+				paymentService.savePaymentModuleConfiguration(previous, store);
+				assertEquals(previous.toJSONString(),
+						paymentService.getPaymentConfiguration("moneyorder", store).toJSONString());
+			}
+		}
 	}
 
 	@Test
