@@ -80,6 +80,12 @@ public interface CustomerFacade
     public Customer getCustomerByUserName(final String userName, final MerchantStore store);
     
     public boolean checkIfUserExists(final String userName,final MerchantStore store) throws Exception;
+
+    /**
+     * Whether the given name is already used as an administrator login. Customer and administrator
+     * principals must not share a name.
+     */
+    public boolean isAdministratorUserName(final String userName);
     
     public PersistableCustomer  registerCustomer( final PersistableCustomer customer,final MerchantStore merchantStore, final Language language) throws Exception;
     

@@ -43,6 +43,7 @@ import com.salesmanager.core.business.services.system.EmailService;
 import com.salesmanager.core.business.services.system.optin.OptinService;
 import com.salesmanager.core.business.services.user.GroupService;
 import com.salesmanager.core.business.services.user.PermissionService;
+import com.salesmanager.core.business.services.user.UserService;
 import com.salesmanager.core.business.utils.CoreConfiguration;
 import com.salesmanager.core.model.customer.Customer;
 import com.salesmanager.core.model.customer.CustomerCriteria;
@@ -136,6 +137,9 @@ public class CustomerFacadeImpl implements CustomerFacade {
 
   @Inject
   private PermissionService permissionService;
+
+  @Inject
+  private UserService userService;
 
   @Inject
   private ZoneService zoneService;
@@ -618,7 +622,21 @@ public class CustomerFacadeImpl implements CustomerFacade {
 
   private boolean userExist(String userName) {
     return Optional.ofNullable(customerService.getByNick(userName))
-        .isPresent();
+        .isPresent() || isAdministratorUserName(userName);
+  }
+
+  @Override
+  public boolean isAdministratorUserName(final String userName) {
+    if (StringUtils.isBlank(userName)) {
+      return false;
+    }
+    try {
+      String trimmed = userName.trim();
+      return userService.getByUserName(trimmed) != null
+          || userService.getByUserName(trimmed.toLowerCase(Locale.ROOT)) != null;
+    } catch (ServiceException e) {
+      throw new ServiceRuntimeException(e);
+    }
   }
 
   private List<Group> getListOfGroups(GroupType groupType) {

@@ -39,6 +39,10 @@ public class JWTTokenUtil implements Serializable {
 	 	static final String CLAIM_KEY_USERNAME = "sub";
 	    static final String CLAIM_KEY_AUDIENCE = "aud";
 	    static final String CLAIM_KEY_CREATED = "iat";
+	    public static final String CLAIM_KEY_TOKEN_TYPE = "typ";
+
+	    public static final String TOKEN_TYPE_ADMIN = "admin";
+	    public static final String TOKEN_TYPE_CUSTOMER = "customer";
 
 	    static final String AUDIENCE_UNKNOWN = "unknown";
 	    static final String AUDIENCE_API = "api";
@@ -67,6 +71,14 @@ public class JWTTokenUtil implements Serializable {
 
 	    public String getAudienceFromToken(String token) {
 	        return getClaimFromToken(token, Claims::getAudience);
+	    }
+
+	    public String getTokenTypeFromToken(String token) {
+	        return getClaimFromToken(token, claims -> claims.get(CLAIM_KEY_TOKEN_TYPE, String.class));
+	    }
+
+	    public boolean isTokenOfType(String token, String tokenType) {
+	        return tokenType != null && tokenType.equals(getTokenTypeFromToken(token));
 	    }
 
 	    public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
@@ -116,8 +128,17 @@ public class JWTTokenUtil implements Serializable {
 	        return (AUDIENCE_TABLET.equals(audience) || AUDIENCE_MOBILE.equals(audience));
 	    }
 
-	    public String generateToken(UserDetails userDetails) {
+	    public String generateAdminToken(UserDetails userDetails) {
+	        return generateToken(userDetails, TOKEN_TYPE_ADMIN);
+	    }
+
+	    public String generateCustomerToken(UserDetails userDetails) {
+	        return generateToken(userDetails, TOKEN_TYPE_CUSTOMER);
+	    }
+
+	    private String generateToken(UserDetails userDetails, String tokenType) {
 	        Map<String, Object> claims = new HashMap<>();
+	        claims.put(CLAIM_KEY_TOKEN_TYPE, tokenType);
 	        return doGenerateToken(claims, userDetails.getUsername(), generateAudience());
 	    }
 
@@ -170,7 +191,14 @@ public class JWTTokenUtil implements Serializable {
 	                .compact();
 	    }
 
-	    public Boolean validateToken(String token, UserDetails userDetails) {
+	    /**
+	     * Validates a token for the given principal. Admin and customer tokens share the signing
+	     * key and subject format, so the token type claim must match the realm being authenticated.
+	     */
+	    public Boolean validateToken(String token, UserDetails userDetails, String expectedTokenType) {
+	        if (!isTokenOfType(token, expectedTokenType)) {
+	            return false;
+	        }
 	        JWTUser user = (JWTUser) userDetails;
 	        final String username = getUsernameFromToken(token);
 	        final Date created = getIssuedAtDateFromToken(token);
