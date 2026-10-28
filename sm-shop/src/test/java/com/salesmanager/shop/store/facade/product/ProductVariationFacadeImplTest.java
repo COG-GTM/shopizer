@@ -21,6 +21,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import com.salesmanager.core.business.services.catalog.product.attribute.ProductOptionService;
 import com.salesmanager.core.business.services.catalog.product.attribute.ProductOptionValueService;
@@ -64,6 +65,7 @@ public class ProductVariationFacadeImplTest {
 
 	@Before
 	public void setUp() {
+		ReflectionTestUtils.setField(facade, "persistableProductVariationMapper", persistableProductVariationMapper);
 		store = new MerchantStore();
 		store.setId(2);
 		store.setCode("GLOBEX");
