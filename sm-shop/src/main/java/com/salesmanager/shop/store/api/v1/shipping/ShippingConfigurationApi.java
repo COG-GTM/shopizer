@@ -36,6 +36,7 @@ import com.salesmanager.shop.store.api.exception.ResourceNotFoundException;
 import com.salesmanager.shop.store.api.exception.ServiceRuntimeException;
 import com.salesmanager.shop.store.controller.shipping.facade.ShippingFacade;
 import com.salesmanager.shop.utils.AuthorizationUtils;
+import com.salesmanager.shop.utils.IntegrationKeysMasker;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -177,6 +178,10 @@ public class ShippingConfigurationApi {
 	public List<IntegrationModuleSummaryEntity> shippingModules(@ApiIgnore MerchantStore merchantStore,
 			@ApiIgnore Language language) {
 
+		String user = authorizationUtils.authenticatedUser();
+		authorizationUtils.authorizeUser(user, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN,
+				Constants.GROUP_SHIPPING, Constants.GROUP_ADMIN_RETAIL).collect(Collectors.toList()), merchantStore);
+
 		try {
 			List<IntegrationModule> modules = shippingService.getShippingMethods(merchantStore);
 
@@ -206,6 +211,10 @@ public class ShippingConfigurationApi {
 	public IntegrationConfiguration shippingModule(@PathVariable String code,
 			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) {
 
+		String user = authorizationUtils.authenticatedUser();
+		authorizationUtils.authorizeUser(user, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN,
+				Constants.GROUP_SHIPPING, Constants.GROUP_ADMIN_RETAIL).collect(Collectors.toList()), merchantStore);
+
 		try {
 
 			// configured modules
@@ -225,16 +234,15 @@ public class ShippingConfigurationApi {
 				config = new IntegrationConfiguration();
 			}
 
-			/**
-			 * Build return object for now this is a read copy
-			 */
+			IntegrationConfiguration readable = new IntegrationConfiguration();
+			readable.setModuleCode(code);
+			readable.setActive(config.isActive());
+			readable.setDefaultSelected(config.isDefaultSelected());
+			readable.setEnvironment(config.getEnvironment());
+			readable.setIntegrationKeys(IntegrationKeysMasker.mask(config.getIntegrationKeys()));
+			readable.setIntegrationOptions(config.getIntegrationOptions());
 
-			config.setActive(config.isActive());
-			config.setDefaultSelected(config.isDefaultSelected());
-			config.setIntegrationKeys(config.getIntegrationKeys());
-			config.setIntegrationOptions(config.getIntegrationOptions());
-
-			return config;
+			return readable;
 
 		} catch (ServiceException e) {
 			LOGGER.error("Error getting shipping module [" + code + "]", e);
@@ -246,6 +254,10 @@ public class ShippingConfigurationApi {
 	@PostMapping(value = "/private/modules/shipping")
 	public void configure(@RequestBody IntegrationModuleConfiguration configuration,
 			@ApiIgnore MerchantStore merchantStore) {
+
+		String user = authorizationUtils.authenticatedUser();
+		authorizationUtils.authorizeUser(user, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN,
+				Constants.GROUP_SHIPPING, Constants.GROUP_ADMIN_RETAIL).collect(Collectors.toList()), merchantStore);
 
 		try {
 
@@ -275,7 +287,8 @@ public class ShippingConfigurationApi {
 
 			integrationConfiguration.setActive(configuration.isActive());
 			integrationConfiguration.setDefaultSelected(configuration.isDefaultSelected());
-			integrationConfiguration.setIntegrationKeys(configuration.getIntegrationKeys());
+			integrationConfiguration.setIntegrationKeys(IntegrationKeysMasker.merge(configuration.getIntegrationKeys(),
+					integrationConfiguration.getIntegrationKeys()));
 			integrationConfiguration.setIntegrationOptions(configuration.getIntegrationOptions());
 
 			shippingService.saveShippingQuoteModuleConfiguration(integrationConfiguration, merchantStore);
