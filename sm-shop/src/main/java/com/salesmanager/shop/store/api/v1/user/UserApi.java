@@ -141,10 +141,24 @@ public class UserApi {
 
 	) {
 
-		String authenticatedUser = userFacade.authenticatedUser();// requires
-																	// user
-																	// doing
-																	// action
+		String authenticatedUser = userFacade.authenticatedUser();
+		if (authenticatedUser == null) {
+			throw new UnauthorizedException();
+		}
+
+		// only admin and superadmin can update another user
+		ReadableUser caller = userFacade.findByUserName(authenticatedUser);
+		if (caller == null || caller.getId() == null || !caller.getId().equals(id)) {
+			userFacade.authorizedGroup(authenticatedUser, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN, Constants.GROUP_ADMIN_RETAIL).collect(Collectors.toList()));
+		}
+
+		/** if user is not superadmin, user must be in that store */
+		if (!userFacade.userInRoles(authenticatedUser, Arrays.asList(Constants.GROUP_SUPERADMIN))) {
+			if (!userFacade.authorizedStore(authenticatedUser, merchantStore.getCode())) {
+				throw new UnauthorizedException("Operation unauthorized for user [" + authenticatedUser
+						+ "] and store [" + merchantStore.getCode() + "]");
+			}
+		}
 
 		userFacade.authorizedGroups(authenticatedUser, user);
 
