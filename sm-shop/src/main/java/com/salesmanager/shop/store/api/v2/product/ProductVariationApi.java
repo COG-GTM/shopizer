@@ -121,14 +121,14 @@ public class ProductVariationApi {
       HttpServletResponse response)
       throws Exception {
 
-    Product product = productService.getById(id);
+    Product product = productService.findOne(id, merchantStore);
 
-    if (product == null) {
-      response.sendError(404, "Product not fount for id " + id);
+    if (product == null || !product.isAvailable()) {
+      response.sendError(404, "Product not found for id " + id);
       return null;
     }
 
-    List<ReadableProductVariantValue> ids = options.getOptions();
+    List<ReadableProductVariantValue> ids = options == null ? null : options.getOptions();
 
     if (CollectionUtils.isEmpty(ids)) {
       return null;
