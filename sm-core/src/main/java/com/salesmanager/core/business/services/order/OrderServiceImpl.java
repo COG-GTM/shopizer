@@ -3,10 +3,6 @@ package com.salesmanager.core.business.services.order;
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -38,6 +34,7 @@ import com.salesmanager.core.business.services.payments.TransactionService;
 import com.salesmanager.core.business.services.shipping.ShippingService;
 import com.salesmanager.core.business.services.shoppingcart.ShoppingCartService;
 import com.salesmanager.core.business.services.tax.TaxService;
+import com.salesmanager.core.business.utils.PromoCodeUtils;
 import com.salesmanager.core.model.catalog.product.Product;
 import com.salesmanager.core.model.catalog.product.availability.ProductAvailability;
 import com.salesmanager.core.model.catalog.product.price.FinalPrice;
@@ -434,16 +431,7 @@ public class OrderServiceImpl  extends SalesManagerEntityServiceImpl<Long, Order
     	orderSummary.setOrderSummaryType(OrderSummaryType.SHOPPINGCART);
 
     	if(!StringUtils.isBlank(shoppingCart.getPromoCode())) {
-    		Date promoDateAdded = shoppingCart.getPromoAdded();//promo valid 1 day
-    		if(promoDateAdded == null) {
-    			promoDateAdded = new Date();
-    		}
-    		Instant instant = promoDateAdded.toInstant();
-    		ZonedDateTime zdt = instant.atZone(ZoneId.systemDefault());
-    		LocalDate date = zdt.toLocalDate();
-    		//date added < date + 1 day
-    		LocalDate tomorrow = LocalDate.now().plusDays(1);
-    		if(date.isBefore(tomorrow)) {
+    		if(PromoCodeUtils.isPromoCodeActive(shoppingCart.getPromoAdded())) {
     			orderSummary.setPromoCode(shoppingCart.getPromoCode());
     		} else {
     			//clear promo
