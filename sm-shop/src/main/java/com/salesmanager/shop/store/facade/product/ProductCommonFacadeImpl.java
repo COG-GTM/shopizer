@@ -94,7 +94,7 @@ public class ProductCommonFacadeImpl implements ProductCommonFacade {
 
 		Product target = null;
 		if (product.getId() != null && product.getId().longValue() > 0) {
-			target = productService.getById(product.getId());
+			target = getProductOwnedByStore(product.getId(), store);
 		} else {
 			target = new Product();
 		}
@@ -348,7 +348,7 @@ public class ProductCommonFacadeImpl implements ProductCommonFacade {
 	@Override
 	public void update(Long productId, LightPersistableProduct product, MerchantStore merchant, Language language) {
 		// Get product
-		Product modified = productService.findOne(productId, merchant);
+		Product modified = getProductOwnedByStore(productId, merchant);
 
 		// Update product with minimal set
 		modified.setAvailable(product.isAvailable());
@@ -390,16 +390,7 @@ public class ProductCommonFacadeImpl implements ProductCommonFacade {
 		Validate.notNull(id, "Product id cannot be null");
 		Validate.notNull(store, "store cannot be null");
 
-		Product p = productService.getById(id);
-
-		if (p == null) {
-			throw new ResourceNotFoundException("Product with id [" + id + " not found");
-		}
-
-		if (p.getMerchantStore().getId().intValue() != store.getId().intValue()) {
-			throw new ResourceNotFoundException(
-					"Product with id [" + id + " not found for store [" + store.getCode() + "]");
-		}
+		Product p = getProductOwnedByStore(id, store);
 
 		try {
 			productService.delete(p);
@@ -410,6 +401,21 @@ public class ProductCommonFacadeImpl implements ProductCommonFacade {
 	}
 
 
+
+	/**
+	 * Loads a product for a write operation. findOne also matches products of the
+	 * parent store, so ownership is checked against the exact store.
+	 */
+	private Product getProductOwnedByStore(Long id, MerchantStore store) {
+		Validate.notNull(store, "store cannot be null");
+		Product product = productService.findOne(id, store);
+		if (product == null || product.getMerchantStore() == null
+				|| product.getMerchantStore().getId().intValue() != store.getId().intValue()) {
+			throw new ResourceNotFoundException(
+					"Product [" + id + "] not found for store [" + store.getCode() + "]");
+		}
+		return product;
+	}
 
 	@Override
 	public Product getProduct(Long id, MerchantStore store) {
