@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -35,12 +36,14 @@ import com.salesmanager.core.model.catalog.product.Product;
 import com.salesmanager.core.model.catalog.product.image.ProductImage;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
+import com.salesmanager.shop.constants.Constants;
 import com.salesmanager.shop.mapper.catalog.ReadableProductImageMapper;
 import com.salesmanager.shop.model.catalog.product.ReadableImage;
 import com.salesmanager.shop.model.entity.NameEntity;
 import com.salesmanager.shop.store.api.exception.ResourceNotFoundException;
 import com.salesmanager.shop.store.api.exception.ServiceRuntimeException;
 import com.salesmanager.shop.store.api.exception.UnauthorizedException;
+import com.salesmanager.shop.utils.AuthorizationUtils;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -68,6 +71,9 @@ public class ProductImageApi {
 	@Autowired
 	private ReadableProductImageMapper readableProductImageMapper;
 
+	@Inject
+	private AuthorizationUtils authorizationUtils;
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(ProductImageApi.class);
 
 	/**
@@ -80,7 +86,7 @@ public class ProductImageApi {
 	 * @throws Exception
 	 */
 	@ResponseStatus(HttpStatus.CREATED)
-	@RequestMapping(value = { "/private/product/{id}/image", "/auth/product/{id}/image" }, consumes = {
+	@RequestMapping(value = { "/private/product/{id}/image" }, consumes = {
 			MediaType.MULTIPART_FORM_DATA_VALUE }, method = RequestMethod.POST)
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
@@ -90,6 +96,8 @@ public class ProductImageApi {
 			@RequestParam(value = "order", required = false, defaultValue = "0") Integer position,
 			@RequestParam(value = "defaultImage", required = false, defaultValue = "false") boolean defaultImage,
 			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) throws IOException {
+
+		authorizeCatalogueAdmin(merchantStore);
 
 		try {
 
@@ -147,15 +155,17 @@ public class ProductImageApi {
 	}
 
 	@ResponseStatus(HttpStatus.OK)
-	@RequestMapping(value = { "/private/product/image/{id}",
-			"/auth/product/images/{id}" }, method = RequestMethod.DELETE)
-	public void deleteImage(@PathVariable Long id, HttpServletRequest request, HttpServletResponse response)
-			throws Exception {
+	@RequestMapping(value = { "/private/product/image/{id}" }, method = RequestMethod.DELETE)
+	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT") })
+	public void deleteImage(@PathVariable Long id, @ApiIgnore MerchantStore merchantStore,
+			HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+		authorizeCatalogueAdmin(merchantStore);
 
 		try {
 			ProductImage productImage = productImageService.getById(id);
 
-			if (productImage != null) {
+			if (productImage != null && belongsToStore(productImage, merchantStore)) {
 				productImageService.delete(productImage);
 			} else {
 				response.sendError(404, "No ProductImage found for ID : " + id);
@@ -175,6 +185,7 @@ public class ProductImageApi {
 	public void deleteImage(@PathVariable Long id, @PathVariable Long imageId, @Valid NameEntity imageName,
 			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) {
 
+			authorizeCatalogueAdmin(merchantStore);
 
 			Optional<ProductImage> productImage = productImageService.getProductImage(imageId, id, merchantStore);
 
@@ -224,7 +235,7 @@ public class ProductImageApi {
 						+ "] and merchant [" + merchantStore.getCode() + "]");
 			}
 			
-			if(p.getMerchantStore().getId() != merchantStore.getId()) {
+			if(!p.getMerchantStore().getId().equals(merchantStore.getId())) {
 				throw new ResourceNotFoundException("Product images not found for product id [" + productId
 						+ "] and merchant [" + merchantStore.getCode() + "]");
 			}
@@ -264,13 +275,14 @@ public class ProductImageApi {
 	 */
 
 	@ResponseStatus(HttpStatus.OK)
-	@RequestMapping(value = { "/private/product/{id}/image/{imageId}",
-			"/auth/product/{id}/image/{id}" }, method = RequestMethod.PATCH)
+	@RequestMapping(value = { "/private/product/{id}/image/{imageId}" }, method = RequestMethod.PATCH)
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public void imageDetails(@PathVariable Long id, @PathVariable Long imageId,
 			@RequestParam(value = "order", required = false, defaultValue = "0") Integer position,
 			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) throws IOException {
+
+		authorizeCatalogueAdmin(merchantStore);
 
 		try {
 			
@@ -281,7 +293,7 @@ public class ProductImageApi {
 						+ "] and merchant [" + merchantStore.getCode() + "]");
 			}
 			
-			if(p.getMerchantStore().getId() != merchantStore.getId()) {
+			if(!p.getMerchantStore().getId().equals(merchantStore.getId())) {
 				throw new ResourceNotFoundException("Product image [" + imageId + "] not found for product id [" + id
 						+ "] and merchant [" + merchantStore.getCode() + "]");
 			}
@@ -302,6 +314,19 @@ public class ProductImageApi {
 			LOGGER.error("Error while deleting ProductImage", e);
 			throw new ServiceRuntimeException("ProductImage [" + imageId + "] cannot be edited");
 		}
+	}
+
+	private void authorizeCatalogueAdmin(MerchantStore merchantStore) {
+		String user = authorizationUtils.authenticatedUser();
+		authorizationUtils.authorizeUser(user, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN,
+				Constants.GROUP_ADMIN_CATALOGUE, Constants.GROUP_ADMIN_RETAIL).collect(Collectors.toList()),
+				merchantStore);
+	}
+
+	private boolean belongsToStore(ProductImage productImage, MerchantStore merchantStore) {
+		Product product = productImage.getProduct();
+		return product != null && product.getMerchantStore() != null
+				&& product.getMerchantStore().getId().equals(merchantStore.getId());
 	}
 
 }
