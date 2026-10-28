@@ -43,6 +43,16 @@ public interface CategoryFacade {
 	ReadableCategory getById(MerchantStore store, Long id, Language language);
 
 	/**
+	 * Same as getById but only returns the category, and its children, when
+	 * visible. Used by the public api.
+	 * @param store
+	 * @param id
+	 * @param language
+	 * @return ReadableCategory
+	 */
+	ReadableCategory getVisibleById(MerchantStore store, Long id, Language language);
+
+	/**
 	 *
 	 * @param store
 	 * @param code

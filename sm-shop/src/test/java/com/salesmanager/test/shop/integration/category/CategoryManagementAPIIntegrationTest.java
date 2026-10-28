@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertThat;
 import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -60,6 +62,31 @@ public class CategoryManagementAPIIntegrationTest extends ServicesTestSupport {
             final List<ReadableCategory> categories = response.getBody().getCategories();
             assertNotNull(categories);
         }
+    }
+
+    @Test
+    public void hiddenCategoryIsOnlyReadableThroughPrivateApi() throws Exception {
+        PersistableCategory hidden = category("hiddenlaunch");
+        hidden.setVisible(false);
+        final String json = new ObjectMapper().writer().writeValueAsString(hidden);
+
+        final ResponseEntity<PersistableCategory> created = testRestTemplate.postForEntity("/api/v1/private/category",
+                new HttpEntity<>(json, getHeader()), PersistableCategory.class);
+        assertThat(created.getStatusCode(), is(CREATED));
+        final Long id = created.getBody().getId();
+
+        final ResponseEntity<String> anonymous = testRestTemplate.exchange("/api/v1/category/" + id + "?store=DEFAULT&lang=en",
+                HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), String.class);
+        assertThat(anonymous.getStatusCode(), is(NOT_FOUND));
+
+        final ResponseEntity<ReadableCategory> admin = testRestTemplate.exchange("/api/v1/private/category/" + id + "?store=DEFAULT&lang=en",
+                HttpMethod.GET, new HttpEntity<>(getHeader()), ReadableCategory.class);
+        assertThat(admin.getStatusCode(), is(OK));
+        assertThat(admin.getBody().getId(), is(id));
+
+        final ResponseEntity<String> unauthenticated = testRestTemplate.exchange("/api/v1/private/category/" + id,
+                HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), String.class);
+        assertTrue(unauthenticated.getStatusCode().is4xxClientError());
     }
 
     /**
