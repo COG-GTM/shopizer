@@ -21,6 +21,7 @@ import com.salesmanager.core.model.payments.Payment;
 import com.salesmanager.core.model.payments.PaymentType;
 import com.salesmanager.core.model.payments.Transaction;
 import com.salesmanager.core.model.payments.TransactionType;
+import com.salesmanager.core.model.shoppingcart.ShoppingCart;
 import com.salesmanager.core.model.shoppingcart.ShoppingCartItem;
 import com.salesmanager.core.model.system.IntegrationConfiguration;
 import com.salesmanager.core.model.system.IntegrationModule;
@@ -35,6 +36,7 @@ import com.stripe.model.PaymentIntent;
 import com.stripe.model.Refund;
 import com.stripe.param.PaymentIntentCaptureParams;
 import com.stripe.param.PaymentIntentCreateParams;
+import com.stripe.param.PaymentIntentUpdateParams;
 
 // import com.stripe.exception.APIConnectionException;
 
@@ -181,6 +183,14 @@ public class Stripe3Payment implements PaymentModule {
 			PaymentIntent paymentIntent = PaymentIntent.retrieve(
 					token
 			);
+
+			ShoppingCart cart = items == null || items.isEmpty() ? null : items.get(0).getShoppingCart();
+
+			validateAuthorizedIntent(paymentIntent, store, amount, cart);
+
+			paymentIntent = paymentIntent.update(PaymentIntentUpdateParams.builder()
+					.putMetadata(AUTHORIZED_METADATA, authorizationOwner(cart))
+					.build());
 			
 			transaction.setAmount(amount);
 			//transaction.setOrder(order);
@@ -201,6 +211,65 @@ public class Stripe3Payment implements PaymentModule {
 		return transaction;
 
 		
+	}
+
+	private static final String PAYMENT_INTENT_REQUIRES_CAPTURE = "requires_capture";
+	static final String AUTHORIZED_METADATA = "shopizer_order_authorized";
+
+	/**
+	 * The intent is tagged with the cart that used it so a failed checkout of
+	 * the same, not yet ordered, cart can retry while other carts or orders
+	 * cannot reuse it.
+	 */
+	void validateAuthorizedIntent(PaymentIntent paymentIntent, MerchantStore store, BigDecimal amount,
+			ShoppingCart cart) throws IntegrationException {
+
+		if (paymentIntent == null || !PAYMENT_INTENT_REQUIRES_CAPTURE.equals(paymentIntent.getStatus())) {
+			throw declined("Stripe payment intent is not authorized (status "
+					+ (paymentIntent == null ? null : paymentIntent.getStatus()) + ")");
+		}
+
+		String owner = paymentIntent.getMetadata() == null ? null : paymentIntent.getMetadata().get(AUTHORIZED_METADATA);
+		boolean retryOfSameCart = cart != null && cart.getId() != null && cart.getOrderId() == null
+				&& authorizationOwner(cart).equals(owner);
+		if (owner != null && !retryOfSameCart) {
+			throw declined("Stripe payment intent " + paymentIntent.getId() + " is already used by another order");
+		}
+
+		String storeCurrency = store.getCurrency() == null ? null : store.getCurrency().getCode();
+		if (paymentIntent.getCurrency() == null || storeCurrency == null
+				|| !paymentIntent.getCurrency().equalsIgnoreCase(storeCurrency)) {
+			throw declined("Stripe payment intent currency " + paymentIntent.getCurrency()
+					+ " does not match store currency " + storeCurrency);
+		}
+
+		Long authorized = paymentIntent.getAmountCapturable() != null && paymentIntent.getAmountCapturable() > 0
+				? paymentIntent.getAmountCapturable()
+				: paymentIntent.getAmount();
+		long required = toStripeAmount(amount);
+
+		if (authorized == null || authorized < required) {
+			throw declined("Stripe payment intent authorized amount " + authorized
+					+ " is lower than the order total " + required);
+		}
+	}
+
+	private String authorizationOwner(ShoppingCart cart) {
+		return cart == null || cart.getId() == null ? "unknown" : "cart-" + cart.getId();
+	}
+
+	private long toStripeAmount(BigDecimal amount) {
+		String strAmount = String.valueOf(amount);
+		strAmount = strAmount.replace(".","");
+		return Long.parseLong(strAmount);
+	}
+
+	private IntegrationException declined(String message) {
+		IntegrationException te = new IntegrationException(message);
+		te.setExceptionType(IntegrationException.TRANSACTION_EXCEPTION);
+		te.setMessageCode("message.payment.declined");
+		te.setErrorCode(IntegrationException.TRANSACTION_EXCEPTION);
+		return te;
 	}
 
 	@Override

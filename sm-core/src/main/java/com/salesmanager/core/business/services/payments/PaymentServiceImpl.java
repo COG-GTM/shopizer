@@ -29,7 +29,9 @@ import com.salesmanager.core.business.utils.CoreConfiguration;
 import com.salesmanager.core.model.customer.Customer;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.order.Order;
+import com.salesmanager.core.model.order.OrderSummary;
 import com.salesmanager.core.model.order.OrderTotal;
+import com.salesmanager.core.model.order.OrderTotalSummary;
 import com.salesmanager.core.model.order.OrderTotalType;
 import com.salesmanager.core.model.order.orderstatus.OrderStatus;
 import com.salesmanager.core.model.order.orderstatus.OrderStatusHistory;
@@ -40,6 +42,9 @@ import com.salesmanager.core.model.payments.PaymentMethod;
 import com.salesmanager.core.model.payments.PaymentType;
 import com.salesmanager.core.model.payments.Transaction;
 import com.salesmanager.core.model.payments.TransactionType;
+import com.salesmanager.core.model.reference.language.Language;
+import com.salesmanager.core.model.shipping.ShippingSummary;
+import com.salesmanager.core.model.shoppingcart.ShoppingCart;
 import com.salesmanager.core.model.shoppingcart.ShoppingCartItem;
 import com.salesmanager.core.model.system.IntegrationConfiguration;
 import com.salesmanager.core.model.system.IntegrationModule;
@@ -54,6 +59,8 @@ public class PaymentServiceImpl implements PaymentService {
 	
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(PaymentServiceImpl.class);
+
+	static final String INIT_SHOPPING_CART_ID = "SHOPPING_CART_ID";
 	
 
 	@Inject
@@ -736,17 +743,36 @@ public class PaymentServiceImpl implements PaymentService {
 	}
 
 	@Override
-	public Transaction initTransaction(Customer customer, Payment payment, MerchantStore store) throws ServiceException {
+	public Transaction initTransaction(Customer customer, ShoppingCart cart, ShippingSummary shippingSummary,
+			Payment payment, MerchantStore store, Language language) throws ServiceException {
 
 		Validate.notNull(store);
 		Validate.notNull(payment);
-		Validate.notNull(payment.getAmount());
-		
-		payment.setCurrency(store.getCurrency());
-		
-		BigDecimal amount = payment.getAmount();
+		Validate.notNull(cart);
 
-		//must have a shipping module configured
+		if (cart.getLineItems() == null || cart.getLineItems().isEmpty()) {
+			throw new ServiceException(ServiceException.EXCEPTION_VALIDATION,
+					"Shopping cart " + cart.getShoppingCartCode() + " is empty");
+		}
+
+		BigDecimal amount = calculateCartTotal(customer, cart, shippingSummary, store, language);
+
+		if (amount == null || amount.signum() <= 0) {
+			throw new ServiceException(ServiceException.EXCEPTION_VALIDATION,
+					"Shopping cart " + cart.getShoppingCartCode() + " has no payable amount");
+		}
+
+		if (payment.getAmount() != null && payment.getAmount().compareTo(amount) != 0) {
+			throw new ServiceException(ServiceException.EXCEPTION_VALIDATION,
+					"Payment amount " + payment.getAmount().toPlainString()
+							+ " does not match the shopping cart total " + amount.toPlainString());
+		}
+
+		payment.setAmount(amount);
+		payment.setCurrency(store.getCurrency());
+		payment.setTransactionType(TransactionType.INIT);
+
+		//must have a payment module configured
 		Map<String, IntegrationConfiguration> modules = this.getPaymentModulesConfigured(store);
 		if(modules==null){
 			throw new ServiceException("No payment module configured");
@@ -771,10 +797,30 @@ public class PaymentServiceImpl implements PaymentService {
 		IntegrationModule integrationModule = getPaymentMethodByCode(store,payment.getModuleName());
 		
 		Transaction transaction = module.initTransaction(store, customer, amount, payment, configuration, integrationModule);
+
+		if (transaction == null) {
+			throw new ServiceException("Payment module " + payment.getModuleName() + " does not support transaction initialization");
+		}
+
+		transaction.setAmount(amount);
+		transaction.getTransactionDetails().put(INIT_SHOPPING_CART_ID, String.valueOf(cart.getId()));
 		
-		transactionService.save(transaction);
+		transactionService.create(transaction);
 
 		return transaction;
+	}
+
+	private BigDecimal calculateCartTotal(Customer customer, ShoppingCart cart, ShippingSummary shippingSummary,
+			MerchantStore store, Language language) throws ServiceException {
+		OrderSummary orderSummary = new OrderSummary();
+		orderSummary.setShippingSummary(shippingSummary);
+		orderSummary.setProducts(new ArrayList<ShoppingCartItem>(cart.getLineItems()));
+
+		OrderTotalSummary totalSummary = customer == null
+				? orderService.caculateOrderTotal(orderSummary, store, language)
+				: orderService.caculateOrderTotal(orderSummary, customer, store, language);
+
+		return totalSummary == null ? null : totalSummary.getTotal();
 	}
 
 

@@ -16,6 +16,8 @@ public class PersistablePayment extends PaymentEntity {
 	private String transactionType;
 	
 	private String paymentToken;//any token after doing init
+
+	private Long shippingQuote;//optional shipping quote id included in the payment init amount
 	
 	public String getPaymentType() {
 		return paymentType;
@@ -37,4 +39,10 @@ public class PersistablePayment extends PaymentEntity {
 	}
 	
 
+	public Long getShippingQuote() {
+		return shippingQuote;
+	}
+	public void setShippingQuote(Long shippingQuote) {
+		this.shippingQuote = shippingQuote;
+	}
 }
