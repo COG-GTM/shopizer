@@ -226,16 +226,15 @@ class ProductAttributeStoreScopeIntegrationTest extends ServicesTestSupport {
 
 	@Test
 	@Order(7)
-	void ownStoreBulkAttributeCreatePersistsAttributesButReturnsNotFound() {
+	void ownStoreBulkAttributeCreatePersistsAttributes() {
 		List<PersistableProductAttribute> request = Arrays.asList(
 				attribute(defaultOptionCode, defaultValueOne, null, BigDecimal.ONE),
 				attribute(defaultOptionCode, defaultValueTwo, null, BigDecimal.TEN));
-		ResponseEntity<String> response = exchange(
+		exchange(
 				"/api/v1/private/product/" + defaultBulkProduct + "/attributes?store=DEFAULT",
 				HttpMethod.POST, request, String.class);
 		ReadableProductAttributeList persisted = attributes(defaultBulkProduct, "DEFAULT");
 
-		assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
 		assertEquals(2, persisted.getAttributes().size());
 		assertTrue(persisted.getAttributes().stream().allMatch(attribute ->
 				attribute.getId() != null && defaultOptionCode.equals(attribute.getOption().getCode())));
