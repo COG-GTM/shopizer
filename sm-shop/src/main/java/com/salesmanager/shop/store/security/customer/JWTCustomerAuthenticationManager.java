@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -64,6 +65,11 @@ public class JWTCustomerAuthenticationManager extends CustomAuthenticationManage
 
             // For simple validation it is completely sufficient to just check the token integrity. You don't have to call
             // the database compellingly. Again it's up to you ;)
+            if (userDetails != null && !userDetails.isEnabled()) {
+            	logger.warn("rejecting token for disabled user " + username);
+            	throw new DisabledException("User " + username + " is disabled");
+            }
+
             if (userDetails != null && jwtTokenUtil.validateToken(authToken, userDetails)) {
                 authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
