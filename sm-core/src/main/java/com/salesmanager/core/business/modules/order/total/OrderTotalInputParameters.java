@@ -18,6 +18,8 @@ public class OrderTotalInputParameters {
 	private String itemCategoryCode;
 	private String shippingMethod;
 	private String promoCode;
+	private Double promoCodeDiscount;//discount configured by the store for promoCode
+	private String merchantStoreCode;
 	private Date date = new Date();
 	
 	//might add variation based on other objects such as Customer
@@ -63,6 +65,18 @@ public class OrderTotalInputParameters {
 	}
 	public void setPromoCode(String promoCode) {
 		this.promoCode = promoCode;
+	}
+	public Double getPromoCodeDiscount() {
+		return promoCodeDiscount;
+	}
+	public void setPromoCodeDiscount(Double promoCodeDiscount) {
+		this.promoCodeDiscount = promoCodeDiscount;
+	}
+	public String getMerchantStoreCode() {
+		return merchantStoreCode;
+	}
+	public void setMerchantStoreCode(String merchantStoreCode) {
+		this.merchantStoreCode = merchantStoreCode;
 	}
 	public Date getDate() {
 		return date;
