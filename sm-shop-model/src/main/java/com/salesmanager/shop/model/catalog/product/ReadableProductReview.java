@@ -2,8 +2,6 @@ package com.salesmanager.shop.model.catalog.product;
 
 import java.io.Serializable;
 
-import com.salesmanager.shop.model.customer.ReadableCustomer;
-
 
 public class ReadableProductReview extends ProductReviewEntity implements Serializable {
 
@@ -11,11 +9,11 @@ public class ReadableProductReview extends ProductReviewEntity implements Serial
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private ReadableCustomer customer;
-	public ReadableCustomer getCustomer() {
+	private ReadableProductReviewer customer;
+	public ReadableProductReviewer getCustomer() {
 		return customer;
 	}
-	public void setCustomer(ReadableCustomer customer) {
+	public void setCustomer(ReadableProductReviewer customer) {
 		this.customer = customer;
 	}
 

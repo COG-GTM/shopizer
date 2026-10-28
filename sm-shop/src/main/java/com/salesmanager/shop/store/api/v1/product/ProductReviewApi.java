@@ -117,7 +117,9 @@ public class ProductReviewApi {
       // product exist
       Product product = productService.getById(id);
 
-      if (product == null) {
+      if (product == null
+          || product.getMerchantStore() == null
+          || !product.getMerchantStore().getId().equals(merchantStore.getId())) {
         response.sendError(404, "Product id " + id + " does not exists");
         return null;
       }
