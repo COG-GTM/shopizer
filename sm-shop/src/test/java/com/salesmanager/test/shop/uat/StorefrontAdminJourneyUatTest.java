@@ -17,18 +17,18 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.annotation.DirtiesContext;
 
-import javax.sql.DataSource;
-
 import com.salesmanager.core.business.constants.Constants;
+import com.salesmanager.core.business.services.user.UserService;
+import com.salesmanager.core.model.user.User;
 import com.salesmanager.core.model.customer.CustomerGender;
 import com.salesmanager.core.model.payments.PaymentType;
 import com.salesmanager.core.model.payments.TransactionType;
@@ -44,34 +44,37 @@ import com.salesmanager.shop.model.system.IntegrationModuleConfiguration;
 import com.salesmanager.shop.store.security.AuthenticationRequest;
 import com.salesmanager.shop.store.security.AuthenticationResponse;
 import com.salesmanager.test.shop.common.ServicesTestSupport;
-import com.salesmanager.test.shop.common.TestDatabaseSupport;
-import com.salesmanager.test.shop.common.TestPropertyPlaceholderConfiguration;
 
-@SpringBootTest(classes = ShopApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, properties = {
-		"shopizer.admin.initial-password=Sh0pizer-Test-Admin-1",
-		"db.jdbcUrl=jdbc:h2:mem:SALESMANAGER-PR174-UAT;AUTOCOMMIT=OFF;;mv_store=false;INIT=CREATE SCHEMA IF NOT EXISTS SALESMANAGER"
-})
+@SpringBootTest(classes = ShopApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 @TestInstance(Lifecycle.PER_CLASS)
-@Import(TestPropertyPlaceholderConfiguration.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 class StorefrontAdminJourneyUatTest extends ServicesTestSupport {
 
+	private static final String ADMIN_USERNAME = "admin@shopizer.com";
 	private static final String CUSTOMER_PASSWORD = "Uat-Customer-Pass-123";
 	private String productCode;
 
 	@Autowired
-	private DataSource dataSource;
+	private UserService userService;
+
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
 	@BeforeAll
-	void createSampleProduct() throws Exception {
-		TestDatabaseSupport.assertDatabaseUrl(dataSource, "SALESMANAGER-PR174-UAT");
+	void prepareAdminAndSampleProduct() throws Exception {
+		User admin = userService.getByUserName(ADMIN_USERNAME);
+		assertNotNull(admin);
+		// bootstrap password is covered by the integration tests
+		admin.setAdminPassword(passwordEncoder.encode(ADMIN_PASSWORD));
+		userService.saveOrUpdate(admin);
+
 		productCode = uniqueCode("uat-product");
 		assertNotNull(sampleProduct(productCode));
 	}
 
 	@Test
 	void adminLoginAndPrivateProfileRequireValidJwt() {
-		AuthenticationResponse admin = login(ADMIN_USER, ADMIN_PASSWORD, "/api/v1/private/login");
+		AuthenticationResponse admin = login(ADMIN_USERNAME, ADMIN_PASSWORD, "/api/v1/private/login");
 		assertNotNull(admin.getToken());
 
 		ResponseEntity<String> profile = testRestTemplate.exchange(
@@ -144,7 +147,7 @@ class StorefrontAdminJourneyUatTest extends ServicesTestSupport {
 
 	@Test
 	void authenticatedCustomerCanCheckoutAndReadOrder() {
-		AuthenticationResponse admin = login(ADMIN_USER, ADMIN_PASSWORD, "/api/v1/private/login");
+		AuthenticationResponse admin = login(ADMIN_USERNAME, ADMIN_PASSWORD, "/api/v1/private/login");
 		IntegrationModuleConfiguration paymentModule = new IntegrationModuleConfiguration();
 		paymentModule.setCode("moneyorder");
 		paymentModule.setActive(true);
@@ -192,14 +195,14 @@ class StorefrontAdminJourneyUatTest extends ServicesTestSupport {
 	@Test
 	void servicesBasicAuthenticationAcceptsAdminAndRejectsInvalidPassword() {
 		HttpHeaders validCredentials = new HttpHeaders();
-		validCredentials.setBasicAuth(ADMIN_USER, ADMIN_PASSWORD);
+		validCredentials.setBasicAuth(ADMIN_USERNAME, ADMIN_PASSWORD);
 		validCredentials.setContentType(MediaType.APPLICATION_JSON);
 		ResponseEntity<String> valid = testRestTemplate.postForEntity(
 				"/services/private/system/optin", new HttpEntity<>("{}", validCredentials), String.class);
 		assertEquals(OK, valid.getStatusCode());
 
 		HttpHeaders invalidCredentials = new HttpHeaders();
-		invalidCredentials.setBasicAuth(ADMIN_USER, "wrong-password");
+		invalidCredentials.setBasicAuth(ADMIN_USERNAME, "wrong-password");
 		invalidCredentials.setContentType(MediaType.APPLICATION_JSON);
 		ResponseEntity<String> invalid = testRestTemplate.postForEntity(
 				"/services/private/system/optin", new HttpEntity<>("{}", invalidCredentials), String.class);
