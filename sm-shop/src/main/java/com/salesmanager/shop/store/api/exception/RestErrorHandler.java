@@ -45,12 +45,13 @@ public class RestErrorHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public @ResponseBody ErrorEntity handleServiceException(ServiceRuntimeException exception) {
         log.error(exception.getErrorMessage(), exception);
-        Throwable rootCause = exception.getCause();
+        Throwable rootCause = exception;
         while (rootCause.getCause() != null && rootCause.getCause() != rootCause) {
             rootCause = rootCause.getCause();
         }
+        String rootMessage = rootCause.getMessage() != null ? rootCause.getMessage() : exception.getErrorMessage();
         ErrorEntity errorEntity = createErrorEntity(exception.getErrorCode()!=null?exception.getErrorCode():"500", exception.getErrorMessage(),
-        		rootCause.getMessage());
+        		rootMessage);
         return errorEntity;
     }
 

@@ -880,6 +880,11 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 	private ReadableShoppingCart modifyCart(ShoppingCart cartModel, PersistableShoppingCartItem item,
 			MerchantStore store, Language language) throws Exception {
 
+		boolean applyPromo = !StringUtils.isBlank(item.getPromoCode()) && StringUtils.isBlank(cartModel.getPromoCode());
+		if (applyPromo) {
+			validatePromoCode(item.getPromoCode());
+		}
+
 		com.salesmanager.core.model.shoppingcart.ShoppingCartItem itemModel = createCartItem(cartModel, item, store);
 
 		boolean itemModified = false;
@@ -932,8 +937,7 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 		// if cart items are null just return cart with no items
 
 		// promo code added to the cart but no promo cart exists
-		if (!StringUtils.isBlank(item.getPromoCode()) && StringUtils.isBlank(cartModel.getPromoCode())) {
-			validatePromoCode(item.getPromoCode());
+		if (applyPromo) {
 			cartModel.setPromoCode(item.getPromoCode());
 			cartModel.setPromoAdded(new Date());
 		}
@@ -1172,7 +1176,7 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 
 	private void validatePromoCode(String promo) {
 		if (!PromoCodeCalculatorModule.isValidPromoCode(promo)) {
-			throw new ServiceRuntimeException("Invalid promo code");
+			throw new ServiceRuntimeException("400", "Invalid promo code");
 		}
 	}
 

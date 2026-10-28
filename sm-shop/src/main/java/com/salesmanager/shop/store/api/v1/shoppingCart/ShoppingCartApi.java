@@ -107,6 +107,8 @@ public class ShoppingCartApi {
 		} catch (Exception e) {
 			if(e instanceof ResourceNotFoundException) {
 				throw (ResourceNotFoundException)e;
+			} else if(e instanceof ServiceRuntimeException) {
+				throw (ServiceRuntimeException)e;
 			} else {
 				throw new ServiceRuntimeException(e);
 			}
@@ -138,6 +140,8 @@ public class ShoppingCartApi {
 		} catch (Exception e) {
 			if(e instanceof ResourceNotFoundException) {
 				throw (ResourceNotFoundException)e;
+			} else if(e instanceof ServiceRuntimeException) {
+				throw (ServiceRuntimeException)e;
 			} else {
 				throw new ServiceRuntimeException(e);
 			}
@@ -165,6 +169,8 @@ public class ShoppingCartApi {
 		} catch (Exception e) {
 			if(e instanceof ResourceNotFoundException) {
 				throw (ResourceNotFoundException)e;
+			} else if(e instanceof ServiceRuntimeException) {
+				throw (ServiceRuntimeException)e;
 			} else {
 				throw new ServiceRuntimeException(e);
 			}
@@ -194,6 +200,8 @@ public class ShoppingCartApi {
 		} catch (Exception e) {
 			if(e instanceof ResourceNotFoundException) {
 				throw (ResourceNotFoundException)e;
+			} else if(e instanceof ServiceRuntimeException) {
+				throw (ServiceRuntimeException)e;
 			} else {
 				throw new ServiceRuntimeException(e);
 			}
