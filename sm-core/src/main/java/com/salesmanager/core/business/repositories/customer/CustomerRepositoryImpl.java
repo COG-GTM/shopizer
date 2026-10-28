@@ -38,13 +38,13 @@ public class CustomerRepositoryImpl implements CustomerRepositoryCustom {
 		objectBuilderWhere.append(whereQuery);
 
 		if(!StringUtils.isBlank(criteria.getName())) {
-			String nameQuery =" and c.billing.firstName like:nm or c.billing.lastName like:nm";
+			String nameQuery =" and (c.billing.firstName like:nm or c.billing.lastName like:nm)";
 			countBuilderWhere.append(nameQuery);
 			objectBuilderWhere.append(nameQuery);
 		}
 		
 		if(!StringUtils.isBlank(criteria.getFirstName())) {
-			String nameQuery =" and c..billing.firstName like:fn";
+			String nameQuery =" and c.billing.firstName like:fn";
 			countBuilderWhere.append(nameQuery);
 			objectBuilderWhere.append(nameQuery);
 		}
