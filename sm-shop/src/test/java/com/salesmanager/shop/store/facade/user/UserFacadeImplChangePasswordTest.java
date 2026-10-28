@@ -166,16 +166,21 @@ class UserFacadeImplChangePasswordTest {
 	}
 
 	@Test
-	void policyRejectedNewPasswordDoesNotResetAttempts() throws Exception {
+	void policyRejectedNewPasswordNeitherCountsNorClearsFailures() throws Exception {
 		User self = user(5L, "bob@shopizer.com", defaultStore, Constants.GROUP_ADMIN);
 		register(self);
 		when(securityFacade.validateUserPassword(anyString())).thenReturn(false);
 
-		for (int i = 0; i < PasswordChangeAttemptLimiter.MAX_FAILED_ATTEMPTS; i++) {
-			String current = i == PasswordChangeAttemptLimiter.MAX_FAILED_ATTEMPTS - 1 ? CURRENT : "wrong";
+		for (int i = 0; i < PasswordChangeAttemptLimiter.MAX_FAILED_ATTEMPTS - 1; i++) {
 			assertThrows(ServiceRuntimeException.class,
-					() -> userFacade.changePassword(5L, self.getAdminName(), request(current)));
+					() -> userFacade.changePassword(5L, self.getAdminName(), request("wrong")));
 		}
+		for (int i = 0; i < PasswordChangeAttemptLimiter.MAX_FAILED_ATTEMPTS * 2; i++) {
+			assertThrows(ServiceRuntimeException.class,
+					() -> userFacade.changePassword(5L, self.getAdminName(), request(CURRENT)));
+		}
+		assertThrows(ServiceRuntimeException.class,
+				() -> userFacade.changePassword(5L, self.getAdminName(), request("wrong")));
 
 		assertThrows(TooManyRequestsException.class,
 				() -> userFacade.changePassword(5L, self.getAdminName(), request(CURRENT)));

@@ -12,8 +12,9 @@ import com.salesmanager.shop.store.api.exception.TooManyRequestsException;
 
 /**
  * Limits current-password guesses on the change password flow. Every attempt is
- * counted when it starts and only cleared by {@link #reset(Long)} after a
- * successful change, so concurrent requests cannot exceed the limit.
+ * counted when it starts, so concurrent requests cannot exceed the limit; an
+ * attempt with the correct current password is given back via
+ * {@link #release(Long)}.
  */
 @Component
 public class PasswordChangeAttemptLimiter {
@@ -59,6 +60,23 @@ public class PasswordChangeAttemptLimiter {
 			throw new TooManyRequestsException(
 					"Too many failed password change attempts for user [" + userId + "], try again later");
 		}
+	}
+
+	/**
+	 * Gives back an attempt whose current password was correct, keeping other
+	 * failures recorded for the user.
+	 */
+	public void release(Long userId) {
+		attempts.computeIfPresent(userId, (id, current) -> {
+			current.count--;
+			if (current.count <= 0) {
+				return null;
+			}
+			if (current.count < MAX_FAILED_ATTEMPTS) {
+				current.lockedUntil = null;
+			}
+			return current;
+		});
 	}
 
 	public void reset(Long userId) {

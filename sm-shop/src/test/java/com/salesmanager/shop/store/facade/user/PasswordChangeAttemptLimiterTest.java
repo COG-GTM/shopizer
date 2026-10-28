@@ -64,6 +64,18 @@ class PasswordChangeAttemptLimiterTest {
 	}
 
 	@Test
+	void releaseGivesBackOneAttemptOnly() {
+		acquireAllowed(1L);
+		limiter.release(1L);
+		assertDoesNotThrow(() -> limiter.acquire(1L));
+		assertThrows(TooManyRequestsException.class, () -> limiter.acquire(1L));
+
+		limiter.reset(2L);
+		limiter.release(2L);
+		assertEquals(1, limiter.trackedUsers());
+	}
+
+	@Test
 	void attemptsOutsideWindowDoNotAccumulate() {
 		for (int i = 0; i < PasswordChangeAttemptLimiter.MAX_FAILED_ATTEMPTS - 1; i++) {
 			limiter.acquire(1L);

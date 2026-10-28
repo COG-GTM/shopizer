@@ -504,6 +504,7 @@ public class UserFacadeImpl implements UserFacade {
 			if (!securityFacade.matchPassword(userModel.getAdminPassword(), changePassword.getPassword())) {
 				throw new ServiceRuntimeException("Actual password does not match for user [" + userId + "]");
 			}
+			passwordChangeAttemptLimiter.release(userModel.getId());
 
 			if (!securityFacade.validateUserPassword(changePassword.getChangePassword())) {
 				throw new ServiceRuntimeException("New password does not apply to format policy");
