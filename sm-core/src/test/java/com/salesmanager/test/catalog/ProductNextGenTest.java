@@ -3,6 +3,7 @@ package com.salesmanager.test.catalog;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.math.BigDecimal;
@@ -22,6 +23,7 @@ import com.salesmanager.core.model.catalog.category.Category;
 import com.salesmanager.core.model.catalog.category.CategoryDescription;
 import com.salesmanager.core.model.catalog.product.Product;
 import com.salesmanager.core.model.catalog.product.ProductCriteria;
+import com.salesmanager.core.model.catalog.product.attribute.AttributeCriteria;
 import com.salesmanager.core.model.catalog.product.attribute.ProductAttribute;
 import com.salesmanager.core.model.catalog.product.attribute.ProductOption;
 import com.salesmanager.core.model.catalog.product.attribute.ProductOptionDescription;
@@ -253,11 +255,33 @@ public class ProductNextGenTest extends com.salesmanager.test.common.AbstractSal
 	    	      .collect(Collectors.toList()));
 	    List<Product> productsByOption = listByOptionValue.getContent();
 	    assertThat(productsByOption,  not(empty()));
+
+	    //list products per attribute code / value
+	    productCriteria = new ProductCriteria();
+	    productCriteria.setAttributeCriteria(Stream.of(attributeCriteria(size.getCode(), "9.5"))
+	    	      .collect(Collectors.toList()));
+	    List<Product> productsByAttribute = productService.listByStore(store, en, productCriteria, 0, 5).getContent();
+	    assertThat(productsByAttribute, not(empty()));
+
+	    //attribute code is bound as a value, never parsed as JPQL
+	    productCriteria = new ProductCriteria();
+	    productCriteria.setAttributeCriteria(Stream.of(attributeCriteria(size.getCode() + " or 1=1", "9.5"))
+	    	      .collect(Collectors.toList()));
+	    Page<Product> injected = productService.listByStore(store, en, productCriteria, 0, 5);
+	    assertThat(injected.getContent(), empty());
+	    assertEquals(0, injected.getTotalElements());
 	    
 	    
 
 	}
 	
+	private AttributeCriteria attributeCriteria(String code, String value) {
+		AttributeCriteria criteria = new AttributeCriteria();
+		criteria.setAttributeCode(code);
+		criteria.setAttributeValue(value);
+		return criteria;
+	}
+
 	private void createOptionsSet(MerchantStore store) throws Exception {
 		
 		//add a set of option / values for major sizes
