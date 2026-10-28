@@ -27,6 +27,7 @@ import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.shop.mapper.Mapper;
 import com.salesmanager.shop.model.catalog.product.PersistableProductPrice;
 import com.salesmanager.shop.store.api.exception.ConversionRuntimeException;
+import com.salesmanager.shop.store.api.exception.ResourceNotFoundException;
 import com.salesmanager.shop.utils.DateUtil;
 
 @Component
@@ -73,7 +74,7 @@ public class PersistableProductPriceMapper implements Mapper<PersistableProductP
 				Optional<ProductAvailability> avail = productAvailabilityService
 						.getById(source.getProductAvailabilityId(), store);
 				if (avail.isEmpty()) {
-					throw new ConversionRuntimeException(
+					throw new ResourceNotFoundException(
 							"Product availability with id [" + source.getProductAvailabilityId() + "] was not found");
 				}
 				availability = avail.get();
@@ -142,6 +143,8 @@ public class PersistableProductPriceMapper implements Mapper<PersistableProductP
 			
 			destination.setDefaultPrice(source.isDefaultPrice());
 
+		} catch (ResourceNotFoundException e) {
+			throw e;
 		} catch (Exception e) {
 
 			throw new ConversionRuntimeException(e);
