@@ -13,6 +13,7 @@ import org.jsoup.helper.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +34,7 @@ import com.salesmanager.shop.store.api.exception.UnauthorizedException;
 import com.salesmanager.shop.store.controller.customer.facade.v1.CustomerFacade;
 import com.salesmanager.shop.utils.DateUtil;
 import com.salesmanager.shop.utils.EmailUtils;
+import com.salesmanager.shop.store.security.user.JWTUser;
 import com.salesmanager.shop.utils.FilePathUtils;
 import com.salesmanager.shop.utils.ImageFilePath;
 import com.salesmanager.shop.utils.LabelUtils;
@@ -86,6 +88,16 @@ public class CustomerFacadeImpl implements CustomerFacade {
 		if (!principal.getName().equals(customer.getNick())) {
 			throw new UnauthorizedException(
 					"User [" + principal.getName() + "] unauthorized for customer [" + customer.getId() + "]");
+		}
+
+		// nicks are unique per store only, so the authenticated customer id must match as well
+		if (principal instanceof Authentication
+				&& ((Authentication) principal).getPrincipal() instanceof JWTUser) {
+			Long authenticatedId = ((JWTUser) ((Authentication) principal).getPrincipal()).getId();
+			if (authenticatedId != null && !authenticatedId.equals(customer.getId())) {
+				throw new UnauthorizedException(
+						"User [" + principal.getName() + "] unauthorized for customer [" + customer.getId() + "]");
+			}
 		}
 
 	}

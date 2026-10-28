@@ -39,6 +39,7 @@ public class JWTTokenUtil implements Serializable {
 	 	static final String CLAIM_KEY_USERNAME = "sub";
 	    static final String CLAIM_KEY_AUDIENCE = "aud";
 	    static final String CLAIM_KEY_CREATED = "iat";
+	    static final String CLAIM_KEY_STORE = "store";
 
 	    static final String AUDIENCE_UNKNOWN = "unknown";
 	    static final String AUDIENCE_API = "api";
@@ -55,6 +56,19 @@ public class JWTTokenUtil implements Serializable {
 
 	    public String getUsernameFromToken(String token) {
 	        return getClaimFromToken(token, Claims::getSubject);
+	    }
+
+	    public String getStoreFromToken(String token) {
+	        return getClaimFromToken(token, claims -> claims.get(CLAIM_KEY_STORE, String.class));
+	    }
+
+	    /**
+	     * Customer nicks are unique per store only: a token issued in one store must not
+	     * authenticate the customer holding the same nick in another store.
+	     */
+	    public boolean isTokenForStore(String token, UserDetails userDetails) {
+	        String storeCode = ((JWTUser) userDetails).getStoreCode();
+	        return storeCode == null || storeCode.equals(getStoreFromToken(token));
 	    }
 
 	    public Date getIssuedAtDateFromToken(String token) {
@@ -118,6 +132,9 @@ public class JWTTokenUtil implements Serializable {
 
 	    public String generateToken(UserDetails userDetails) {
 	        Map<String, Object> claims = new HashMap<>();
+	        if (userDetails instanceof JWTUser && ((JWTUser) userDetails).getStoreCode() != null) {
+	            claims.put(CLAIM_KEY_STORE, ((JWTUser) userDetails).getStoreCode());
+	        }
 	        return doGenerateToken(claims, userDetails.getUsername(), generateAudience());
 	    }
 
@@ -183,6 +200,7 @@ public class JWTTokenUtil implements Serializable {
 	        return (
 
 	        		usernameEquals && !isTokenExpired && !isTokenCreatedBeforeLastPasswordReset
+	        		&& isTokenForStore(token, user)
 	        );
 	    }
 

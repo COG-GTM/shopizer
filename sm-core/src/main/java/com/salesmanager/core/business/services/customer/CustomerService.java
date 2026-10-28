@@ -19,6 +19,12 @@ public interface CustomerService  extends SalesManagerEntityService<Long, Custom
 
 	List<Customer> getListByStore(MerchantStore store);
 
+	/**
+	 * Nicks are unique per store only; this global lookup fails when the same nick
+	 * exists in several stores. Use {@link #getByNick(String, int)} or
+	 * {@link #getByNick(String, String)}.
+	 */
+	@Deprecated
 	Customer getByNick(String nick);
 
 	void saveOrUpdate(Customer customer) throws ServiceException ;

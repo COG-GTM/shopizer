@@ -169,7 +169,7 @@ public interface CustomerFacade
 
     ReadableCustomer getCustomerByNick(String userName, MerchantStore merchantStore, Language language);
 
-	void deleteByNick(String nick);
+	void deleteByNick(String nick, MerchantStore store);
 	
 	void deleteById(Long id);
 

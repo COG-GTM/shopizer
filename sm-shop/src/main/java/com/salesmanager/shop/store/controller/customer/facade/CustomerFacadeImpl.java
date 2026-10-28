@@ -180,7 +180,7 @@ public class CustomerFacadeImpl implements CustomerFacade {
   public CustomerEntity getCustomerDataByUserName(final String userName, final MerchantStore store,
       final Language language) throws Exception {
     LOG.info("Fetching customer with userName" + userName);
-    Customer customer = customerService.getByNick(userName);
+    Customer customer = customerService.getByNick(userName, store.getId());
 
     if (customer != null) {
       LOG.info("Found customer, converting to CustomerEntity");
@@ -347,7 +347,7 @@ public class CustomerFacadeImpl implements CustomerFacade {
       final MerchantStore merchantStore, Language language) throws Exception {
     LOG.info("Starting customer registration process..");
 
-    if (userExist(customer.getUserName())) {
+    if (userExist(customer.getUserName(), merchantStore)) {
       throw new UserAlreadyExistException("User already exist");
     }
 
@@ -586,7 +586,7 @@ public class CustomerFacadeImpl implements CustomerFacade {
 
 	//set customer user name
 	customer.setUserName(customer.getEmailAddress());
-    if (userExist(customer.getUserName())) {
+    if (userExist(customer.getUserName(), store)) {
       throw new ServiceRuntimeException("User already exist");
     }
     //end user exists
@@ -616,8 +616,8 @@ public class CustomerFacadeImpl implements CustomerFacade {
 
   }
 
-  private boolean userExist(String userName) {
-    return Optional.ofNullable(customerService.getByNick(userName))
+  private boolean userExist(String userName, MerchantStore store) {
+    return Optional.ofNullable(customerService.getByNick(userName, store.getId()))
         .isPresent();
   }
 
@@ -921,18 +921,18 @@ public class CustomerFacadeImpl implements CustomerFacade {
   @Override
   public ReadableCustomer getCustomerByNick(String userName, MerchantStore merchantStore,
       Language language) {
-    Customer customer = getByNick(userName);
+    Customer customer = getByNick(userName, merchantStore);
     return convertCustomerToReadableCustomer(customer, merchantStore, language);
   }
 
   @Override
-  public void deleteByNick(String userName) {
-    Customer customer = getByNick(userName);
+  public void deleteByNick(String userName, MerchantStore store) {
+    Customer customer = getByNick(userName, store);
     delete(customer);
   }
 
-  private Customer getByNick(String userName) {
-    return Optional.ofNullable(customerService.getByNick(userName))
+  private Customer getByNick(String userName, MerchantStore store) {
+    return Optional.ofNullable(customerService.getByNick(userName, store.getId()))
         .orElseThrow(() -> new ResourceNotFoundException("No Customer found for ID : " + userName));
   }
 

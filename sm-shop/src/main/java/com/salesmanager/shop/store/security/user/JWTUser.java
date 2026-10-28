@@ -23,6 +23,7 @@ public class JWTUser implements UserDetails {
     private final Collection<? extends GrantedAuthority> authorities;
     private final boolean enabled;
     private final Date lastPasswordResetDate;
+    private String storeCode;
 
     public JWTUser(
           Long id,
@@ -104,6 +105,18 @@ public class JWTUser implements UserDetails {
     @JsonIgnore
     public Date getLastPasswordResetDate() {
         return lastPasswordResetDate;
+    }
+
+    /**
+     * Merchant store the user was resolved in; null for users not scoped to a store login.
+     */
+    @JsonIgnore
+    public String getStoreCode() {
+        return storeCode;
+    }
+
+    public void setStoreCode(String storeCode) {
+        this.storeCode = storeCode;
     }
 
 }

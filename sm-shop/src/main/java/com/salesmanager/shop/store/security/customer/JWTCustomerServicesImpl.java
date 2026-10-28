@@ -40,7 +40,7 @@ public class JWTCustomerServicesImpl extends AbstractCustomerServices {
 		//	lastModified = section.getDateModified();
 		//}
 		
-		return new JWTUser(
+		JWTUser user = new JWTUser(
         		customer.getId(),
         		userName,
         		customer.getBilling().getFirstName(),
@@ -51,6 +51,8 @@ public class JWTCustomerServicesImpl extends AbstractCustomerServices {
                 true,
                 lastModified
         );
+		user.setStoreCode(customer.getMerchantStore().getCode());
+		return user;
 	}
 
 }
