@@ -22,7 +22,7 @@ import org.springframework.web.filter.CorsFilter;
 @Configuration
 public class CorsConfig {
 
-	static final List<String> ALLOWED_METHODS = Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS");
+	static final List<String> ALLOWED_METHODS = Arrays.asList("GET", "HEAD", "POST", "PUT", "DELETE", "PATCH", "OPTIONS");
 
 	static final List<String> ALLOWED_HEADERS = Arrays.asList("X-Auth-Token", "Content-Type", "Authorization",
 			"Cache-Control", "X-Requested-With");
@@ -52,9 +52,13 @@ public class CorsConfig {
 		configuration.setAllowCredentials(allowCredentials);
 		configuration.setMaxAge(3600L);
 
+		// legacy /services chain still uses Basic auth and sessions, so it never gets credentialed CORS
+		CorsConfiguration servicesConfiguration = new CorsConfiguration(configuration);
+		servicesConfiguration.setAllowCredentials(false);
+
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/api/**", configuration);
-		source.registerCorsConfiguration("/services/**", configuration);
+		source.registerCorsConfiguration("/services/**", servicesConfiguration);
 		return source;
 	}
 

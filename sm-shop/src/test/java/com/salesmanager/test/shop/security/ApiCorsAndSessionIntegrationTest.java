@@ -83,6 +83,18 @@ public class ApiCorsAndSessionIntegrationTest {
 	}
 
 	@Test
+	public void localeParameterCreatesNoSessionOnApi() throws Exception {
+		String token = adminToken();
+		MvcResult result = mockMvc.perform(get("/api/v1/private/user/profile")
+				.param("locale", "de")
+				.header("Authorization", "Bearer " + token)).andReturn();
+
+		assertEquals(200, result.getResponse().getStatus());
+		assertNull(result.getRequest().getSession(false));
+		assertNull(result.getResponse().getCookie("JSESSIONID"));
+	}
+
+	@Test
 	public void basicAuthIsNotAcceptedOnPrivateApi() throws Exception {
 		String basic = Base64.getEncoder()
 				.encodeToString("admin@shopizer.com:password".getBytes(StandardCharsets.UTF_8));

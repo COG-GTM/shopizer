@@ -76,7 +76,8 @@ public class ShopApplicationConfiguration implements WebMvcConfigurer {
   @Override
   public void addInterceptors(InterceptorRegistry registry) {
     // Changes the locale when a 'locale' request parameter is sent; e.g. /?locale=de
-    registry.addInterceptor(localeChangeInterceptor());
+    // Excluded from the stateless REST api: SessionLocaleResolver would create a JSESSIONID
+    registry.addInterceptor(localeChangeInterceptor()).excludePathPatterns("/api/**");
 
     /**
     registry

@@ -53,7 +53,11 @@
 
 	<mvc:interceptors>
 		<!-- Changes the locale when a 'locale' request parameter is sent; e.g. /?locale=de -->    
-		<bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor"/>
+		<mvc:interceptor>
+			<mvc:mapping path="/**"/>
+			<mvc:exclude-mapping path="/api/**"/>
+			<bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor"/>
+		</mvc:interceptor>
 		
 		<!-- store web front filter -->
 		 <mvc:interceptor>

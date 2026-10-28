@@ -58,7 +58,7 @@ public class CorsConfigTest {
 
 	@Test
 	public void allowedOriginWithCredentialsWhenEnabled() throws Exception {
-		MockHttpServletRequest request = request("GET", "/services/public/store", ALLOWED);
+		MockHttpServletRequest request = request("GET", "/api/v1/auth/customers/profile", ALLOWED);
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockFilterChain chain = new MockFilterChain();
 
@@ -66,6 +66,30 @@ public class CorsConfigTest {
 
 		assertEquals(ALLOWED, response.getHeader("Access-Control-Allow-Origin"));
 		assertEquals("true", response.getHeader("Access-Control-Allow-Credentials"));
+		assertNotNull(chain.getRequest());
+	}
+
+	@Test
+	public void servicesNeverGetCredentialedCors() throws Exception {
+		MockHttpServletRequest request = request("GET", "/services/private/orders", ALLOWED);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+
+		filter(ALLOWED, true).doFilter(request, response, new MockFilterChain());
+
+		assertEquals(ALLOWED, response.getHeader("Access-Control-Allow-Origin"));
+		assertNull(response.getHeader("Access-Control-Allow-Credentials"));
+	}
+
+	@Test
+	public void allowedOriginMayUseHead() throws Exception {
+		MockHttpServletRequest request = request("HEAD", "/api/v1/products", ALLOWED);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockFilterChain chain = new MockFilterChain();
+
+		filter(ALLOWED, false).doFilter(request, response, chain);
+
+		assertEquals(200, response.getStatus());
+		assertEquals(ALLOWED, response.getHeader("Access-Control-Allow-Origin"));
 		assertNotNull(chain.getRequest());
 	}
 
