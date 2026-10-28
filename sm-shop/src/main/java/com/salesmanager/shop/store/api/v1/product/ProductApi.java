@@ -130,10 +130,13 @@ public class ProductApi {
 			// Make sure we have consistency in this request
 			if (!id.equals(product.getId())) {
 				response.sendError(400, "Error url id does not match object id");
+				return;
 			}
 
 			productCommonFacade.saveProduct(merchantStore, product,
 					merchantStore.getDefaultLanguage());
+		} catch (ResourceNotFoundException e) {
+			throw e;
 		} catch (Exception e) {
 			LOGGER.error("Error while updating product", e);
 			try {
