@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.services.system.ModuleConfigurationService;
 import com.salesmanager.core.business.utils.ajax.AjaxResponse;
 
@@ -29,6 +30,8 @@ public class SystemRESTController {
 
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(SystemRESTController.class);
+	
+	private static final String SUPERADMIN_ROLE = "SUPERADMIN";
 	
 	@Inject
 	private ModuleConfigurationService moduleConfigurationService;
@@ -62,11 +65,15 @@ public class SystemRESTController {
 		
 		AjaxResponse resp = new AjaxResponse();
 		
+		if (!request.isUserInRole(SUPERADMIN_ROLE)) {
+			resp.setStatus(403);
+			response.sendError(403, "Integration modules can only be managed by a super administrator");
+			return resp;
+		}
+		
 		try {
 			
-			
-			
-			LOGGER.debug("Creating or updating an integration module : " + json);
+			LOGGER.debug("Creating or updating an integration module");
 			
 			moduleConfigurationService.createOrUpdateModule(json);
 			
@@ -74,6 +81,17 @@ public class SystemRESTController {
 			
 			resp.setStatus(200);
 			
+		} catch(ServiceException e) {
+			if (e.getExceptionType() == ServiceException.EXCEPTION_VALIDATION) {
+				LOGGER.warn("Rejected integration module definition : " + e.getMessage());
+				resp.setStatus(400);
+				resp.setErrorString(e.getMessage());
+				response.sendError(400, e.getMessage());
+			} else {
+				resp.setStatus(500);
+				resp.setErrorMessage(e);
+				response.sendError(503, "Exception while creating or updating the module " + e.getMessage());
+			}
 		} catch(Exception e) {
 			resp.setStatus(500);
 			resp.setErrorMessage(e);
