@@ -499,13 +499,11 @@ public class UserFacadeImpl implements UserFacade {
 
 			authorizePasswordChange(auth, userModel);
 
-			passwordChangeAttemptLimiter.checkAllowed(userModel.getId());
+			passwordChangeAttemptLimiter.acquire(userModel.getId());
 
 			if (!securityFacade.matchPassword(userModel.getAdminPassword(), changePassword.getPassword())) {
-				passwordChangeAttemptLimiter.recordFailure(userModel.getId());
 				throw new ServiceRuntimeException("Actual password does not match for user [" + userId + "]");
 			}
-			passwordChangeAttemptLimiter.reset(userModel.getId());
 
 			if (!securityFacade.validateUserPassword(changePassword.getChangePassword())) {
 				throw new ServiceRuntimeException("New password does not apply to format policy");
@@ -515,6 +513,7 @@ public class UserFacadeImpl implements UserFacade {
 			userModel.setAdminPassword(newPasswordEncoded);
 
 			userService.update(userModel);
+			passwordChangeAttemptLimiter.reset(userModel.getId());
 
 		} catch (ServiceException e) {
 			LOGGER.error("Error updating password");

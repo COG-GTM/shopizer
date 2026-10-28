@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -162,6 +163,39 @@ class UserFacadeImplChangePasswordTest {
 		assertThrows(TooManyRequestsException.class,
 				() -> userFacade.changePassword(5L, self.getAdminName(), request(CURRENT)));
 		verify(userService, never()).update(any(User.class));
+	}
+
+	@Test
+	void policyRejectedNewPasswordDoesNotResetAttempts() throws Exception {
+		User self = user(5L, "bob@shopizer.com", defaultStore, Constants.GROUP_ADMIN);
+		register(self);
+		when(securityFacade.validateUserPassword(anyString())).thenReturn(false);
+
+		for (int i = 0; i < PasswordChangeAttemptLimiter.MAX_FAILED_ATTEMPTS; i++) {
+			String current = i == PasswordChangeAttemptLimiter.MAX_FAILED_ATTEMPTS - 1 ? CURRENT : "wrong";
+			assertThrows(ServiceRuntimeException.class,
+					() -> userFacade.changePassword(5L, self.getAdminName(), request(current)));
+		}
+
+		assertThrows(TooManyRequestsException.class,
+				() -> userFacade.changePassword(5L, self.getAdminName(), request(CURRENT)));
+		verify(userService, never()).update(any(User.class));
+	}
+
+	@Test
+	void successfulChangeResetsAttempts() throws Exception {
+		User self = user(5L, "bob@shopizer.com", defaultStore, Constants.GROUP_ADMIN);
+		register(self);
+
+		for (int round = 0; round < 2; round++) {
+			self.setAdminPassword("encoded-" + CURRENT);
+			for (int i = 0; i < PasswordChangeAttemptLimiter.MAX_FAILED_ATTEMPTS - 1; i++) {
+				assertThrows(ServiceRuntimeException.class,
+						() -> userFacade.changePassword(5L, self.getAdminName(), request("wrong")));
+			}
+			userFacade.changePassword(5L, self.getAdminName(), request(CURRENT));
+		}
+		verify(userService, times(2)).update(self);
 	}
 
 	private UserPassword request(String current) {
