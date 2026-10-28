@@ -138,4 +138,9 @@ public class UserServiceImpl extends SalesManagerEntityServiceImpl<Long, User> i
 		return userRepository.findByResetPasswordToken(token, storeCode);
 	}
 
+	@Override
+	public boolean consumePasswordResetToken(User user, String token) {
+		return userRepository.clearResetPasswordToken(user.getId(), token) == 1;
+	}
+
 }

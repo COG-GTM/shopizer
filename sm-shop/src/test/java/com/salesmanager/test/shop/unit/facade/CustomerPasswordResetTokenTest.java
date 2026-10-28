@@ -11,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Date;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +29,7 @@ import com.salesmanager.shop.store.api.exception.ServiceRuntimeException;
 import com.salesmanager.shop.store.facade.customer.CustomerFacadeImpl;
 import com.salesmanager.shop.utils.DateUtil;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class CustomerPasswordResetTokenTest {
 
 	private static final String STORE = "DEFAULT";
@@ -45,6 +46,9 @@ public class CustomerPasswordResetTokenTest {
 
 	private Customer customer;
 
+	// token column as stored in the database
+	private final AtomicReference<String> storedToken = new AtomicReference<>(TOKEN);
+
 	@Before
 	public void setUp() throws Exception {
 		customer = new Customer();
@@ -55,14 +59,12 @@ public class CustomerPasswordResetTokenTest {
 		customer.setCredentialsResetRequest(reset);
 
 		when(passwordEncoder.encode(anyString())).thenAnswer(i -> "encoded:" + i.getArgument(0));
-		// mirrors CustomerRepository.findByResetPasswordToken: match on the stored token
-		when(customerService.getByPasswordResetToken(anyString(), anyString())).thenAnswer(i -> {
-			CredentialsReset stored = customer.getCredentialsResetRequest();
-			if (stored != null && i.getArgument(1).equals(stored.getCredentialsRequest())) {
-				return customer;
-			}
-			return null;
-		});
+		// mirrors CustomerRepository.findByResetPasswordToken
+		when(customerService.getByPasswordResetToken(anyString(), anyString()))
+				.thenAnswer(i -> i.getArgument(1).equals(storedToken.get()) ? customer : null);
+		// mirrors CustomerRepository.clearResetPasswordToken (conditional UPDATE)
+		when(customerService.consumePasswordResetToken(any(Customer.class), anyString()))
+				.thenAnswer(i -> storedToken.compareAndSet(i.getArgument(1), null));
 	}
 
 	@Test
@@ -71,6 +73,7 @@ public class CustomerPasswordResetTokenTest {
 
 		assertEquals("encoded:NewPassword1", customer.getPassword());
 		assertNull(customer.getCredentialsResetRequest());
+		assertNull(storedToken.get());
 		verify(customerService).save(customer);
 	}
 
@@ -83,6 +86,23 @@ public class CustomerPasswordResetTokenTest {
 			fail("Replayed reset token must be rejected");
 		} catch (ServiceRuntimeException expected) {
 			// token no longer resolves to a customer
+		}
+
+		assertEquals("encoded:NewPassword1", customer.getPassword());
+		verify(customerService, times(1)).save(any(Customer.class));
+	}
+
+	@Test
+	public void concurrentResetWithSameTokenOnlySucceedsOnce() throws Exception {
+		// both requests pass verification before either one consumes the token
+		when(customerService.getByPasswordResetToken(anyString(), anyString())).thenReturn(customer);
+
+		customerFacade.resetPassword("NewPassword1", TOKEN, STORE);
+
+		try {
+			customerFacade.resetPassword("AttackerPassword1", TOKEN, STORE);
+			fail("Second concurrent reset must be rejected");
+		} catch (GenericRuntimeException expected) {
 		}
 
 		assertEquals("encoded:NewPassword1", customer.getPassword());
@@ -110,6 +130,7 @@ public class CustomerPasswordResetTokenTest {
 		} catch (GenericRuntimeException expected) {
 		}
 
+		verify(customerService, never()).consumePasswordResetToken(any(Customer.class), anyString());
 		verify(customerService, never()).save(any(Customer.class));
 	}
 }

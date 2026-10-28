@@ -212,6 +212,9 @@ public class CustomerFacadeImpl implements CustomerFacade {
 		Validate.notNull(password, "New password cannot be null");
 
 		Customer customer = verifyCustomerLink(token, store);// reverify
+		if (!customerService.consumePasswordResetToken(customer, token)) {
+			throw new GenericRuntimeException("Token [" + token + "] has already been used");
+		}
 		customer.setPassword(passwordEncoder.encode(password));
 		customer.setCredentialsResetRequest(null);
 		try {
