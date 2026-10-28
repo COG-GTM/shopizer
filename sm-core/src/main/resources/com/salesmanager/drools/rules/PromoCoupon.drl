@@ -6,11 +6,13 @@ global com.salesmanager.core.business.modules.order.total.OrderTotalResponse tot
 
 dialect  "mvel"
 
+// Promo codes are configured per store (MerchantConfiguration PROMO_CODES) and
+// validated in PromoCodeCalculatorModule before this session runs. Every rule
+// must match on merchantStoreCode; do not hardcode coupon codes here.
 
-rule "Bam0520"
+rule "StoreConfiguredPromoCode"
     when
-        OrderTotalInputParameters(promoCode == 'Test1234')
-        OrderTotalInputParameters(date < "31-Oct-2025")
+        OrderTotalInputParameters(merchantStoreCode != null, promoCode != null, $discount : promoCodeDiscount != null)
     then
-        total.setDiscount(0.10);
+        total.setDiscount($discount);
 end
