@@ -95,6 +95,10 @@ public class JWTTokenUtil implements Serializable {
 	    private Boolean isCreatedBeforeLastPasswordReset(Date created, Date lastPasswordReset) {
 	        return (lastPasswordReset != null && created.before(lastPasswordReset));
 	    }
+
+	    public Boolean isIssuedBeforeLastPasswordReset(String token, Date lastPasswordReset) {
+	        return isCreatedBeforeLastPasswordReset(getIssuedAtDateFromToken(token), lastPasswordReset);
+	    }
 	    
 	    private Boolean isCreatedBeforeLastPasswordResetWithGrace(Date created, Date lastPasswordReset) {
 	        return (lastPasswordReset != null && created.before(addSeconds(lastPasswordReset,GRACE_PERIOD)));
@@ -182,7 +186,7 @@ public class JWTTokenUtil implements Serializable {
 	        
 	        return (
 
-	        		usernameEquals && !isTokenExpired && !isTokenCreatedBeforeLastPasswordReset
+	        		usernameEquals && user.isEnabled() && !isTokenExpired && !isTokenCreatedBeforeLastPasswordReset
 	        );
 	    }
 

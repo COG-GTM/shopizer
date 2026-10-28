@@ -3,6 +3,7 @@ package com.salesmanager.core.model.user;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -146,6 +147,10 @@ public class User extends SalesManagerEntity<Long, User> implements Auditable {
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "LOGIN_ACCESS")
 	private Date loginTime;
+
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "PASSWORD_CHANGED")
+	private Date passwordChangedDate;
 	
 	@Embedded
 	private CredentialsReset credentialsResetRequest = null;
@@ -200,8 +205,24 @@ public class User extends SalesManagerEntity<Long, User> implements Auditable {
 		return adminPassword;
 	}
 
+	/**
+	 * Setting a different password also records when it changed, so that
+	 * authentication tokens issued before the change can be rejected.
+	 */
 	public void setAdminPassword(String adminPassword) {
+		if (!Objects.equals(this.adminPassword, adminPassword)) {
+			// JWT issued-at claims have second precision
+			this.passwordChangedDate = new Date((System.currentTimeMillis() / 1000) * 1000);
+		}
 		this.adminPassword = adminPassword;
+	}
+
+	public Date getPasswordChangedDate() {
+		return passwordChangedDate;
+	}
+
+	public void setPasswordChangedDate(Date passwordChangedDate) {
+		this.passwordChangedDate = passwordChangedDate;
 	}
 
 	public String getFirstName() {

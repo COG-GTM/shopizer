@@ -4,6 +4,7 @@ import javax.inject.Inject;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.Authentication;
@@ -40,6 +41,10 @@ public class JWTAdminAuthenticationProvider extends DaoAuthenticationProvider {
         UserDetails user = jwtAdminDetailsService.loadUserByUsername(name);
         if (user == null) {
             throw new BadCredentialsException("Username/Password does not match for " + auth.getPrincipal());
+        }
+
+        if (!user.isEnabled()) {
+            throw new DisabledException("User " + name + " is disabled");
         }
         
         String pass = credentials.toString();

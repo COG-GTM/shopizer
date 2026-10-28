@@ -62,6 +62,11 @@ public class JWTAdminAuthenticationManager extends CustomAuthenticationManager {
       // in the token and read it from it. It's up to you ;)
       UserDetails userDetails = this.jwtAdminDetailsService.loadUserByUsername(username);
 
+      if (userDetails != null && !userDetails.isEnabled()) {
+        logger.warn("rejecting token of disabled user " + username);
+        throw new CustomAuthenticationException("User " + username + " is disabled");
+      }
+
       // For simple validation it is completely sufficient to just check the token integrity. You
       // don't have to call
       // the database compellingly. Again it's up to you ;)
