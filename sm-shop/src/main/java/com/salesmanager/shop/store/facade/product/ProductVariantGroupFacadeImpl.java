@@ -67,6 +67,7 @@ public class ProductVariantGroupFacadeImpl implements ProductVariantGroupFacade 
 	@Override
 	public Long create(PersistableProductVariantGroup productVariantGroup, MerchantStore store, Language language) {
 		
+		productVariantGroup.setId(null);
 		ProductVariantGroup group = persistableProductIntanceGroupMapper.convert(productVariantGroup, store, language);
 		try {
 			group = productVariantGroupService.saveOrUpdate(group);
