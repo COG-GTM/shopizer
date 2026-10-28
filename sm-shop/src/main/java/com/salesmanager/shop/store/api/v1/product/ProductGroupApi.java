@@ -224,7 +224,7 @@ public class ProductGroupApi {
   }
 
   private Product getStoreProduct(Long productId, MerchantStore merchantStore) {
-    Product product = productService.getById(productId);
+    Product product = productService.getProductWithOnlyMerchantStoreById(productId);
     if (product == null) {
       throw new ResourceNotFoundException("Product id [" + productId + "] is not found");
     }
