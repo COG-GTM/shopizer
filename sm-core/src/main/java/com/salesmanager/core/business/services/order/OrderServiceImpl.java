@@ -106,6 +106,23 @@ public class OrderServiceImpl  extends SalesManagerEntityServiceImpl<Long, Order
         this.orderRepository = orderRepository;
     }
 
+    static void validateQuantities(Order order, List<ShoppingCartItem> items) throws ServiceException {
+        for (ShoppingCartItem item : items) {
+            if (item.getQuantity() == null || item.getQuantity() < 1) {
+                throw new ServiceException(ServiceException.EXCEPTION_VALIDATION,
+                        "Invalid quantity " + item.getQuantity() + " for cart item " + item.getId());
+            }
+        }
+        if (order.getOrderProducts() != null) {
+            for (OrderProduct orderProduct : order.getOrderProducts()) {
+                if (orderProduct.getProductQuantity() < 1) {
+                    throw new ServiceException(ServiceException.EXCEPTION_VALIDATION,
+                            "Invalid quantity " + orderProduct.getProductQuantity() + " for order product " + orderProduct.getSku());
+                }
+            }
+        }
+    }
+
     @Override
     public void addOrderStatusHistory(Order order, OrderStatusHistory history) throws ServiceException {
         order.getOrderHistory().add(history);
@@ -133,6 +150,8 @@ public class OrderServiceImpl  extends SalesManagerEntityServiceImpl<Long, Order
     	Validate.notNull(payment, "Payment cannot be null");
     	Validate.notNull(store, "MerchantStore cannot be null");
     	Validate.notNull(summary, "Order total Summary cannot be null");
+
+    	validateQuantities(order, items);
 
     	UserContext context = UserContext.getCurrentInstance();
     	if(context != null) {

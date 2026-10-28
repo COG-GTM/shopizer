@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -385,6 +386,8 @@ public class OrderFacadeImpl implements OrderFacade {
 			orderProductPopulator.setProductAttributeService(productAttributeService);
 			orderProductPopulator.setProductService(productService);
 			String shoppingCartCode = null;
+
+			validateCartItemQuantities(shoppingCartItems);
 
 			for (ShoppingCartItem item : shoppingCartItems) {
 
@@ -1217,6 +1220,8 @@ public class OrderFacadeImpl implements OrderFacade {
 
 			Set<ShoppingCartItem> shoppingCartItems = cart.getLineItems();
 
+			validateCartItemQuantities(shoppingCartItems);
+
 			List<ShoppingCartItem> items = new ArrayList<ShoppingCartItem>(shoppingCartItems);
 
 			Set<OrderProduct> orderProducts = new LinkedHashSet<OrderProduct>();
@@ -1645,4 +1650,14 @@ public class OrderFacadeImpl implements OrderFacade {
 		}
 
 	}
+
+	static void validateCartItemQuantities(Collection<ShoppingCartItem> items) throws ServiceException {
+		for (ShoppingCartItem item : items) {
+			if (item.getQuantity() == null || item.getQuantity() < 1) {
+				throw new ServiceException(ServiceException.EXCEPTION_VALIDATION,
+						"Invalid quantity " + item.getQuantity() + " for cart item " + item.getId());
+			}
+		}
+	}
+
 }
