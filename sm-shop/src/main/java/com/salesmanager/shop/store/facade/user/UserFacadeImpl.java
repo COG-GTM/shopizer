@@ -855,7 +855,8 @@ public class UserFacadeImpl implements UserFacade {
 
 		User user = verifyUserLink(token, store);// reverify
 		user.setAdminPassword(passwordEncoder.encode(password));
-		
+		user.setCredentialsResetRequest(null);
+
 		try {
 			userService.save(user);
 		} catch (ServiceException e) {
@@ -869,13 +870,13 @@ public class UserFacadeImpl implements UserFacade {
 		User user = null;
 		try {
 			user = userService.getByPasswordResetToken(store, token);
-			if (user == null) {
-				throw new ResourceNotFoundException(
-						"Customer not fount for store [" + store + "] and token [" + token + "]");
-			}
-
 		} catch (Exception e) {
 			throw new ServiceRuntimeException("Cannot verify customer token", e);
+		}
+
+		if (user == null || user.getCredentialsResetRequest() == null) {
+			throw new ResourceNotFoundException(
+					"User not found for store [" + store + "] and token [" + token + "]");
 		}
 
 		Date tokenExpiry = user.getCredentialsResetRequest().getCredentialsRequestExpiry();
