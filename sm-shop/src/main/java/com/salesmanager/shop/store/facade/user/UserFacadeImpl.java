@@ -336,7 +336,7 @@ public class UserFacadeImpl implements UserFacade {
 			if (CollectionUtils.isEmpty(userModel.getGroups())) {
 				throw new ServiceRuntimeException("No valid group groups associated with user " + user.getUserName());
 			}
-			authorizeNewUser(userModel, store);
+			authorizeNewUser(userModel);
 			userModel.setAdminPassword(newPasswordEncoded);
 			userService.saveOrUpdate(userModel);
 			// now build returned object
@@ -610,7 +610,7 @@ public class UserFacadeImpl implements UserFacade {
 	 * Enforced on the resolved user model so it holds for any caller of
 	 * create and for group names matched case-insensitively by the database.
 	 */
-	private void authorizeNewUser(User userModel, MerchantStore store) throws ServiceException {
+	private void authorizeNewUser(User userModel) throws ServiceException {
 		String authenticatedUser = authenticatedUser();
 		if (authenticatedUser == null) {
 			throw new UnauthorizedException("User Not authorized");
@@ -633,11 +633,22 @@ public class UserFacadeImpl implements UserFacade {
 		if (userStore == null) {
 			throw new ServiceRuntimeException("Cannot find store for user " + userModel.getAdminName());
 		}
-		if (!userStore.getCode().equals(store.getCode())
-				&& !authorizedStore(authenticatedUser, userStore.getCode())) {
+		if (!isOwnOrChildStore(currentUser.getMerchantStore(), userStore.getCode())) {
 			throw new UnauthorizedException("Operation unauthorized for user [" + authenticatedUser
 					+ "] and store [" + userStore.getCode() + "]");
 		}
+	}
+
+	/** caller's own store or a store whose parent is the caller's store */
+	private boolean isOwnOrChildStore(MerchantStore callerStore, String targetStoreCode) throws ServiceException {
+		if (callerStore == null || targetStoreCode == null) {
+			return false;
+		}
+		if (callerStore.getCode().equals(targetStoreCode)) {
+			return true;
+		}
+		MerchantStore parent = merchantStoreService.getParent(targetStoreCode);
+		return parent != null && callerStore.getCode().equals(parent.getCode());
 	}
 
 	private boolean hasSuperAdminGroup(List<Group> groups) {
