@@ -215,6 +215,13 @@ public class UserApi {
 
 		userFacade.authorizedGroup(authenticatedUser, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN, Constants.GROUP_ADMIN_RETAIL).collect(Collectors.toList()));
 
+		if (!userFacade.userInRoles(authenticatedUser, Arrays.asList(Constants.GROUP_SUPERADMIN))) {
+			if (!userFacade.authorizedStore(authenticatedUser, merchantStore.getCode())) {
+				throw new UnauthorizedException("Operation unauthorized for user [" + authenticatedUser
+						+ "] and store [" + merchantStore.getCode() + "]");
+			}
+		}
+
 		user.setId(id);
 		userFacade.updateEnabled(merchantStore, user);
 	}
@@ -234,7 +241,10 @@ public class UserApi {
 		}
 
 		if (!userFacade.userInRoles(authenticatedUser, Arrays.asList(Constants.GROUP_SUPERADMIN))) {
-			userFacade.authorizedStore(authenticatedUser, merchantStore.getCode());
+			if (!userFacade.authorizedStore(authenticatedUser, merchantStore.getCode())) {
+				throw new UnauthorizedException("Operation unauthorized for user [" + authenticatedUser
+						+ "] and store [" + merchantStore.getCode() + "]");
+			}
 		}
 
 		userFacade.authorizedGroup(authenticatedUser, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN, Constants.GROUP_ADMIN_RETAIL).collect(Collectors.toList()));
