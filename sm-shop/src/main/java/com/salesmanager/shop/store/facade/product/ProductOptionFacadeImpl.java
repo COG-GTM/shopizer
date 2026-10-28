@@ -274,6 +274,8 @@ public class ProductOptionFacadeImpl implements ProductOptionFacade {
 		Validate.notNull(attribute.getOptionValue(), "ProductAttribute option value cannot be null");
 		Validate.notNull(store, "Store cannot be null");
 
+		Product product = this.product(productId, store);
+
 		attribute.setProductId(productId);
 		ProductAttribute attr = new ProductAttribute();
 		if (attribute.getId() != null && attribute.getId().longValue() > 0) {
@@ -282,13 +284,19 @@ public class ProductOptionFacadeImpl implements ProductOptionFacade {
 				throw new ResourceNotFoundException("Product attribute [" + attribute.getId() + "] not found");
 			}
 
-			if (productId != attr.getProduct().getId().longValue()) {
+			if (attr.getProduct() == null || productId.longValue() != attr.getProduct().getId().longValue()) {
 				throw new ResourceNotFoundException(
 						"Product attribute [" + attribute.getId() + "] not found for product [" + productId + "]");
+			}
+
+			if (!belongsToStore(attr.getProduct(), store)) {
+				throw new ResourceNotFoundException("Product attribute [" + attribute.getId() + "] not found for product ["
+						+ productId + "] and store [" + store.getCode() + "]");
 			}
 		}
 
 		attr = persistableProductAttributeMapper.merge(attribute, attr, store, language);
+		attr.setProduct(product);
 
 		try {
 			productAttributeService.saveOrUpdate(attr);
@@ -336,12 +344,17 @@ public class ProductOptionFacadeImpl implements ProductOptionFacade {
 			throw new ResourceNotFoundException("Productnot found for id [" + id + "]");
 		}
 
-		if (product.getMerchantStore().getId().intValue() != store.getId().intValue()) {
+		if (!belongsToStore(product, store)) {
 			throw new ResourceNotFoundException(
 					"Productnot found id [" + id + "] for store [" + store.getCode() + "]");
 		}
 		
 		return product;
+	}
+
+	private boolean belongsToStore(Product product, MerchantStore store) {
+		return product.getMerchantStore() != null && product.getMerchantStore().getId() != null
+				&& product.getMerchantStore().getId().intValue() == store.getId().intValue();
 	}
 
 	@Override
@@ -475,15 +488,20 @@ public class ProductOptionFacadeImpl implements ProductOptionFacade {
 		Validate.notNull(productId,"Product id must not be null");
 		Validate.notNull(store,"Merchant cannot be null");
 
-		//convert to model
-		
-		List<ProductAttribute> modelAttributes = attributes.stream().map(attr -> persistableProductAttributeMapper.convert(attr, store, null)).collect(Collectors.toList());
+		Validate.notNull(attributes,"Attributes must not be null");
+
+		Product product = this.product(productId, store);
+
+		List<ProductAttribute> modelAttributes = attributes.stream().map(attr -> {
+			attr.setProductId(productId);
+			ProductAttribute model = persistableProductAttributeMapper.convert(attr, store, null);
+			model.setProduct(product);
+			return model;
+		}).collect(Collectors.toList());
 		
 		try {
 			productAttributeService.saveAll(modelAttributes);
 		
-			//save to a product
-			Product product = this.product(productId, store);
 			product.getAttributes().addAll(modelAttributes);
 		
 		
