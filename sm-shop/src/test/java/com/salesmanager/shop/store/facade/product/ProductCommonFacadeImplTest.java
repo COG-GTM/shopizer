@@ -47,7 +47,7 @@ class ProductCommonFacadeImplTest {
 		Product acmeProduct = new Product();
 		acmeProduct.setId(10L);
 		acmeProduct.setMerchantStore(acme);
-		when(productService.getById(10L)).thenReturn(acmeProduct);
+		when(productService.getProductWithOnlyMerchantStoreById(10L)).thenReturn(acmeProduct);
 
 		PersistableProduct body = new PersistableProduct();
 		body.setId(10L);
@@ -55,13 +55,14 @@ class ProductCommonFacadeImplTest {
 		assertThrows(ResourceNotFoundException.class,
 				() -> facade.saveProduct(globex, body, new Language()));
 
+		verify(productService, never()).getById(any());
 		verify(persistableProductMapper, never()).merge(any(), any(), any(), any());
 		verify(productService, never()).saveProduct(any());
 	}
 
 	@Test
 	void saveProductRejectsUnknownProductId() throws Exception {
-		when(productService.getById(99L)).thenReturn(null);
+		when(productService.getProductWithOnlyMerchantStoreById(99L)).thenReturn(null);
 
 		PersistableProduct body = new PersistableProduct();
 		body.setId(99L);
@@ -79,6 +80,7 @@ class ProductCommonFacadeImplTest {
 		Product globexProduct = new Product();
 		globexProduct.setId(20L);
 		globexProduct.setMerchantStore(globex);
+		when(productService.getProductWithOnlyMerchantStoreById(20L)).thenReturn(globexProduct);
 		when(productService.getById(20L)).thenReturn(globexProduct);
 		when(persistableProductMapper.merge(any(), any(), any(), any())).thenReturn(globexProduct);
 		when(productService.saveProduct(globexProduct)).thenReturn(globexProduct);
