@@ -63,6 +63,7 @@ public class ProductPriceApi {
 		
 		price.setSku(sku);
 		price.setProductAvailabilityId(inventoryId);
+		price.setId(null);
 		
 		Long id = productPriceFacade.save(price, merchantStore);
 		return new Entity(id);
@@ -82,6 +83,7 @@ public class ProductPriceApi {
 			@ApiIgnore Language language) {
 		
 		price.setSku(sku);
+		price.setId(null);
 		
 		Long id = productPriceFacade.save(price, merchantStore);
 		return new Entity(id);

@@ -110,6 +110,7 @@ public class ProductApi {
 	public @ResponseBody Entity create(@Valid @RequestBody PersistableProduct product,
 			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) {
 	
+		product.setId(null);
 		Long id = productCommonFacade.saveProduct(merchantStore, product, language);
 		Entity returnEntity = new Entity();
 		returnEntity.setId(id);

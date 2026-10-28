@@ -60,6 +60,7 @@ public class CatalogFacadeImpl implements CatalogFacade {
         Validate.notNull(catalog, "Catalog cannot be null");
         Validate.notNull(store, "MerchantStore cannot be null");
         Validate.notNull(language, "Language cannot be null");
+        catalog.setId(null);
         Catalog catalogToSave = persistableCatalogMapper.convert(catalog, store, language);
 
         boolean existByCode = uniqueCatalog(catalog.getCode(), store);
@@ -203,6 +204,7 @@ public class CatalogFacadeImpl implements CatalogFacade {
         Catalog catalog = catalogService.getByCode(entry.getCatalog(), store)
                 .orElseThrow(() -> new ResourceNotFoundException("catalog [" + entry.getCatalog() + "] not found"));
 
+        entry.setId(null);
         CatalogCategoryEntry catalogEntryModel = persistableCatalogEntryMapper.convert(entry, store, language);
         catalogEntryService.add(catalogEntryModel, catalog);
         return readableCatalogEntryMapper.convert(catalogEntryModel, store, language);
