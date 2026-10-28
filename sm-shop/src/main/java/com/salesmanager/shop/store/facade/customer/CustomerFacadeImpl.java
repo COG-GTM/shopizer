@@ -94,6 +94,8 @@ public class CustomerFacadeImpl implements CustomerFacade {
 	public void requestPasswordReset(String customerName, String customerContextPath, MerchantStore store,
 			Language language) {
 
+		String baseUrl = filePathUtils.buildTrustedReturnBaseUrl(customerContextPath, store);
+
 		try {
 			// get customer by user name
 			Customer customer = customerService.getByNick(customerName, store.getId());
@@ -114,10 +116,6 @@ public class CustomerFacadeImpl implements CustomerFacade {
 			customer.setCredentialsResetRequest(credsRequest);
 
 			customerService.saveOrUpdate(customer);
-
-			// reset password link
-			// this will build http | https ://domain/contextPath
-			String baseUrl = filePathUtils.buildBaseUrl(customerContextPath, store);
 
 			// need to add link to controller receiving user reset password
 			// request
