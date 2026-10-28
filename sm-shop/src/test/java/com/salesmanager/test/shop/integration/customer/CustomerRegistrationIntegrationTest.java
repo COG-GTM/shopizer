@@ -1,6 +1,7 @@
 package com.salesmanager.test.shop.integration.customer;
 
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.springframework.http.HttpStatus.OK;
@@ -52,6 +53,52 @@ public class CustomerRegistrationIntegrationTest extends ServicesTestSupport {
         assertThat(loginResponse.getStatusCode(), is(OK));
         assertNotNull(loginResponse.getBody().getToken());
 
+    }
+
+
+    @Test
+    public void registerCustomerIgnoresBodyId() {
+
+        final PersistableCustomer victim = buildCustomer("victim@test.com", "victim123");
+        final ResponseEntity<PersistableCustomer> victimResponse = testRestTemplate.postForEntity("/api/v1/customer/register",
+                new HttpEntity<>(victim, getHeader()), PersistableCustomer.class);
+        assertThat(victimResponse.getStatusCode(), is(OK));
+        final ResponseEntity<AuthenticationResponse> victimLogin = testRestTemplate.postForEntity("/api/v1/customer/login",
+                new HttpEntity<>(new AuthenticationRequest("victim@test.com", "victim123")), AuthenticationResponse.class);
+        assertThat(victimLogin.getStatusCode(), is(OK));
+        final Long victimId = victimLogin.getBody().getId();
+        assertNotNull(victimId);
+
+        final PersistableCustomer attacker = buildCustomer("attacker@test.com", "attacker123");
+        attacker.setId(victimId);
+        final ResponseEntity<PersistableCustomer> attackerResponse = testRestTemplate.postForEntity("/api/v1/customer/register",
+                new HttpEntity<>(attacker, getHeader()), PersistableCustomer.class);
+        assertThat(attackerResponse.getStatusCode(), is(OK));
+
+        final ResponseEntity<AuthenticationResponse> attackerLogin = testRestTemplate.postForEntity("/api/v1/customer/login",
+                new HttpEntity<>(new AuthenticationRequest("attacker@test.com", "attacker123")), AuthenticationResponse.class);
+        assertThat(attackerLogin.getStatusCode(), is(OK));
+        assertNotEquals(victimId, attackerLogin.getBody().getId());
+
+        final ResponseEntity<AuthenticationResponse> victimLoginAgain = testRestTemplate.postForEntity("/api/v1/customer/login",
+                new HttpEntity<>(new AuthenticationRequest("victim@test.com", "victim123")), AuthenticationResponse.class);
+        assertThat(victimLoginAgain.getStatusCode(), is(OK));
+        assertThat(victimLoginAgain.getBody().getId(), is(victimId));
+    }
+
+    private PersistableCustomer buildCustomer(final String email, final String password) {
+        final PersistableCustomer customer = new PersistableCustomer();
+        customer.setEmailAddress(email);
+        customer.setPassword(password);
+        customer.setGender(CustomerGender.M.name());
+        customer.setLanguage("en");
+        final Address billing = new Address();
+        billing.setFirstName("customer");
+        billing.setLastName("customer");
+        billing.setCountry("BE");
+        customer.setBilling(billing);
+        customer.setStoreCode(Constants.DEFAULT_STORE);
+        return customer;
     }
 
 }

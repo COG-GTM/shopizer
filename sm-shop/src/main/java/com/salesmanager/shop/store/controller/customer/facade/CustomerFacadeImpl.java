@@ -351,6 +351,7 @@ public class CustomerFacadeImpl implements CustomerFacade {
       throw new UserAlreadyExistException("User already exist");
     }
 
+    customer.setId(null);
     Customer customerModel = getCustomerModel(customer, merchantStore, language);
     if (customerModel == null) {
       LOG.equals("Unable to create customer in system");
@@ -591,6 +592,7 @@ public class CustomerFacadeImpl implements CustomerFacade {
     }
     //end user exists
 
+    customer.setId(null);
     Customer customerToPopulate = convertPersistableCustomerToCustomer(customer, store);
     try {
 		setCustomerModelDefaultProperties(customerToPopulate, store);
