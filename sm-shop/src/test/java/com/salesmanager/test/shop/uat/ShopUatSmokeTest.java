@@ -31,6 +31,7 @@ import com.salesmanager.shop.model.catalog.product.attribute.ProductOptionDescri
 import com.salesmanager.shop.model.catalog.product.attribute.ProductOptionValueDescription;
 import com.salesmanager.shop.model.catalog.product.attribute.ProductPropertyOption;
 import com.salesmanager.shop.model.catalog.product.attribute.api.PersistableProductOptionEntity;
+import com.salesmanager.shop.model.catalog.product.attribute.api.ReadableProductAttributeEntity;
 import com.salesmanager.shop.model.catalog.product.attribute.api.ReadableProductAttributeList;
 import com.salesmanager.shop.model.customer.PersistableCustomer;
 import com.salesmanager.shop.model.customer.ReadableCustomer;
@@ -240,19 +241,33 @@ class ShopUatSmokeTest extends ServicesTestSupport {
 		ResponseEntity<Entity> created = testRestTemplate.postForEntity(
 				"/api/v1/private/product/" + productId + "/attribute?store=DEFAULT",
 				new HttpEntity<>(attribute, getHeader()), Entity.class);
+		assertEquals(HttpStatus.CREATED, created.getStatusCode());
+		assertNotNull(created.getBody());
+		Long attributeId = created.getBody().getId();
+		assertNotNull(attributeId);
+		String attributePath = "/api/v1/private/product/" + productId + "/attribute/" + attributeId
+				+ "?store=DEFAULT";
 		ResponseEntity<ReadableProductAttributeList> listed =
 				testRestTemplate.exchange("/api/v1/private/product/" + productId + "/attributes?store=DEFAULT",
 						HttpMethod.GET, new HttpEntity<>(getHeader()),
 						ReadableProductAttributeList.class);
+		attribute.setProductAttributePrice(new BigDecimal("2.00"));
+		ResponseEntity<Void> updated = testRestTemplate.exchange(
+				attributePath, HttpMethod.PUT, new HttpEntity<>(attribute, getHeader()), Void.class);
+		ResponseEntity<ReadableProductAttributeEntity> updatedValue = testRestTemplate.exchange(
+				attributePath, HttpMethod.GET, new HttpEntity<>(getHeader()), ReadableProductAttributeEntity.class);
 		ResponseEntity<Void> deleted = testRestTemplate.exchange(
-				"/api/v1/private/product/" + productId + "/attribute/" + created.getBody().getId()
-						+ "?store=DEFAULT",
-				HttpMethod.DELETE, new HttpEntity<>(getHeader()), Void.class);
+				attributePath, HttpMethod.DELETE, new HttpEntity<>(getHeader()), Void.class);
+		ResponseEntity<String> afterDelete = testRestTemplate.exchange(
+				attributePath, HttpMethod.GET, new HttpEntity<>(getHeader()), String.class);
 
-		assertEquals(HttpStatus.CREATED, created.getStatusCode());
 		assertTrue(listed.getBody().getAttributes().stream()
 				.anyMatch(existing -> optionCode.equals(existing.getOption().getCode())));
+		assertEquals(HttpStatus.OK, updated.getStatusCode());
+		assertEquals(0, new BigDecimal(updatedValue.getBody().getProductAttributeUnformattedPrice())
+				.compareTo(new BigDecimal("2.00")));
 		assertEquals(HttpStatus.OK, deleted.getStatusCode());
+		assertEquals(HttpStatus.NOT_FOUND, afterDelete.getStatusCode());
 		assertNotNull(optionId);
 		assertNotNull(optionValueId);
 	}
