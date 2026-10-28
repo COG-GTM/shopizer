@@ -1,9 +1,12 @@
 package com.salesmanager.shop.store.controller.store.facade;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -33,6 +36,7 @@ import com.salesmanager.core.model.merchant.MerchantStoreCriteria;
 import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.core.model.system.MerchantConfiguration;
 import com.salesmanager.core.model.system.MerchantConfigurationType;
+import com.salesmanager.shop.constants.Constants;
 import com.salesmanager.shop.model.content.ReadableImage;
 import com.salesmanager.shop.model.store.MerchantConfigEntity;
 import com.salesmanager.shop.model.store.PersistableBrand;
@@ -44,6 +48,7 @@ import com.salesmanager.shop.populator.store.PersistableMerchantStorePopulator;
 import com.salesmanager.shop.populator.store.ReadableMerchantStorePopulator;
 import com.salesmanager.shop.store.api.exception.ConversionRuntimeException;
 import com.salesmanager.shop.store.api.exception.ResourceNotFoundException;
+import com.salesmanager.shop.store.api.exception.RestApiException;
 import com.salesmanager.shop.store.api.exception.ServiceRuntimeException;
 import com.salesmanager.shop.utils.ImageFilePath;
 import com.salesmanager.shop.utils.LanguageUtils;
@@ -77,6 +82,10 @@ public class StoreFacadeImpl implements StoreFacade {
 	private ReadableMerchantStorePopulator readableMerchantStorePopulator;
 
 	private static final Logger LOG = LoggerFactory.getLogger(StoreFacadeImpl.class);
+
+	private static final Set<String> SOCIAL_NETWORK_KEYS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
+			Constants.KEY_FACEBOOK_PAGE_URL, Constants.KEY_TWITTER_HANDLE, Constants.KEY_INSTAGRAM_URL,
+			Constants.KEY_PINTEREST_PAGE_URL)));
 
 	@Override
 	public MerchantStore getByCode(HttpServletRequest request) {
@@ -339,17 +348,6 @@ public class StoreFacadeImpl implements StoreFacade {
 		return configTO;
 	}
 
-	private MerchantConfiguration convertToMerchantConfiguration(MerchantConfigEntity config,
-			MerchantConfigurationType configurationType) {
-		MerchantConfiguration configTO = new MerchantConfiguration();
-		configTO.setId(config.getId());
-		configTO.setKey(config.getKey());
-		configTO.setMerchantConfigurationType(configurationType);
-		configTO.setValue(config.getValue());
-		configTO.setActive(new Boolean(config.isActive()));
-		return configTO;
-	}
-
 	private ReadableImage createReadableImage(String storeLogo, String imagePath) {
 		ReadableImage image = new ReadableImage();
 		image.setName(storeLogo);
@@ -407,23 +405,44 @@ public class StoreFacadeImpl implements StoreFacade {
 	public void createBrand(String merchantStoreCode, PersistableBrand brand) {
 		MerchantStore mStore = getMerchantStoreByCode(merchantStoreCode);
 
-		List<MerchantConfigEntity> createdConfigs = brand.getSocialNetworks();
+		List<MerchantConfigEntity> socialNetworks = brand.getSocialNetworks();
+		if (CollectionUtils.isEmpty(socialNetworks)) {
+			return;
+		}
+		for (MerchantConfigEntity socialNetwork : socialNetworks) {
+			if (socialNetwork == null || !SOCIAL_NETWORK_KEYS.contains(socialNetwork.getKey())) {
+				throw new RestApiException("400", "Unsupported social network key ["
+						+ (socialNetwork == null ? null : socialNetwork.getKey()) + "]");
+			}
+		}
 
-		List<MerchantConfiguration> configurations = createdConfigs.stream()
-				.map(config -> convertToMerchantConfiguration(config, MerchantConfigurationType.SOCIAL))
-				.collect(Collectors.toList());
 		try {
-			for (MerchantConfiguration mConfigs : configurations) {
-				mConfigs.setMerchantStore(mStore);
-				if (!StringUtils.isEmpty(mConfigs.getValue())) {
-					mConfigs.setMerchantConfigurationType(MerchantConfigurationType.SOCIAL);
-					merchantConfigurationService.saveOrUpdate(mConfigs);
-				} else {// remove if submited blank and exists
-					MerchantConfiguration config = merchantConfigurationService
-							.getMerchantConfiguration(mConfigs.getKey(), mStore);
-					if (config != null) {
-						merchantConfigurationService.delete(config);
-					}
+			// rows are always resolved by (store, key); the client supplied id is ignored.
+			// Everything is validated before the first write so a rejected request changes nothing.
+			List<MerchantConfiguration> existingConfigs = new ArrayList<>();
+			for (MerchantConfigEntity socialNetwork : socialNetworks) {
+				MerchantConfiguration existing = merchantConfigurationService
+						.getMerchantConfiguration(socialNetwork.getKey(), mStore);
+				if (existing != null && existing.getMerchantConfigurationType() != MerchantConfigurationType.SOCIAL) {
+					throw new RestApiException("400",
+							"Configuration [" + socialNetwork.getKey() + "] is not a social network configuration");
+				}
+				existingConfigs.add(existing);
+			}
+
+			for (int i = 0; i < socialNetworks.size(); i++) {
+				MerchantConfigEntity socialNetwork = socialNetworks.get(i);
+				MerchantConfiguration existing = existingConfigs.get(i);
+				if (!StringUtils.isEmpty(socialNetwork.getValue())) {
+					MerchantConfiguration config = existing != null ? existing : new MerchantConfiguration();
+					config.setMerchantStore(mStore);
+					config.setKey(socialNetwork.getKey());
+					config.setMerchantConfigurationType(MerchantConfigurationType.SOCIAL);
+					config.setValue(socialNetwork.getValue());
+					config.setActive(socialNetwork.isActive());
+					merchantConfigurationService.saveOrUpdate(config);
+				} else if (existing != null) {// remove if submited blank and exists
+					merchantConfigurationService.delete(existing);
 				}
 			}
 		} catch (ServiceException se) {
