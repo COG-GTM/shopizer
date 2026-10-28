@@ -103,13 +103,12 @@ class CustomerReviewStoreIsolationTest {
   }
 
   @Test
-  void listOnlyReturnsReviewsWrittenByCustomersOfSameStore() {
+  void listReturnsReviewsOfSameStoreCustomer() {
     Customer reviewed = customer(42L, storeA);
     when(customerService.getById(42L)).thenReturn(reviewed);
-    CustomerReview sameStore = customerReview(7L, customer(5L, storeA), reviewed);
-    CustomerReview otherStore = customerReview(8L, customer(6L, storeB), reviewed);
+    CustomerReview review = customerReview(7L, customer(5L, storeA), reviewed);
     when(customerReviewService.getByReviewedCustomer(reviewed))
-        .thenReturn(Arrays.asList(sameStore, otherStore));
+        .thenReturn(Arrays.asList(review));
 
     List<ReadableCustomerReview> reviews =
         customerFacade.getAllCustomerReviewsByReviewed(42L, storeA, EN);

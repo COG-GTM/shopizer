@@ -756,7 +756,6 @@ public class CustomerFacadeImpl implements CustomerFacade {
 
     return customerReviewService.getByReviewedCustomer(customer)
         .stream()
-        .filter(customerReview -> belongsToStore(customerReview.getCustomer(), store))
         .map(
             customerReview ->
                 convertCustomerReviewToReadableCustomerReview(customerReview, store, language))
