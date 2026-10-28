@@ -12,6 +12,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+
+import com.salesmanager.shop.store.security.AbstractCustomerServices;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 
@@ -60,7 +62,10 @@ public class JWTCustomerAuthenticationManager extends CustomAuthenticationManage
 
             // It is not compelling necessary to load the use details from the database. You could also store the information
             // in the token and read it from it. It's up to you ;)
-            UserDetails userDetails = this.jwtCustomerDetailsService.loadUserByUsername(username);
+            UserDetails userDetails = this.jwtCustomerDetailsService instanceof AbstractCustomerServices
+                    ? ((AbstractCustomerServices) this.jwtCustomerDetailsService).loadUserByUsername(username,
+                            AbstractCustomerServices.storeCode(request))
+                    : this.jwtCustomerDetailsService.loadUserByUsername(username);
 
             // For simple validation it is completely sufficient to just check the token integrity. You don't have to call
             // the database compellingly. Again it's up to you ;)

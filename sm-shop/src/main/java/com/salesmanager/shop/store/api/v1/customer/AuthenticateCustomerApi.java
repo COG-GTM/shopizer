@@ -156,11 +156,11 @@ public class AuthenticateCustomerApi {
      */
     @RequestMapping(value = "/customer/login", method = RequestMethod.POST, produces ={ "application/json" })
     @ApiOperation(httpMethod = "POST", value = "Authenticates a customer to the application", notes = "Customer can authenticate after registration, request is {\"username\":\"admin\",\"password\":\"password\"}",response = ResponseEntity.class)
+    @ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT") })
     @ResponseBody
     public ResponseEntity<?> authenticate(@RequestBody @Valid AuthenticationRequest authenticationRequest) throws AuthenticationException {
 
-    	//TODO SET STORE in flow
-        // Perform the security
+        // customer is resolved in the store of the request (store parameter)
         Authentication authentication = null;
         try {
             
@@ -202,7 +202,8 @@ public class AuthenticateCustomerApi {
         String username = jwtTokenUtil.getUsernameFromToken(token);
         JWTUser user = (JWTUser) jwtCustomerDetailsService.loadUserByUsername(username);
 
-        if (jwtTokenUtil.canTokenBeRefreshed(token, user.getLastPasswordResetDate())) {
+        if (jwtTokenUtil.isTokenForStore(token, user)
+                && jwtTokenUtil.canTokenBeRefreshed(token, user.getLastPasswordResetDate())) {
             String refreshedToken = jwtTokenUtil.refreshToken(token);
             return ResponseEntity.ok(new AuthenticationResponse(user.getId(),refreshedToken));
         } else {
