@@ -106,14 +106,15 @@ public class StorefrontJourneyUatTest extends ServicesTestSupport {
 		payment.setPaymentModule("moneyorder");
 		payment.setPaymentType("MONEYORDER");
 		payment.setTransactionType("AUTHORIZE");
-		payment.setAmount("0");
+		payment.setAmount(updatedCart.getBody().getTotal().toPlainString());
 		order.setPayment(payment);
 
 		ResponseEntity<ReadableOrderConfirmation> checkout = testRestTemplate.exchange(
 				"/api/v1/auth/cart/" + cart.getBody().getCode() + "/checkout?store=DEFAULT", HttpMethod.POST,
 				new HttpEntity<>(order, customerHeaders), ReadableOrderConfirmation.class);
 		assertTrue("Checkout returned unexpected status " + checkout.getStatusCode(),
-				checkout.getStatusCode() == HttpStatus.OK || checkout.getStatusCode() == HttpStatus.SERVICE_UNAVAILABLE);
+				checkout.getStatusCode() == HttpStatus.OK
+						|| checkout.getStatusCode() == HttpStatus.SERVICE_UNAVAILABLE);
 		if (checkout.getStatusCode() == HttpStatus.OK) {
 			assertNotNull(checkout.getBody());
 			assertNotNull(checkout.getBody().getId());
