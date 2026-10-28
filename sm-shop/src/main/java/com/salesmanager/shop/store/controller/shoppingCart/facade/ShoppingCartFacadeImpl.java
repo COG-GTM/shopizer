@@ -663,6 +663,7 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 
 		cartModel.setPromoCode(null);
 		if (promoCode.isPresent()) {
+			validatePromoCode(promoCode.get());
 			cartModel.setPromoCode(promoCode.get());
 			cartModel.setPromoAdded(new Date());
 		}
@@ -765,6 +766,7 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 		cartModel.setShoppingCartCode(uniqueShoppingCartCode());
 
 		if (!StringUtils.isBlank(item.getPromoCode())) {
+			validatePromoCode(item.getPromoCode());
 			cartModel.setPromoCode(item.getPromoCode());
 			cartModel.setPromoAdded(new Date());
 		}
@@ -931,6 +933,7 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 
 		// promo code added to the cart but no promo cart exists
 		if (!StringUtils.isBlank(item.getPromoCode()) && StringUtils.isBlank(cartModel.getPromoCode())) {
+			validatePromoCode(item.getPromoCode());
 			cartModel.setPromoCode(item.getPromoCode());
 			cartModel.setPromoAdded(new Date());
 		}
@@ -1151,9 +1154,7 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 	public ReadableShoppingCart modifyCart(String cartCode, String promo, MerchantStore store, Language language)
 			throws Exception {
 
-		if (!PromoCodeCalculatorModule.isValidPromoCode(promo)) {
-			throw new ServiceRuntimeException("Invalid promo code");
-		}
+		validatePromoCode(promo);
 
 		ShoppingCart cart = shoppingCartService.getByCode(cartCode, store);
 		if (cart == null) {
@@ -1167,6 +1168,12 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 
 		return readableShoppingCartMapper.convert(cart, store, language);
 
+	}
+
+	private void validatePromoCode(String promo) {
+		if (!PromoCodeCalculatorModule.isValidPromoCode(promo)) {
+			throw new ServiceRuntimeException("Invalid promo code");
+		}
 	}
 
 }
