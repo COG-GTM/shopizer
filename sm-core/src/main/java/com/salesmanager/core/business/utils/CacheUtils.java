@@ -88,25 +88,23 @@ public class CacheUtils {
 	public void removeAllFromCache(MerchantStore store) throws Exception {
 		  net.sf.ehcache.Cache cacheImpl = (net.sf.ehcache.Cache) cache.getNativeCache();
 		  for (Object key: cacheImpl.getKeys()) {
-				try {
-					String sKey = (String)key;
-					
-					// a key should be <storeId>_<rest of the key>
-					int delimiterPosition = sKey.indexOf(KEY_DELIMITER);
-					
-					if(delimiterPosition>0 && Character.isDigit(sKey.charAt(0))) {
-					
-
-						cache.evict(key);
-					
-					}
-
-				} catch (Exception e) {
-					LOGGER.equals("key " + key + " cannot be converted to a String or parsed");
-				}  
+				if(isStoreKey(key, store)) {
+					cache.evict(key);
+				}
 		  }
 	}
-	
 
+	/**
+	 * Keys are formatted as <storeId>_<rest of the key>
+	 */
+	static boolean isStoreKey(Object key, MerchantStore store) {
+		if(!(key instanceof String) || store == null || store.getId() == null) {
+			return false;
+		}
+		String sKey = (String)key;
+		int delimiterPosition = sKey.indexOf(KEY_DELIMITER);
+		return delimiterPosition > 0
+				&& sKey.substring(0, delimiterPosition).equals(String.valueOf(store.getId()));
+	}
 
 }
