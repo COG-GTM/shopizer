@@ -32,6 +32,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.salesmanager.core.business.exception.ServiceException;
+import com.salesmanager.core.business.modules.order.total.PromoCodeCalculatorModule;
 import com.salesmanager.core.business.services.catalog.pricing.PricingService;
 import com.salesmanager.core.business.services.catalog.product.ProductService;
 import com.salesmanager.core.business.services.catalog.product.attribute.ProductAttributeService;
@@ -1150,7 +1151,14 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 	public ReadableShoppingCart modifyCart(String cartCode, String promo, MerchantStore store, Language language)
 			throws Exception {
 
+		if (!PromoCodeCalculatorModule.isValidPromoCode(promo)) {
+			throw new ServiceRuntimeException("Invalid promo code");
+		}
+
 		ShoppingCart cart = shoppingCartService.getByCode(cartCode, store);
+		if (cart == null) {
+			throw new ResourceNotFoundException("Cart [" + cartCode + "] not found");
+		}
 
 		cart.setPromoCode(promo);
 		cart.setPromoAdded(new Date());

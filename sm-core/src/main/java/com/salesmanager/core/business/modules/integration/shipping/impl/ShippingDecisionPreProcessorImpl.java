@@ -11,7 +11,6 @@ import javax.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.kie.api.runtime.KieSession;
-import org.kie.internal.io.ResourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -140,13 +139,16 @@ public class ShippingDecisionPreProcessorImpl implements ShippingQuotePrePostPro
 		 * New code
 		 */
 		
-		KieSession kieSession=droolsBeanFactory.getKieSession(ResourceFactory.newClassPathResource("com/salesmanager/drools/rules/ShippingDecision.drl"));
-		
 		DecisionResponse resp = new DecisionResponse();
 		
-        kieSession.insert(inputParameters);
-        kieSession.setGlobal("decision",resp);
-        kieSession.fireAllRules();
+		KieSession kieSession = droolsBeanFactory.newKieSession("ShippingDecision.drl");
+		try {
+			kieSession.setGlobal("decision", resp);
+			kieSession.insert(inputParameters);
+			kieSession.fireAllRules();
+		} finally {
+			kieSession.dispose();
+		}
         //System.out.println(resp.getModuleName());
         inputParameters.setModuleName(resp.getModuleName());
 
