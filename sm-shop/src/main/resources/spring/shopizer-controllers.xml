@@ -53,18 +53,16 @@
 
 	<mvc:interceptors>
 		<!-- Changes the locale when a 'locale' request parameter is sent; e.g. /?locale=de -->    
-		<bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor"/>
+		<mvc:interceptor>
+			<mvc:mapping path="/**"/>
+			<mvc:exclude-mapping path="/api/**"/>
+			<bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor"/>
+		</mvc:interceptor>
 		
 		<!-- store web front filter -->
 		 <mvc:interceptor>
   			<mvc:mapping path="/shop/**"/>
   			<bean class="com.salesmanager.shop.filter.StoreFilter"/>
- 		</mvc:interceptor>
- 		
- 		<!-- public services cors filter -->
- 		<mvc:interceptor>
-  			<mvc:mapping path="/services/**"/>
-  			<bean class="com.salesmanager.shop.filter.CorsFilter"/>
  		</mvc:interceptor>
  		
  		<!-- customer section filter -->
@@ -73,12 +71,6 @@
   			<bean class="com.salesmanager.shop.filter.StoreFilter"/>
  		</mvc:interceptor>
  		
- 		 <!-- REST api -->
- 		<mvc:interceptor>
-  			<mvc:mapping path="/api/**"/>
-  			<bean class="com.salesmanager.shop.filter.CorsFilter"/>
- 		</mvc:interceptor>
-		
 		<!-- admin panel filter -->
  		<mvc:interceptor>
   			<mvc:mapping path="/admin/**"/>

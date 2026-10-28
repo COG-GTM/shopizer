@@ -32,7 +32,6 @@ import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import com.salesmanager.core.business.configuration.CoreApplicationConfiguration;
-import com.salesmanager.shop.filter.CorsFilter;
 import com.salesmanager.shop.filter.XssFilter;
 import com.salesmanager.shop.utils.LabelUtils;
 
@@ -77,7 +76,8 @@ public class ShopApplicationConfiguration implements WebMvcConfigurer {
   @Override
   public void addInterceptors(InterceptorRegistry registry) {
     // Changes the locale when a 'locale' request parameter is sent; e.g. /?locale=de
-    registry.addInterceptor(localeChangeInterceptor());
+    // Excluded from the stateless REST api: SessionLocaleResolver would create a JSESSIONID
+    registry.addInterceptor(localeChangeInterceptor()).excludePathPatterns("/api/**");
 
     /**
     registry
@@ -87,13 +87,6 @@ public class ShopApplicationConfiguration implements WebMvcConfigurer {
         // customer section filter
         .addPathPatterns("/customer/**");
      **/
-
-    registry
-        .addInterceptor(corsFilter())
-        // public services cors filter
-        .addPathPatterns("/services/**")
-        // REST api
-        .addPathPatterns("/api/**");
 
   }
 
@@ -115,12 +108,6 @@ public class ShopApplicationConfiguration implements WebMvcConfigurer {
 	/*
 	 * @Bean public StoreFilter storeFilter() { return new StoreFilter(); }
 	 */
-
-  @Bean
-  public CorsFilter corsFilter() {
-    return new CorsFilter();
-  }
-
 
   @Bean
   public SessionLocaleResolver localeResolver() {
