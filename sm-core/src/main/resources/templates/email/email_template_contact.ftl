@@ -274,16 +274,16 @@ ul.sidebar li a h1,ul.sidebar li a h2,ul.sidebar li a h3,ul.sidebar li a h4,ul.s
 				<tr>
 					<td>
 						<p class="lead">
-							${EMAIL_CUSTOMER_CONTACT}
+							${EMAIL_CUSTOMER_CONTACT?html}
 						</p>
 						<p>
-    							${EMAIL_CONTACT_NAME_LABEL}: ${EMAIL_CONTACT_NAME}<br />
-    							${EMAIL_CONTACT_EMAIL_LABEL}: ${EMAIL_CONTACT_EMAIL}<br />
+    							${EMAIL_CONTACT_NAME_LABEL}: ${EMAIL_CONTACT_NAME?html}<br />
+    							${EMAIL_CONTACT_EMAIL_LABEL}: ${EMAIL_CONTACT_EMAIL?html}<br />
 
 						</p>
 						<!-- Callout Panel -->
 						<p class="callout">
-							${EMAIL_CONTACT_CONTENT}
+							${EMAIL_CONTACT_CONTENT?html?replace("\r\n|\r|\n", "<br />", "r")}
 						</p><!-- /Callout Panel -->					
 												
 

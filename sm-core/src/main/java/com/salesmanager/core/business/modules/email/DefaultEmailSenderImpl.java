@@ -71,7 +71,7 @@ public class DefaultEmailSenderImpl implements EmailModule {
 
         InternetAddress inetAddress = new InternetAddress();
 
-        inetAddress.setPersonal(eml);
+        inetAddress.setPersonal(eml == null ? null : eml.replaceAll("[\\r\\n]+", " "));
         inetAddress.setAddress(from);
 
         mimeMessage.setFrom(inetAddress);
