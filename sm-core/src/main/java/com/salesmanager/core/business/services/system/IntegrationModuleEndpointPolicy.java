@@ -93,7 +93,14 @@ public final class IntegrationModuleEndpointPolicy {
 	}
 
 	private void validateUrl(String code, String value) throws ServiceException {
-		if (value == null || !value.contains(":")) {
+		if (value == null) {
+			return;
+		}
+		String trimmed = value.trim();
+		if (trimmed.startsWith("//") || trimmed.startsWith("\\\\") || trimmed.startsWith("/\\") || trimmed.startsWith("\\/")) {
+			throw invalid("Integration module " + code + " contains a protocol-relative URL");
+		}
+		if (!value.contains(":")) {
 			return;
 		}
 		String origin = origin(value);

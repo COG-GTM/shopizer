@@ -185,7 +185,7 @@ public class MultipleEntryPointsSecurityConfig {
 			.csrf().disable()
 					.authorizeRequests()
 					.antMatchers("/services/public/**").permitAll()
-					.antMatchers("/services/private/system/**").hasRole("SUPERADMIN")
+					.antMatchers("/services/private/system/module").hasRole("SUPERADMIN")
 					.antMatchers("/services/private/**").hasRole("AUTH")
 					.anyRequest().authenticated()
 					.and().httpBasic().authenticationEntryPoint(servicesAuthenticationEntryPoint())

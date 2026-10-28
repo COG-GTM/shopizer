@@ -94,6 +94,9 @@ public class IntegrationModuleEndpointPolicyTest {
 	public void rejectsRedirectUrlToForeignOrigin() throws Exception {
 		assertRejected(paypal("https://evil.example.com/cgi-bin/webscr?token="));
 		assertRejected(paypal("javascript:alert(1)"));
+		assertRejected(paypal("//evil.example.com/checkout"));
+		assertRejected(paypal(" //evil.example.com/checkout"));
+		assertRejected(paypal("\\\\\\\\evil.example.com/checkout"));
 	}
 
 	@Test
