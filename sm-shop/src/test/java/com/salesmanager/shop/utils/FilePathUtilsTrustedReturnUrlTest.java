@@ -1,11 +1,14 @@
 package com.salesmanager.shop.utils;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import com.salesmanager.core.model.merchant.MerchantStore;
+import com.salesmanager.shop.constants.Constants;
 import com.salesmanager.shop.store.api.exception.ServiceRuntimeException;
 
 public class FilePathUtilsTrustedReturnUrlTest {
@@ -111,5 +114,25 @@ public class FilePathUtilsTrustedReturnUrlTest {
 	@Test(expected = ServiceRuntimeException.class)
 	public void encodedCharactersInPathAreRejected() {
 		filePathUtils.buildTrustedReturnBaseUrl("https://shop.acme.example/%22%3E", store);
+	}
+
+	@Test
+	public void bareStoreDomainUsesConfiguredShopScheme() {
+		filePathUtils.properties.setProperty(Constants.SHOP_SCHEME, "http");
+		store.setDomainName("localhost:8080");
+		assertEquals("http://localhost:8080/", filePathUtils.buildTrustedReturnBaseUrl(null, store));
+		assertEquals("http://localhost:8080/admin/",
+				filePathUtils.buildTrustedReturnBaseUrl("http://localhost:8080/admin", store));
+	}
+
+	@Test
+	public void rejectionCarriesBadRequestCodeAndCause() {
+		try {
+			filePathUtils.buildTrustedReturnBaseUrl("https://mallory.example/", store);
+			fail("expected ServiceRuntimeException");
+		} catch (ServiceRuntimeException e) {
+			assertEquals("400", e.getErrorCode());
+			assertNotNull(e.getCause());
+		}
 	}
 }

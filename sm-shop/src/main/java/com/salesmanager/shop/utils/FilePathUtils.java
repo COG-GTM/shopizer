@@ -282,8 +282,12 @@ public class FilePathUtils {
 
 	private String storeOrigin(MerchantStore store) {
 		String domain = StringUtils.removeEnd(getDomainName(store.getDomainName()).trim(), SLASH);
+		if (!domain.startsWith(HTTP) && !domain.startsWith(HTTPS)) {
+			String scheme = properties.getProperty(Constants.SHOP_SCHEME);
+			domain = (StringUtils.isBlank(scheme) ? "https" : scheme.trim()) + DOUBLE_SLASH + domain;
+		}
 		try {
-			return origin(new URI(validUrl(domain)));
+			return origin(new URI(domain));
 		} catch (URISyntaxException e) {
 			return null;
 		}
@@ -306,7 +310,8 @@ public class FilePathUtils {
 	}
 
 	private static ServiceRuntimeException invalidReturnUrl() {
-		return new ServiceRuntimeException("400", "Return url is not allowed for this store");
+		String message = "Return url is not allowed for this store";
+		return new ServiceRuntimeException("400", message, new IllegalArgumentException(message));
 	}
 
 	/**
