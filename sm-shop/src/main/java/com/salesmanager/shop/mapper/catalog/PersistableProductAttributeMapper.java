@@ -62,6 +62,10 @@ public class PersistableProductAttributeMapper implements Mapper<PersistableProd
 		if(productOption==null) {
 			throw new ConversionRuntimeException("Product option id " + source.getOption().getId() + " does not exist");
 		}
+
+		if(!belongsToStore(productOption.getMerchantStore(), store)) {
+			throw new ConversionRuntimeException("Invalid product option id ");
+		}
 		
 		ProductOptionValue productOptionValue = null;
 		
@@ -75,6 +79,10 @@ public class PersistableProductAttributeMapper implements Mapper<PersistableProd
 			productOptionValue.setProductOptionDisplayOnly(true);
 			productOptionValue.setCode(UUID.randomUUID().toString());
 			productOptionValue.setMerchantStore(store);
+		}
+
+		if(productOptionValue!=null && !belongsToStore(productOptionValue.getMerchantStore(), store)) {
+			throw new ConversionRuntimeException("Invalid product option value id ");
 		}
 		
 		if(!CollectionUtils.isEmpty((source.getOptionValue().getDescriptions()))) {
@@ -99,17 +107,9 @@ public class PersistableProductAttributeMapper implements Mapper<PersistableProd
 			
 		}**/
 		
-		if(productOption.getMerchantStore().getId().intValue()!=store.getId().intValue()) {
-			throw new ConversionRuntimeException("Invalid product option id ");
-		}
-		
-		if(productOptionValue!=null && productOptionValue.getMerchantStore().getId().intValue()!=store.getId().intValue()) {
-			throw new ConversionRuntimeException("Invalid product option value id ");
-		}
-		
 		if(source.getProductId() != null && source.getProductId().longValue() >0 ) {
 			Product p = productService.getById(source.getProductId());
-			if(p == null) {
+			if(p == null || !belongsToStore(p.getMerchantStore(), store)) {
 				throw new ConversionRuntimeException("Invalid product id ");
 			}
 			destination.setProduct(p);
@@ -131,6 +131,11 @@ public class PersistableProductAttributeMapper implements Mapper<PersistableProd
 
 		
 		return destination;
+	}
+
+	private boolean belongsToStore(MerchantStore owner, MerchantStore store) {
+		return owner != null && owner.getId() != null && store != null && store.getId() != null
+				&& owner.getId().intValue() == store.getId().intValue();
 	}
 
 }
