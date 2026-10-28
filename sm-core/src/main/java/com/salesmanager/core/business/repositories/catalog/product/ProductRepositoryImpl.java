@@ -646,15 +646,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 			countBuilderSelect.append(" INNER JOIN pov.descriptions povd ");
 			
 			if(CollectionUtils.isNotEmpty(criteria.getAttributeCriteria())) {
-				int count = 0;
-				for (AttributeCriteria attributeCriteria : criteria.getAttributeCriteria()) {
-					if (count == 0) {
-						countBuilderWhere.append(" and po.code =:").append(attributeCriteria.getAttributeCode());
-						countBuilderWhere.append(" and povd.description like :").append("val").append(count)
-								.append(attributeCriteria.getAttributeCode());
-					}
-					count++;
-				}
+				appendAttributeCriteria(countBuilderWhere, criteria.getAttributeCriteria());
 				if (criteria.getLanguage() != null && !criteria.getLanguage().equals("_all")) {
 					countBuilderWhere.append(" and povd.language.code=:lang");
 				}
@@ -708,13 +700,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 		/**/
 		if (criteria.getOrigin().equals(ProductCriteria.ORIGIN_SHOP) 
 				&& !CollectionUtils.isEmpty(criteria.getAttributeCriteria())) {
-			int count = 0;
-			for (AttributeCriteria attributeCriteria : criteria.getAttributeCriteria()) {
-				countQ.setParameter(attributeCriteria.getAttributeCode(), attributeCriteria.getAttributeCode());
-				countQ.setParameter("val" + count + attributeCriteria.getAttributeCode(),
-						"%" + attributeCriteria.getAttributeValue() + "%");
-				count++;
-			}
+			bindAttributeCriteria(countQ, criteria.getAttributeCriteria());
 		}
 
 		if (criteria.getLanguage() != null && !criteria.getLanguage().equals("_all")) {
@@ -869,13 +855,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 		/**/
 		if (criteria.getOrigin().equals(ProductCriteria.ORIGIN_SHOP) 
 				&& !CollectionUtils.isEmpty(criteria.getAttributeCriteria())) {
-			int cnt = 0;
-			for (AttributeCriteria attributeCriteria : criteria.getAttributeCriteria()) {
-				qs.append(" and po.code =:").append(attributeCriteria.getAttributeCode());
-				qs.append(" and povd.description like :").append("val").append(cnt)
-						.append(attributeCriteria.getAttributeCode());
-				cnt++;
-			}
+			appendAttributeCriteria(qs, criteria.getAttributeCriteria());
 			if (criteria.getLanguage() != null && !criteria.getLanguage().equals("_all")) {
 				qs.append(" and povd.language.code=:lang");
 			}
@@ -928,13 +908,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 		/**/
 		if (criteria.getOrigin().equals(ProductCriteria.ORIGIN_SHOP) 
 				&& !CollectionUtils.isEmpty(criteria.getAttributeCriteria())) {
-			int cnt = 0;
-			for (AttributeCriteria attributeCriteria : criteria.getAttributeCriteria()) {
-				q.setParameter(attributeCriteria.getAttributeCode(), attributeCriteria.getAttributeCode());
-				q.setParameter("val" + cnt + attributeCriteria.getAttributeCode(),
-						"%" + attributeCriteria.getAttributeValue() + "%");
-				cnt++;
-			}
+			bindAttributeCriteria(q, criteria.getAttributeCriteria());
 		}
 
 		// RENTAL
@@ -1074,6 +1048,25 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
 		return products;
 
+	}
+
+	/**
+	 * Attribute codes and values are caller-supplied, so they are only ever bound
+	 * as values; parameter names are derived from the loop index.
+	 */
+	static void appendAttributeCriteria(StringBuilder query, List<AttributeCriteria> attributeCriteria) {
+		for (int i = 0; i < attributeCriteria.size(); i++) {
+			query.append(" and po.code = :attrCode").append(i);
+			query.append(" and povd.description like :attrVal").append(i);
+		}
+	}
+
+	static void bindAttributeCriteria(Query query, List<AttributeCriteria> attributeCriteria) {
+		for (int i = 0; i < attributeCriteria.size(); i++) {
+			AttributeCriteria attribute = attributeCriteria.get(i);
+			query.setParameter("attrCode" + i, attribute.getAttributeCode());
+			query.setParameter("attrVal" + i, "%" + attribute.getAttributeValue() + "%");
+		}
 	}
 
 	@Deprecated
