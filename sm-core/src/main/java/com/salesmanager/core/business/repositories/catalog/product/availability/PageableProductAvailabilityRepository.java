@@ -46,9 +46,10 @@ public interface PageableProductAvailabilityRepository extends PagingAndSortingR
 			+ "join fetch ppr.merchantStore pprm "
 			+ "left join fetch p.productVariant ppi " 
 			+ "where (ppr.sku=?1 or ppi.sku=?1) "
-			+ "and pprm.code=?2", countQuery = "select  count(p) from ProductAvailability p "
-					+ "join p.product ppr " + "join ppr.merchantStore pprm " + "left join p.productVariant ppi "
-					+ "where (ppr.sku=?1 or ppi.sku=?1) " + "and pprm.code=?2")
+			+ "and (pm.code=?2 or (pm is null and pprm.code=?2))", countQuery = "select  count(p) from ProductAvailability p "
+					+ "left join p.merchantStore pm " + "join p.product ppr " + "join ppr.merchantStore pprm "
+					+ "left join p.productVariant ppi " + "where (ppr.sku=?1 or ppi.sku=?1) "
+					+ "and (pm.code=?2 or (pm is null and pprm.code=?2))")
 	Page<ProductAvailability> getBySku(String productCode, String store, Pageable pageable);
 
 	@Query(value = "select distinct p from ProductAvailability p " 

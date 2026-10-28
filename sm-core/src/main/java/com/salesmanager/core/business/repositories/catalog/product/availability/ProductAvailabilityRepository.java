@@ -24,11 +24,10 @@ public interface ProductAvailabilityRepository extends JpaRepository<ProductAvai
       + "left join fetch p.merchantStore pm "
       + "left join fetch p.prices pp "
       + "left join fetch pp.descriptions ppd "
-      + "left join fetch p.merchantStore pm "
       + "join fetch p.product ppr "
       + "join fetch ppr.merchantStore pprm "
       + "where p.id=?1 "
-      + "and pprm.id=?2")
+      + "and (pm.id=?2 or (pm is null and pprm.id=?2))")
   ProductAvailability getById(Long availabilityId, int merchantId);
   
 
@@ -41,7 +40,7 @@ public interface ProductAvailabilityRepository extends JpaRepository<ProductAvai
 	      + "left join fetch ppr.descriptions pprd "
 	      + "left join fetch p.productVariant ppi "
 	      + "where (ppr.sku=?1 or ppi.sku=?1) "
-	      + "and pprm.code=?2")
+	      + "and (pm.code=?2 or (pm is null and pprm.code=?2))")
   List<ProductAvailability> getBySku(String productCode, String store);
   
   @Query(value = "select distinct p from ProductAvailability p "

@@ -23,7 +23,8 @@ import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.test.common.AbstractSalesManagerCoreTestCase;
 
 /**
- * Price and inventory lookups must only return records owned by the requesting store.
+ * Price and inventory lookups must only return records owned by the requesting store
+ * (the inventory's store, or the product's store when the inventory has none).
  */
 public class ProductPriceStoreScopeTest extends AbstractSalesManagerCoreTestCase {
 
@@ -57,6 +58,43 @@ public class ProductPriceStoreScopeTest extends AbstractSalesManagerCoreTestCase
 
 		// a price id from another store does not match even with the caller's own sku
 		assertNull(productPriceService.findById(acmePriceId, "GLOBEX-PRICE-SKU", globex));
+	}
+
+	@Test
+	public void inventoryOwnedByAnotherStoreIsScopedToThatStore() throws Exception {
+		Language en = languageService.getByCode("en");
+		MerchantStore acme = merchantService.getByCode(MerchantStore.DEFAULT_STORE);
+		MerchantStore globex = createStore("GLOBEX", acme, en);
+
+		Product acmeProduct = createProduct(acme, en, "ACME-SHARED-SKU", new BigDecimal("19.99"));
+
+		ProductAvailability globexInventory = new ProductAvailability();
+		globexInventory.setProductDateAvailable(new Date());
+		globexInventory.setProductQuantity(5);
+		globexInventory.setRegion("*");
+		globexInventory.setProduct(acmeProduct);
+		globexInventory.setMerchantStore(globex);
+		ProductPrice globexPrice = new ProductPrice();
+		globexPrice.setDefaultPrice(true);
+		globexPrice.setProductPriceAmount(new BigDecimal("17.99"));
+		globexPrice.setProductAvailability(globexInventory);
+		globexInventory.getPrices().add(globexPrice);
+		productAvailabilityService.create(globexInventory);
+
+		Long globexInventoryId = globexInventory.getId();
+		Long globexPriceId = globexInventory.getPrices().iterator().next().getId();
+
+		// the store owning the inventory can reach it and its prices
+		assertTrue(productAvailabilityService.getById(globexInventoryId, globex).isPresent());
+		assertEquals(1, productAvailabilityService.getBySku("ACME-SHARED-SKU", globex).size());
+		assertEquals(1, productPriceService.findByInventoryId(globexInventoryId, "ACME-SHARED-SKU", globex).size());
+		assertNotNull(productPriceService.findById(globexPriceId, "ACME-SHARED-SKU", globex));
+
+		// the product owner cannot reach inventory or prices owned by another store
+		assertFalse(productAvailabilityService.getById(globexInventoryId, acme).isPresent());
+		assertEquals(1, productAvailabilityService.getBySku("ACME-SHARED-SKU", acme).size());
+		assertTrue(productPriceService.findByInventoryId(globexInventoryId, "ACME-SHARED-SKU", acme).isEmpty());
+		assertNull(productPriceService.findById(globexPriceId, "ACME-SHARED-SKU", acme));
 	}
 
 	private MerchantStore createStore(String code, MerchantStore template, Language en) throws Exception {
