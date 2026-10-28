@@ -169,7 +169,7 @@ public class ProductGroupApi {
 	Product product = null;
     try {
       // get the product
-    	product = productService.getById(productId);
+    	product = productService.findOne(productId, merchantStore);
 
       if (product == null) {
         response.sendError(404, "Product not fount for id " + productId);
@@ -212,7 +212,7 @@ public class ProductGroupApi {
 
     try {
       // get the product
-      Product product = productService.getById(productId);
+      Product product = productService.findOne(productId, merchantStore);
 
       if (product == null) {
         response.sendError(404, "Product not fount for id " + productId);
@@ -236,7 +236,7 @@ public class ProductGroupApi {
   }
   
   @ResponseStatus(HttpStatus.OK)
-  @DeleteMapping("/products/group/{code}")
+  @DeleteMapping("/private/products/group/{code}")
   @ApiOperation(httpMethod = "DELETE", value = "Delete product group by group code", notes = "", response = Void.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
