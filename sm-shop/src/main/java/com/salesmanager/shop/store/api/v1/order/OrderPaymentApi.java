@@ -1,8 +1,10 @@
 package com.salesmanager.shop.store.api.v1.order;
 
+import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -34,6 +36,8 @@ import com.salesmanager.core.business.services.payments.PaymentService;
 import com.salesmanager.core.business.services.shoppingcart.ShoppingCartService;
 import com.salesmanager.core.model.customer.Customer;
 import com.salesmanager.core.model.merchant.MerchantStore;
+import com.salesmanager.core.model.order.OrderSummary;
+import com.salesmanager.core.model.order.OrderTotalSummary;
 import com.salesmanager.core.model.payments.Payment;
 import com.salesmanager.core.model.payments.Transaction;
 import com.salesmanager.core.model.payments.TransactionType;
@@ -45,6 +49,7 @@ import com.salesmanager.shop.model.order.transaction.ReadableTransaction;
 import com.salesmanager.shop.model.order.v0.ReadableOrderList;
 import com.salesmanager.shop.populator.order.transaction.PersistablePaymentPopulator;
 import com.salesmanager.shop.populator.order.transaction.ReadableTransactionPopulator;
+import com.salesmanager.shop.store.api.exception.ConversionRuntimeException;
 import com.salesmanager.shop.store.api.exception.ResourceNotFoundException;
 import com.salesmanager.shop.store.controller.order.facade.OrderFacade;
 import com.salesmanager.shop.utils.AuthorizationUtils;
@@ -104,6 +109,8 @@ public class OrderPaymentApi {
 
 		populator.populate(payment, paymentModel, merchantStore, language);
 
+		validateInitAmount(paymentModel, cart, merchantStore, language);
+
 		Transaction transactionModel = paymentService.initTransaction(null, paymentModel, merchantStore);
 
 		ReadableTransaction transaction = new ReadableTransaction();
@@ -159,6 +166,8 @@ public class OrderPaymentApi {
 
 			populator.populate(payment, paymentModel, merchantStore, language);
 
+			validateInitAmount(paymentModel, cart, merchantStore, language);
+
 			Transaction transactionModel = paymentService.initTransaction(customer, paymentModel, merchantStore);
 
 			ReadableTransaction transaction = new ReadableTransaction();
@@ -170,6 +179,8 @@ public class OrderPaymentApi {
 
 			return transaction;
 
+		} catch (ConversionRuntimeException e) {
+			throw e;
 		} catch (Exception e) {
 			LOGGER.error("Error while initializing the payment", e);
 			try {
@@ -177,6 +188,33 @@ public class OrderPaymentApi {
 			} catch (Exception ignore) {
 			}
 			return null;
+		}
+	}
+
+	/**
+	 * The init amount comes from the client. Shipping and customer taxes are only known at
+	 * checkout, so the amount can't be lower than the server side cart sub total. The
+	 * payment module re-checks the authorized amount against the order total at checkout.
+	 */
+	private void validateInitAmount(Payment payment, ShoppingCart cart, MerchantStore store, Language language)
+			throws Exception {
+		if (cart.getLineItems() == null || cart.getLineItems().isEmpty()) {
+			throw new ConversionRuntimeException("Cart " + cart.getShoppingCartCode() + " is empty");
+		}
+
+		BigDecimal amount = payment.getAmount();
+		if (amount == null || amount.signum() <= 0) {
+			throw new ConversionRuntimeException("Payment.amount must be greater than 0");
+		}
+
+		OrderSummary summary = new OrderSummary();
+		summary.setProducts(new ArrayList<>(cart.getLineItems()));
+		OrderTotalSummary totals = orderService.caculateOrderTotal(summary, store, language);
+		BigDecimal cartSubTotal = totals.getSubTotal();
+
+		if (cartSubTotal != null && amount.compareTo(cartSubTotal) < 0) {
+			throw new ConversionRuntimeException("Payment.amount " + amount.toPlainString()
+					+ " is lower than the cart total " + cartSubTotal.toPlainString());
 		}
 	}
 
