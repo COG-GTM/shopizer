@@ -57,12 +57,12 @@ public class ShopUserJourneyUatTest extends ServicesTestSupport {
 
 		HttpHeaders validBasic = new HttpHeaders();
 		validBasic.setBasicAuth(ADMIN, ADMIN_PASSWORD, StandardCharsets.UTF_8);
-		ResponseEntity<String> basicSuccess = testRestTemplate.exchange("/services/private/system/optin",
+		ResponseEntity<String> basicSuccess = testRestTemplate.exchange("/services/private/DEFAULT/customers",
 				HttpMethod.POST, new HttpEntity<>("uat-optin", validBasic), String.class);
 		assertTrue(basicSuccess.getStatusCode() != HttpStatus.UNAUTHORIZED);
 		HttpHeaders invalidBasic = new HttpHeaders();
 		invalidBasic.setBasicAuth(ADMIN, "wrong-password", StandardCharsets.UTF_8);
-		assertEquals(HttpStatus.UNAUTHORIZED, testRestTemplate.exchange("/services/private/system/optin",
+		assertEquals(HttpStatus.UNAUTHORIZED, testRestTemplate.exchange("/services/private/DEFAULT/customers",
 				HttpMethod.POST, new HttpEntity<>("uat-optin", invalidBasic), String.class).getStatusCode());
 
 		ResponseEntity<String> health = get("/actuator/health", new HttpHeaders());
