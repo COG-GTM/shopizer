@@ -1202,6 +1202,11 @@ public class OrderFacadeImpl implements OrderFacade {
 		Validate.notNull(language, "Language cannot be null");
 		Validate.notNull(locale, "Locale cannot be null");
 
+		if (order.getCustomerId() != null
+				&& (customer.getId() == null || order.getCustomerId().longValue() != customer.getId().longValue())) {
+			throw new ServiceException("Order customerId does not match the authenticated customer");
+		}
+
 		try {
 
 
