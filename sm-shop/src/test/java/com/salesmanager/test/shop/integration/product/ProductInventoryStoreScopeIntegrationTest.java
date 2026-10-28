@@ -13,7 +13,10 @@ import java.util.UUID;
 import javax.inject.Inject;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -42,6 +45,7 @@ import com.salesmanager.shop.model.catalog.product.product.PersistableProduct;
 import com.salesmanager.shop.model.catalog.product.product.ProductSpecification;
 import com.salesmanager.test.shop.common.ServicesTestSupport;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ProductInventoryStoreScopeIntegrationTest extends ServicesTestSupport {
 
 	private static final String PASSWORD = "Password1";
@@ -82,6 +86,7 @@ public class ProductInventoryStoreScopeIntegrationTest extends ServicesTestSuppo
 	}
 
 	@Test
+	@Order(1)
 	public void superadminCannotDeleteInventoryThroughAnotherStore() throws Exception {
 		Long productId = createProduct().getId();
 		Long inventoryId = addInventory(productId);
@@ -91,6 +96,7 @@ public class ProductInventoryStoreScopeIntegrationTest extends ServicesTestSuppo
 	}
 
 	@Test
+	@Order(2)
 	public void storeAdminCannotDeleteAnotherStoresInventory() throws Exception {
 		Long productId = createProduct().getId();
 		Long inventoryId = addInventory(productId);
@@ -110,6 +116,7 @@ public class ProductInventoryStoreScopeIntegrationTest extends ServicesTestSuppo
 	}
 
 	@Test
+	@Order(3)
 	public void wrongProductIdDoesNotDeleteInventory() throws Exception {
 		Long productId = createProduct().getId();
 		Long inventoryId = addInventory(productId);
@@ -120,6 +127,7 @@ public class ProductInventoryStoreScopeIntegrationTest extends ServicesTestSuppo
 	}
 
 	@Test
+	@Order(4)
 	public void unknownInventoryIdReturnsNotFound() throws Exception {
 		Long productId = createProduct().getId();
 
@@ -128,6 +136,7 @@ public class ProductInventoryStoreScopeIntegrationTest extends ServicesTestSuppo
 	}
 
 	@Test
+	@Order(5)
 	public void inventoryCanBeDeletedFromItsOwnStore() throws Exception {
 		Long productId = createProduct().getId();
 		Long inventoryId = addInventory(productId);
@@ -137,6 +146,7 @@ public class ProductInventoryStoreScopeIntegrationTest extends ServicesTestSuppo
 	}
 
 	@Test
+	@Order(99)
 	public void productIdAbove127CanBeDeletedFromItsOwnStore() throws Exception {
 		Long productId = null;
 		for (int attempt = 0; attempt < 400 && (productId == null || productId <= 127); attempt++) {
