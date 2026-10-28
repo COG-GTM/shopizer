@@ -38,8 +38,10 @@ Headless demo Available soon
 From the command line:
 
 ```
-docker run -p 8080:8080 shopizerecomm/shopizer:latest
+docker run -e "JWT_SECRET=$(openssl rand -base64 64 | tr -d '\n')" -p 8080:8080 shopizerecomm/shopizer:latest
 ```
+
+The backend refuses to start unless `JWT_SECRET` is set to a base64 encoded random key of at least 64 bytes. It signs all API tokens, so generate a unique value per deployment, keep it in your secret manager and keep it stable across restarts.
        
 2. Run the administration tool
 
@@ -85,6 +87,7 @@ From the command line:
 	$ cd shopizer
 	$ mvnw clean install
 	$ cd sm-shop
+	$ export JWT_SECRET=$(openssl rand -base64 64 | tr -d '\n')
 	$ mvnw spring-boot:run
 
 2. Shopizer admin

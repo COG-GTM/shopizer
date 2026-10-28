@@ -1,11 +1,14 @@
 package com.salesmanager.shop.store.security;
 
 import java.io.Serializable;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+
+import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -46,12 +49,33 @@ public class JWTTokenUtil implements Serializable {
 	    static final String AUDIENCE_MOBILE = "mobile";
 	    static final String AUDIENCE_TABLET = "tablet";
 
+	    static final int MIN_SECRET_BYTES = 64;
+
 
 	    @Value("${jwt.secret}")
 	    private String secret;
 
 	    @Value("${jwt.expiration}")
 	    private Long expiration;
+
+	    @PostConstruct
+	    void validateSecret() {
+	        if (secret == null || secret.trim().isEmpty() || secret.contains("${")) {
+	            throw new IllegalStateException(
+	                    "JWT signing secret is not configured. Set the JWT_SECRET environment variable to a base64 encoded random key of at least "
+	                            + MIN_SECRET_BYTES + " bytes (e.g. openssl rand -base64 64 | tr -d '\\n')");
+	        }
+	        byte[] key;
+	        try {
+	            key = Base64.getDecoder().decode(secret.trim());
+	        } catch (IllegalArgumentException e) {
+	            throw new IllegalStateException("JWT_SECRET must be a base64 encoded key", e);
+	        }
+	        if (key.length < MIN_SECRET_BYTES) {
+	            throw new IllegalStateException("JWT_SECRET must decode to at least " + MIN_SECRET_BYTES
+	                    + " bytes for HS512 signing (e.g. openssl rand -base64 64 | tr -d '\\n')");
+	        }
+	    }
 
 	    public String getUsernameFromToken(String token) {
 	        return getClaimFromToken(token, Claims::getSubject);
