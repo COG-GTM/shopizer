@@ -3,12 +3,16 @@ package com.salesmanager.test.shop.uat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
 
 import java.util.UUID;
 
-import org.junit.Test;
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -21,8 +25,14 @@ import org.springframework.test.util.ReflectionTestUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.salesmanager.core.business.constants.Constants;
+import com.salesmanager.core.business.modules.email.Email;
 import com.salesmanager.core.business.modules.email.HtmlEmailSender;
+import com.salesmanager.core.business.services.merchant.MerchantStoreService;
 import com.salesmanager.core.business.services.system.EmailService;
+import com.salesmanager.core.business.services.system.MerchantConfigurationService;
+import com.salesmanager.core.model.merchant.MerchantStore;
+import com.salesmanager.core.model.system.MerchantConfiguration;
 import com.salesmanager.shop.model.catalog.product.ReadableProduct;
 import com.salesmanager.test.shop.common.ServicesTestSupport;
 
@@ -30,10 +40,39 @@ import com.salesmanager.test.shop.common.ServicesTestSupport;
 public class JourneyContractsTest extends ServicesTestSupport {
 
 	@Autowired private EmailService emailService;
+	@Autowired private MerchantStoreService merchantService;
+	@Autowired private MerchantConfigurationService configurationService;
+	private HtmlEmailSender previousSender;
+	private HtmlEmailSender outboundEmail;
+	private MerchantStore store;
+	private MerchantConfiguration previousPayment;
+	private String previousPaymentValue;
+	private boolean paymentChanged;
 
 	@Before
 	public void stubOutboundEmail() {
-		ReflectionTestUtils.setField(emailService, "sender", mock(HtmlEmailSender.class));
+		previousSender = (HtmlEmailSender) ReflectionTestUtils.getField(emailService, "sender");
+		outboundEmail = mock(HtmlEmailSender.class);
+		ReflectionTestUtils.setField(emailService, "sender", outboundEmail);
+	}
+
+	@After
+	public void restoreSharedState() throws Exception {
+		try {
+			if (paymentChanged) {
+				MerchantConfiguration current = configurationService.getMerchantConfiguration(Constants.PAYMENT_MODULES, store);
+				if (previousPayment == null) {
+					if (current != null) {
+						configurationService.delete(current);
+					}
+				} else {
+					current.setValue(previousPaymentValue);
+					configurationService.saveOrUpdate(current);
+				}
+			}
+		} finally {
+			ReflectionTestUtils.setField(emailService, "sender", previousSender);
+		}
 	}
 
 	@Test
@@ -53,7 +92,7 @@ public class JourneyContractsTest extends ServicesTestSupport {
 	}
 
 	@Test
-	public void registeredCustomerCanBrowseManageCartAndPlaceAnOrder() {
+	public void registeredCustomerCanBrowseManageCartAndPlaceAnOrder() throws Exception {
 		String email = "journey-" + UUID.randomUUID().toString().replace("-", "") + "@x.test";
 		ObjectNode customer = JsonNodeFactory.instance.objectNode();
 		customer.put("emailAddress", email).put("password", "clear123").put("gender", "M")
@@ -96,6 +135,10 @@ public class JourneyContractsTest extends ServicesTestSupport {
 		assertEquals(200, cart.getStatusCodeValue());
 		assertEquals(2, cart.getBody().path("quantity").intValue());
 
+		store = merchantService.getByCode(MerchantStore.DEFAULT_STORE);
+		previousPayment = configurationService.getMerchantConfiguration(Constants.PAYMENT_MODULES, store);
+		previousPaymentValue = previousPayment == null ? null : previousPayment.getValue();
+		paymentChanged = true;
 		ObjectNode module = JsonNodeFactory.instance.objectNode().put("code", "moneyorder")
 				.put("active", true).put("defaultSelected", true);
 		module.putObject("integrationKeys").put("address", "1 Test Street");
@@ -115,6 +158,7 @@ public class JourneyContractsTest extends ServicesTestSupport {
 				new HttpEntity<>(headers), JsonNode.class);
 		assertEquals(200, savedOrder.getStatusCodeValue());
 		assertEquals(confirmation.getBody().path("id"), savedOrder.getBody().path("id"));
+		verify(outboundEmail, timeout(5000).times(2)).send(any(Email.class));
 	}
 
 	@Test
