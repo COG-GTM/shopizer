@@ -1,6 +1,7 @@
 package com.salesmanager.shop.store.facade.user;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -11,11 +12,14 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.persistence.EntityNotFoundException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.hibernate.Hibernate;
+import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
@@ -394,84 +398,98 @@ public class UserFacadeImpl implements UserFacade {
 	public ReadableUser update(Long id, String authenticatedUser, MerchantStore store, PersistableUser user) {
 		Validate.notNull(user, "User cannot be null");
 		Validate.notNull(store, "store cannot be null");
+		Validate.notNull(id, "User id cannot be null");
+
+		if (authenticatedUser == null) {
+			throw new UnauthorizedException();
+		}
 
 		try {
-			User userModel = userService.getById(id);
-			if (userModel == null) {
-				throw new ServiceRuntimeException("Cannot find user [" + user.getUserName() + "]");
-			}
-			if (userModel.getId().longValue() != id.longValue()) {
-				throw new ServiceRuntimeException(
-						"Cannot find user [" + user.getUserName() + "] id or name does not match");
-			}
 			User auth = userService.getByUserName(authenticatedUser);
 			if (auth == null) {
-				throw new ServiceRuntimeException("Cannot find user [" + authenticatedUser + "]");
+				throw new UnauthorizedException("User [" + authenticatedUser + "] not authorized");
 			}
-			User adminName = getByUserName(user.getUserName());
-			if (adminName != null) {
-				if (adminName.getId().longValue() != userModel.getId().longValue()) {
-					throw new ServiceRuntimeException(
-							"User id [" + userModel.getId() + "] does not match [" + user.getUserName() + "]");
-				}
+
+			boolean callerSuperadmin = inGroups(auth, Constants.GROUP_SUPERADMIN);
+			boolean isSelf = auth.getId().longValue() == id.longValue();
+
+			if (!isSelf && !inGroups(auth, Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN,
+					Constants.GROUP_ADMIN_RETAIL)) {
+				throw new UnauthorizedException(
+						"User [" + authenticatedUser + "] not authorized to update user [" + id + "]");
 			}
+
+			User userModel = callerSuperadmin ? findById(id) : userService.getById(id, store);
+			if (userModel == null || (!callerSuperadmin
+					&& !store.getCode().equals(userModel.getMerchantStore().getCode()))) {
+				throw new ResourceNotFoundException(
+						"User [" + id + "] not found for store [" + store.getCode() + "]");
+			}
+
+			boolean targetSuperadmin = inGroups(userModel, Constants.GROUP_SUPERADMIN);
+			if (!isSelf && targetSuperadmin && !callerSuperadmin) {
+				throw new UnauthorizedException(
+						"User [" + authenticatedUser + "] not authorized to update user [" + id + "]");
+			}
+
+			String originalUserName = userModel.getAdminName();
+			String originalPassword = userModel.getAdminPassword();
+			MerchantStore originalStore = userModel.getMerchantStore();
 			boolean isActive = userModel.isActive();
-			List<Group> originalGroups = userModel.getGroups();
-			Group superadmin = originalGroups.stream()
-					.filter(group -> Constants.GROUP_SUPERADMIN.equals(group.getGroupName())).findAny().orElse(null);
+			List<Group> originalGroups = new ArrayList<Group>(userModel.getGroups());
 
-			// changing store ?
-			/**
-			 * Can't change self store Only admin and superadmin can change
-			 * another user store
-			 */
-
-			// i'm i editing my own profile ?
-			if (authenticatedUser.equals(adminName)) {
-
-				if (!userModel.getMerchantStore().getCode().equals(store.getCode())) {
-					throw new OperationNotAllowedException("User [" + adminName + "] cannot change owning store");
-				}
-
-			} else {
-				// i am an admin or super admin
-				Group adminOrSuperadmin = originalGroups.stream()
-						.filter(group -> (Constants.GROUP_SUPERADMIN.equals(group.getGroupName())
-								|| Constants.ADMIN_USER.equals(group.getGroupName())
-								|| Constants.ADMIN_STORE.equals(group.getGroupName())))
-						.findAny().orElse(null);
-
-				if (!userModel.getMerchantStore().getCode().equals(store.getCode()) && adminOrSuperadmin == null) {
-					throw new OperationNotAllowedException("User [" + adminName + "] cannot change owning store");
-				}
-
+			if (!StringUtils.isBlank(user.getUserName()) && !user.getUserName().equals(originalUserName)) {
+				throw new OperationNotAllowedException("User name of user [" + id + "] cannot be changed");
+			}
+			if (!StringUtils.isBlank(user.getStore()) && !user.getStore().equals(originalStore.getCode())) {
+				throw new OperationNotAllowedException("Owning store of user [" + id + "] cannot be changed");
 			}
 
-			userModel = converPersistabletUserToUser(store, languageService.defaultLanguage(), userModel, user);
+			// password changes go through changePassword, which verifies the current password
+			user.setPassword(null);
+			user.setRepeatPassword(null);
 
-			// if superadmin set original permissions, prevent removing super
-			// admin
-			if (superadmin != null) {
+			userModel = converPersistabletUserToUser(originalStore, languageService.defaultLanguage(), userModel, user);
+
+			userModel.setAdminName(originalUserName);
+			userModel.setAdminPassword(originalPassword);
+			userModel.setMerchantStore(originalStore);
+
+			// prevent removing superadmin
+			if (targetSuperadmin) {
 				userModel.setGroups(originalGroups);
 			}
 
-			Group adminGroup = auth.getGroups().stream()
-					.filter((group) -> Constants.GROUP_SUPERADMIN.equals(group.getGroupName())
-							|| Constants.GROUP_SUPERADMIN.equals(group.getGroupName()))
-					.findAny().orElse(null);
-
-			if (adminGroup == null) {
+			if (!callerSuperadmin) {
 				userModel.setGroups(originalGroups);
 				userModel.setActive(isActive);
 			}
 
-			user.setPassword(userModel.getAdminPassword());
 			userService.update(userModel);
 			return this.convertUserToReadableUser(languageService.defaultLanguage(), userModel);
 		} catch (ServiceException e) {
-			throw new ServiceRuntimeException("Cannot update user [" + user.getUserName() + "]", e);
+			throw new ServiceRuntimeException("Cannot update user [" + id + "]", e);
 		}
 
+	}
+
+	private User findById(Long id) {
+		User user = userService.getById(id);
+		if (user == null) {
+			return null;
+		}
+		try {
+			Hibernate.initialize(user);
+			return user;
+		} catch (EntityNotFoundException | ObjectNotFoundException e) {
+			return null;
+		}
+	}
+
+	private boolean inGroups(User user, String... groupNames) {
+		List<String> names = Arrays.asList(groupNames);
+		return user.getGroups() != null
+				&& user.getGroups().stream().anyMatch(group -> names.contains(group.getGroupName()));
 	}
 
 	@Override
