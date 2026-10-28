@@ -2,15 +2,17 @@ package com.salesmanager.shop.populator.catalog;
 
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.salesmanager.core.business.exception.ConversionException;
 import com.salesmanager.core.business.utils.AbstractDataPopulator;
 import com.salesmanager.core.model.catalog.product.review.ProductReview;
 import com.salesmanager.core.model.catalog.product.review.ProductReviewDescription;
+import com.salesmanager.core.model.customer.Customer;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.shop.model.catalog.product.ReadableProductReview;
 import com.salesmanager.shop.model.customer.ReadableCustomer;
-import com.salesmanager.shop.populator.customer.ReadableCustomerPopulator;
 import com.salesmanager.shop.utils.DateUtil;
 
 public class ReadableProductReviewPopulator extends
@@ -23,9 +25,7 @@ public class ReadableProductReviewPopulator extends
 
 		
 		try {
-			ReadableCustomerPopulator populator = new ReadableCustomerPopulator();
-			ReadableCustomer customer = new ReadableCustomer();
-			populator.populate(source.getCustomer(), customer, store, language);
+			ReadableCustomer customer = toReviewer(source.getCustomer());
 
 			target.setId(source.getId());
 			target.setDate(DateUtil.formatDate(source.getReviewDate()));
@@ -50,6 +50,25 @@ public class ReadableProductReviewPopulator extends
 		
 		
 		
+	}
+
+	/**
+	 * Reviews are publicly readable, only expose a display name of the reviewer
+	 */
+	private ReadableCustomer toReviewer(Customer source) {
+		if (source == null) {
+			return null;
+		}
+		ReadableCustomer reviewer = new ReadableCustomer();
+		reviewer.setId(source.getId());
+		if (source.getBilling() != null) {
+			reviewer.setFirstName(source.getBilling().getFirstName());
+			String lastName = source.getBilling().getLastName();
+			if (StringUtils.isNotBlank(lastName)) {
+				reviewer.setLastName(lastName.trim().substring(0, 1) + ".");
+			}
+		}
+		return reviewer;
 	}
 
 	@Override
