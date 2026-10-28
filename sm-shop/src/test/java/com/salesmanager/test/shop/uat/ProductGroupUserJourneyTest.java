@@ -19,6 +19,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.salesmanager.core.business.services.merchant.MerchantStoreService;
+import com.salesmanager.core.business.services.payments.PaymentService;
+import com.salesmanager.core.model.merchant.MerchantStore;
+import com.salesmanager.core.model.system.IntegrationConfiguration;
 import com.salesmanager.shop.application.ShopApplication;
 import com.salesmanager.shop.model.catalog.product.ReadableProduct;
 import com.salesmanager.test.shop.common.ServicesTestSupport;
@@ -29,6 +33,12 @@ public class ProductGroupUserJourneyTest extends ServicesTestSupport {
 
     @Autowired
     private ObjectMapper mapper;
+
+    @Autowired
+    private MerchantStoreService merchantStoreService;
+
+    @Autowired
+    private PaymentService paymentService;
 
     @Test
     public void adminCanCurateOwnGroupButAnonymousCannotMutateIt() throws Exception {
@@ -119,20 +129,30 @@ public class ProductGroupUserJourneyTest extends ServicesTestSupport {
         JsonNode total = request(HttpMethod.GET, cartUrl + "/total", null, anonymous, 200);
         assertTrue(total.path("total").isTextual());
 
-        request(HttpMethod.POST, "/api/v1/private/modules/payment",
-                "{\"code\":\"moneyorder\",\"active\":true,\"defaultSelected\":true,"
-                + "\"integrationKeys\":{\"address\":\"1 Test Street\"},\"integrationOptions\":{}}", getHeader(), 200);
-        String amount = total.path("total").asText().replaceAll("[^0-9.]", "");
-        JsonNode order = request(HttpMethod.POST, "/api/v1/auth/cart/" + cart.path("code").asText() + "/checkout",
-                "{\"currency\":\"CAD\",\"customerAgreement\":true,\"payment\":{\"paymentModule\":\"moneyorder\","
-                + "\"paymentType\":\"MONEYORDER\",\"transactionType\":\"AUTHORIZECAPTURE\",\"amount\":\"" + amount
-                + "\"}}", customerHeaders, 200);
-        assertTrue(order.path("id").isIntegralNumber());
-        JsonNode readOrder = request(HttpMethod.GET, "/api/v1/auth/orders/" + order.path("id").asLong(),
-                null, customerHeaders, 200);
-        assertEquals(order.path("id").asLong(), readOrder.path("id").asLong());
-        assertTrue(request(HttpMethod.GET, "/api/v1/auth/orders", null, customerHeaders, 200)
-                .path("orders").isArray());
+        MerchantStore store = merchantStoreService.getByCode("DEFAULT");
+        IntegrationConfiguration previousPayment = paymentService.getPaymentConfiguration("moneyorder", store);
+        try {
+            request(HttpMethod.POST, "/api/v1/private/modules/payment",
+                    "{\"code\":\"moneyorder\",\"active\":true,\"defaultSelected\":true,"
+                    + "\"integrationKeys\":{\"address\":\"1 Test Street\"},\"integrationOptions\":{}}", getHeader(), 200);
+            String amount = total.path("total").asText().replaceAll("[^0-9.]", "");
+            JsonNode order = request(HttpMethod.POST, "/api/v1/auth/cart/" + cart.path("code").asText() + "/checkout",
+                    "{\"currency\":\"CAD\",\"customerAgreement\":true,\"payment\":{\"paymentModule\":\"moneyorder\","
+                    + "\"paymentType\":\"MONEYORDER\",\"transactionType\":\"AUTHORIZECAPTURE\",\"amount\":\"" + amount
+                    + "\"}}", customerHeaders, 200);
+            assertTrue(order.path("id").isIntegralNumber());
+            JsonNode readOrder = request(HttpMethod.GET, "/api/v1/auth/orders/" + order.path("id").asLong(),
+                    null, customerHeaders, 200);
+            assertEquals(order.path("id").asLong(), readOrder.path("id").asLong());
+            assertTrue(request(HttpMethod.GET, "/api/v1/auth/orders", null, customerHeaders, 200)
+                    .path("orders").isArray());
+        } finally {
+            if (previousPayment == null) {
+                paymentService.removePaymentModuleConfiguration("moneyorder", store);
+            } else {
+                paymentService.savePaymentModuleConfiguration(previousPayment, store);
+            }
+        }
     }
 
     @Test
