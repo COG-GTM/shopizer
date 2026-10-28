@@ -122,6 +122,19 @@ public class CmsImageFileManagerImplTest {
         assertFalse(Files.exists(small));
     }
 
+    @Test
+    public void rejectsWriteThroughSymlinkedProductFolder() throws Exception {
+        Path outside = tempDir.resolve("outside");
+        Files.createDirectories(outside.resolve("LARGE"));
+        Path storeDir = cmsRoot.resolve("products/GLOBEX");
+        Files.createDirectories(storeDir);
+        Files.createSymbolicLink(storeDir.resolve("SKU1"), outside);
+
+        assertRejected(productImage("GLOBEX", "SKU1", "main.jpg"), content("main.jpg", FileContentType.PRODUCTLG));
+
+        assertFalse(Files.exists(outside.resolve("LARGE/main.jpg")));
+    }
+
     private void assertRejected(ProductImage productImage, ImageContentFile content) {
         try {
             manager.addProductImage(productImage, content);

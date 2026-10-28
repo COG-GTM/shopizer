@@ -98,6 +98,8 @@ public class ProductImageServiceImpl extends SalesManagerEntityServiceImpl<Long,
 			//manual workaround since aspect is not working
 			eventPublisher.publishEvent(new SaveProductImageEvent(eventPublisher, img, product));
 
+		} catch (ServiceException e) {
+			throw e;
 		} catch (Exception e) {
 			throw new ServiceException(e);
 		} finally {

@@ -3,6 +3,7 @@ package com.salesmanager.core.business.modules.cms.product.local;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -274,7 +275,28 @@ public class CmsImageFileManagerImpl
     if (!resolved.startsWith(normalizedBase) || resolved.equals(normalizedBase)) {
       throw new ServiceException("Path escapes the product image folder");
     }
+    ensureRealPathWithin(normalizedBase, resolved);
     return resolved;
+  }
+
+  /**
+   * Rejects paths whose closest existing ancestor resolves (following symbolic links) outside base.
+   */
+  private static void ensureRealPathWithin(Path base, Path path) throws ServiceException {
+    if (Files.notExists(base)) {
+      return;
+    }
+    Path existing = path;
+    while (existing != null && Files.notExists(existing, LinkOption.NOFOLLOW_LINKS)) {
+      existing = existing.getParent();
+    }
+    try {
+      if (existing == null || !existing.toRealPath().startsWith(base.toRealPath())) {
+        throw new ServiceException("Path escapes the product image folder");
+      }
+    } catch (IOException e) {
+      throw new ServiceException("Cannot resolve product image path", e);
+    }
   }
 
   private void createDirectories(Path path) throws IOException {
