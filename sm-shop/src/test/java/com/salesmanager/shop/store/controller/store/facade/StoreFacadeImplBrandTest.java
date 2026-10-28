@@ -137,6 +137,18 @@ public class StoreFacadeImplBrandTest {
   }
 
   @Test
+  public void repeatedKeySavesLastValueOnce() throws Exception {
+    PersistableBrand brand = brand(Constants.KEY_FACEBOOK_PAGE_URL, "https://facebook.com/old", null);
+    brand.getSocialNetworks().add(entity(Constants.KEY_FACEBOOK_PAGE_URL, "https://facebook.com/new", null));
+
+    storeFacade.createBrand("MALLORY", brand);
+
+    ArgumentCaptor<MerchantConfiguration> captor = ArgumentCaptor.forClass(MerchantConfiguration.class);
+    verify(merchantConfigurationService).saveOrUpdate(captor.capture());
+    assertEquals("https://facebook.com/new", captor.getValue().getValue());
+  }
+
+  @Test
   public void blankValueDeletesExistingSocialRow() throws Exception {
     MerchantConfiguration existing = row(Constants.KEY_TWITTER_HANDLE, MerchantConfigurationType.SOCIAL);
     when(merchantConfigurationService.getMerchantConfiguration(Constants.KEY_TWITTER_HANDLE, store)).thenReturn(existing);

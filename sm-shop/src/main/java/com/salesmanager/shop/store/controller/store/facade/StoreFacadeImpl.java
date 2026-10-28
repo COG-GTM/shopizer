@@ -3,8 +3,11 @@ package com.salesmanager.shop.store.controller.store.facade;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -422,19 +425,22 @@ public class StoreFacadeImpl implements StoreFacade {
 		}
 
 		try {
-			List<MerchantConfiguration> existingConfigs = new ArrayList<>();
+			Map<String, MerchantConfigEntity> configsByKey = new LinkedHashMap<>();
 			for (MerchantConfigEntity config : createdConfigs) {
-				MerchantConfiguration existing = merchantConfigurationService
-						.getMerchantConfiguration(config.getKey(), mStore);
-				if (existing != null && existing.getMerchantConfigurationType() != MerchantConfigurationType.SOCIAL) {
-					throw new OperationNotAllowedException("Branding key [" + config.getKey() + "] is reserved");
-				}
-				existingConfigs.add(existing);
+				configsByKey.put(config.getKey(), config);
 			}
 
-			for (int i = 0; i < createdConfigs.size(); i++) {
-				MerchantConfigEntity config = createdConfigs.get(i);
-				MerchantConfiguration existing = existingConfigs.get(i);
+			Map<String, MerchantConfiguration> existingByKey = new HashMap<>();
+			for (String key : configsByKey.keySet()) {
+				MerchantConfiguration existing = merchantConfigurationService.getMerchantConfiguration(key, mStore);
+				if (existing != null && existing.getMerchantConfigurationType() != MerchantConfigurationType.SOCIAL) {
+					throw new OperationNotAllowedException("Branding key [" + key + "] is reserved");
+				}
+				existingByKey.put(key, existing);
+			}
+
+			for (MerchantConfigEntity config : configsByKey.values()) {
+				MerchantConfiguration existing = existingByKey.get(config.getKey());
 				if (!StringUtils.isEmpty(config.getValue())) {
 					MerchantConfiguration mConfig = existing != null ? existing : new MerchantConfiguration();
 					mConfig.setKey(config.getKey());
