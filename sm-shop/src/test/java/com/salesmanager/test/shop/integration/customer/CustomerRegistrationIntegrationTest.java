@@ -1,6 +1,7 @@
 package com.salesmanager.test.shop.integration.customer;
 
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.springframework.http.HttpStatus.OK;
@@ -52,6 +53,45 @@ public class CustomerRegistrationIntegrationTest extends ServicesTestSupport {
         assertThat(loginResponse.getStatusCode(), is(OK));
         assertNotNull(loginResponse.getBody().getToken());
 
+    }
+
+
+    @Test
+    public void registerCustomerIgnoresIdInRequestBody() {
+
+        final ResponseEntity<AuthenticationResponse> victim = register("victim@test.com", "victim123", null);
+        assertThat(victim.getStatusCode(), is(OK));
+        final Long victimId = victim.getBody().getId();
+        assertNotNull(victimId);
+
+        final ResponseEntity<AuthenticationResponse> attacker = register("attacker@test.com", "attacker123", victimId);
+        assertThat(attacker.getStatusCode(), is(OK));
+        assertNotNull(attacker.getBody().getId());
+        assertThat(attacker.getBody().getId(), not(victimId));
+
+        final ResponseEntity<AuthenticationResponse> victimLogin = testRestTemplate.postForEntity("/api/v1/customer/login",
+                new HttpEntity<>(new AuthenticationRequest("victim@test.com", "victim123")), AuthenticationResponse.class);
+        assertThat(victimLogin.getStatusCode(), is(OK));
+        assertThat(victimLogin.getBody().getId(), is(victimId));
+    }
+
+    private ResponseEntity<AuthenticationResponse> register(final String email, final String password, final Long id) {
+        final PersistableCustomer customer = new PersistableCustomer();
+        if (id != null) {
+            customer.setId(id);
+        }
+        customer.setEmailAddress(email);
+        customer.setPassword(password);
+        customer.setGender(CustomerGender.M.name());
+        customer.setLanguage("en");
+        final Address billing = new Address();
+        billing.setFirstName("first");
+        billing.setLastName("last");
+        billing.setCountry("BE");
+        customer.setBilling(billing);
+        customer.setStoreCode(Constants.DEFAULT_STORE);
+        return testRestTemplate.postForEntity("/api/v1/customer/register", new HttpEntity<>(customer, getHeader()),
+                AuthenticationResponse.class);
     }
 
 }
