@@ -32,6 +32,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.salesmanager.core.business.exception.ServiceException;
+import com.salesmanager.core.business.modules.order.total.PromoCodeCalculatorModule;
 import com.salesmanager.core.business.services.catalog.pricing.PricingService;
 import com.salesmanager.core.business.services.catalog.product.ProductService;
 import com.salesmanager.core.business.services.catalog.product.attribute.ProductAttributeService;
@@ -662,6 +663,7 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 
 		cartModel.setPromoCode(null);
 		if (promoCode.isPresent()) {
+			validatePromoCode(promoCode.get());
 			cartModel.setPromoCode(promoCode.get());
 			cartModel.setPromoAdded(new Date());
 		}
@@ -764,6 +766,7 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 		cartModel.setShoppingCartCode(uniqueShoppingCartCode());
 
 		if (!StringUtils.isBlank(item.getPromoCode())) {
+			validatePromoCode(item.getPromoCode());
 			cartModel.setPromoCode(item.getPromoCode());
 			cartModel.setPromoAdded(new Date());
 		}
@@ -877,6 +880,11 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 	private ReadableShoppingCart modifyCart(ShoppingCart cartModel, PersistableShoppingCartItem item,
 			MerchantStore store, Language language) throws Exception {
 
+		boolean applyPromo = !StringUtils.isBlank(item.getPromoCode()) && StringUtils.isBlank(cartModel.getPromoCode());
+		if (applyPromo) {
+			validatePromoCode(item.getPromoCode());
+		}
+
 		com.salesmanager.core.model.shoppingcart.ShoppingCartItem itemModel = createCartItem(cartModel, item, store);
 
 		boolean itemModified = false;
@@ -929,7 +937,7 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 		// if cart items are null just return cart with no items
 
 		// promo code added to the cart but no promo cart exists
-		if (!StringUtils.isBlank(item.getPromoCode()) && StringUtils.isBlank(cartModel.getPromoCode())) {
+		if (applyPromo) {
 			cartModel.setPromoCode(item.getPromoCode());
 			cartModel.setPromoAdded(new Date());
 		}
@@ -1150,7 +1158,12 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 	public ReadableShoppingCart modifyCart(String cartCode, String promo, MerchantStore store, Language language)
 			throws Exception {
 
+		validatePromoCode(promo);
+
 		ShoppingCart cart = shoppingCartService.getByCode(cartCode, store);
+		if (cart == null) {
+			throw new ResourceNotFoundException("Cart [" + cartCode + "] not found");
+		}
 
 		cart.setPromoCode(promo);
 		cart.setPromoAdded(new Date());
@@ -1159,6 +1172,12 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 
 		return readableShoppingCartMapper.convert(cart, store, language);
 
+	}
+
+	private void validatePromoCode(String promo) {
+		if (!PromoCodeCalculatorModule.isValidPromoCode(promo)) {
+			throw new ServiceRuntimeException("400", "Invalid promo code");
+		}
 	}
 
 }

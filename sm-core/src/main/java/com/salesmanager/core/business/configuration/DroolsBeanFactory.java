@@ -1,15 +1,15 @@
 package com.salesmanager.core.business.configuration;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.annotation.PreDestroy;
 
 import org.drools.decisiontable.DecisionTableProviderImpl;
 import org.kie.api.KieServices;
 import org.kie.api.builder.KieBuilder;
 import org.kie.api.builder.KieFileSystem;
-import org.kie.api.builder.KieModule;
-import org.kie.api.builder.KieRepository;
+import org.kie.api.builder.Message;
 import org.kie.api.builder.ReleaseId;
 import org.kie.api.io.Resource;
 import org.kie.api.runtime.KieContainer;
@@ -18,81 +18,64 @@ import org.kie.internal.builder.DecisionTableConfiguration;
 import org.kie.internal.builder.DecisionTableInputType;
 import org.kie.internal.builder.KnowledgeBuilderFactory;
 import org.kie.internal.io.ResourceFactory;
-import org.springframework.beans.factory.annotation.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+/**
+ * Compiles each DRL rule file once and keeps the resulting {@link KieContainer}
+ * for the lifetime of the application. Callers get a new lightweight
+ * {@link KieSession} per evaluation and must {@link KieSession#dispose()} it.
+ */
 @Component
 public class DroolsBeanFactory {
-	
-	
-	@Value("${config.shipping.rule.priceByDistance}")
-	private String priceByDistance;
-	
-	@Value("${config.shipping.rule.shippingModuleDecision}")
-	private String shippingDecision;
-	
 
-    private static final String RULES_PATH = "com/salesmanager/drools/rules/";
-    private KieServices kieServices = KieServices.Factory.get();
+	private static final Logger LOGGER = LoggerFactory.getLogger(DroolsBeanFactory.class);
 
-    private  KieFileSystem getKieFileSystem() throws IOException{
-        KieFileSystem kieFileSystem = kieServices.newKieFileSystem();
-        List<String> rules=Arrays.asList(priceByDistance,shippingDecision);
-        for(String rule:rules){
-            kieFileSystem.write(ResourceFactory.newClassPathResource(rule));
-        }
-        return kieFileSystem;
-    }
+	public static final String RULES_PATH = "com/salesmanager/drools/rules/";
 
-    public KieContainer getKieContainer() throws IOException {
-        getKieRepository();
+	private static final String RELEASE_GROUP = "com.salesmanager.drools";
+	private static final String RELEASE_VERSION = "1.0.0";
 
-        KieBuilder kb = kieServices.newKieBuilder(getKieFileSystem());
-        kb.buildAll();
+	private final KieServices kieServices = KieServices.Factory.get();
 
-        KieModule kieModule = kb.getKieModule();
+	private final Map<String, KieContainer> containers = new ConcurrentHashMap<>();
 
-        return kieServices.newKieContainer(kieModule.getReleaseId());
+	/**
+	 * @param ruleFile DRL file name under {@link #RULES_PATH}, e.g. PromoCoupon.drl
+	 */
+	public KieSession newKieSession(String ruleFile) {
+		return getKieContainer(ruleFile).newKieSession();
+	}
 
-    }
+	public KieContainer getKieContainer(String ruleFile) {
+		return containers.computeIfAbsent(ruleFile, this::buildContainer);
+	}
 
-    private void getKieRepository() {
-        final KieRepository kieRepository = kieServices.getRepository();
-        kieRepository.addKieModule(kieRepository::getDefaultReleaseId);
-    }
+	private KieContainer buildContainer(String ruleFile) {
+		String classPath = RULES_PATH + ruleFile;
+		ReleaseId releaseId = kieServices.newReleaseId(RELEASE_GROUP,
+				"rules-" + ruleFile.replaceAll("[^A-Za-z0-9]", "-"), RELEASE_VERSION);
 
-    public KieSession getKieSession(){
-        getKieRepository();
-        KieFileSystem kieFileSystem = kieServices.newKieFileSystem();
+		KieFileSystem kieFileSystem = kieServices.newKieFileSystem()
+				.generateAndWritePomXML(releaseId)
+				.write(ResourceFactory.newClassPathResource(classPath));
 
-        kieFileSystem.write(ResourceFactory.newClassPathResource(RULES_PATH + priceByDistance));
-        kieFileSystem.write(ResourceFactory.newClassPathResource(RULES_PATH + shippingDecision));
-        
-        KieBuilder kb = kieServices.newKieBuilder(kieFileSystem);
-        kb.buildAll();
-        KieModule kieModule = kb.getKieModule();
+		KieBuilder kieBuilder = kieServices.newKieBuilder(kieFileSystem).buildAll();
+		if (kieBuilder.getResults().hasMessages(Message.Level.ERROR)) {
+			throw new IllegalStateException(
+					"Unable to compile rules " + classPath + ": " + kieBuilder.getResults().getMessages());
+		}
 
-        KieContainer kContainer = kieServices.newKieContainer(kieModule.getReleaseId());
+		LOGGER.info("Compiled rules {}", classPath);
+		return kieServices.newKieContainer(releaseId);
+	}
 
-        return kContainer.newKieSession();
-
-    }
-
-    public KieSession getKieSession(Resource dt) {
-        KieFileSystem kieFileSystem = kieServices.newKieFileSystem()
-            .write(dt);
-
-       KieBuilder kieBuilder = kieServices.newKieBuilder(kieFileSystem)
-            .buildAll();
-
-        KieRepository kieRepository = kieServices.getRepository();
-
-        ReleaseId krDefaultReleaseId = kieRepository.getDefaultReleaseId();
-
-        KieContainer kieContainer = kieServices.newKieContainer(krDefaultReleaseId);
-
-        return kieContainer.newKieSession();
-    }
+	@PreDestroy
+	public void dispose() {
+		containers.values().forEach(KieContainer::dispose);
+		containers.clear();
+	}
 
     /*
      * Can be used for debugging

@@ -2,11 +2,11 @@ package com.salesmanager.core.business.modules.order.total;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.kie.api.runtime.KieSession;
-import org.kie.internal.io.ResourceFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -25,7 +25,14 @@ import com.salesmanager.core.modules.order.total.OrderTotalPostProcessorModule;
 
 @Component
 public class PromoCodeCalculatorModule implements OrderTotalPostProcessorModule {
-	
+
+	public static final String PROMO_RULES = "PromoCoupon.drl";
+
+	private static final Pattern PROMO_CODE_PATTERN = Pattern.compile("^[A-Za-z0-9_-]{1,32}$");
+
+	public static boolean isValidPromoCode(String promoCode) {
+		return promoCode != null && PROMO_CODE_PATTERN.matcher(promoCode).matches();
+	}
 	
 	@Autowired
 	private DroolsBeanFactory droolsBeanFactory;
@@ -66,11 +73,9 @@ public class PromoCodeCalculatorModule implements OrderTotalPostProcessorModule 
 		Validate.notNull(summary, "OrderTotalSummary must not be null");
 		Validate.notNull(store, "MerchantStore must not be null");
 		
-		if(StringUtils.isBlank(summary.getPromoCode())) {
+		if(StringUtils.isBlank(summary.getPromoCode()) || !isValidPromoCode(summary.getPromoCode())) {
 			return null;
 		}
-		
-		KieSession kieSession=droolsBeanFactory.getKieSession(ResourceFactory.newClassPathResource("com/salesmanager/drools/rules/PromoCoupon.drl"));
 		
 		OrderTotalResponse resp = new OrderTotalResponse();
 		
@@ -78,9 +83,14 @@ public class PromoCodeCalculatorModule implements OrderTotalPostProcessorModule 
 		inputParameters.setPromoCode(summary.getPromoCode());
 		inputParameters.setDate(new Date());
 		
-        kieSession.insert(inputParameters);
-        kieSession.setGlobal("total",resp);
-        kieSession.fireAllRules();
+		KieSession kieSession = droolsBeanFactory.newKieSession(PROMO_RULES);
+		try {
+			kieSession.setGlobal("total", resp);
+			kieSession.insert(inputParameters);
+			kieSession.fireAllRules();
+		} finally {
+			kieSession.dispose();
+		}
 
 		if(resp.getDiscount() != null) {
 			
