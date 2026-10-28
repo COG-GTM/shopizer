@@ -213,6 +213,7 @@ public class CustomerFacadeImpl implements CustomerFacade {
 
 		Customer customer = verifyCustomerLink(token, store);// reverify
 		customer.setPassword(passwordEncoder.encode(password));
+		customer.setCredentialsResetRequest(null);
 		try {
 			customerService.save(customer);
 		} catch (ServiceException e) {
@@ -226,13 +227,13 @@ public class CustomerFacadeImpl implements CustomerFacade {
 		Customer customer = null;
 		try {
 			customer = customerService.getByPasswordResetToken(store, token);
-			if (customer == null) {
-				throw new ResourceNotFoundException(
-						"Customer not fount for store [" + store + "] and token [" + token + "]");
-			}
-
 		} catch (Exception e) {
 			throw new ServiceRuntimeException("Cannot verify customer token", e);
+		}
+
+		if (customer == null || customer.getCredentialsResetRequest() == null) {
+			throw new ResourceNotFoundException(
+					"Customer not found for store [" + store + "] and token [" + token + "]");
 		}
 
 		Date tokenExpiry = customer.getCredentialsResetRequest().getCredentialsRequestExpiry();
