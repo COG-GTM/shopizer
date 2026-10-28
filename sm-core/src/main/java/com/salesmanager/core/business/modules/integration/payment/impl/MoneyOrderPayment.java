@@ -85,6 +85,7 @@ public class MoneyOrderPayment implements PaymentModule {
 		transaction.setTransactionDate(new Date());
 		transaction.setTransactionType(TransactionType.AUTHORIZECAPTURE);
 		transaction.setPaymentType(PaymentType.MONEYORDER);
+		payment.setPaymentType(PaymentType.MONEYORDER);
 
 		
 		return transaction;

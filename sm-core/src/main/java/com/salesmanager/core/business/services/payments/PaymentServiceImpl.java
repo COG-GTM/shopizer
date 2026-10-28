@@ -3,6 +3,7 @@ package com.salesmanager.core.business.services.payments;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +55,10 @@ public class PaymentServiceImpl implements PaymentService {
 	
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(PaymentServiceImpl.class);
+	
+	/** Payment types for which no funds are captured at checkout; such orders stay ORDERED. */
+	private static final Set<PaymentType> OFFLINE_PAYMENT_TYPES = EnumSet.of(
+			PaymentType.MONEYORDER, PaymentType.COD, PaymentType.INVOICE, PaymentType.DIRECTBANK);
 	
 
 	@Inject
@@ -355,12 +360,17 @@ public class PaymentServiceImpl implements PaymentService {
 			throw new ServiceException("Payment module " + payment.getModuleName() + " does not exist");
 		}
 		
+		IntegrationModule integrationModule = getPaymentMethodByCode(store,payment.getModuleName());
+		PaymentType modulePaymentType = resolveModulePaymentType(integrationModule, payment);
+		payment.setPaymentType(modulePaymentType);
+		order.setPaymentType(modulePaymentType);
+		order.setPaymentModuleCode(payment.getModuleName());
+		
 		if(payment instanceof CreditCardPayment && "true".equals(coreConfiguration.getProperty("VALIDATE_CREDIT_CARD"))) {
 			CreditCardPayment creditCardPayment = (CreditCardPayment)payment;
 			validateCreditCard(creditCardPayment.getCreditCardNumber(),creditCardPayment.getCreditCard(),creditCardPayment.getExpirationMonth(),creditCardPayment.getExpirationYear());
 		}
 		
-		IntegrationModule integrationModule = getPaymentMethodByCode(store,payment.getModuleName());
 		TransactionType transactionType = TransactionType.valueOf(sTransactionType);
 		if(transactionType==null) {
 			transactionType = payment.getTransactionType();
@@ -385,7 +395,9 @@ public class PaymentServiceImpl implements PaymentService {
 		
 		if(transactionType == TransactionType.AUTHORIZECAPTURE)  {
 			order.setStatus(OrderStatus.ORDERED);
-			if(!payment.getPaymentType().name().equals(PaymentType.MONEYORDER.name())) {
+			PaymentType transactionPaymentType = transaction != null ? transaction.getPaymentType() : null;
+			if(!OFFLINE_PAYMENT_TYPES.contains(modulePaymentType)
+					&& (transactionPaymentType == null || !OFFLINE_PAYMENT_TYPES.contains(transactionPaymentType))) {
 				order.setStatus(OrderStatus.PROCESSED);
 			}
 		}
@@ -394,6 +406,25 @@ public class PaymentServiceImpl implements PaymentService {
 
 		
 
+	}
+	
+	/**
+	 * The payment type is a property of the payment module that processes the payment,
+	 * never of the client request. A request whose payment type disagrees with the
+	 * selected module is rejected.
+	 */
+	private PaymentType resolveModulePaymentType(IntegrationModule integrationModule, Payment payment) throws ServiceException {
+		if(integrationModule == null) {
+			throw new ServiceException(ServiceException.EXCEPTION_VALIDATION, "Payment module " + payment.getModuleName() + " is not available for this store");
+		}
+		PaymentType modulePaymentType = PaymentType.fromString(integrationModule.getType());
+		if(modulePaymentType == null) {
+			throw new ServiceException(ServiceException.EXCEPTION_VALIDATION, "Payment module " + payment.getModuleName() + " has no supported payment type");
+		}
+		if(payment.getPaymentType() != null && payment.getPaymentType() != modulePaymentType) {
+			throw new ServiceException(ServiceException.EXCEPTION_VALIDATION, "Payment type " + payment.getPaymentType().name() + " is not supported by payment module " + payment.getModuleName());
+		}
+		return modulePaymentType;
 	}
 	
 	@Override
