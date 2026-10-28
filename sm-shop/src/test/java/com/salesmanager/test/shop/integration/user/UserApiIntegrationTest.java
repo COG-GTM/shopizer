@@ -153,9 +153,6 @@ public class UserApiIntegrationTest extends ServicesTestSupport {
       HttpHeaders oldHeaders = getHeader(userName, CREATED_PASSWORD);
       assertEquals(HttpStatus.OK, getUserWith(oldHeaders, user.getId()));
 
-      // token issued-at has second precision
-      Thread.sleep(1100);
-
       UserPassword userPassword = new UserPassword();
       userPassword.setPassword(CREATED_PASSWORD);
       userPassword.setChangePassword(NEW_CREATED_PASSWORD);
@@ -167,8 +164,6 @@ public class UserApiIntegrationTest extends ServicesTestSupport {
       assertEquals(HttpStatus.UNAUTHORIZED, testRestTemplate.exchange("/api/v1/auth/refresh", HttpMethod.GET,
           new HttpEntity<String>(oldHeaders), String.class).getStatusCode());
 
-      // tokens issued in the same second as the change are revoked as well
-      Thread.sleep(1100);
       assertEquals(HttpStatus.OK, getUserWith(getHeader(userName, NEW_CREATED_PASSWORD), user.getId()));
   }
 

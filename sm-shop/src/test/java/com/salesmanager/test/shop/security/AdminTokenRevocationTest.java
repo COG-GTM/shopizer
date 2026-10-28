@@ -32,6 +32,9 @@ import com.salesmanager.shop.store.security.admin.JWTAdminAuthenticationManager;
 import com.salesmanager.shop.store.security.admin.JWTAdminServicesImpl;
 import com.salesmanager.shop.store.security.user.JWTUser;
 
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+
 public class AdminTokenRevocationTest {
 
 	private static final String USERNAME = "mallory@acme.com";
@@ -103,7 +106,6 @@ public class AdminTokenRevocationTest {
 		assertNull(user.getPasswordChangedDate());
 		user.setAdminPassword("other-hash");
 		assertNotNull(user.getPasswordChangedDate());
-		assertEquals(0, user.getPasswordChangedDate().getTime() % 1000);
 	}
 
 	@Test
@@ -116,15 +118,44 @@ public class AdminTokenRevocationTest {
 	@Test
 	public void validateTokenRejectsTokenIssuedUpToPasswordChange() {
 		String token = tokenUtil.generateToken(jwtUser(true, null));
-		Date issuedAt = tokenUtil.getIssuedAtDateFromToken(token);
-		Date later = new Date(issuedAt.getTime() + 1000);
+		Date issuedAt = tokenUtil.getPreciseIssuedAtDateFromToken(token);
+		Date later = new Date(issuedAt.getTime() + 1);
 		assertFalse(tokenUtil.validateToken(token, jwtUser(true, later)));
 		assertTrue(tokenUtil.isIssuedBeforeLastPasswordReset(token, later));
 		assertFalse(tokenUtil.validateToken(token, jwtUser(true, issuedAt)));
-		assertTrue(tokenUtil.isIssuedBeforeLastPasswordReset(token, issuedAt));
-		Date earlier = new Date(issuedAt.getTime() - 1000);
+		Date earlier = new Date(issuedAt.getTime() - 1);
 		assertTrue(tokenUtil.validateToken(token, jwtUser(true, earlier)));
 		assertFalse(tokenUtil.isIssuedBeforeLastPasswordReset(token, earlier));
+	}
+
+	@Test
+	public void tokenIssuedRightAfterPasswordChangeIsAccepted() {
+		User user = user(true);
+		user.setAdminPassword("new-hash");
+		String token = tokenUtil.generateToken(jwtUser(true, null));
+		JWTUser details = jwtUser(true, user.getPasswordChangedDate());
+		boolean sameMillisecond = tokenUtil.getPreciseIssuedAtDateFromToken(token).equals(user.getPasswordChangedDate());
+		assertEquals(!sameMillisecond, tokenUtil.validateToken(token, details));
+	}
+
+	@Test
+	public void legacyTokenWithoutMillisClaimFallsBackToIssuedAt() {
+		Date issuedAt = new Date((System.currentTimeMillis() / 1000) * 1000);
+		String token = Jwts.builder().setSubject(USERNAME).setIssuedAt(issuedAt)
+				.setExpiration(new Date(issuedAt.getTime() + 3600000L))
+				.signWith(SignatureAlgorithm.HS512, (String) ReflectionTestUtils.getField(tokenUtil, "secret")).compact();
+		assertEquals(issuedAt, tokenUtil.getPreciseIssuedAtDateFromToken(token));
+		assertFalse(tokenUtil.validateToken(token, jwtUser(true, new Date(issuedAt.getTime() + 500))));
+		assertTrue(tokenUtil.validateToken(token, jwtUser(true, new Date(issuedAt.getTime() - 1))));
+	}
+
+	@Test
+	public void refreshedTokenCarriesNewPreciseIssuedAt() throws Exception {
+		String token = tokenUtil.generateToken(jwtUser(true, null));
+		Thread.sleep(5);
+		String refreshed = tokenUtil.refreshToken(token);
+		assertTrue(tokenUtil.getPreciseIssuedAtDateFromToken(refreshed)
+				.after(tokenUtil.getPreciseIssuedAtDateFromToken(token)));
 	}
 
 	@Test
@@ -150,7 +181,7 @@ public class AdminTokenRevocationTest {
 	public void adminAuthenticationManagerRejectsTokenAfterPasswordChange() throws Exception {
 		String token = tokenUtil.generateToken(jwtUser(true, null));
 		User user = user(true);
-		user.setPasswordChangedDate(new Date(tokenUtil.getIssuedAtDateFromToken(token).getTime() + 1000));
+		user.setPasswordChangedDate(new Date(tokenUtil.getPreciseIssuedAtDateFromToken(token).getTime() + 1));
 		assertNull(authenticate(token, servicesFor(user)));
 	}
 }

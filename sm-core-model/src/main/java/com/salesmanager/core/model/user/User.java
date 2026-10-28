@@ -148,9 +148,9 @@ public class User extends SalesManagerEntity<Long, User> implements Auditable {
 	@Column(name = "LOGIN_ACCESS")
 	private Date loginTime;
 
-	@Temporal(TemporalType.TIMESTAMP)
+	/** epoch millis, stored as a number so that every database keeps millisecond precision */
 	@Column(name = "PASSWORD_CHANGED")
-	private Date passwordChangedDate;
+	private Long passwordChanged;
 	
 	@Embedded
 	private CredentialsReset credentialsResetRequest = null;
@@ -211,18 +211,17 @@ public class User extends SalesManagerEntity<Long, User> implements Auditable {
 	 */
 	public void setAdminPassword(String adminPassword) {
 		if (!Objects.equals(this.adminPassword, adminPassword)) {
-			// JWT issued-at claims have second precision
-			this.passwordChangedDate = new Date((System.currentTimeMillis() / 1000) * 1000);
+			this.passwordChanged = System.currentTimeMillis();
 		}
 		this.adminPassword = adminPassword;
 	}
 
 	public Date getPasswordChangedDate() {
-		return passwordChangedDate;
+		return passwordChanged == null ? null : new Date(passwordChanged);
 	}
 
 	public void setPasswordChangedDate(Date passwordChangedDate) {
-		this.passwordChangedDate = passwordChangedDate;
+		this.passwordChanged = passwordChangedDate == null ? null : passwordChangedDate.getTime();
 	}
 
 	public String getFirstName() {
