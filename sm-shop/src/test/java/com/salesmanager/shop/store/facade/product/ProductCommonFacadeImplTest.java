@@ -34,14 +34,16 @@ public class ProductCommonFacadeImplTest {
 	private PersistableProductMapper persistableProductMapper;
 
 	@Test
-	public void saveProductRejectsProductOwnedByAnotherStore() throws Exception {
+	public void saveProductRejectsProductOwnedByParentStore() throws Exception {
 		MerchantStore acme = store(1, "ACME");
 		MerchantStore globex = store(2, "GLOBEX");
 		Product acmeProduct = product(10L, acme);
 		PersistableProduct body = persistableProduct(10L);
 		Language language = new Language();
 
-		when(productService.getById(10L)).thenReturn(acmeProduct);
+		acme.setParent(null);
+		globex.setParent(acme);
+		when(productService.findOne(10L, globex)).thenReturn(acmeProduct);
 
 		try {
 			productCommonFacade.saveProduct(globex, body, language);
@@ -59,7 +61,7 @@ public class ProductCommonFacadeImplTest {
 		MerchantStore store = store(2, "GLOBEX");
 		PersistableProduct body = persistableProduct(99L);
 
-		when(productService.getById(99L)).thenReturn(null);
+		when(productService.findOne(99L, store)).thenReturn(null);
 
 		try {
 			productCommonFacade.saveProduct(store, body, new Language());
@@ -76,7 +78,7 @@ public class ProductCommonFacadeImplTest {
 		PersistableProduct body = persistableProduct(10L);
 		Language language = new Language();
 
-		when(productService.getById(10L)).thenReturn(existing);
+		when(productService.findOne(10L, store)).thenReturn(existing);
 		when(persistableProductMapper.merge(body, existing, store, language)).thenReturn(existing);
 		when(productService.saveProduct(existing)).thenReturn(existing);
 
@@ -96,7 +98,7 @@ public class ProductCommonFacadeImplTest {
 		when(productService.saveProduct(created)).thenReturn(created);
 
 		assertEquals(Long.valueOf(11L), productCommonFacade.saveProduct(store, body, language));
-		verify(productService, never()).getById(any(Long.class));
+		verify(productService, never()).findOne(any(Long.class), any(MerchantStore.class));
 	}
 
 	private static MerchantStore store(int id, String code) {
