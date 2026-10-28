@@ -8,6 +8,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 import org.junit.Before;
@@ -114,6 +115,28 @@ public class StoreFacadeImplBrandTest {
 			storeFacade.createBrand(STORE_CODE, brand(null, Constants.KEY_PINTEREST_PAGE_URL, "new"));
 		} finally {
 			verify(merchantConfigurationService, never()).saveOrUpdate(any());
+		}
+	}
+
+	@Test(expected = RestApiException.class)
+	public void laterNonSocialRowRejectsWholeRequestBeforeAnyWrite() throws Exception {
+		MerchantConfiguration nonSocial = socialRow(7L, Constants.KEY_INSTAGRAM_URL, "v");
+		nonSocial.setMerchantConfigurationType(MerchantConfigurationType.INTEGRATION);
+		when(merchantConfigurationService.getMerchantConfiguration(Constants.KEY_FACEBOOK_PAGE_URL, store))
+				.thenReturn(null);
+		when(merchantConfigurationService.getMerchantConfiguration(Constants.KEY_INSTAGRAM_URL, store))
+				.thenReturn(nonSocial);
+
+		PersistableBrand request = brand(null, Constants.KEY_FACEBOOK_PAGE_URL, "https://facebook.com/mugs");
+		MerchantConfigEntity instagram = new MerchantConfigEntity();
+		instagram.setKey(Constants.KEY_INSTAGRAM_URL);
+		instagram.setValue("https://instagram.com/mugs");
+		request.setSocialNetworks(Arrays.asList(request.getSocialNetworks().get(0), instagram));
+		try {
+			storeFacade.createBrand(STORE_CODE, request);
+		} finally {
+			verify(merchantConfigurationService, never()).saveOrUpdate(any());
+			verify(merchantConfigurationService, never()).delete(any());
 		}
 	}
 

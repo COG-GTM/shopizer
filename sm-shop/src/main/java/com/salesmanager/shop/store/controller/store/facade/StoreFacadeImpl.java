@@ -417,14 +417,22 @@ public class StoreFacadeImpl implements StoreFacade {
 		}
 
 		try {
+			// rows are always resolved by (store, key); the client supplied id is ignored.
+			// Everything is validated before the first write so a rejected request changes nothing.
+			List<MerchantConfiguration> existingConfigs = new ArrayList<>();
 			for (MerchantConfigEntity socialNetwork : socialNetworks) {
-				// rows are always resolved by (store, key); the client supplied id is ignored
 				MerchantConfiguration existing = merchantConfigurationService
 						.getMerchantConfiguration(socialNetwork.getKey(), mStore);
 				if (existing != null && existing.getMerchantConfigurationType() != MerchantConfigurationType.SOCIAL) {
 					throw new RestApiException("400",
 							"Configuration [" + socialNetwork.getKey() + "] is not a social network configuration");
 				}
+				existingConfigs.add(existing);
+			}
+
+			for (int i = 0; i < socialNetworks.size(); i++) {
+				MerchantConfigEntity socialNetwork = socialNetworks.get(i);
+				MerchantConfiguration existing = existingConfigs.get(i);
 				if (!StringUtils.isEmpty(socialNetwork.getValue())) {
 					MerchantConfiguration config = existing != null ? existing : new MerchantConfiguration();
 					config.setMerchantStore(mStore);
