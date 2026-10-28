@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -143,6 +145,8 @@ public class OrderServiceImpl  extends SalesManagerEntityServiceImpl<Long, Order
     	}
 
 
+    	Map<ProductAvailability, Integer> inventory = reserveInventory(order, store);
+
     	//first process payment
     	Transaction processTransaction = paymentService.processPayment(customer, store, payment, items, order);
 
@@ -187,31 +191,95 @@ public class OrderServiceImpl  extends SalesManagerEntityServiceImpl<Long, Order
     		}
     	}
 
-        /**
-         * decrement inventory
-         */
-    	LOGGER.debug( "Update inventory" );
-        Set<OrderProduct> products = order.getOrderProducts();
-        for(OrderProduct orderProduct : products) {
-            orderProduct.getProductQuantity();
-            Product p = productService.getById(orderProduct.getId());
-            if(p == null)
-                throw new ServiceException(ServiceException.EXCEPTION_INVENTORY_MISMATCH);
-            for(ProductAvailability availability : p.getAvailabilities()) {
-                int qty = availability.getProductQuantity();
-                if(qty < orderProduct.getProductQuantity()) {
-                    //throw new ServiceException(ServiceException.EXCEPTION_INVENTORY_MISMATCH);
-                	LOGGER.error("APP-BACKEND [" + ServiceException.EXCEPTION_INVENTORY_MISMATCH + "]");
-                }
-                qty = qty - orderProduct.getProductQuantity();
-                availability.setProductQuantity(qty);
-            }
-            productService.update(p);
-        }
-
-
+        LOGGER.debug( "Update inventory" );
+        decrementInventory(inventory);
 
     	return order;
+    }
+
+    /**
+     * Resolves the stock record of every order line from the purchased product
+     * sku in the order store and checks quantities, before any payment is taken.
+     */
+    private Map<ProductAvailability, Integer> reserveInventory(Order order, MerchantStore store) throws ServiceException {
+        Map<ProductAvailability, Integer> requested = new LinkedHashMap<ProductAvailability, Integer>();
+        Set<OrderProduct> orderProducts = order.getOrderProducts();
+        if(CollectionUtils.isEmpty(orderProducts)) {
+            return requested;
+        }
+        for(OrderProduct orderProduct : orderProducts) {
+            int quantity = orderProduct.getProductQuantity();
+            if(quantity <= 0) {
+                throw inventoryMismatch("Invalid quantity for sku [" + orderProduct.getSku() + "]");
+            }
+            ProductAvailability availability = availabilityFor(orderProduct.getSku(), store);
+            Integer current = requested.get(availability);
+            requested.put(availability, current == null ? quantity : current + quantity);
+        }
+        for(Map.Entry<ProductAvailability, Integer> entry : requested.entrySet()) {
+            Integer onHand = entry.getKey().getProductQuantity();
+            if(onHand == null || onHand < entry.getValue()) {
+                throw inventoryMismatch("Insufficient quantity for sku [" + entry.getKey().getProduct().getSku() + "]");
+            }
+        }
+        return requested;
+    }
+
+    private ProductAvailability availabilityFor(String sku, MerchantStore store) throws ServiceException {
+        if(StringUtils.isBlank(sku)) {
+            throw inventoryMismatch("Order product has no sku");
+        }
+        Product product;
+        try {
+            product = productService.getBySku(sku, store);
+        } catch (ServiceException e) {
+            throw inventoryMismatch("No product with sku [" + sku + "]");
+        }
+        if(product == null || product.getMerchantStore() == null
+                || !store.getId().equals(product.getMerchantStore().getId())) {
+            throw inventoryMismatch("No product with sku [" + sku + "]");
+        }
+
+        ProductAvailability variantMatch = null;
+        ProductAvailability productLevel = null;
+        ProductAvailability any = null;
+        for(ProductAvailability availability : product.getAvailabilities()) {
+            boolean allRegions = Constants.ALL_REGIONS.equals(availability.getRegion());
+            if(any == null || allRegions) {
+                any = availability;
+            }
+            if(availability.getProductVariant() != null) {
+                if(sku.equals(availability.getProductVariant().getSku())
+                        && (variantMatch == null || allRegions)) {
+                    variantMatch = availability;
+                }
+            } else if(productLevel == null || allRegions) {
+                productLevel = availability;
+            }
+        }
+        ProductAvailability availability = variantMatch != null ? variantMatch
+                : productLevel != null ? productLevel : any;
+        if(availability == null) {
+            throw inventoryMismatch("No inventory for sku [" + sku + "]");
+        }
+        return availability;
+    }
+
+    private void decrementInventory(Map<ProductAvailability, Integer> inventory) throws ServiceException {
+        Set<Product> products = new LinkedHashSet<Product>();
+        for(Map.Entry<ProductAvailability, Integer> entry : inventory.entrySet()) {
+            ProductAvailability availability = entry.getKey();
+            availability.setProductQuantity(availability.getProductQuantity() - entry.getValue());
+            products.add(availability.getProduct());
+        }
+        for(Product product : products) {
+            productService.update(product);
+        }
+    }
+
+    private ServiceException inventoryMismatch(String message) {
+        LOGGER.error("APP-BACKEND [" + ServiceException.EXCEPTION_INVENTORY_MISMATCH + "] " + message);
+        return new ServiceException(ServiceException.EXCEPTION_INVENTORY_MISMATCH, message);
     }
 
     private OrderTotalSummary caculateOrder(OrderSummary summary, Customer customer, final MerchantStore store, final Language language) throws Exception {
