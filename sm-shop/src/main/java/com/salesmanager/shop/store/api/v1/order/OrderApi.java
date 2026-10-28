@@ -365,7 +365,7 @@ public class OrderApi {
 			}
 
 			ShoppingCart cart = shoppingCartService.getByCode(code, merchantStore);
-			if (cart == null) {
+			if (cart == null || !isCartOwnedBy(cart, customer)) {
 				throw new ResourceNotFoundException("Cart code " + code + " does not exist");
 			}
 
@@ -381,6 +381,8 @@ public class OrderApi {
 
 
 
+		} catch (ResourceNotFoundException e) {
+			throw e;
 		} catch (Exception e) {
 			LOGGER.error("Error while processing checkout", e);
 			try {
@@ -389,6 +391,14 @@ public class OrderApi {
 			}
 			return null;
 		}
+	}
+
+	/**
+	 * A cart bound to a customer can only be checked out by that customer.
+	 * Anonymous carts (no customer) may be claimed by the authenticated caller.
+	 */
+	private boolean isCartOwnedBy(ShoppingCart cart, Customer customer) {
+		return cart.getCustomerId() == null || cart.getCustomerId().equals(customer.getId());
 	}
 
 	/**
