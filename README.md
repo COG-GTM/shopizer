@@ -38,8 +38,10 @@ Headless demo Available soon
 From the command line:
 
 ```
-docker run -p 8080:8080 shopizerecomm/shopizer:latest
+docker run -e "JWT_SECRET=$(openssl rand -base64 64)" -p 8080:8080 shopizerecomm/shopizer:latest
 ```
+
+The backend refuses to start unless `JWT_SECRET` is set. It is the HS512 key that signs every admin and customer API token, so generate a random value of at least 64 bytes for each deployment, keep it in your secret manager, and never commit it or bake it into an image. Changing it invalidates all issued tokens.
        
 2. Run the administration tool
 
