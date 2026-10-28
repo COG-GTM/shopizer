@@ -47,6 +47,11 @@ public class SESEmailSenderImpl implements EmailModule {
 
   @Override
   public void send(Email email) throws Exception {
+    send(email, null);
+  }
+
+  @Override
+  public void send(Email email, EmailConfig emailConfig) throws Exception {
 
 
 
@@ -90,10 +95,5 @@ public class SESEmailSenderImpl implements EmailModule {
 
   }
 
-  @Override
-  public void setEmailConfig(EmailConfig emailConfig) {
-    // TODO Auto-generated method stub
-
-  }
 
 }

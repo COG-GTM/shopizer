@@ -16,6 +16,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.mail.MailPreparationException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
@@ -35,12 +36,22 @@ public class DefaultEmailSenderImpl implements EmailModule {
   private JavaMailSender mailSender;
 
   private static final String CHARSET = "UTF-8";
-  private EmailConfig emailConfig;
 
   private final static String TEMPLATE_PATH = "templates/email";
 
   @Override
   public void send(Email email) throws Exception {
+    send(email, null);
+  }
+
+  /**
+   * The injected {@code mailSender} bean is shared by every store and is never mutated; a store
+   * with its own configuration gets a dedicated sender for this message only.
+   */
+  @Override
+  public void send(Email email, EmailConfig emailConfig) throws Exception {
+
+    final JavaMailSender sender = emailConfig != null ? createMailSender(emailConfig) : mailSender;
 
     final String eml = email.getFrom();
     final String from = email.getFromEmail();
@@ -51,21 +62,6 @@ public class DefaultEmailSenderImpl implements EmailModule {
 
     MimeMessagePreparator preparator = new MimeMessagePreparator() {
       public void prepare(MimeMessage mimeMessage) throws MessagingException, IOException {
-
-        JavaMailSenderImpl impl = (JavaMailSenderImpl) mailSender;
-        // if email configuration is present in Database, use the same
-        if (emailConfig != null) {
-          impl.setProtocol(emailConfig.getProtocol());
-          impl.setHost(emailConfig.getHost());
-          impl.setPort(Integer.parseInt(emailConfig.getPort()));
-          impl.setUsername(emailConfig.getUsername());
-          impl.setPassword(emailConfig.getPassword());
-
-          Properties prop = new Properties();
-          prop.put("mail.smtp.auth", emailConfig.isSmtpAuth());
-          prop.put("mail.smtp.starttls.enable", emailConfig.isStarttls());
-          impl.setJavaMailProperties(prop);
-        }
 
         mimeMessage.setRecipient(Message.RecipientType.TO, new InternetAddress(to));
 
@@ -158,7 +154,35 @@ public class DefaultEmailSenderImpl implements EmailModule {
       }
     };
 
-    mailSender.send(preparator);
+    sender.send(preparator);
+  }
+
+  JavaMailSender createMailSender(EmailConfig emailConfig) {
+    if (StringUtils.isBlank(emailConfig.getHost())) {
+      throw new IllegalArgumentException("Store email configuration has no host");
+    }
+    int port;
+    try {
+      port = Integer.parseInt(StringUtils.trimToEmpty(emailConfig.getPort()));
+    } catch (NumberFormatException e) {
+      throw new IllegalArgumentException("Store email configuration has an invalid port");
+    }
+    if (port < 1 || port > 65535) {
+      throw new IllegalArgumentException("Store email configuration has an invalid port");
+    }
+
+    JavaMailSenderImpl impl = new JavaMailSenderImpl();
+    impl.setProtocol(StringUtils.defaultIfBlank(emailConfig.getProtocol(), JavaMailSenderImpl.DEFAULT_PROTOCOL));
+    impl.setHost(emailConfig.getHost().trim());
+    impl.setPort(port);
+    impl.setUsername(emailConfig.getUsername());
+    impl.setPassword(emailConfig.getPassword());
+
+    Properties prop = new Properties();
+    prop.setProperty("mail.smtp.auth", String.valueOf(emailConfig.isSmtpAuth()));
+    prop.setProperty("mail.smtp.starttls.enable", String.valueOf(emailConfig.isStarttls()));
+    impl.setJavaMailProperties(prop);
+    return impl;
   }
 
   public Configuration getFreemarkerMailConfiguration() {
@@ -175,14 +199,6 @@ public class DefaultEmailSenderImpl implements EmailModule {
 
   public void setMailSender(JavaMailSender mailSender) {
     this.mailSender = mailSender;
-  }
-
-  public EmailConfig getEmailConfig() {
-    return emailConfig;
-  }
-
-  public void setEmailConfig(EmailConfig emailConfig) {
-    this.emailConfig = emailConfig;
   }
 
 }
