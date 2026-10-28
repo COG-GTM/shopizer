@@ -21,6 +21,7 @@ import com.salesmanager.core.model.payments.Payment;
 import com.salesmanager.core.model.payments.PaymentType;
 import com.salesmanager.core.model.payments.Transaction;
 import com.salesmanager.core.model.payments.TransactionType;
+import com.salesmanager.core.model.shoppingcart.ShoppingCart;
 import com.salesmanager.core.model.shoppingcart.ShoppingCartItem;
 import com.salesmanager.core.model.system.IntegrationConfiguration;
 import com.salesmanager.core.model.system.IntegrationModule;
@@ -183,10 +184,12 @@ public class Stripe3Payment implements PaymentModule {
 					token
 			);
 
-			validateAuthorizedIntent(paymentIntent, store, amount);
+			ShoppingCart cart = items == null || items.isEmpty() ? null : items.get(0).getShoppingCart();
+
+			validateAuthorizedIntent(paymentIntent, store, amount, cart);
 
 			paymentIntent = paymentIntent.update(PaymentIntentUpdateParams.builder()
-					.putMetadata(AUTHORIZED_METADATA, "true")
+					.putMetadata(AUTHORIZED_METADATA, authorizationOwner(cart))
 					.build());
 			
 			transaction.setAmount(amount);
@@ -213,15 +216,23 @@ public class Stripe3Payment implements PaymentModule {
 	private static final String PAYMENT_INTENT_REQUIRES_CAPTURE = "requires_capture";
 	static final String AUTHORIZED_METADATA = "shopizer_order_authorized";
 
-	void validateAuthorizedIntent(PaymentIntent paymentIntent, MerchantStore store, BigDecimal amount)
-			throws IntegrationException {
+	/**
+	 * The intent is tagged with the cart that used it so a failed checkout of
+	 * the same, not yet ordered, cart can retry while other carts or orders
+	 * cannot reuse it.
+	 */
+	void validateAuthorizedIntent(PaymentIntent paymentIntent, MerchantStore store, BigDecimal amount,
+			ShoppingCart cart) throws IntegrationException {
 
 		if (paymentIntent == null || !PAYMENT_INTENT_REQUIRES_CAPTURE.equals(paymentIntent.getStatus())) {
 			throw declined("Stripe payment intent is not authorized (status "
 					+ (paymentIntent == null ? null : paymentIntent.getStatus()) + ")");
 		}
 
-		if (paymentIntent.getMetadata() != null && paymentIntent.getMetadata().containsKey(AUTHORIZED_METADATA)) {
+		String owner = paymentIntent.getMetadata() == null ? null : paymentIntent.getMetadata().get(AUTHORIZED_METADATA);
+		boolean retryOfSameCart = cart != null && cart.getId() != null && cart.getOrderId() == null
+				&& authorizationOwner(cart).equals(owner);
+		if (owner != null && !retryOfSameCart) {
 			throw declined("Stripe payment intent " + paymentIntent.getId() + " is already used by another order");
 		}
 
@@ -241,6 +252,10 @@ public class Stripe3Payment implements PaymentModule {
 			throw declined("Stripe payment intent authorized amount " + authorized
 					+ " is lower than the order total " + required);
 		}
+	}
+
+	private String authorizationOwner(ShoppingCart cart) {
+		return cart == null || cart.getId() == null ? "unknown" : "cart-" + cart.getId();
 	}
 
 	private long toStripeAmount(BigDecimal amount) {

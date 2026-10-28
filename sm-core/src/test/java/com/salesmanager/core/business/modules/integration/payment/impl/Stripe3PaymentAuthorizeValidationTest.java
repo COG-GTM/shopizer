@@ -12,6 +12,7 @@ import org.junit.Test;
 
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.currency.Currency;
+import com.salesmanager.core.model.shoppingcart.ShoppingCart;
 import com.salesmanager.core.modules.integration.IntegrationException;
 import com.stripe.model.PaymentIntent;
 
@@ -33,7 +34,7 @@ public class Stripe3PaymentAuthorizeValidationTest {
 
 	@Test
 	public void acceptsCapturableIntentCoveringOrderTotal() throws Exception {
-		stripe.validateAuthorizedIntent(intent("requires_capture", 12000L, 12000L), store, ORDER_TOTAL);
+		stripe.validateAuthorizedIntent(intent("requires_capture", 12000L, 12000L), store, ORDER_TOTAL, cart(1L, null));
 	}
 
 	@Test
@@ -63,8 +64,34 @@ public class Stripe3PaymentAuthorizeValidationTest {
 	@Test
 	public void rejectsIntentAlreadyUsedByAnotherOrder() {
 		PaymentIntent intent = intent("requires_capture", 12000L, 12000L);
-		intent.setMetadata(Collections.singletonMap(Stripe3Payment.AUTHORIZED_METADATA, "true"));
+		intent.setMetadata(Collections.singletonMap(Stripe3Payment.AUTHORIZED_METADATA, "cart-2"));
 		assertRejected(intent);
+	}
+
+	@Test
+	public void allowsRetryFromSameCartWithoutOrder() throws Exception {
+		PaymentIntent intent = intent("requires_capture", 12000L, 12000L);
+		intent.setMetadata(Collections.singletonMap(Stripe3Payment.AUTHORIZED_METADATA, "cart-1"));
+		stripe.validateAuthorizedIntent(intent, store, ORDER_TOTAL, cart(1L, null));
+	}
+
+	@Test
+	public void rejectsReuseFromSameCartAfterOrder() {
+		PaymentIntent intent = intent("requires_capture", 12000L, 12000L);
+		intent.setMetadata(Collections.singletonMap(Stripe3Payment.AUTHORIZED_METADATA, "cart-1"));
+		try {
+			stripe.validateAuthorizedIntent(intent, store, ORDER_TOTAL, cart(1L, 99L));
+			fail("Expected IntegrationException");
+		} catch (IntegrationException e) {
+			// expected
+		}
+	}
+
+	private ShoppingCart cart(Long id, Long orderId) {
+		ShoppingCart cart = new ShoppingCart();
+		cart.setId(id);
+		cart.setOrderId(orderId);
+		return cart;
 	}
 
 	@Test
@@ -74,7 +101,7 @@ public class Stripe3PaymentAuthorizeValidationTest {
 
 	private void assertRejected(PaymentIntent intent) {
 		try {
-			stripe.validateAuthorizedIntent(intent, store, ORDER_TOTAL);
+			stripe.validateAuthorizedIntent(intent, store, ORDER_TOTAL, cart(1L, null));
 			fail("Expected IntegrationException");
 		} catch (IntegrationException e) {
 			// expected
