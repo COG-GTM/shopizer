@@ -121,6 +121,22 @@ public class StoreFacadeImplBrandTest {
   }
 
   @Test
+  public void reservedExistingRowLaterInBatchPreventsEarlierWrites() throws Exception {
+    when(merchantConfigurationService.getMerchantConfiguration(Constants.KEY_GOOGLE_API_KEY, store))
+        .thenReturn(row(Constants.KEY_GOOGLE_API_KEY, MerchantConfigurationType.INTEGRATION));
+    PersistableBrand brand = brand(Constants.KEY_FACEBOOK_PAGE_URL, "https://facebook.com/mugs", null);
+    brand.getSocialNetworks().add(entity(Constants.KEY_GOOGLE_API_KEY, "abc", null));
+    try {
+      storeFacade.createBrand("MALLORY", brand);
+      fail("expected rejection");
+    } catch (OperationNotAllowedException expected) {
+      // expected
+    }
+    verify(merchantConfigurationService, never()).saveOrUpdate(any());
+    verify(merchantConfigurationService, never()).delete(any());
+  }
+
+  @Test
   public void blankValueDeletesExistingSocialRow() throws Exception {
     MerchantConfiguration existing = row(Constants.KEY_TWITTER_HANDLE, MerchantConfigurationType.SOCIAL);
     when(merchantConfigurationService.getMerchantConfiguration(Constants.KEY_TWITTER_HANDLE, store)).thenReturn(existing);

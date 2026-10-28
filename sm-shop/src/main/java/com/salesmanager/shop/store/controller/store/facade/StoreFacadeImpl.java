@@ -422,12 +422,19 @@ public class StoreFacadeImpl implements StoreFacade {
 		}
 
 		try {
+			List<MerchantConfiguration> existingConfigs = new ArrayList<>();
 			for (MerchantConfigEntity config : createdConfigs) {
 				MerchantConfiguration existing = merchantConfigurationService
 						.getMerchantConfiguration(config.getKey(), mStore);
 				if (existing != null && existing.getMerchantConfigurationType() != MerchantConfigurationType.SOCIAL) {
 					throw new OperationNotAllowedException("Branding key [" + config.getKey() + "] is reserved");
 				}
+				existingConfigs.add(existing);
+			}
+
+			for (int i = 0; i < createdConfigs.size(); i++) {
+				MerchantConfigEntity config = createdConfigs.get(i);
+				MerchantConfiguration existing = existingConfigs.get(i);
 				if (!StringUtils.isEmpty(config.getValue())) {
 					MerchantConfiguration mConfig = existing != null ? existing : new MerchantConfiguration();
 					mConfig.setKey(config.getKey());
