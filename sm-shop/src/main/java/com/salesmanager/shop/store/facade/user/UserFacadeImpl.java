@@ -1,6 +1,7 @@
 package com.salesmanager.shop.store.facade.user;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -375,12 +376,11 @@ public class UserFacadeImpl implements UserFacade {
 		try {
 			User user = userService.findByStore(id, merchant);
 			if (user == null) {
-				throw new ServiceRuntimeException("Cannot find user [" + id + "]");
+				throw new ResourceNotFoundException("User [" + id + "] not found for store [" + merchant + "]");
 			}
 
-			// cannot delete superadmin
-			if (user.getGroups().contains(Constants.GROUP_SUPERADMIN)) {
-				throw new ServiceRuntimeException("Cannot delete superadmin user [" + id + "]");
+			if (isSuperadmin(user)) {
+				throw new OperationNotAllowedException("Cannot delete superadmin user [" + id + "]");
 			}
 
 			userService.delete(user);
@@ -608,6 +608,11 @@ public class UserFacadeImpl implements UserFacade {
 
 	}
 
+	private boolean isSuperadmin(User user) {
+		return user.getGroups() != null && user.getGroups().stream()
+				.anyMatch(group -> Constants.GROUP_SUPERADMIN.equals(group.getGroupName()));
+	}
+
 	@Override
 	public boolean userInRoles(String userName, List<String> groupNames) {
 
@@ -632,6 +637,10 @@ public class UserFacadeImpl implements UserFacade {
 			if (modelUser == null) {
 				throw new ResourceNotFoundException(
 						"User with id [" + user.getId() + "] not found for store [" + store.getCode() + "]");
+			}
+
+			if (isSuperadmin(modelUser) && !userInRoles(authenticatedUser(), Arrays.asList(Constants.GROUP_SUPERADMIN))) {
+				throw new UnauthorizedException("Only a superadmin can change the enabled flag of a superadmin user");
 			}
 
 			modelUser.setActive(user.isActive());

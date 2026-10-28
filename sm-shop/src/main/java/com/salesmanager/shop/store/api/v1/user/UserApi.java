@@ -215,6 +215,8 @@ public class UserApi {
 
 		userFacade.authorizedGroup(authenticatedUser, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN, Constants.GROUP_ADMIN_RETAIL).collect(Collectors.toList()));
 
+		authorizeStore(authenticatedUser, merchantStore);
+
 		user.setId(id);
 		userFacade.updateEnabled(merchantStore, user);
 	}
@@ -233,13 +235,19 @@ public class UserApi {
 			throw new UnauthorizedException();
 		}
 
-		if (!userFacade.userInRoles(authenticatedUser, Arrays.asList(Constants.GROUP_SUPERADMIN))) {
-			userFacade.authorizedStore(authenticatedUser, merchantStore.getCode());
-		}
-
 		userFacade.authorizedGroup(authenticatedUser, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN, Constants.GROUP_ADMIN_RETAIL).collect(Collectors.toList()));
 
+		authorizeStore(authenticatedUser, merchantStore);
+
 		userFacade.delete(id, merchantStore.getCode());
+	}
+
+	private void authorizeStore(String authenticatedUser, MerchantStore merchantStore) {
+		if (!userFacade.userInRoles(authenticatedUser, Arrays.asList(Constants.GROUP_SUPERADMIN))
+				&& !userFacade.authorizedStore(authenticatedUser, merchantStore.getCode())) {
+			throw new UnauthorizedException("Operation unauthorized for user [" + authenticatedUser
+					+ "] and store [" + merchantStore.getCode() + "]");
+		}
 	}
 
 	@ResponseStatus(HttpStatus.OK)
