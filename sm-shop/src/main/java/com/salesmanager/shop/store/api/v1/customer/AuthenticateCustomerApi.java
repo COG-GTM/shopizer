@@ -139,7 +139,7 @@ public class AuthenticateCustomerApi {
 
             // Reload password post-security so we can generate token
             final JWTUser userDetails = (JWTUser)jwtCustomerDetailsService.loadUserByUsername(customer.getUserName());
-            final String token = jwtTokenUtil.generateToken(userDetails);
+            final String token = jwtTokenUtil.generateCustomerToken(userDetails);
 
             // Return the token
             return ResponseEntity.ok(new AuthenticationResponse(customer.getId(),token));
@@ -189,7 +189,7 @@ public class AuthenticateCustomerApi {
         // todo create one for social
         final JWTUser userDetails = (JWTUser)jwtCustomerDetailsService.loadUserByUsername(authenticationRequest.getUsername());
         
-        final String token = jwtTokenUtil.generateToken(userDetails);
+        final String token = jwtTokenUtil.generateCustomerToken(userDetails);
 
         // Return the token
         return ResponseEntity.ok(new AuthenticationResponse(userDetails.getId(),token));
@@ -198,6 +198,14 @@ public class AuthenticateCustomerApi {
     @RequestMapping(value = "/auth/customer/refresh", method = RequestMethod.GET, produces ={ "application/json" })
     public ResponseEntity<?> refreshToken(HttpServletRequest request) {
         String token = request.getHeader(tokenHeader);
+
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring("Bearer ".length());
+        }
+
+        if (token == null || !jwtTokenUtil.isTokenOfType(token, JWTTokenUtil.TOKEN_TYPE_CUSTOMER)) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
 
         String username = jwtTokenUtil.getUsernameFromToken(token);
         JWTUser user = (JWTUser) jwtCustomerDetailsService.loadUserByUsername(username);

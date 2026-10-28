@@ -97,7 +97,7 @@ public class AuthenticateUserApi {
         // Reload password post-security so we can generate token
         final JWTUser userDetails = (JWTUser)jwtAdminDetailsService.loadUserByUsername(authenticationRequest.getUsername());
         
-        final String token = jwtTokenUtil.generateToken(userDetails);
+        final String token = jwtTokenUtil.generateAdminToken(userDetails);
 
         // Return the token
         return ResponseEntity.ok(new AuthenticationResponse(userDetails.getId(),token));
@@ -112,6 +112,10 @@ public class AuthenticateUserApi {
           token = token.substring("Bearer ".length(),token.length());
         }
         
+        if (!jwtTokenUtil.isTokenOfType(token, JWTTokenUtil.TOKEN_TYPE_ADMIN)) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
         String username = jwtTokenUtil.getUsernameFromToken(token);
         JWTUser user = (JWTUser) jwtAdminDetailsService.loadUserByUsername(username);
 
