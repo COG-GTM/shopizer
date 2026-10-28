@@ -114,8 +114,22 @@ public class ManufacturerFacadeImpl implements ManufacturerFacade {
   @Override
   public void deleteManufacturer(Manufacturer manufacturer, MerchantStore store, Language language)
       throws Exception {
-    manufacturerService.delete(manufacturer);
+    Validate.notNull(manufacturer, "Manufacturer cannot be null");
+    Validate.notNull(store, "MerchantStore cannot be null");
 
+    Manufacturer persisted = manufacturer.getId() == null ? null : manufacturerService.getById(manufacturer.getId());
+    if (persisted == null || !belongsToStore(persisted, store)) {
+      throw new ResourceNotFoundException("Manufacturer [" + manufacturer.getId() + "] not found for store [" + store.getId() + "]");
+    }
+
+    manufacturerService.delete(persisted);
+
+  }
+
+  private boolean belongsToStore(Manufacturer manufacturer, MerchantStore store) {
+    return manufacturer.getMerchantStore() != null
+        && manufacturer.getMerchantStore().getId() != null
+        && manufacturer.getMerchantStore().getId().equals(store.getId());
   }
 
   @Override
@@ -129,7 +143,7 @@ public class ManufacturerFacadeImpl implements ManufacturerFacade {
       throw new ResourceNotFoundException("Manufacturer [" + id + "] not found");
     }
     
-    if(manufacturer.getMerchantStore().getId() != store.getId()) {
+    if(!belongsToStore(manufacturer, store)) {
       throw new ResourceNotFoundException("Manufacturer [" + id + "] not found for store [" + store.getId() + "]");
     }
 

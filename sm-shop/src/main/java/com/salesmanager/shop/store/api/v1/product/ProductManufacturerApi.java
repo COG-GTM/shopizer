@@ -28,6 +28,7 @@ import com.salesmanager.shop.model.catalog.manufacturer.ReadableManufacturer;
 import com.salesmanager.shop.model.catalog.manufacturer.ReadableManufacturerList;
 import com.salesmanager.shop.model.entity.EntityExists;
 import com.salesmanager.shop.model.entity.ListCriteria;
+import com.salesmanager.shop.store.api.exception.ResourceNotFoundException;
 import com.salesmanager.shop.store.controller.manufacturer.facade.ManufacturerFacade;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -204,6 +205,11 @@ public class ProductManufacturerApi {
 				response.sendError(404, "No Manufacturer found for ID : " + id);
 			}
 
+		} catch (ResourceNotFoundException e) {
+			try {
+				response.sendError(404, "No Manufacturer found for ID : " + id);
+			} catch (Exception ignore) {
+			}
 		} catch (Exception e) {
 			LOGGER.error("Error while deleting manufacturer id " + id, e);
 			try {
