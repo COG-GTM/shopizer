@@ -1,5 +1,7 @@
 package com.salesmanager.shop.store.api.v1.product;
 
+import java.util.Arrays;
+
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -23,9 +25,12 @@ import com.salesmanager.core.business.services.catalog.product.ProductService;
 import com.salesmanager.core.model.catalog.product.Product;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
+import com.salesmanager.shop.constants.Constants;
 import com.salesmanager.shop.model.catalog.product.ReadableProductList;
 import com.salesmanager.shop.model.catalog.product.group.ProductGroup;
+import com.salesmanager.shop.store.api.exception.UnauthorizedException;
 import com.salesmanager.shop.store.controller.items.facade.ProductItemsFacade;
+import com.salesmanager.shop.store.controller.user.facade.UserFacade;
 
 import antlr.collections.List;
 import io.swagger.annotations.Api;
@@ -52,6 +57,8 @@ public class ProductGroupApi {
 
   @Inject private ProductItemsFacade productItemsFacade;
 
+  @Inject private UserFacade userFacade;
+
   private static final Logger LOGGER = LoggerFactory.getLogger(ProductGroupApi.class);
 
   @ResponseStatus(HttpStatus.OK)
@@ -67,7 +74,8 @@ public class ProductGroupApi {
 			@ApiIgnore Language language,
       HttpServletResponse response)
       throws Exception {
-	  
+
+	  authorizeProductGroupManagement();
 	  return productItemsFacade.createProductGroup(group, merchantStore);
 
   }
@@ -86,7 +94,8 @@ public class ProductGroupApi {
 			@ApiIgnore Language language,
       HttpServletResponse response)
       throws Exception {
-	  
+
+	  authorizeProductGroupManagement();
 	  productItemsFacade.updateProductGroup(code, group, merchantStore);
 
   }
@@ -165,11 +174,12 @@ public class ProductGroupApi {
       @ApiIgnore Language language,
       HttpServletResponse response) {
 
-	  
+	authorizeProductGroupManagement();
+
 	Product product = null;
     try {
       // get the product
-    	product = productService.getById(productId);
+    	product = productService.findOne(productId, merchantStore);
 
       if (product == null) {
         response.sendError(404, "Product not fount for id " + productId);
@@ -210,9 +220,11 @@ public class ProductGroupApi {
       HttpServletRequest request,
       HttpServletResponse response) {
 
+    authorizeProductGroupManagement();
+
     try {
       // get the product
-      Product product = productService.getById(productId);
+      Product product = productService.findOne(productId, merchantStore);
 
       if (product == null) {
         response.sendError(404, "Product not fount for id " + productId);
@@ -236,7 +248,7 @@ public class ProductGroupApi {
   }
   
   @ResponseStatus(HttpStatus.OK)
-  @DeleteMapping("/products/group/{code}")
+  @DeleteMapping("/private/products/group/{code}")
   @ApiOperation(httpMethod = "DELETE", value = "Delete product group by group code", notes = "", response = Void.class)
   @ApiImplicitParams({
       @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
@@ -247,8 +259,18 @@ public class ProductGroupApi {
 	  @ApiIgnore MerchantStore merchantStore,
 	  @ApiIgnore Language language,
       HttpServletResponse response) {
-	  
+
+	  authorizeProductGroupManagement();
 	  productItemsFacade.deleteGroup(code, merchantStore);
 
+  }
+
+  private void authorizeProductGroupManagement() {
+    String authenticatedUser = userFacade.authenticatedUser();
+    if (authenticatedUser == null) {
+      throw new UnauthorizedException();
+    }
+    userFacade.authorizedGroup(authenticatedUser, Arrays.asList(Constants.GROUP_SUPERADMIN,
+        Constants.GROUP_ADMIN, Constants.GROUP_ADMIN_CATALOGUE, Constants.GROUP_ADMIN_RETAIL));
   }
 }

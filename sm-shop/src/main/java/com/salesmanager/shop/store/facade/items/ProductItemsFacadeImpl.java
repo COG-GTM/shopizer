@@ -149,6 +149,8 @@ public class ProductItemsFacadeImpl implements ProductItemsFacade {
 		
 		Validate.notNull(product,"Product must not be null");
 		Validate.notNull(group,"group must not be null");
+		Validate.notNull(store,"MerchantStore must not be null");
+		assertProductBelongsToStore(product, store);
 		
 		
 		//check if product is already in group
@@ -187,7 +189,12 @@ public class ProductItemsFacadeImpl implements ProductItemsFacade {
 	@Override
 	public ReadableProductList removeItemFromGroup(Product product, String group, MerchantStore store,
 			Language language) throws Exception {
-		
+
+		Validate.notNull(product,"Product must not be null");
+		Validate.notNull(group,"group must not be null");
+		Validate.notNull(store,"MerchantStore must not be null");
+		assertProductBelongsToStore(product, store);
+
 		List<ProductRelationship> relationships = productRelationshipService
 				.getByType(store, product, group);
 		
@@ -197,6 +204,17 @@ public class ProductItemsFacadeImpl implements ProductItemsFacade {
 		}
 
 		return listItemsByGroup(group,store,language);
+	}
+
+	private void assertProductBelongsToStore(Product product, MerchantStore store) {
+		MerchantStore owner = product.getMerchantStore();
+		boolean owned = owner != null && owner.getId() != null
+				&& (owner.getId().equals(store.getId())
+						|| (store.getParent() != null && owner.getId().equals(store.getParent().getId())));
+		if (!owned) {
+			throw new ResourceNotFoundException(
+					"Product [" + product.getId() + "] not found for store [" + store.getCode() + "]");
+		}
 	}
 
 	@Override
