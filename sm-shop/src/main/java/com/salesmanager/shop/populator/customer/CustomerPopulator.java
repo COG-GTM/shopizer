@@ -59,10 +59,6 @@ public class CustomerPopulator extends
 
 		try {
 			
-			if(source.getId() !=null && source.getId()>0){
-			    target.setId( source.getId() );
-			}
-
 			if(!StringUtils.isBlank(source.getPassword())) {
 			  target.setPassword(passwordEncoder.encode(source.getPassword()));
 			  target.setNick(source.getUserName());
