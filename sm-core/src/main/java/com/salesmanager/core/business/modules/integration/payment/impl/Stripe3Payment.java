@@ -1,11 +1,15 @@
 package com.salesmanager.core.business.modules.integration.payment.impl;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -48,6 +52,12 @@ public class Stripe3Payment implements PaymentModule {
 	private final static String AUTHORIZATION = "Authorization";
 	private final static String TRANSACTION = "Transaction";
 
+	static final String STATUS_REQUIRES_CAPTURE = "requires_capture";
+	static final String STATUS_SUCCEEDED = "succeeded";
+
+	// zero-decimal in ISO 4217 but represented with two decimals by Stripe
+	private static final Set<String> STRIPE_TWO_DECIMAL_CURRENCIES = new HashSet<>(Arrays.asList("ISK", "UGX"));
+
 
 	@Override
 	public Transaction initTransaction(MerchantStore store, Customer customer,
@@ -56,12 +66,10 @@ public class Stripe3Payment implements PaymentModule {
 			throws IntegrationException {
 
 
-		String strAmount = String.valueOf(amount);
-		strAmount = strAmount.replace(".","");
-
 		Transaction transaction = new Transaction();
 		try {
 
+			long stripeAmount = toStripeAmount(amount, store);
 
 			String apiKey = configuration.getIntegrationKeys().get("secretKey");
 
@@ -78,7 +86,7 @@ public class Stripe3Payment implements PaymentModule {
 
 			PaymentIntentCreateParams createParams = new PaymentIntentCreateParams.Builder()
 					.setCurrency(store.getCurrency().getCode())
-					.setAmount(Long.parseLong(strAmount))
+					.setAmount(stripeAmount)
 					.setCaptureMethod(PaymentIntentCreateParams.CaptureMethod.MANUAL)
 					.build();
 
@@ -166,6 +174,9 @@ public class Stripe3Payment implements PaymentModule {
 			 * This is the PaymentIntent ID created on the Frontend, that we will now store.
 			 */
 			String token = payment.getPaymentMetaData().get("stripe_token");
+			if(StringUtils.isBlank(token)) { //possibly from api
+				token = payment.getPaymentMetaData().get("paymentToken");
+			}
 			
 			if(StringUtils.isBlank(token)) {
 				IntegrationException te = new IntegrationException(
@@ -178,9 +189,10 @@ public class Stripe3Payment implements PaymentModule {
 
 			Stripe.apiKey = apiKey;
 			
-			PaymentIntent paymentIntent = PaymentIntent.retrieve(
-					token
-			);
+			PaymentIntent paymentIntent = retrievePaymentIntent(token);
+
+			verifyPaymentIntent(paymentIntent, toStripeAmount(amount, store),
+					store.getCurrency().getCode(), STATUS_REQUIRES_CAPTURE);
 			
 			transaction.setAmount(amount);
 			//transaction.setOrder(order);
@@ -310,15 +322,7 @@ public class Stripe3Payment implements PaymentModule {
 		Transaction transaction = new Transaction();
 		try {
 			
-			String amnt = productPriceUtils.getAdminFormatedAmount(store, amount);
-			
-			//stripe does not support floating point
-			//so amnt * 100 or remove floating point
-			//553.47 = 55347
-			
-		
-			String strAmount = String.valueOf(amnt);
-			strAmount = strAmount.replace(".","");
+			long stripeAmount = toStripeAmount(amount, store);
 			
 			/*Map<String, Object> chargeParams = new HashMap<String, Object>();
 			chargeParams.put("amount", strAmount);
@@ -331,13 +335,14 @@ public class Stripe3Payment implements PaymentModule {
 			Stripe.apiKey = apiKey;
 			
 
-			PaymentIntent paymentIntent = PaymentIntent.retrieve(
-					token
-		  	);
+			PaymentIntent paymentIntent = retrievePaymentIntent(token);
+
+			String currency = store.getCurrency().getCode();
+			verifyPaymentIntent(paymentIntent, stripeAmount, currency, STATUS_REQUIRES_CAPTURE);
 
 			PaymentIntentCaptureParams params =
 					PaymentIntentCaptureParams.builder()
-							.setAmountToCapture(Long.parseLong(strAmount))
+							.setAmountToCapture(stripeAmount)
 							.setStatementDescriptor(
 									store.getStorename().length() > 22 ?
 											store.getStorename().substring(0, 22) :
@@ -345,7 +350,13 @@ public class Stripe3Payment implements PaymentModule {
 							)
 					.build();
 
-			paymentIntent = paymentIntent.capture(params);
+			paymentIntent = capturePaymentIntent(paymentIntent, params);
+
+			verifyPaymentIntent(paymentIntent, stripeAmount, currency, STATUS_SUCCEEDED);
+			if (paymentIntent.getAmountReceived() == null || paymentIntent.getAmountReceived().longValue() != stripeAmount) {
+				throw paymentIntentMismatch(paymentIntent, "amount_received " + paymentIntent.getAmountReceived()
+						+ " does not match order total " + stripeAmount);
+			}
 	
 			//Map<String,String> metadata = ch.getMetadata();
 			
@@ -440,6 +451,68 @@ public class Stripe3Payment implements PaymentModule {
 		
 	}
 	
+	PaymentIntent retrievePaymentIntent(String paymentIntentId) throws StripeException {
+		return PaymentIntent.retrieve(paymentIntentId);
+	}
+
+	PaymentIntent capturePaymentIntent(PaymentIntent paymentIntent, PaymentIntentCaptureParams params) throws StripeException {
+		return paymentIntent.capture(params);
+	}
+
+	/**
+	 * Converts an amount to the smallest currency unit expected by Stripe (553.47 USD = 55347).
+	 */
+	static long toStripeAmount(BigDecimal amount, MerchantStore store) throws IntegrationException {
+		if (amount == null || amount.signum() <= 0) {
+			IntegrationException te = new IntegrationException(
+					"Can't process Stripe, invalid amount " + amount);
+			te.setExceptionType(IntegrationException.TRANSACTION_EXCEPTION);
+			te.setMessageCode("message.payment.error");
+			te.setErrorCode(IntegrationException.TRANSACTION_EXCEPTION);
+			throw te;
+		}
+		String currencyCode = store.getCurrency().getCode();
+		int fractionDigits = STRIPE_TWO_DECIMAL_CURRENCIES.contains(currencyCode.toUpperCase())
+				? 2
+				: Math.max(store.getCurrency().getCurrency().getDefaultFractionDigits(), 0);
+		return amount.movePointRight(fractionDigits).setScale(0, RoundingMode.HALF_UP).longValueExact();
+	}
+
+	/**
+	 * The PaymentIntent id comes from the client, so the intent must be checked against
+	 * the server side order total, the store currency and the expected status before
+	 * the order is recorded as paid.
+	 */
+	static void verifyPaymentIntent(PaymentIntent paymentIntent, long expectedAmount,
+			String expectedCurrency, String expectedStatus) throws IntegrationException {
+		if (paymentIntent == null) {
+			throw paymentIntentMismatch(null, "PaymentIntent not found");
+		}
+		if (paymentIntent.getAmount() == null || paymentIntent.getAmount().longValue() != expectedAmount) {
+			throw paymentIntentMismatch(paymentIntent, "amount " + paymentIntent.getAmount()
+					+ " does not match order total " + expectedAmount);
+		}
+		if (paymentIntent.getCurrency() == null || !paymentIntent.getCurrency().equalsIgnoreCase(expectedCurrency)) {
+			throw paymentIntentMismatch(paymentIntent, "currency " + paymentIntent.getCurrency()
+					+ " does not match store currency " + expectedCurrency);
+		}
+		if (!expectedStatus.equals(paymentIntent.getStatus())) {
+			throw paymentIntentMismatch(paymentIntent, "status " + paymentIntent.getStatus()
+					+ " is not " + expectedStatus);
+		}
+	}
+
+	private static IntegrationException paymentIntentMismatch(PaymentIntent paymentIntent, String reason) {
+		String id = paymentIntent == null ? null : paymentIntent.getId();
+		LOGGER.warn("Rejecting Stripe PaymentIntent {}: {}", id, reason);
+		IntegrationException te = new IntegrationException(
+				"Can't process Stripe, PaymentIntent " + id + " rejected: " + reason);
+		te.setExceptionType(IntegrationException.TRANSACTION_EXCEPTION);
+		te.setMessageCode("message.payment.error");
+		te.setErrorCode(IntegrationException.TRANSACTION_EXCEPTION);
+		return te;
+	}
+
 	private IntegrationException buildException(Exception ex) {
 		
 		
