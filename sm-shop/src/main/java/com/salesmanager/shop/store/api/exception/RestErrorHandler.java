@@ -49,7 +49,7 @@ public class RestErrorHandler {
         while (rootCause.getCause() != null && rootCause.getCause() != rootCause) {
             rootCause = rootCause.getCause();
         }
-        String rootMessage = rootCause.getMessage() != null ? rootCause.getMessage() : exception.getErrorMessage();
+        String rootMessage = rootCause == exception ? null : rootCause.getMessage();
         ErrorEntity errorEntity = createErrorEntity(exception.getErrorCode()!=null?exception.getErrorCode():"500", exception.getErrorMessage(),
         		rootMessage);
         return errorEntity;
