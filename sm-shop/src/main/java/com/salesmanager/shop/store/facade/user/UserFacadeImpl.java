@@ -336,6 +336,7 @@ public class UserFacadeImpl implements UserFacade {
 			if (CollectionUtils.isEmpty(userModel.getGroups())) {
 				throw new ServiceRuntimeException("No valid group groups associated with user " + user.getUserName());
 			}
+			authorizeNewUser(userModel, store);
 			userModel.setAdminPassword(newPasswordEncoded);
 			userService.saveOrUpdate(userModel);
 			// now build returned object
@@ -583,20 +584,17 @@ public class UserFacadeImpl implements UserFacade {
 
 		try {
 			User currentUser = userService.getByUserName(authenticatedUser);
-
-			boolean isSuperAdmin = false;
-
-			for (Group g : currentUser.getGroups()) {
-				if (g.getGroupName().equals("SUPERADMIN")) {
-					isSuperAdmin = true;
-					break;
-				}
-
+			if (currentUser == null) {
+				throw new UnauthorizedException("User " + authenticatedUser + " not authorized");
 			}
 
-			for (PersistableGroup g : user.getGroups()) {
-				if (g.getName().equals("SUPERADMIN")) {
-					if (!isSuperAdmin) {
+			if (hasSuperAdminGroup(currentUser.getGroups())) {
+				return;
+			}
+
+			if (user.getGroups() != null) {
+				for (PersistableGroup g : user.getGroups()) {
+					if (g != null && isSuperAdminGroup(g.getName())) {
 						throw new UnauthorizedException("Superadmin group not allowed");
 					}
 				}
@@ -606,6 +604,48 @@ public class UserFacadeImpl implements UserFacade {
 			throw new ServiceRuntimeException("Error while looking for authorization", e);
 		}
 
+	}
+
+	/**
+	 * Enforced on the resolved user model so it holds for any caller of
+	 * create and for group names matched case-insensitively by the database.
+	 */
+	private void authorizeNewUser(User userModel, MerchantStore store) throws ServiceException {
+		String authenticatedUser = authenticatedUser();
+		if (authenticatedUser == null) {
+			throw new UnauthorizedException("User Not authorized");
+		}
+
+		User currentUser = userService.getByUserName(authenticatedUser);
+		if (currentUser == null) {
+			throw new UnauthorizedException("User " + authenticatedUser + " not authorized");
+		}
+
+		if (hasSuperAdminGroup(currentUser.getGroups())) {
+			return;
+		}
+
+		if (hasSuperAdminGroup(userModel.getGroups())) {
+			throw new UnauthorizedException("Superadmin group not allowed");
+		}
+
+		MerchantStore userStore = userModel.getMerchantStore();
+		if (userStore == null) {
+			throw new ServiceRuntimeException("Cannot find store for user " + userModel.getAdminName());
+		}
+		if (!userStore.getCode().equals(store.getCode())
+				&& !authorizedStore(authenticatedUser, userStore.getCode())) {
+			throw new UnauthorizedException("Operation unauthorized for user [" + authenticatedUser
+					+ "] and store [" + userStore.getCode() + "]");
+		}
+	}
+
+	private boolean hasSuperAdminGroup(List<Group> groups) {
+		return groups != null && groups.stream().anyMatch(g -> g != null && isSuperAdminGroup(g.getGroupName()));
+	}
+
+	private boolean isSuperAdminGroup(String groupName) {
+		return groupName != null && Constants.GROUP_SUPERADMIN.equalsIgnoreCase(groupName.trim());
 	}
 
 	@Override
