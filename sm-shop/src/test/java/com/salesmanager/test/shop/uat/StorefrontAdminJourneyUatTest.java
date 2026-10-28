@@ -10,6 +10,7 @@ import static org.springframework.http.HttpStatus.OK;
 import java.util.UUID;
 import java.util.Collections;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -53,6 +54,7 @@ class StorefrontAdminJourneyUatTest extends ServicesTestSupport {
 	private static final String ADMIN_USERNAME = "admin@shopizer.com";
 	private static final String CUSTOMER_PASSWORD = "Uat-Customer-Pass-123";
 	private String productCode;
+	private String originalAdminPassword;
 
 	@Autowired
 	private UserService userService;
@@ -64,12 +66,21 @@ class StorefrontAdminJourneyUatTest extends ServicesTestSupport {
 	void prepareAdminAndSampleProduct() throws Exception {
 		User admin = userService.getByUserName(ADMIN_USERNAME);
 		assertNotNull(admin);
+		originalAdminPassword = admin.getAdminPassword();
 		// bootstrap password is covered by the integration tests
 		admin.setAdminPassword(passwordEncoder.encode(ADMIN_PASSWORD));
 		userService.saveOrUpdate(admin);
 
 		productCode = uniqueCode("uat-product");
 		assertNotNull(sampleProduct(productCode));
+	}
+
+	@AfterAll
+	void restoreAdminPassword() throws Exception {
+		User admin = userService.getByUserName(ADMIN_USERNAME);
+		assertNotNull(admin);
+		admin.setAdminPassword(originalAdminPassword);
+		userService.saveOrUpdate(admin);
 	}
 
 	@Test
