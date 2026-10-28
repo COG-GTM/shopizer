@@ -1,5 +1,6 @@
 package com.salesmanager.shop.store.facade.product;
 
+import java.util.Collections;
 import java.util.stream.Collectors;
 
 import org.jsoup.helper.Validate;
@@ -12,6 +13,7 @@ import com.salesmanager.core.business.services.catalog.product.type.ProductTypeS
 import com.salesmanager.core.model.catalog.product.type.ProductType;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
+import com.salesmanager.shop.constants.Constants;
 import com.salesmanager.shop.mapper.catalog.PersistableProductTypeMapper;
 import com.salesmanager.shop.mapper.catalog.ReadableProductTypeMapper;
 import com.salesmanager.shop.model.catalog.product.type.PersistableProductType;
@@ -20,7 +22,9 @@ import com.salesmanager.shop.model.catalog.product.type.ReadableProductTypeList;
 import com.salesmanager.shop.store.api.exception.OperationNotAllowedException;
 import com.salesmanager.shop.store.api.exception.ResourceNotFoundException;
 import com.salesmanager.shop.store.api.exception.ServiceRuntimeException;
+import com.salesmanager.shop.store.api.exception.UnauthorizedException;
 import com.salesmanager.shop.store.controller.product.facade.ProductTypeFacade;
+import com.salesmanager.shop.store.controller.user.facade.UserFacade;
 
 @Service("productTypeFacade")
 public class ProductTypeFacadeImpl implements ProductTypeFacade {
@@ -33,6 +37,9 @@ public class ProductTypeFacadeImpl implements ProductTypeFacade {
 
 	@Autowired
 	private PersistableProductTypeMapper persistableProductTypeMapper;
+
+	@Autowired
+	private UserFacade userFacade;
 
 	@Override
 	public ReadableProductTypeList getByMerchant(MerchantStore store, Language language,  int count, int page) {
@@ -129,13 +136,18 @@ public class ProductTypeFacadeImpl implements ProductTypeFacade {
 						"Product type [" + type.getCode() + "] does not exist for store [" + store.getCode() + "]");
 			}
 
+			assertCanModify(t, store);
+			MerchantStore owner = t.getMerchantStore();
+
 			type.setId(t.getId());
 			type.setCode(t.getCode());
 
 			ProductType model = persistableProductTypeMapper.merge(type, t, store, language);
-			model.setMerchantStore(store);
+			model.setMerchantStore(owner);
 			productTypeService.saveOrUpdate(model);
 
+		} catch(ResourceNotFoundException | UnauthorizedException e) {
+			throw e;
 		} catch(Exception e) {
 			throw new ServiceRuntimeException(
 					"An exception occured while saving product type",e);
@@ -156,14 +168,44 @@ public class ProductTypeFacadeImpl implements ProductTypeFacade {
 						"Product type [" + id + "] does not exist for store [" + store.getCode() + "]");
 			}
 
+			assertCanModify(t, store);
+
 			productTypeService.delete(t);
 
 
+		} catch(ResourceNotFoundException | UnauthorizedException e) {
+			throw e;
 		} catch(Exception e) {
 			throw new ServiceRuntimeException(
 					"An exception occured while saving product type",e);
 		}
 
+	}
+
+	/**
+	 * Product types without a merchant store are shared by every store and can
+	 * only be modified by a super administrator; store owned types only by
+	 * their own store.
+	 */
+	private void assertCanModify(ProductType type, MerchantStore store) {
+		MerchantStore owner = type.getMerchantStore();
+		if (owner == null) {
+			if (!isSuperAdmin()) {
+				throw new UnauthorizedException("Product type [" + type.getCode()
+						+ "] is shared by all stores and cannot be modified by store [" + store.getCode() + "]");
+			}
+			return;
+		}
+		if (!owner.getId().equals(store.getId())) {
+			throw new ResourceNotFoundException(
+					"Product type [" + type.getId() + "] does not exist for store [" + store.getCode() + "]");
+		}
+	}
+
+	private boolean isSuperAdmin() {
+		String authenticatedUser = userFacade.authenticatedUser();
+		return authenticatedUser != null
+				&& userFacade.userInRoles(authenticatedUser, Collections.singletonList(Constants.GROUP_SUPERADMIN));
 	}
 
 	@Override
