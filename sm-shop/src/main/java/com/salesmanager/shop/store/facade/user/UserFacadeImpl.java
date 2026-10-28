@@ -416,8 +416,9 @@ public class UserFacadeImpl implements UserFacade {
 						"User [" + authenticatedUser + "] not authorized to update user [" + id + "]");
 			}
 
-			User userModel = callerSuperadmin ? userService.getById(id) : userService.findByStore(id, store.getCode());
-			if (userModel == null) {
+			User userModel = userService.getById(id);
+			if (userModel == null || (!callerSuperadmin
+					&& !store.getCode().equals(userModel.getMerchantStore().getCode()))) {
 				throw new ResourceNotFoundException(
 						"User [" + id + "] not found for store [" + store.getCode() + "]");
 			}
