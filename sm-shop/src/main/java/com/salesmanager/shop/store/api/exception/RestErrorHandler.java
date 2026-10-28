@@ -87,6 +87,28 @@ public class RestErrorHandler {
     }
 
     @RequestMapping(produces = "application/json")
+    @ExceptionHandler(ForbiddenException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public @ResponseBody ErrorEntity handleServiceException(ForbiddenException exception) {
+        log.error(exception.getErrorMessage(), exception);
+
+        ErrorEntity errorEntity = createErrorEntity(exception.getErrorCode(), exception.getErrorMessage(),
+                exception.getLocalizedMessage());
+        return errorEntity;
+    }
+
+    @RequestMapping(produces = "application/json")
+    @ExceptionHandler(TooManyRequestsException.class)
+    @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
+    public @ResponseBody ErrorEntity handleServiceException(TooManyRequestsException exception) {
+        log.error(exception.getErrorMessage(), exception);
+
+        ErrorEntity errorEntity = createErrorEntity(exception.getErrorCode(), exception.getErrorMessage(),
+                exception.getLocalizedMessage());
+        return errorEntity;
+    }
+
+    @RequestMapping(produces = "application/json")
     @ExceptionHandler(RestApiException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public @ResponseBody ErrorEntity handleRestApiException(RestApiException exception) {

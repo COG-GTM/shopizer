@@ -1,5 +1,6 @@
 package com.salesmanager.test.shop.integration.user;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import javax.inject.Inject;
 import org.junit.Test;
@@ -95,5 +96,38 @@ public class UserApiIntegrationTest extends ServicesTestSupport {
   }
   
 
+
+  @Test
+  public void adminCannotChangeSuperadminPassword() throws Exception {
+
+      PersistableUser newUser = new PersistableUser();
+      newUser.setDefaultLanguage("en");
+      newUser.setEmailAddress("mallory@test.com");
+      newUser.setFirstName("Mallory");
+      newUser.setLastName("Admin");
+      newUser.setUserName("mallory@test.com");
+      newUser.setPassword(CREATED_PASSWORD);
+      newUser.setRepeatPassword(CREATED_PASSWORD);
+
+      PersistableGroup g = new PersistableGroup();
+      g.setName("ADMIN");
+      newUser.getGroups().add(g);
+
+      final ResponseEntity<ReadableUser> response = testRestTemplate.exchange("/api/v1/private/user/", HttpMethod.POST,
+          new HttpEntity<PersistableUser>(newUser, getHeader()), ReadableUser.class);
+      assertEquals(HttpStatus.OK, response.getStatusCode());
+
+      UserPassword userPassword = new UserPassword();
+      userPassword.setPassword("password");
+      userPassword.setChangePassword(NEW_CREATED_PASSWORD);
+
+      final ResponseEntity<String> changePassword = testRestTemplate.exchange(
+          "/api/v1/private/user/" + DEFAULT_USER_ID + "/password", HttpMethod.PATCH,
+          new HttpEntity<UserPassword>(userPassword, getHeader("mallory@test.com", CREATED_PASSWORD)), String.class);
+      assertEquals(HttpStatus.FORBIDDEN, changePassword.getStatusCode());
+
+      // superadmin password is unchanged
+      assertNotNull(getHeader());
+  }
 
 }
