@@ -11,11 +11,13 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public final class SmtpStub implements AutoCloseable {
 
   private final ServerSocket server;
   private final List<String> recipients = new CopyOnWriteArrayList<>();
+  private final AtomicInteger connections = new AtomicInteger();
   private final Thread thread;
   private volatile Socket activeSocket;
 
@@ -34,9 +36,14 @@ public final class SmtpStub implements AutoCloseable {
     return recipients;
   }
 
+  public int connectionCount() {
+    return connections.get();
+  }
+
   private void serve() {
     while (!server.isClosed()) {
       try (Socket socket = server.accept()) {
+        connections.incrementAndGet();
         activeSocket = socket;
         socket.setSoTimeout(10000);
         try (BufferedReader in = new BufferedReader(

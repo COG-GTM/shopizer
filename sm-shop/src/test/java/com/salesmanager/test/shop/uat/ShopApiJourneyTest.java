@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -17,16 +18,16 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -34,7 +35,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.salesmanager.core.business.constants.Constants;
-import com.salesmanager.core.business.modules.email.HtmlEmailSender;
 import com.salesmanager.core.business.modules.email.EmailConfig;
 import com.salesmanager.core.business.services.payments.PaymentService;
 import com.salesmanager.core.business.services.merchant.MerchantStoreService;
@@ -57,13 +57,13 @@ import com.salesmanager.shop.model.shoppingcart.ReadableShoppingCart;
 import com.salesmanager.shop.store.security.AuthenticationRequest;
 import com.salesmanager.shop.store.security.AuthenticationResponse;
 import com.salesmanager.test.shop.common.ServicesTestSupport;
+import com.salesmanager.test.shop.common.SmtpStub;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = ShopApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class ShopApiJourneyTest extends ServicesTestSupport {
 
   private static final String STORE_CODE = "DEFAULT";
@@ -85,11 +85,20 @@ public class ShopApiJourneyTest extends ServicesTestSupport {
   @Inject
   private PaymentService paymentService;
 
-  @MockBean(name = "htmlEmailSender")
-  private HtmlEmailSender htmlEmailSender;
+  @Inject
+  @Qualifier("mailSender")
+  private JavaMailSenderImpl mailSender;
 
   @Value("${jwt.secret}")
   private String jwtSecret;
+
+  private String originalProtocol;
+  private String originalHost;
+  private int originalPort;
+  private String originalUsername;
+  private String originalPassword;
+  private Properties originalMailProperties;
+  private SmtpStub resetSmtp;
 
   @Before
   public void setUp() throws Exception {
@@ -98,10 +107,23 @@ public class ShopApiJourneyTest extends ServicesTestSupport {
       originalConfigurations.put(
           key, ConfigurationState.copy(merchantConfigurationService.getMerchantConfiguration(key, store)));
     }
+
+    originalProtocol = mailSender.getProtocol();
+    originalHost = mailSender.getHost();
+    originalPort = mailSender.getPort();
+    originalUsername = mailSender.getUsername();
+    originalPassword = mailSender.getPassword();
+    originalMailProperties = new Properties();
+    originalMailProperties.putAll(mailSender.getJavaMailProperties());
   }
 
   @After
   public void tearDown() throws Exception {
+    if (resetSmtp != null) {
+      resetSmtp.close();
+      resetSmtp = null;
+    }
+
     MerchantStore store = merchantStoreService.getByCode(STORE_CODE);
     for (Map.Entry<String, ConfigurationState> entry : originalConfigurations.entrySet()) {
       MerchantConfiguration current = merchantConfigurationService.getMerchantConfiguration(entry.getKey(), store);
@@ -113,6 +135,13 @@ public class ShopApiJourneyTest extends ServicesTestSupport {
       }
     }
     originalConfigurations.clear();
+
+    mailSender.setProtocol(originalProtocol);
+    mailSender.setHost(originalHost);
+    mailSender.setPort(originalPort);
+    mailSender.setUsername(originalUsername);
+    mailSender.setPassword(originalPassword);
+    mailSender.setJavaMailProperties(originalMailProperties);
   }
 
   @Test
@@ -351,6 +380,14 @@ public class ShopApiJourneyTest extends ServicesTestSupport {
         String.class);
     assertEquals(201, deleted.getStatusCodeValue());
 
+    resetSmtp = new SmtpStub();
+    mailSender.setProtocol("smtp");
+    mailSender.setHost("127.0.0.1");
+    mailSender.setPort(resetSmtp.port());
+    mailSender.setUsername(null);
+    mailSender.setPassword(null);
+    mailSender.setJavaMailProperties(new Properties());
+
     HttpHeaders resetHeaders = new HttpHeaders();
     resetHeaders.setContentType(MediaType.APPLICATION_JSON);
     ResponseEntity<String> passwordReset = testRestTemplate.postForEntity(
@@ -359,7 +396,9 @@ public class ShopApiJourneyTest extends ServicesTestSupport {
             "{\"username\":\"admin@shopizer.com\",\"returnUrl\":\"http://localhost:8080\"}",
             resetHeaders),
         String.class);
-    assertEquals(200, passwordReset.getStatusCodeValue());
+    assertEquals(500, passwordReset.getStatusCodeValue());
+    awaitRecipients(resetSmtp, 1);
+    assertTrue(resetSmtp.recipients().get(0).contains("admin@shopizer.com"));
   }
 
   private AuthenticationResponse loginNewCustomer(String email) {
@@ -417,6 +456,14 @@ public class ShopApiJourneyTest extends ServicesTestSupport {
       }
     }
     return false;
+  }
+
+  private void awaitRecipients(SmtpStub stub, int count) throws InterruptedException {
+    long deadline = System.nanoTime() + 10_000_000_000L;
+    while (stub.recipients().size() < count && System.nanoTime() < deadline) {
+      Thread.sleep(25);
+    }
+    assertEquals(count, stub.recipients().size());
   }
 
   private EmailConfig emailConfig(String host, String port) {

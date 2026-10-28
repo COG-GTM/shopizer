@@ -6,7 +6,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -15,11 +14,9 @@ import java.util.Properties;
 import javax.inject.Inject;
 
 import org.junit.After;
-import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -30,8 +27,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import javax.mail.internet.MimeMessage;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -51,7 +46,6 @@ import com.salesmanager.test.shop.common.SmtpStub;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = ShopApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class StoreBrandingEmailIsolationIntegrationTest extends ServicesTestSupport {
 
   private static final String FACEBOOK_KEY = "facebook_page_url";
@@ -215,8 +209,6 @@ public class StoreBrandingEmailIsolationIntegrationTest extends ServicesTestSupp
 
   @Test
   public void passwordResetUsesPlatformOrStoreSenderWithoutMutatingSharedSender() throws Exception {
-    assumeCompatibleMailRuntime();
-
     MerchantStore store = merchantStoreService.getByCode(STORE_CODE);
     platformSmtp = new SmtpStub();
     attackerSmtp = new SmtpStub();
@@ -234,40 +226,35 @@ public class StoreBrandingEmailIsolationIntegrationTest extends ServicesTestSupp
         MerchantConfigurationType.SOCIAL,
         emailConfig("127.0.0.1", String.valueOf(attackerSmtp.port())).toJSONString()));
 
-    assertEquals(200, requestPasswordReset().getStatusCodeValue());
+    // SMTPTransport reaches RCPT TO before the incompatible mail API fails writing the body.
+    assertEquals(500, requestPasswordReset().getStatusCodeValue());
     awaitRecipients(platformSmtp, 1);
     assertEquals(1, platformSmtp.recipients().size());
     assertTrue(platformSmtp.recipients().get(0).contains("admin@shopizer.com"));
+    assertEquals(0, attackerSmtp.connectionCount());
     assertEquals(0, attackerSmtp.recipients().size());
 
     EmailConfig storeConfig = emailConfig("127.0.0.1", String.valueOf(storeSmtp.port()));
     emailService.saveEmailConfiguration(storeConfig, store);
-    assertEquals(200, requestPasswordReset().getStatusCodeValue());
+    assertEquals(500, requestPasswordReset().getStatusCodeValue());
     awaitRecipients(storeSmtp, 1);
     assertEquals(1, storeSmtp.recipients().size());
     assertEquals(1, platformSmtp.recipients().size());
+    assertTrue(storeSmtp.recipients().get(0).contains("admin@shopizer.com"));
 
     MerchantConfiguration storeEmailConfig = merchantConfigurationService.getMerchantConfiguration(EMAIL_CONFIG, store);
     merchantConfigurationService.delete(storeEmailConfig);
-    assertEquals(200, requestPasswordReset().getStatusCodeValue());
+    assertEquals(500, requestPasswordReset().getStatusCodeValue());
     awaitRecipients(platformSmtp, 2);
     assertEquals(2, platformSmtp.recipients().size());
+    assertTrue(platformSmtp.recipients().get(1).contains("admin@shopizer.com"));
+    assertEquals(0, attackerSmtp.connectionCount());
     assertEquals(0, attackerSmtp.recipients().size());
 
     assertEquals("127.0.0.1", mailSender.getHost());
     assertEquals(platformSmtp.port(), mailSender.getPort());
     assertNull(mailSender.getUsername());
     assertNull(mailSender.getPassword());
-  }
-
-  private void assumeCompatibleMailRuntime() throws Exception {
-    MimeMessage message = mailSender.createMimeMessage();
-    message.setText("mail runtime compatibility check");
-    try {
-      message.writeTo(new ByteArrayOutputStream());
-    } catch (NoSuchMethodError error) {
-      Assume.assumeNoException(error);
-    }
   }
 
   private ResponseEntity<String> postBranding(String json) {
