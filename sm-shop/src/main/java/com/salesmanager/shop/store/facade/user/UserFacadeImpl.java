@@ -12,11 +12,14 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.persistence.EntityNotFoundException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.hibernate.Hibernate;
+import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
@@ -416,7 +419,7 @@ public class UserFacadeImpl implements UserFacade {
 						"User [" + authenticatedUser + "] not authorized to update user [" + id + "]");
 			}
 
-			User userModel = userService.getById(id);
+			User userModel = callerSuperadmin ? findById(id) : userService.getById(id, store);
 			if (userModel == null || (!callerSuperadmin
 					&& !store.getCode().equals(userModel.getMerchantStore().getCode()))) {
 				throw new ResourceNotFoundException(
@@ -468,6 +471,19 @@ public class UserFacadeImpl implements UserFacade {
 			throw new ServiceRuntimeException("Cannot update user [" + id + "]", e);
 		}
 
+	}
+
+	private User findById(Long id) {
+		User user = userService.getById(id);
+		if (user == null) {
+			return null;
+		}
+		try {
+			Hibernate.initialize(user);
+			return user;
+		} catch (EntityNotFoundException | ObjectNotFoundException e) {
+			return null;
+		}
 	}
 
 	private boolean inGroups(User user, String... groupNames) {
