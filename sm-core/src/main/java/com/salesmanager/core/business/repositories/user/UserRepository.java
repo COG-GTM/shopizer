@@ -3,7 +3,9 @@ package com.salesmanager.core.business.repositories.user;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.salesmanager.core.model.user.User;
 
@@ -36,4 +38,10 @@ public interface UserRepository extends JpaRepository<User, Long>, UserRepositor
 			+ "left join fetch u.defaultLanguage ul "
 			+ "where u.credentialsResetRequest.credentialsRequest = ?1 and um.code = ?2 ")
 	User findByResetPasswordToken(String token, String store);
+
+	@Transactional
+	@Modifying
+	@Query("update User u set u.credentialsResetRequest.credentialsRequest = null where u.id = ?1 and u.credentialsResetRequest.credentialsRequest = ?2")
+	int clearResetPasswordToken(Long id, String token);
+
 }
