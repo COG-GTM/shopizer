@@ -1,7 +1,9 @@
 package com.salesmanager.shop.store.facade.user;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -97,6 +99,11 @@ public class UserFacadeImpl implements UserFacade {
 
 	@Inject
 	private PersistableUserPopulator persistableUserPopulator;
+
+	private static final String GROUP_ADMIN_RETAILER = "ADMIN_RETAILER";
+
+	private static final List<String> STORE_LEVEL_ADMIN_GROUPS = Arrays.asList("ADMIN_STORE",
+			Constants.GROUP_ADMIN_CATALOGUE, Constants.GROUP_ADMIN_ORDER, "ADMIN_CONTENT");
 
 	@Inject
 	private SecurityFacade securityFacade;
@@ -349,9 +356,10 @@ public class UserFacadeImpl implements UserFacade {
 				throw new ServiceRuntimeException("No valid group groups associated with user " + user.getUserName());
 			}
 			if (!isSuperAdmin) {
+				Set<String> assignableGroups = assignableGroups(currentUser.getGroups());
 				for (Group group : userModel.getGroups()) {
-					if (Constants.GROUP_SUPERADMIN.equalsIgnoreCase(group.getGroupName())
-							|| group.getGroupType() != GroupType.ADMIN) {
+					if (group.getGroupType() != GroupType.ADMIN
+							|| !assignableGroups.contains(group.getGroupName())) {
 						throw new UnauthorizedException("User " + authenticatedUser + " not authorized to assign group ["
 								+ group.getGroupName() + "]");
 					}
@@ -639,6 +647,31 @@ public class UserFacadeImpl implements UserFacade {
 		}
 		MerchantStore parent = targetStore.getParent();
 		return parent != null && callerStore.getCode().equals(parent.getCode());
+	}
+
+	/**
+	 * Groups a non superadmin caller may assign: its own groups plus the
+	 * groups below it (ADMIN_RETAILER > ADMIN > single-area admin groups).
+	 */
+	private Set<String> assignableGroups(List<Group> callerGroups) {
+		Set<String> assignable = new HashSet<String>();
+		if (callerGroups == null) {
+			return assignable;
+		}
+		for (Group g : callerGroups) {
+			String name = g.getGroupName();
+			if (Constants.GROUP_SUPERADMIN.equals(name)) {
+				continue;
+			}
+			assignable.add(name);
+			if (GROUP_ADMIN_RETAILER.equals(name) || Constants.GROUP_ADMIN_RETAIL.equals(name)) {
+				assignable.add(Constants.GROUP_ADMIN);
+				assignable.addAll(STORE_LEVEL_ADMIN_GROUPS);
+			} else if (Constants.GROUP_ADMIN.equals(name)) {
+				assignable.addAll(STORE_LEVEL_ADMIN_GROUPS);
+			}
+		}
+		return assignable;
 	}
 
 	private boolean isSuperAdmin(List<Group> groups) {

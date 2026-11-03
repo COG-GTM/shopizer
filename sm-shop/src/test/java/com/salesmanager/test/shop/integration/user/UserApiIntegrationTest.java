@@ -136,6 +136,10 @@ public class UserApiIntegrationTest extends ServicesTestSupport {
       assertEquals(HttpStatus.UNAUTHORIZED,
           createUser(storeAdminHeader, "superadmin" + suffix + "@test.com", "superadmin", null).getStatusCode());
       assertEquals(HttpStatus.UNAUTHORIZED,
+          createUser(storeAdminHeader, "retailer" + suffix + "@test.com", "ADMIN_RETAILER", null).getStatusCode());
+      assertEquals(HttpStatus.UNAUTHORIZED,
+          createUser(storeAdminHeader, "customer" + suffix + "@test.com", "CUSTOMER", null).getStatusCode());
+      assertEquals(HttpStatus.UNAUTHORIZED,
           createUser(storeAdminHeader, "otherstore" + suffix + "@test.com", "ADMIN", otherStore).getStatusCode());
       assertEquals(HttpStatus.OK,
           createUser(storeAdminHeader, "sameadmin" + suffix + "@test.com", "ADMIN_CATALOGUE", null).getStatusCode());
