@@ -1,5 +1,7 @@
 package com.salesmanager.test.shop.integration.tax;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -19,6 +21,8 @@ import com.salesmanager.shop.model.entity.Entity;
 import com.salesmanager.shop.model.entity.EntityExists;
 import com.salesmanager.shop.model.tax.PersistableTaxClass;
 import com.salesmanager.shop.model.tax.PersistableTaxRate;
+import com.salesmanager.shop.model.tax.ReadableTaxClass;
+import com.salesmanager.shop.model.tax.ReadableTaxRate;
 import com.salesmanager.shop.model.tax.TaxRateDescription;
 import com.salesmanager.test.shop.common.ServicesTestSupport;
 
@@ -51,6 +55,20 @@ public class TaxRateIntegrationTest extends ServicesTestSupport {
                 httpEntity, EntityExists.class);
 
         assertTrue(exists.getBody().isExists());
+
+        //create with a client supplied id must insert a new tax class
+        PersistableTaxClass hijack = new PersistableTaxClass();
+        hijack.setId(e.getId());
+        hijack.setCode("TESTTX2");
+        hijack.setName("Hijack tax class");
+        final ResponseEntity<Entity> hijackResponse = testRestTemplate.postForEntity("/api/v1/private/tax/class/", new HttpEntity<>(hijack, getHeader()), Entity.class);
+        assertNotNull(hijackResponse.getBody().getId());
+        assertNotEquals(e.getId(), hijackResponse.getBody().getId());
+
+        final ResponseEntity<ReadableTaxClass> original = testRestTemplate.exchange("/api/v1/private/tax/class/" + taxClass.getCode(), HttpMethod.GET,
+                httpEntity, ReadableTaxClass.class);
+        assertEquals(e.getId(), original.getBody().getId());
+        assertEquals(taxClass.getCode(), original.getBody().getCode());
 
 
         /**
@@ -109,8 +127,24 @@ public class TaxRateIntegrationTest extends ServicesTestSupport {
 
         assertTrue(exists.getBody().isExists());
 
+        //create with a client supplied id must insert a new tax rate
+        PersistableTaxRate hijack = new PersistableTaxRate();
+        hijack.setId(e.getId());
+        hijack.setCode("taxcode2");
+        hijack.setCountry("US");
+        hijack.setPriority(0);
+        hijack.setRate(new BigDecimal(0));
+        hijack.setStore("DEFAULT");
+        hijack.setTaxClass("DEFAULT");
+        hijack.setZone("NY");
+        final ResponseEntity<Entity> hijackResponse = testRestTemplate.postForEntity("/api/v1/private/tax/rate/", new HttpEntity<>(hijack, getHeader()), Entity.class);
+        assertNotNull(hijackResponse.getBody().getId());
+        assertNotEquals(e.getId(), hijackResponse.getBody().getId());
 
-	
+        final ResponseEntity<ReadableTaxRate> original = testRestTemplate.exchange("/api/v1/private/tax/rate/" + e.getId(), HttpMethod.GET,
+                httpEntity, ReadableTaxRate.class);
+        assertEquals(taxRate.getCode(), original.getBody().getCode());
+
     }
 
 }

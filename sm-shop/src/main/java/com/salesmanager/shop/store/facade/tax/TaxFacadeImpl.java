@@ -68,6 +68,7 @@ public class TaxFacadeImpl implements TaxFacade {
 				throw new OperationNotAllowedException("Tax class [" + taxClass.getCode() + "] already exist for store [" + store.getCode() + "]");
 			}
 
+			taxClass.setId(null);
 			taxClass.setStore(store.getCode());
 			TaxClass model = persistableTaxClassMapper.convert(taxClass, store, language);
 			model = taxClassService.saveOrUpdate(model);;
@@ -146,7 +147,7 @@ public class TaxFacadeImpl implements TaxFacade {
 					throw new UnauthorizedException("MerchantStore [" + store.getCode() + "] cannot update tax class [" + taxClass.getCode() + "]");
 				}
 			}
-			model = persistableTaxClassMapper.convert(taxClass, store, language);
+			model = persistableTaxClassMapper.merge(taxClass, model, store, language);
 			taxClassService.saveOrUpdate(model);
 
 		} catch (ServiceException e) {
@@ -274,7 +275,10 @@ public class TaxFacadeImpl implements TaxFacade {
 				throw new OperationNotAllowedException("Tax rate [" + taxRate.getCode() + "] already exist for store [" + store.getCode() + "]");
 			}
 
-			
+			taxRate.setId(null);
+			if(taxRate.getDescriptions() != null) {
+				taxRate.getDescriptions().forEach(d -> d.setId(null));
+			}
 			model = persistableTaxRateMapper.convert(taxRate, store, language);
 			
 			model = taxRateService.saveOrUpdate(model);
