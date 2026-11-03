@@ -274,7 +274,9 @@ public class ProductOptionFacadeImpl implements ProductOptionFacade {
 		Validate.notNull(attribute.getOptionValue(), "ProductAttribute option value cannot be null");
 		Validate.notNull(store, "Store cannot be null");
 
-		attribute.setProductId(productId);
+		Product product = this.product(productId, store);
+
+		attribute.setProductId(product.getId());
 		ProductAttribute attr = new ProductAttribute();
 		if (attribute.getId() != null && attribute.getId().longValue() > 0) {
 			attr = productAttributeService.getById(attribute.getId());
@@ -282,7 +284,8 @@ public class ProductOptionFacadeImpl implements ProductOptionFacade {
 				throw new ResourceNotFoundException("Product attribute [" + attribute.getId() + "] not found");
 			}
 
-			if (productId != attr.getProduct().getId().longValue()) {
+			if (productId != attr.getProduct().getId().longValue()
+					|| attr.getProduct().getMerchantStore().getId().intValue() != store.getId().intValue()) {
 				throw new ResourceNotFoundException(
 						"Product attribute [" + attribute.getId() + "] not found for product [" + productId + "]");
 			}
@@ -475,15 +478,20 @@ public class ProductOptionFacadeImpl implements ProductOptionFacade {
 		Validate.notNull(productId,"Product id must not be null");
 		Validate.notNull(store,"Merchant cannot be null");
 
+		Product product = this.product(productId, store);
+
 		//convert to model
-		
-		List<ProductAttribute> modelAttributes = attributes.stream().map(attr -> persistableProductAttributeMapper.convert(attr, store, null)).collect(Collectors.toList());
+		List<ProductAttribute> modelAttributes = attributes.stream().map(attr -> {
+			attr.setProductId(product.getId());
+			ProductAttribute modelAttribute = persistableProductAttributeMapper.convert(attr, store, null);
+			modelAttribute.setProduct(product);
+			return modelAttribute;
+		}).collect(Collectors.toList());
 		
 		try {
 			productAttributeService.saveAll(modelAttributes);
 		
 			//save to a product
-			Product product = this.product(productId, store);
 			product.getAttributes().addAll(modelAttributes);
 		
 		
