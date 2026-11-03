@@ -213,6 +213,11 @@ public class UserApi {
 			throw new UnauthorizedException();
 		}
 
+		if (!userFacade.userInRoles(authenticatedUser, Arrays.asList(Constants.GROUP_SUPERADMIN))
+				&& !userFacade.authorizedStore(authenticatedUser, merchantStore.getCode())) {
+			throw new UnauthorizedException();
+		}
+
 		userFacade.authorizedGroup(authenticatedUser, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN, Constants.GROUP_ADMIN_RETAIL).collect(Collectors.toList()));
 
 		user.setId(id);
@@ -233,8 +238,9 @@ public class UserApi {
 			throw new UnauthorizedException();
 		}
 
-		if (!userFacade.userInRoles(authenticatedUser, Arrays.asList(Constants.GROUP_SUPERADMIN))) {
-			userFacade.authorizedStore(authenticatedUser, merchantStore.getCode());
+		if (!userFacade.userInRoles(authenticatedUser, Arrays.asList(Constants.GROUP_SUPERADMIN))
+				&& !userFacade.authorizedStore(authenticatedUser, merchantStore.getCode())) {
+			throw new UnauthorizedException();
 		}
 
 		userFacade.authorizedGroup(authenticatedUser, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN, Constants.GROUP_ADMIN_RETAIL).collect(Collectors.toList()));

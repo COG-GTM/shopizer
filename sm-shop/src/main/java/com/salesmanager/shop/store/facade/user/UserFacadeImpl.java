@@ -1,6 +1,7 @@
 package com.salesmanager.shop.store.facade.user;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -379,7 +380,7 @@ public class UserFacadeImpl implements UserFacade {
 			}
 
 			// cannot delete superadmin
-			if (user.getGroups().contains(Constants.GROUP_SUPERADMIN)) {
+			if (isSuperadmin(user)) {
 				throw new ServiceRuntimeException("Cannot delete superadmin user [" + id + "]");
 			}
 
@@ -620,6 +621,11 @@ public class UserFacadeImpl implements UserFacade {
 
 	}
 
+	private boolean isSuperadmin(User user) {
+		return user.getGroups() != null && user.getGroups().stream()
+				.anyMatch(g -> Constants.GROUP_SUPERADMIN.equals(g.getGroupName()));
+	}
+
 	@Override
 	public void updateEnabled(MerchantStore store, PersistableUser user) {
 		Validate.notNull(user, "User cannot be null");
@@ -632,6 +638,11 @@ public class UserFacadeImpl implements UserFacade {
 			if (modelUser == null) {
 				throw new ResourceNotFoundException(
 						"User with id [" + user.getId() + "] not found for store [" + store.getCode() + "]");
+			}
+
+			if (isSuperadmin(modelUser)
+					&& !userInRoles(authenticatedUser(), Arrays.asList(Constants.GROUP_SUPERADMIN))) {
+				throw new UnauthorizedException("Cannot update superadmin user [" + user.getId() + "]");
 			}
 
 			modelUser.setActive(user.isActive());
