@@ -118,15 +118,34 @@ public class PaymentServiceImplTest {
 	}
 
 	@Test
-	public void pluginModuleWithoutTypeUsesRequestedType() throws Exception {
-		Transaction transaction = new Transaction();
-		transaction.setTransactionType(TransactionType.AUTHORIZECAPTURE);
-		when(creditCardModule.authorizeAndCapture(any(), any(), any(), any(), any(), any(), any())).thenReturn(transaction);
-
+	public void pluginModuleIsProcessedFromTransactionType() throws Exception {
 		Order order = order();
-		paymentService.processPayment(new Customer(), store, payment("custompay", PaymentType.CREDITCARD), new ArrayList<>(), order);
+		processPlugin(PaymentType.CREDITCARD, PaymentType.CREDITCARD, order);
 		assertEquals(OrderStatus.PROCESSED, order.getStatus());
 		assertEquals(PaymentType.CREDITCARD, order.getPaymentType());
+	}
+
+	@Test
+	public void offlinePluginWithSpoofedCreditCardTypeStaysOrdered() throws Exception {
+		Order order = order();
+		processPlugin(PaymentType.MONEYORDER, PaymentType.CREDITCARD, order);
+		assertEquals(OrderStatus.ORDERED, order.getStatus());
+		assertEquals(PaymentType.MONEYORDER, order.getPaymentType());
+	}
+
+	@Test
+	public void pluginWithoutTransactionTypeStaysOrdered() throws Exception {
+		Order order = order();
+		processPlugin(null, PaymentType.CREDITCARD, order);
+		assertEquals(OrderStatus.ORDERED, order.getStatus());
+	}
+
+	private void processPlugin(PaymentType transactionType, PaymentType requestedType, Order order) throws Exception {
+		Transaction transaction = new Transaction();
+		transaction.setTransactionType(TransactionType.AUTHORIZECAPTURE);
+		transaction.setPaymentType(transactionType);
+		when(creditCardModule.authorizeAndCapture(any(), any(), any(), any(), any(), any(), any())).thenReturn(transaction);
+		paymentService.processPayment(new Customer(), store, payment("custompay", requestedType), new ArrayList<>(), order);
 	}
 
 	@Test(expected = ServiceException.class)
