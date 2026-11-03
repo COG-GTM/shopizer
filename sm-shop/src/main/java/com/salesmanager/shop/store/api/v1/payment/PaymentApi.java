@@ -3,6 +3,7 @@ package com.salesmanager.shop.store.api.v1.payment;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,10 +21,12 @@ import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.core.model.system.IntegrationConfiguration;
 import com.salesmanager.core.model.system.IntegrationModule;
+import com.salesmanager.shop.constants.Constants;
 import com.salesmanager.shop.model.system.IntegrationModuleConfiguration;
 import com.salesmanager.shop.model.system.IntegrationModuleSummaryEntity;
 import com.salesmanager.shop.store.api.exception.ResourceNotFoundException;
 import com.salesmanager.shop.store.api.exception.ServiceRuntimeException;
+import com.salesmanager.shop.utils.AuthorizationUtils;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -51,6 +54,9 @@ public class PaymentApi {
 	@Autowired
 	private PaymentService paymentService;
 
+	@Autowired
+	private AuthorizationUtils authorizationUtils;
+
 	/**
 	 * Get available payment modules
 	 * 
@@ -64,6 +70,8 @@ public class PaymentApi {
 	public List<IntegrationModuleSummaryEntity> paymentModules(
 			@ApiIgnore MerchantStore merchantStore,
 			@ApiIgnore Language language) {
+
+		authorizePaymentAdministration(merchantStore);
 
 		try {
 			List<IntegrationModule> modules = paymentService.getPaymentMethods(merchantStore);
@@ -84,7 +92,9 @@ public class PaymentApi {
 	public void configure(
 			@RequestBody IntegrationModuleConfiguration configuration,
 			@ApiIgnore MerchantStore merchantStore) {
-		
+
+		authorizePaymentAdministration(merchantStore);
+
 		try {
 			
 			List<IntegrationModule> modules = paymentService.getPaymentMethods(merchantStore);
@@ -137,6 +147,8 @@ public class PaymentApi {
 	public IntegrationModuleConfiguration paymentModule(@PathVariable String code,
 			@ApiIgnore MerchantStore merchantStore, @ApiIgnore Language language) {
 
+		authorizePaymentAdministration(merchantStore);
+
 		try {
 			
 			// get module
@@ -179,6 +191,12 @@ public class PaymentApi {
 			throw new ServiceRuntimeException("Error getting payment module [" + code + "]", e);
 		}
 
+	}
+
+	private void authorizePaymentAdministration(MerchantStore merchantStore) {
+		String user = authorizationUtils.authenticatedUser();
+		authorizationUtils.authorizeUser(user, Stream.of(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN,
+				Constants.GROUP_ADMIN_RETAIL).collect(Collectors.toList()), merchantStore);
 	}
 
 	private IntegrationModuleSummaryEntity integrationModule(IntegrationModule module,
