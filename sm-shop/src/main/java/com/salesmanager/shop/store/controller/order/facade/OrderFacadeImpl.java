@@ -1116,11 +1116,10 @@ public class OrderFacadeImpl implements OrderFacade {
 
 		Long customerId = modelOrder.getCustomerId();
 		if (customerId != null) {
-			ReadableCustomer readableCustomer = customerFacade.getCustomerById(customerId, store, language);
-			if (readableCustomer == null) {
-				LOGGER.warn("Customer id " + customerId + " not found in order " + orderId);
-			} else {
-				readableOrder.setCustomer(readableCustomer);
+			try {
+				readableOrder.setCustomer(customerFacade.getCustomerById(customerId, store, language));
+			} catch (ResourceNotFoundException e) {
+				LOGGER.warn("Customer id " + customerId + " not found in store of order " + orderId);
 			}
 		}
 
