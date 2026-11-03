@@ -120,8 +120,8 @@ public class MerchantStoreApiAuthorizationTest {
 
 		ArgumentCaptor<List<String>> groups = ArgumentCaptor.forClass(List.class);
 		verify(userFacade).authorizedGroup(eq(USER), groups.capture());
-		assertEquals(Arrays.asList(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN, Constants.GROUP_ADMIN_RETAIL),
-				groups.getValue());
+		assertEquals(Arrays.asList(Constants.GROUP_SUPERADMIN, Constants.GROUP_ADMIN, Constants.GROUP_ADMIN_RETAIL,
+				"ADMIN_RETAILER"), groups.getValue());
 		verify(storeFacade).delete(STORE);
 	}
 }
