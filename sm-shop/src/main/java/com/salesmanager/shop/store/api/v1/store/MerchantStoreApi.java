@@ -14,6 +14,7 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -44,6 +45,7 @@ import com.salesmanager.shop.model.store.PersistableMerchantStore;
 import com.salesmanager.shop.model.store.ReadableBrand;
 import com.salesmanager.shop.model.store.ReadableMerchantStore;
 import com.salesmanager.shop.model.store.ReadableMerchantStoreList;
+import com.salesmanager.shop.model.user.ReadableUser;
 import com.salesmanager.shop.store.api.exception.RestApiException;
 import com.salesmanager.shop.store.api.exception.UnauthorizedException;
 import com.salesmanager.shop.store.controller.store.facade.StoreFacade;
@@ -220,7 +222,14 @@ public class MerchantStoreApi {
 		
 		userFacade.authorizedGroup(authenticatedUser, Stream.of("SUPERADMIN", "ADMIN_RETAILER").collect(Collectors.toList()));
 
-		
+		if (!StringUtils.isBlank(store.getRetailerStore())
+				&& !userFacade.userInRoles(authenticatedUser, Arrays.asList(Constants.GROUP_SUPERADMIN))) {
+			ReadableUser user = userFacade.findByUserName(authenticatedUser);
+			if (user == null || !store.getRetailerStore().equalsIgnoreCase(user.getMerchant())) {
+				throw new UnauthorizedException("User " + authenticatedUser + " not authorized to set parent store");
+			}
+		}
+
 		storeFacade.create(store);
 	}
 
@@ -233,7 +242,22 @@ public class MerchantStoreApi {
 		String userName = getUserFromRequest(request);
 		validateUserPermission(userName, code);
 		store.setCode(code);
+		validateParentChange(userName, code, store);
 		storeFacade.update(store);
+	}
+
+	private void validateParentChange(String userName, String code, PersistableMerchantStore store) {
+		if (StringUtils.isBlank(store.getRetailerStore())) {
+			return;
+		}
+		MerchantStore existing = storeFacade.get(code);
+		String currentParent = existing != null && existing.getParent() != null ? existing.getParent().getCode() : null;
+		if (store.getRetailerStore().equalsIgnoreCase(currentParent)) {
+			return;
+		}
+		if (!userFacade.userInRoles(userName, Arrays.asList(Constants.GROUP_SUPERADMIN))) {
+			throw new UnauthorizedException("User " + userName + " not authorized to change parent store");
+		}
 	}
 
 	private String getUserFromRequest(HttpServletRequest request) {
