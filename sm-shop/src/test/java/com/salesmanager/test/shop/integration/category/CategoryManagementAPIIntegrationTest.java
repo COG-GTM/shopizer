@@ -540,4 +540,23 @@ public class CategoryManagementAPIIntegrationTest extends ServicesTestSupport {
         assertThat(ownerDelete.getStatusCode(), is(OK));
     }
 
+    @Test
+    public void ownerCanUpdateCategoryWithoutDescriptions() throws Exception {
+
+        PersistableCategory newCategory = new PersistableCategory();
+        newCategory.setCode("nodescription");
+        newCategory.setSortOrder(1);
+        newCategory.setVisible(true);
+
+        ResponseEntity<PersistableCategory> created = testRestTemplate.postForEntity("/api/v1/private/category",
+                new HttpEntity<>(newCategory, getHeader()), PersistableCategory.class);
+        assertThat(created.getStatusCode(), is(CREATED));
+        Long categoryId = created.getBody().getId();
+
+        newCategory.setSortOrder(2);
+        ResponseEntity<String> ownerUpdate = testRestTemplate.exchange("/api/v1/private/category/" + categoryId,
+                HttpMethod.PUT, new HttpEntity<>(newCategory, getHeader()), String.class);
+        assertThat(ownerUpdate.getStatusCode(), is(OK));
+    }
+
 }
