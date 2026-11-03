@@ -1,6 +1,7 @@
 package com.salesmanager.core.business.services.tax;
 
 import java.util.List;
+import java.util.Objects;
 
 import javax.inject.Inject;
 
@@ -67,6 +68,14 @@ public class TaxRateServiceImpl extends SalesManagerEntityServiceImpl<Long, TaxR
 	@Override
 	public TaxRate saveOrUpdate(TaxRate taxRate) throws ServiceException {
 		if(taxRate.getId()!=null && taxRate.getId() > 0) {
+			TaxRate existing = taxRateRepository.findById(taxRate.getId()).orElse(null);
+			if(existing == null) {
+				throw new ServiceException("TaxRate [" + taxRate.getId() + "] does not exist");
+			}
+			if(taxRate.getMerchantStore() == null || existing.getMerchantStore() == null
+					|| !Objects.equals(existing.getMerchantStore().getId(), taxRate.getMerchantStore().getId())) {
+				throw new ServiceException("TaxRate [" + taxRate.getId() + "] does not belong to the target MerchantStore");
+			}
 			this.update(taxRate);
 		} else {
 			taxRate = super.saveAndFlush(taxRate);

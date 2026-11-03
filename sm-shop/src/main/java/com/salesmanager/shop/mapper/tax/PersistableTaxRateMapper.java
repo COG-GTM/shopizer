@@ -45,7 +45,6 @@ public class PersistableTaxRateMapper implements Mapper<PersistableTaxRate, TaxR
 		Validate.notNull(destination, "destination TaxRate cannot be null");
 		Validate.notNull(source, "source TaxRate cannot be null");
 		try {
-			destination.setId(source.getId());
 			destination.setCode(source.getCode());
 			destination.setTaxPriority(source.getPriority());
 			
@@ -105,9 +104,6 @@ public class PersistableTaxRateMapper implements Mapper<PersistableTaxRate, TaxR
 	    desc.setId(null);
 	    desc.setDescription(source.getDescription());
 	    desc.setName(source.getName());
-	    if(source.getId() != null && source.getId().longValue()>0) {
-	      desc.setId(source.getId());
-	    }
 	    Language lang = languageService.getByCode(source.getLanguage());
 	    desc.setLanguage(lang);
 	    return desc;
