@@ -21,6 +21,7 @@ import com.salesmanager.core.model.common.Delivery;
 import com.salesmanager.core.model.customer.Customer;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.country.Country;
+import com.salesmanager.core.model.reference.zone.Zone;
 import com.salesmanager.core.model.shipping.Quote;
 import com.salesmanager.core.model.shipping.ShippingSummary;
 import com.salesmanager.core.model.shoppingcart.ShoppingCart;
@@ -101,6 +102,37 @@ public class ShippingQuoteServiceImplTest {
 		billing.setPostalCode("H2X 1Y4");
 		customer.setBilling(billing);
 		assertNotNull(service.getShippingSummary(100L, cart, customer, store));
+	}
+
+	@Test
+	public void acceptsDeliveryOnlyCustomerQuotedWithStoreCountry() throws Exception {
+		store.setCountry(delivery("CA", null).getCountry());
+		quote.setDelivery(delivery("CA", null));
+		Customer customer = new Customer();
+		customer.setDelivery(delivery("US", null));
+		assertNotNull(service.getShippingSummary(100L, cart, customer, store));
+	}
+
+	@Test
+	public void rejectsQuoteForDifferentZone() {
+		Zone qc = new Zone();
+		qc.setCode("QC");
+		quote.getDelivery().setZone(qc);
+		Zone on = new Zone();
+		on.setCode("ON");
+		Customer customer = new Customer();
+		customer.setDelivery(delivery("CA", "H2X 1Y4"));
+		customer.getDelivery().setZone(on);
+		assertRejected(100L, cart, customer);
+	}
+
+	@Test
+	public void rejectsQuoteForDifferentState() {
+		quote.getDelivery().setState("Quebec");
+		Customer customer = new Customer();
+		customer.setDelivery(delivery("CA", "H2X 1Y4"));
+		customer.getDelivery().setState("Ontario");
+		assertRejected(100L, cart, customer);
 	}
 
 	@Test

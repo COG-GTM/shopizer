@@ -77,8 +77,8 @@ public class ShippingQuoteServiceImpl extends SalesManagerEntityServiceImpl<Long
 				throw invalidQuote(quoteId, "does not belong to customer");
 			}
 			
-			Delivery customerAddress = shippingAddress(customer);
-			if(customerAddress != null && !sameAddress(q.getDelivery(), customerAddress)) {
+			Delivery customerAddress = shippingAddress(customer, store);
+			if(!sameAddress(q.getDelivery(), customerAddress)) {
 				throw invalidQuote(quoteId, "does not match the delivery address");
 			}
 		}
@@ -106,32 +106,50 @@ public class ShippingQuoteServiceImpl extends SalesManagerEntityServiceImpl<Long
 	}
 	
 	/**
-	 * Address used to compute shipping quotes for a customer: delivery address,
-	 * or billing address when no delivery postal code is set
+	 * Address used to compute shipping quotes for a customer (same rules as the
+	 * shop facade): delivery address, or billing address when no delivery postal
+	 * code is set, defaulting to the store country
 	 */
-	private Delivery shippingAddress(Customer customer) {
+	private Delivery shippingAddress(Customer customer, MerchantStore store) {
 		Delivery delivery = customer.getDelivery();
 		if(delivery != null && !StringUtils.isBlank(delivery.getPostalCode())) {
 			return delivery;
 		}
+		Delivery address = new Delivery();
 		Billing billing = customer.getBilling();
-		if(billing != null && (!StringUtils.isBlank(billing.getPostalCode()) || billing.getCountry() != null)) {
-			Delivery address = new Delivery();
+		if(billing != null) {
 			address.setPostalCode(billing.getPostalCode());
 			address.setCountry(billing.getCountry());
-			return address;
+			address.setZone(billing.getZone());
+			address.setState(billing.getState());
+		} else {
+			address.setCountry(store.getCountry());
 		}
-		return delivery;
+		return address;
 	}
 	
 	private boolean sameAddress(Delivery quoted, Delivery address) {
 		if(quoted == null) {
 			return false;
 		}
-		String quotedCountry = quoted.getCountry() != null ? quoted.getCountry().getIsoCode() : null;
-		String country = address.getCountry() != null ? address.getCountry().getIsoCode() : null;
-		return StringUtils.equalsIgnoreCase(quotedCountry, country)
-				&& normalizePostalCode(quoted.getPostalCode()).equals(normalizePostalCode(address.getPostalCode()));
+		if(!StringUtils.equalsIgnoreCase(countryCode(quoted), countryCode(address))
+				|| !normalizePostalCode(quoted.getPostalCode()).equals(normalizePostalCode(address.getPostalCode()))) {
+			return false;
+		}
+		// region is compared when the quote was computed with one
+		if(quoted.getZone() != null && !StringUtils.equalsIgnoreCase(quoted.getZone().getCode(),
+				address.getZone() != null ? address.getZone().getCode() : null)) {
+			return false;
+		}
+		if(!StringUtils.isBlank(quoted.getState())
+				&& !StringUtils.equalsIgnoreCase(StringUtils.trim(quoted.getState()), StringUtils.trim(address.getState()))) {
+			return false;
+		}
+		return true;
+	}
+	
+	private String countryCode(Delivery address) {
+		return address.getCountry() != null ? address.getCountry().getIsoCode() : null;
 	}
 	
 	private String normalizePostalCode(String postalCode) {
