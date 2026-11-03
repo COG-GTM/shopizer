@@ -37,10 +37,10 @@ public interface CustomerService  extends SalesManagerEntityService<Long, Custom
 	Customer getByPasswordResetToken(String storeCode, String token);
 
 	/**
-	 * Atomically invalidates a password reset token.
+	 * Atomically sets the (encoded) password and invalidates the matching reset token.
 	 * @return true if the token was still present and has now been cleared
 	 */
-	boolean consumePasswordResetToken(Long customerId, String token);
+	boolean resetPasswordWithToken(Long customerId, String token, String encodedPassword);
 
 	/**
 	 * Return an {@link com.salesmanager.core.business.common.model.Address} object from the client IP address. Uses underlying GeoLocation module

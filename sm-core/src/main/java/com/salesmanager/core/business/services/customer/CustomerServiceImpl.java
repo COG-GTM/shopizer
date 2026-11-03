@@ -122,8 +122,8 @@ public class CustomerServiceImpl extends SalesManagerEntityServiceImpl<Long, Cus
 	}
 
 	@Override
-	public boolean consumePasswordResetToken(Long customerId, String token) {
-		return customerRepository.clearResetPasswordToken(customerId, token) == 1;
+	public boolean resetPasswordWithToken(Long customerId, String token, String encodedPassword) {
+		return customerRepository.resetPasswordWithToken(customerId, token, encodedPassword) == 1;
 	}
 	
 
