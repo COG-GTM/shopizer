@@ -46,6 +46,11 @@ public class SESEmailSenderImpl implements EmailModule {
       "This email was sent through Amazon SES " + "using the AWS SDK for Java.";
 
   @Override
+  public void send(Email email, EmailConfig emailConfig) throws Exception {
+    send(email);
+  }
+
+  @Override
   public void send(Email email) throws Exception {
 
 

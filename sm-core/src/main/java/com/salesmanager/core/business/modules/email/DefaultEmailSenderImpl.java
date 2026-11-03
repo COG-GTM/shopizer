@@ -41,6 +41,11 @@ public class DefaultEmailSenderImpl implements EmailModule {
 
   @Override
   public void send(Email email) throws Exception {
+    send(email, emailConfig);
+  }
+
+  @Override
+  public void send(Email email, EmailConfig emailConfig) throws Exception {
 
     final String eml = email.getFrom();
     final String from = email.getFromEmail();
@@ -51,21 +56,6 @@ public class DefaultEmailSenderImpl implements EmailModule {
 
     MimeMessagePreparator preparator = new MimeMessagePreparator() {
       public void prepare(MimeMessage mimeMessage) throws MessagingException, IOException {
-
-        JavaMailSenderImpl impl = (JavaMailSenderImpl) mailSender;
-        // if email configuration is present in Database, use the same
-        if (emailConfig != null) {
-          impl.setProtocol(emailConfig.getProtocol());
-          impl.setHost(emailConfig.getHost());
-          impl.setPort(Integer.parseInt(emailConfig.getPort()));
-          impl.setUsername(emailConfig.getUsername());
-          impl.setPassword(emailConfig.getPassword());
-
-          Properties prop = new Properties();
-          prop.put("mail.smtp.auth", emailConfig.isSmtpAuth());
-          prop.put("mail.smtp.starttls.enable", emailConfig.isStarttls());
-          impl.setJavaMailProperties(prop);
-        }
 
         mimeMessage.setRecipient(Message.RecipientType.TO, new InternetAddress(to));
 
@@ -158,7 +148,24 @@ public class DefaultEmailSenderImpl implements EmailModule {
       }
     };
 
-    mailSender.send(preparator);
+    JavaMailSender sender = emailConfig != null ? buildMailSender(emailConfig) : mailSender;
+    sender.send(preparator);
+  }
+
+  // Store specific settings get their own sender so the shared bean is never modified
+  private JavaMailSender buildMailSender(EmailConfig emailConfig) {
+    JavaMailSenderImpl impl = new JavaMailSenderImpl();
+    impl.setProtocol(emailConfig.getProtocol());
+    impl.setHost(emailConfig.getHost());
+    impl.setPort(Integer.parseInt(emailConfig.getPort()));
+    impl.setUsername(emailConfig.getUsername());
+    impl.setPassword(emailConfig.getPassword());
+
+    Properties prop = new Properties();
+    prop.put("mail.smtp.auth", emailConfig.isSmtpAuth());
+    prop.put("mail.smtp.starttls.enable", emailConfig.isStarttls());
+    impl.setJavaMailProperties(prop);
+    return impl;
   }
 
   public Configuration getFreemarkerMailConfiguration() {
