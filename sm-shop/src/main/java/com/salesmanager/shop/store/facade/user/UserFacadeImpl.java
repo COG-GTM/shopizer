@@ -692,16 +692,15 @@ public class UserFacadeImpl implements UserFacade {
 				boolean authorized = false;
 
 				// user store can be parent and requested store is child
-				// get parent
 				// TODO CACHE
 				MerchantStore parent = null;
-						
+
 				if(store.getParent()!=null) {
-					parent=merchantStoreService.getParent(merchant);
+					parent=merchantStoreService.getParent(store.getCode());
 				}
 
-				// user can be in parent
-				if (parent != null && parent.getCode().equals(store.getCode())) {
+				// user can be in parent of requested store
+				if (parent != null && parent.getCode().equalsIgnoreCase(merchant)) {
 					authorized = true;
 				}
 
