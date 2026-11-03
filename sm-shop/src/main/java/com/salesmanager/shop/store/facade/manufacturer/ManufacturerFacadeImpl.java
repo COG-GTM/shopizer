@@ -114,6 +114,14 @@ public class ManufacturerFacadeImpl implements ManufacturerFacade {
   @Override
   public void deleteManufacturer(Manufacturer manufacturer, MerchantStore store, Language language)
       throws Exception {
+    Validate.notNull(manufacturer, "Manufacturer cannot be null");
+    Validate.notNull(store, "MerchantStore cannot be null");
+
+    if (manufacturer.getMerchantStore() == null
+        || manufacturer.getMerchantStore().getId().longValue() != store.getId().longValue()) {
+      throw new ResourceNotFoundException("Manufacturer [" + manufacturer.getId() + "] not found for store [" + store.getId() + "]");
+    }
+
     manufacturerService.delete(manufacturer);
 
   }
