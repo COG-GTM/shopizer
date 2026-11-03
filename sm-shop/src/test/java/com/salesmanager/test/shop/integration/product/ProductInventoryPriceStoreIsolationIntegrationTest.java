@@ -87,6 +87,15 @@ public class ProductInventoryPriceStoreIsolationIntegrationTest extends Services
 				"/api/v1/private/product/" + SKU + "/inventory?store=" + Constants.DEFAULT_STORE, null);
 		assertEquals(HttpStatus.OK, ownRead.getStatusCode());
 		assertTrue(ownRead.getBody(), ownRead.getBody().contains("\"id\":" + inventoryId));
+
+		// owning store can still update its price by id
+		ResponseEntity<String> ownUpdate = call(HttpMethod.PUT,
+				"/api/v1/private/product/" + SKU + "/inventory/" + inventoryId + "/price/" + priceId + "?store=" + Constants.DEFAULT_STORE, newPrice);
+		assertTrue(ownUpdate.getBody(), ownUpdate.getStatusCode().is2xxSuccessful());
+		JsonNode updated = json(call(HttpMethod.GET,
+				"/api/v1/private/product/" + SKU + "/inventory?store=" + Constants.DEFAULT_STORE, null)).get("items");
+		assertEquals(priceId.longValue(), updated.get(0).get("prices").get(0).get("id").asLong());
+		assertTrue(updated.toString(), updated.get(0).get("prices").get(0).get("originalPrice").asText().contains("0.01"));
 	}
 
 	private JsonNode json(ResponseEntity<String> response) throws Exception {

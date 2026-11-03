@@ -45,8 +45,14 @@ public class ProductPriceFacadeImpl implements ProductPriceFacade {
 	@Override
 	public Long save(PersistableProductPrice price, MerchantStore store) {
 
-		if (isPositive(price.getId()) && productPriceService.findById(price.getId(), store) == null) {
-			throw new ResourceNotFoundException("ProductPrice with id [" + price.getId() + "] not found for Store [" + store.getCode() + "]");
+		if (isPositive(price.getId())) {
+			ProductPrice existing = productPriceService.findById(price.getId(), store);
+			Long existingInventoryId = existing == null ? null : existing.getProductAvailability().getId();
+			if (existing == null || (isPositive(price.getProductAvailabilityId())
+					&& !existingInventoryId.equals(price.getProductAvailabilityId()))) {
+				throw new ResourceNotFoundException("ProductPrice with id [" + price.getId() + "] not found for Store [" + store.getCode() + "]");
+			}
+			price.setProductAvailabilityId(existingInventoryId);
 		}
 
 		ProductPrice productPrice = persistableProductPriceMapper.convert(price, store, store.getDefaultLanguage());
