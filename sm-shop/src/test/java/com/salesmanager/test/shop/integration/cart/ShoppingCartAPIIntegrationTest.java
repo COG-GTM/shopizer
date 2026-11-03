@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
@@ -224,6 +225,59 @@ public class ShoppingCartAPIIntegrationTest extends ServicesTestSupport {
 
         assertNotNull(response);
         assertThat(response.getStatusCode(), is(OK));
+    }
+
+    /**
+     * Creating a cart with a negative quantity must be rejected with HTTP 400
+     */
+    @Test
+    @Order(8)
+    public void addNegativeQuantityToCart() throws Exception {
+
+        PersistableShoppingCartItem cartItem = new PersistableShoppingCartItem();
+        cartItem.setProduct(data.getProducts().get(0).getSku());
+        cartItem.setQuantity(-1);
+
+        final HttpEntity<PersistableShoppingCartItem> cartEntity = new HttpEntity<>(cartItem, getHeader());
+        final ResponseEntity<String> response = testRestTemplate.postForEntity("/api/v1/cart/", cartEntity, String.class);
+
+        assertThat(response.getStatusCode(), is(BAD_REQUEST));
+    }
+
+    /**
+     * Modifying a cart with a negative quantity (single or multi) must be rejected
+     * with HTTP 400 and leave the cart unchanged
+     */
+    @Test
+    @Order(9)
+    public void modifyCartWithNegativeQuantity() throws Exception {
+
+        PersistableShoppingCartItem cartItem = new PersistableShoppingCartItem();
+        cartItem.setProduct(data.getProducts().get(0).getSku());
+        cartItem.setQuantity(1);
+
+        final ResponseEntity<ReadableShoppingCart> created = testRestTemplate.postForEntity("/api/v1/cart/",
+                new HttpEntity<>(cartItem, getHeader()), ReadableShoppingCart.class);
+        assertThat(created.getStatusCode(), is(CREATED));
+        final String code = created.getBody().getCode();
+
+        PersistableShoppingCartItem negativeItem = new PersistableShoppingCartItem();
+        negativeItem.setProduct(data.getProducts().get(1).getSku());
+        negativeItem.setQuantity(-1);
+
+        final ResponseEntity<String> single = testRestTemplate.exchange("/api/v1/cart/" + code, HttpMethod.PUT,
+                new HttpEntity<>(negativeItem, getHeader()), String.class);
+        assertThat(single.getStatusCode(), is(BAD_REQUEST));
+
+        PersistableShoppingCartItem[] multi = { negativeItem };
+        final ResponseEntity<String> multiResponse = testRestTemplate.exchange("/api/v1/cart/" + code + "/multi",
+                HttpMethod.POST, new HttpEntity<>(multi, getHeader()), String.class);
+        assertThat(multiResponse.getStatusCode(), is(BAD_REQUEST));
+
+        final ResponseEntity<ReadableShoppingCart> cart = testRestTemplate.exchange("/api/v1/cart/" + code,
+                HttpMethod.GET, new HttpEntity<>(getHeader()), ReadableShoppingCart.class);
+        assertThat(cart.getStatusCode(), is(OK));
+        assertEquals(1, cart.getBody().getQuantity());
     }
 
 }
