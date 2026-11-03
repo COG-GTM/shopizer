@@ -442,6 +442,7 @@ public class OrderApi {
 
 
 			order.setShoppingCartId(cart.getId());
+			order.setCustomerId(null);//anonymous checkout never targets an existing customer
 
 			Order modelOrder = orderFacade.processOrder(order, customer, merchantStore, language,
 					LocaleUtils.getLocale(language));
