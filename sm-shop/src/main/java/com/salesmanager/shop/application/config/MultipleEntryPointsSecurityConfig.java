@@ -27,6 +27,7 @@ import com.salesmanager.shop.store.security.ServicesAuthenticationSuccessHandler
 import com.salesmanager.shop.store.security.admin.JWTAdminAuthenticationProvider;
 import com.salesmanager.shop.store.security.admin.JWTAdminServicesImpl;
 import com.salesmanager.shop.store.security.customer.JWTCustomerAuthenticationProvider;
+import com.salesmanager.shop.constants.Constants;
 import com.salesmanager.shop.store.security.services.CredentialsService;
 import com.salesmanager.shop.store.security.services.CredentialsServiceImpl;
 
@@ -185,6 +186,7 @@ public class MultipleEntryPointsSecurityConfig {
 			.csrf().disable()
 					.authorizeRequests()
 					.antMatchers("/services/public/**").permitAll()
+					.antMatchers("/services/private/system/**").hasRole(Constants.GROUP_SUPERADMIN)
 					.antMatchers("/services/private/**").hasRole("AUTH")
 					.anyRequest().authenticated()
 					.and().httpBasic().authenticationEntryPoint(servicesAuthenticationEntryPoint())

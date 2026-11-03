@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.salesmanager.core.business.services.system.ModuleConfigurationService;
 import com.salesmanager.core.business.utils.ajax.AjaxResponse;
+import com.salesmanager.shop.constants.Constants;
 
 
 /**
@@ -61,6 +62,12 @@ public class SystemRESTController {
 		
 		
 		AjaxResponse resp = new AjaxResponse();
+
+		if (!request.isUserInRole(Constants.GROUP_SUPERADMIN)) {
+			resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+			response.sendError(HttpServletResponse.SC_FORBIDDEN);
+			return resp;
+		}
 		
 		try {
 			

@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 
 import org.apache.commons.digester.Digester;
 import org.apache.commons.lang3.StringUtils;
@@ -26,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.salesmanager.core.business.utils.DataUtils;
+import com.salesmanager.core.business.utils.SecureDigesterFactory;
 import com.salesmanager.core.model.common.Delivery;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.country.Country;
@@ -50,6 +54,11 @@ import com.salesmanager.core.modules.integration.shipping.model.ShippingQuoteMod
 public class UPSShippingQuote implements ShippingQuoteModule {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(UPSShippingQuote.class);
+
+	private static final Set<String> ALLOWED_SCHEMES = Collections.singleton("https");
+
+	private static final Set<String> ALLOWED_HOSTS = Collections.unmodifiableSet(
+			new HashSet<String>(Arrays.asList("wwwcie.ups.com", "onlinetools.ups.com")));
 
 
 	@Override
@@ -167,10 +176,6 @@ public class UPSShippingQuote implements ShippingQuoteModule {
 		String password = keys.get("password");
 		
 		
-		String host = null;
-		String protocol = null;
-		String port = null;
-		String url = null;
 		
 		StringBuilder xmlbuffer = new StringBuilder();
 		HttpPost httppost = null;
@@ -184,17 +189,17 @@ public class UPSShippingQuote implements ShippingQuoteModule {
 				throw new IntegrationException("Can't use the service for store country code ");
 			}
 			
+			ModuleConfig envConfig = null;
 			Map<String, ModuleConfig> moduleConfigsMap = module.getModuleConfigs();
 			for(String key : moduleConfigsMap.keySet()) {
 				
 				ModuleConfig moduleConfig = moduleConfigsMap.get(key);
 				if(moduleConfig.getEnv().equals(env)) {
-					host = moduleConfig.getHost();
-					protocol = moduleConfig.getScheme();
-					port = moduleConfig.getPort();
-					url = moduleConfig.getUri();
+					envConfig = moduleConfig;
 				}
 			}
+
+			String endpoint = CarrierEndpoint.buildUrl("UPS", envConfig, ALLOWED_SCHEMES, ALLOWED_HOSTS);
 
 			
 			StringBuilder xmlreqbuffer = new StringBuilder();
@@ -380,8 +385,7 @@ public class UPSShippingQuote implements ShippingQuoteModule {
 
 			try(CloseableHttpClient httpclient = HttpClients.createDefault()) {
 			//HttpClient client = new HttpClient();
-			httppost = new HttpPost(protocol + "://" + host + ":" + port
-					+ url);
+			httppost = new HttpPost(endpoint);
 			StringEntity entity = new StringEntity(xmlbuffer.toString(),ContentType.APPLICATION_ATOM_XML);
 			//RequestEntity entity = new StringRequestEntity(
 			//		xmlbuffer.toString(), "text/plain", "UTF-8");
@@ -411,7 +415,7 @@ public class UPSShippingQuote implements ShippingQuoteModule {
 
 			UPSParsedElements parsed = new UPSParsedElements();
 
-			Digester digester = new Digester();
+			Digester digester = SecureDigesterFactory.newDigester();
 			digester.push(parsed);
 			digester.addCallMethod(
 					"RatingServiceSelectionResponse/Response/Error",

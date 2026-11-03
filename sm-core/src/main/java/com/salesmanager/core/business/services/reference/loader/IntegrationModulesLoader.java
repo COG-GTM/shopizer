@@ -3,8 +3,13 @@ package com.salesmanager.core.business.services.reference.loader;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.lang3.StringUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +25,12 @@ public class IntegrationModulesLoader {
 	
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(IntegrationModulesLoader.class);
+
+	private static final String REFERENCE_MODULES = "reference/integrationmodules.json";
+
+	private static final String NOT_REQUIRED = "NOTREQUIRED";
+
+	private volatile Map<String, Set<String>> allowedEndpoints;
 	
 
 	public List<IntegrationModule> loadIntegrationModules(String jsonFilePath) throws Exception {
@@ -134,6 +145,7 @@ public class IntegrationModulesLoader {
 	        		config.setPort((String)values.get("port"));
 	        		config.setUri((String)values.get("uri"));
 	        		config.setEnv((String)values.get("env"));
+	        		validateEndpoint(module.getCode(), config);
 	        		if(values.get("config1") !=null) {
 	        			config.setConfig1((String)values.get("config1"));
 	        		}
@@ -185,6 +197,76 @@ public class IntegrationModulesLoader {
 	    	return module;
     	
 		
+	}
+
+	/**
+	 * Only the scheme/host pairs declared for a module in the bundled
+	 * reference/integrationmodules.json are accepted, so a module definition
+	 * cannot redirect gateway traffic to an arbitrary server.
+	 */
+	private void validateEndpoint(String code, ModuleConfig config) throws Exception {
+		String host = StringUtils.trimToEmpty(config.getHost());
+		if (host.isEmpty() || NOT_REQUIRED.equalsIgnoreCase(host)) {
+			return;
+		}
+
+		Set<String> allowed = getAllowedEndpoints().get(code);
+		if (allowed == null || !allowed.contains(endpointKey(config.getScheme(), host))) {
+			throw new ServiceException("Endpoint " + config.getScheme() + "://" + host
+					+ " is not allowed for integration module " + code);
+		}
+
+		String port = StringUtils.trimToEmpty(config.getPort());
+		if (!port.isEmpty() && !NOT_REQUIRED.equalsIgnoreCase(port) && !port.matches("\\d{1,5}")) {
+			throw new ServiceException("Invalid port " + port + " for integration module " + code);
+		}
+
+		String uri = StringUtils.trimToEmpty(config.getUri());
+		if (!uri.isEmpty() && !NOT_REQUIRED.equalsIgnoreCase(uri) && (!uri.startsWith("/") || uri.startsWith("//"))) {
+			throw new ServiceException("Invalid uri " + uri + " for integration module " + code);
+		}
+	}
+
+	@SuppressWarnings("rawtypes")
+	private Map<String, Set<String>> getAllowedEndpoints() throws Exception {
+		Map<String, Set<String>> endpoints = allowedEndpoints;
+		if (endpoints != null) {
+			return endpoints;
+		}
+		synchronized (this) {
+			if (allowedEndpoints == null) {
+				Map<String, Set<String>> loaded = new HashMap<String, Set<String>>();
+				ObjectMapper mapper = new ObjectMapper();
+				try (InputStream in = this.getClass().getClassLoader().getResourceAsStream(REFERENCE_MODULES)) {
+					if (in == null) {
+						throw new ServiceException("Cannot load " + REFERENCE_MODULES);
+					}
+					Map[] objects = mapper.readValue(in, Map[].class);
+					for (Map object : objects) {
+						List confs = (List) object.get("configuration");
+						if (confs == null) {
+							continue;
+						}
+						Set<String> keys = new HashSet<String>();
+						for (Object conf : confs) {
+							Map values = (Map) conf;
+							String host = StringUtils.trimToEmpty((String) values.get("host"));
+							if (!host.isEmpty() && !NOT_REQUIRED.equalsIgnoreCase(host)) {
+								keys.add(endpointKey((String) values.get("scheme"), host));
+							}
+						}
+						loaded.put((String) object.get("code"), keys);
+					}
+				}
+				allowedEndpoints = loaded;
+			}
+			return allowedEndpoints;
+		}
+	}
+
+	private static String endpointKey(String scheme, String host) {
+		return StringUtils.trimToEmpty(scheme).toLowerCase(Locale.ROOT) + "://"
+				+ StringUtils.trimToEmpty(host).toLowerCase(Locale.ROOT);
 	}
 
 }
