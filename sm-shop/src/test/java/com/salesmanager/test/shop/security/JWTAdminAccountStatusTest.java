@@ -81,7 +81,11 @@ public class JWTAdminAccountStatusTest {
     assertEquals(null, user.getPasswordChangedDate());
 
     user.setAdminPassword("$2a$10$anotherEncodedPassword");
-    assertNotNull(user.getPasswordChangedDate());
+    Date second = user.getPasswordChangedDate();
+    assertNotNull(second);
+
+    user.setAdminPassword("$2a$10$yetAnotherEncodedPassword");
+    assertTrue(user.getPasswordChangedDate().after(second));
   }
 
   @Test
@@ -111,12 +115,19 @@ public class JWTAdminAccountStatusTest {
   @Test
   public void tokenIssuedBeforePasswordChangeIsRejected() throws Exception {
     String token = issueToken();
-    user.setPasswordChangedDate(new Date(System.currentTimeMillis() + 2000));
+    user.setAdminPassword("$2a$10$changedEncodedPassword");
 
     UserDetails details = detailsService.loadUserByUsername(USERNAME);
     assertFalse(jwtTokenUtil.validateToken(token, details));
     assertFalse(jwtTokenUtil.canTokenBeRefreshedWithGrace(token, ((JWTUser) details).getLastPasswordResetDate()));
     assertEquals(null, authenticationManager.attemptAuthentication(request(token), new MockHttpServletResponse()));
+  }
+
+  @Test
+  public void tokenIssuedInSameSecondAsPasswordChangeIsRejected() throws Exception {
+    String token = issueToken();
+    user.setAdminPassword("$2a$10$sameSecondEncodedPassword");
+    assertFalse(jwtTokenUtil.validateToken(token, detailsService.loadUserByUsername(USERNAME)));
   }
 
   @Test

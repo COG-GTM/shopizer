@@ -39,6 +39,7 @@ public class JWTTokenUtil implements Serializable {
 	 	static final String CLAIM_KEY_USERNAME = "sub";
 	    static final String CLAIM_KEY_AUDIENCE = "aud";
 	    static final String CLAIM_KEY_CREATED = "iat";
+	    static final String CLAIM_KEY_PASSWORD_CHANGED = "pwc";
 
 	    static final String AUDIENCE_UNKNOWN = "unknown";
 	    static final String AUDIENCE_API = "api";
@@ -92,12 +93,15 @@ public class JWTTokenUtil implements Serializable {
 	            return expiration.before(DateUtil.getDate());
 	    }
 
-	    private Boolean isCreatedBeforeLastPasswordReset(Date created, Date lastPasswordReset) {
-	        return (lastPasswordReset != null && created.before(lastPasswordReset));
-	    }
-	    
-	    private Boolean isCreatedBeforeLastPasswordResetWithGrace(Date created, Date lastPasswordReset) {
-	        return (lastPasswordReset != null && created.before(addSeconds(lastPasswordReset,GRACE_PERIOD)));
+	    // tokens carry the password-change date they were issued against; legacy tokens fall back to issued-at
+	    private Boolean isCreatedBeforeLastPasswordReset(String token, Date lastPasswordReset) {
+	        final Claims claims = getAllClaimsFromToken(token);
+	        Object issuedAgainst = claims.get(CLAIM_KEY_PASSWORD_CHANGED);
+	        if (issuedAgainst != null) {
+	            return lastPasswordReset == null
+	                    || ((Number) issuedAgainst).longValue() != lastPasswordReset.getTime();
+	        }
+	        return (lastPasswordReset != null && claims.getIssuedAt().before(lastPasswordReset));
 	    }
 	    
 	    private Date addSeconds(Date date, Integer seconds) {
@@ -118,6 +122,9 @@ public class JWTTokenUtil implements Serializable {
 
 	    public String generateToken(UserDetails userDetails) {
 	        Map<String, Object> claims = new HashMap<>();
+	        if (userDetails instanceof JWTUser && ((JWTUser) userDetails).getLastPasswordResetDate() != null) {
+	            claims.put(CLAIM_KEY_PASSWORD_CHANGED, ((JWTUser) userDetails).getLastPasswordResetDate().getTime());
+	        }
 	        return doGenerateToken(claims, userDetails.getUsername(), generateAudience());
 	    }
 
@@ -138,14 +145,12 @@ public class JWTTokenUtil implements Serializable {
 	    }
 	    
         public Boolean canTokenBeRefreshedWithGrace(String token, Date lastPasswordReset) {
-          final Date created = getIssuedAtDateFromToken(token);
-          return !isCreatedBeforeLastPasswordReset(created, lastPasswordReset)
+          return !isCreatedBeforeLastPasswordReset(token, lastPasswordReset)
                   && (!isTokenExpiredWithGrace(token) || ignoreTokenExpiration(token));
         }
 
 	    public Boolean canTokenBeRefreshed(String token, Date lastPasswordReset) {
-	        final Date created = getIssuedAtDateFromToken(token);
-	        return !isCreatedBeforeLastPasswordReset(created, lastPasswordReset)
+	        return !isCreatedBeforeLastPasswordReset(token, lastPasswordReset)
 	                && (!isTokenExpired(token) || ignoreTokenExpiration(token));
 	    }
 
@@ -166,12 +171,11 @@ public class JWTTokenUtil implements Serializable {
 	    public Boolean validateToken(String token, UserDetails userDetails) {
 	        JWTUser user = (JWTUser) userDetails;
 	        final String username = getUsernameFromToken(token);
-	        final Date created = getIssuedAtDateFromToken(token);
 	        //final Date expiration = getExpirationDateFromToken(token);
 	        
 	        boolean usernameEquals = username.equals(user.getUsername());
 	        boolean isTokenExpired = isTokenExpired(token);
-	        boolean isTokenCreatedBeforeLastPasswordReset = isCreatedBeforeLastPasswordReset(created, user.getLastPasswordResetDate());
+	        boolean isTokenCreatedBeforeLastPasswordReset = isCreatedBeforeLastPasswordReset(token, user.getLastPasswordResetDate());
 	        
 	        return (
 

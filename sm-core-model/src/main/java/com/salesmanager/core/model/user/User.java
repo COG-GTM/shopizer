@@ -206,8 +206,12 @@ public class User extends SalesManagerEntity<Long, User> implements Auditable {
 
 	public void setAdminPassword(String adminPassword) {
 		if (adminPassword != null && !adminPassword.equals(this.adminPassword)) {
-			// second precision to match JWT issued-at claims
-			this.passwordChangedDate = new Date((System.currentTimeMillis() / 1000) * 1000);
+			// second precision survives DATETIME columns; kept strictly increasing so every change is distinct
+			Date changed = new Date((System.currentTimeMillis() / 1000) * 1000);
+			if (this.passwordChangedDate != null && !changed.after(this.passwordChangedDate)) {
+				changed = new Date(this.passwordChangedDate.getTime() + 1000);
+			}
+			this.passwordChangedDate = changed;
 		}
 		this.adminPassword = adminPassword;
 	}

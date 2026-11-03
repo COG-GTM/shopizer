@@ -19,6 +19,7 @@ import com.salesmanager.shop.model.security.PersistableGroup;
 import com.salesmanager.shop.model.user.PersistableUser;
 import com.salesmanager.shop.model.user.ReadableUser;
 import com.salesmanager.shop.model.user.UserPassword;
+import com.salesmanager.shop.store.security.AuthenticationRequest;
 import com.salesmanager.test.shop.common.ServicesTestSupport;
 
 @SpringBootTest(classes = ShopApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -111,6 +112,10 @@ public class UserApiIntegrationTest extends ServicesTestSupport {
       assertEquals(HttpStatus.OK, disable.getStatusCode());
 
       assertEquals(HttpStatus.UNAUTHORIZED, getUserWith(user.getId(), userHeader));
+
+      ResponseEntity<String> login = testRestTemplate.postForEntity("/api/v1/private/login",
+          new HttpEntity<>(new AuthenticationRequest("disabled@test.com", CREATED_PASSWORD)), String.class);
+      assertEquals(HttpStatus.UNAUTHORIZED, login.getStatusCode());
   }
 
   @Test
@@ -120,7 +125,6 @@ public class UserApiIntegrationTest extends ServicesTestSupport {
       assertEquals(HttpStatus.OK, getUserWith(user.getId(), oldHeader));
 
       // token issued-at has second precision
-      Thread.sleep(1100);
 
       UserPassword userPassword = new UserPassword();
       userPassword.setPassword(CREATED_PASSWORD);

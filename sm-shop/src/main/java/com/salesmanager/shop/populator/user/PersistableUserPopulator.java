@@ -55,7 +55,8 @@ public class PersistableUserPopulator extends AbstractDataPopulator<PersistableU
     target.setLastName(source.getLastName());
     target.setAdminEmail(source.getEmailAddress());
     target.setAdminName(source.getUserName());
-    if(!StringUtils.isBlank(source.getPassword())) {
+    if(!StringUtils.isBlank(source.getPassword())
+        && (target.getAdminPassword() == null || !passwordEncoder.matches(source.getPassword(), target.getAdminPassword()))) {
       target.setAdminPassword(passwordEncoder.encode(source.getPassword()));
     }
     
