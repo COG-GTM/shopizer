@@ -76,15 +76,7 @@ public class UserServiceImpl extends SalesManagerEntityServiceImpl<Long, User> i
 	@Override
 	public User findByStore(Long userId, String storeCode) throws ServiceException {
 
-		User user = userRepository.findOne(userId);
-
-		// store must be in lineage
-		boolean isFound = merchantStoreService.isStoreInGroup(storeCode);
-
-		if (isFound)
-			return user;
-
-		return null;
+		return userRepository.findByUserAndStore(userId, storeCode);
 
 	}
 
