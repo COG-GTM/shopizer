@@ -36,14 +36,22 @@ public final class CarrierEndpoint {
 
 		int port = parsePort(carrier, config.getPort());
 
-		if (!uri.startsWith("/") || uri.startsWith("//") || uri.contains("\\") || uri.contains("?")
-				|| uri.contains("#")) {
+		if (uri.contains("\\")) {
 			throw new IntegrationException(carrier + " endpoint path is invalid");
 		}
 
 		try {
-			URI built = new URI(scheme, null, host, port, uri, null, null);
-			if (!host.equals(built.getHost())) {
+			URI path = new URI(uri);
+			String rawPath = path.getRawPath();
+			if (path.getScheme() != null || path.getRawAuthority() != null || path.getRawQuery() != null
+					|| path.getRawFragment() != null || rawPath == null || !rawPath.startsWith("/")
+					|| rawPath.startsWith("//")) {
+				throw new IntegrationException(carrier + " endpoint path is invalid");
+			}
+
+			URI base = new URI(scheme, null, host, port, null, null, null);
+			URI built = new URI(base.toASCIIString() + rawPath);
+			if (!host.equals(built.getHost()) || !scheme.equals(built.getScheme()) || built.getPort() != port) {
 				throw new IntegrationException(carrier + " endpoint is invalid");
 			}
 			return built.toASCIIString();

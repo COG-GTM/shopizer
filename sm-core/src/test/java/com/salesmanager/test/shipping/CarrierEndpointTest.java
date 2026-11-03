@@ -24,6 +24,12 @@ public class CarrierEndpointTest {
 	}
 
 	@Test
+	public void keepsEncodedPathEncodedOnce() throws Exception {
+		assertEquals("https://onlinetools.ups.com:443/ShippingAPI%2Edll",
+				CarrierEndpoint.buildUrl("UPS", config("https", "onlinetools.ups.com", "443", "/ShippingAPI%2Edll"), SCHEMES, HOSTS));
+	}
+
+	@Test
 	public void rejectsUnsafeEndpoints() {
 		assertRejected(null);
 		assertRejected(config("https", "attacker.example", "443", "/xml/Rate"));
@@ -32,6 +38,10 @@ public class CarrierEndpointTest {
 		assertRejected(config("https", "onlinetools.ups.com", "8080", "/xml/Rate"));
 		assertRejected(config("https", "onlinetools.ups.com", "443", "@attacker.example/xml"));
 		assertRejected(config("https", "onlinetools.ups.com", "443", "//attacker.example/xml"));
+		assertRejected(config("https", "onlinetools.ups.com", "443", "/xml/Rate?x=1"));
+		assertRejected(config("https", "onlinetools.ups.com", "443", "/xml/Rate#frag"));
+		assertRejected(config("https", "onlinetools.ups.com", "443", "https://attacker.example/xml"));
+		assertRejected(config("https", "onlinetools.ups.com", "443", "/xml\\Rate"));
 		assertRejected(config("https", "onlinetools.ups.com.attacker.example", "443", "/xml/Rate"));
 	}
 
