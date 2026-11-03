@@ -41,6 +41,7 @@ import com.salesmanager.core.model.common.GenericEntityList;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.core.model.user.Group;
+import com.salesmanager.core.model.user.GroupType;
 import com.salesmanager.core.model.user.Permission;
 import com.salesmanager.core.model.user.User;
 import com.salesmanager.core.model.user.UserCriteria;
@@ -306,7 +307,18 @@ public class UserFacadeImpl implements UserFacade {
 		Validate.notNull(user, "User must not be null");
 		Validate.notNull(user.getUserName(), "Username must not be null");
 
+		String authenticatedUser = authenticatedUser();
+		if (authenticatedUser == null) {
+			throw new UnauthorizedException("User Not authorized");
+		}
+
 		try {
+
+			User currentUser = userService.getByUserName(authenticatedUser);
+			if (currentUser == null) {
+				throw new UnauthorizedException("User " + authenticatedUser + " not authorized");
+			}
+			boolean isSuperAdmin = isSuperAdmin(currentUser.getGroups());
 
 			// check if user exists
 			User tempUser = userService.getByUserName(user.getUserName(), store.getCode());
@@ -335,6 +347,20 @@ public class UserFacadeImpl implements UserFacade {
 			userModel = converPersistabletUserToUser(store, languageService.defaultLanguage(), userModel, user);
 			if (CollectionUtils.isEmpty(userModel.getGroups())) {
 				throw new ServiceRuntimeException("No valid group groups associated with user " + user.getUserName());
+			}
+			if (!isSuperAdmin) {
+				for (Group group : userModel.getGroups()) {
+					if (Constants.GROUP_SUPERADMIN.equalsIgnoreCase(group.getGroupName())
+							|| group.getGroupType() != GroupType.ADMIN) {
+						throw new UnauthorizedException("User " + authenticatedUser + " not authorized to assign group ["
+								+ group.getGroupName() + "]");
+					}
+				}
+				MerchantStore userStore = userModel.getMerchantStore();
+				if (!isSameOrChildStore(currentUser.getMerchantStore(), userStore)) {
+					throw new UnauthorizedException("User " + authenticatedUser + " not authorized to create user for store ["
+							+ (userStore == null ? null : userStore.getCode()) + "]");
+				}
 			}
 			userModel.setAdminPassword(newPasswordEncoded);
 			userService.saveOrUpdate(userModel);
@@ -584,21 +610,17 @@ public class UserFacadeImpl implements UserFacade {
 		try {
 			User currentUser = userService.getByUserName(authenticatedUser);
 
-			boolean isSuperAdmin = false;
+			if (currentUser == null) {
+				throw new UnauthorizedException("User " + authenticatedUser + " not authorized");
+			}
 
-			for (Group g : currentUser.getGroups()) {
-				if (g.getGroupName().equals("SUPERADMIN")) {
-					isSuperAdmin = true;
-					break;
-				}
-
+			if (isSuperAdmin(currentUser.getGroups())) {
+				return;
 			}
 
 			for (PersistableGroup g : user.getGroups()) {
-				if (g.getName().equals("SUPERADMIN")) {
-					if (!isSuperAdmin) {
-						throw new UnauthorizedException("Superadmin group not allowed");
-					}
+				if (Constants.GROUP_SUPERADMIN.equalsIgnoreCase(StringUtils.trim(g.getName()))) {
+					throw new UnauthorizedException("Superadmin group not allowed");
 				}
 			}
 
@@ -606,6 +628,22 @@ public class UserFacadeImpl implements UserFacade {
 			throw new ServiceRuntimeException("Error while looking for authorization", e);
 		}
 
+	}
+
+	private boolean isSameOrChildStore(MerchantStore callerStore, MerchantStore targetStore) {
+		if (callerStore == null || targetStore == null) {
+			return false;
+		}
+		if (callerStore.getCode().equals(targetStore.getCode())) {
+			return true;
+		}
+		MerchantStore parent = targetStore.getParent();
+		return parent != null && callerStore.getCode().equals(parent.getCode());
+	}
+
+	private boolean isSuperAdmin(List<Group> groups) {
+		return groups != null && groups.stream()
+				.anyMatch(g -> Constants.GROUP_SUPERADMIN.equals(g.getGroupName()));
 	}
 
 	@Override

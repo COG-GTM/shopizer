@@ -128,6 +128,8 @@ public class UserApi {
 			}
 		}
 
+		userFacade.authorizedGroups(authenticatedUser, user);
+
 		return userFacade.create(user, merchantStore);
 	}
 
