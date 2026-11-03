@@ -6,8 +6,11 @@ import java.math.BigDecimal;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.http.HttpEntity;
@@ -18,6 +21,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import com.salesmanager.core.business.constants.Constants;
+import com.salesmanager.core.business.services.merchant.MerchantStoreService;
+import com.salesmanager.core.business.services.system.MerchantConfigurationService;
+import com.salesmanager.core.model.merchant.MerchantStore;
+import com.salesmanager.core.model.system.MerchantConfiguration;
 import com.salesmanager.shop.application.ShopApplication;
 import com.salesmanager.shop.model.catalog.product.PersistableProductPrice;
 import com.salesmanager.shop.model.catalog.product.ReadableProduct;
@@ -28,6 +36,31 @@ import com.salesmanager.test.shop.common.ServicesTestSupport;
 public class StoreInventoryJourneysTest extends ServicesTestSupport {
 
 	private final ObjectMapper json = new ObjectMapper();
+	@Autowired private MerchantConfigurationService configurations;
+	@Autowired private MerchantStoreService stores;
+	private MerchantStore defaultStore;
+	private MerchantConfiguration paymentConfigurationBefore;
+	private String paymentConfigurationValueBefore;
+
+	@Before
+	public void snapshotPaymentConfiguration() throws Exception {
+		defaultStore = stores.getByCode(MerchantStore.DEFAULT_STORE);
+		paymentConfigurationBefore = configurations.getMerchantConfiguration(Constants.PAYMENT_MODULES, defaultStore);
+		paymentConfigurationValueBefore = paymentConfigurationBefore == null ? null : paymentConfigurationBefore.getValue();
+	}
+
+	@After
+	public void restorePaymentConfiguration() throws Exception {
+		if (paymentConfigurationBefore != null) {
+			paymentConfigurationBefore.setValue(paymentConfigurationValueBefore);
+			configurations.saveOrUpdate(paymentConfigurationBefore);
+		} else if (defaultStore != null) {
+			MerchantConfiguration created = configurations.getMerchantConfiguration(Constants.PAYMENT_MODULES, defaultStore);
+			if (created != null) {
+				configurations.delete(created);
+			}
+		}
+	}
 
 	@Test
 	public void adminLoginProtectsInventoryManagement() throws Exception {
