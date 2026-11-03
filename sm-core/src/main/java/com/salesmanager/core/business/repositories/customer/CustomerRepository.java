@@ -82,7 +82,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Long>, Custo
 
 	@Transactional
 	@Modifying
-	@Query("update Customer c set c.password = ?3, c.credentialsResetRequest.credentialsRequest = null where c.id = ?1 and c.credentialsResetRequest.credentialsRequest = ?2")
+	@Query("update Customer c set c.password = ?3, c.auditSection.dateModified = CURRENT_TIMESTAMP, c.credentialsResetRequest.credentialsRequest = null where c.id = ?1 and c.credentialsResetRequest.credentialsRequest = ?2")
 	int resetPasswordWithToken(Long id, String token, String encodedPassword);
 
 }
