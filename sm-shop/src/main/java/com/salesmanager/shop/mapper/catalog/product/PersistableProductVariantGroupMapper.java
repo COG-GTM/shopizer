@@ -49,9 +49,6 @@ public class PersistableProductVariantGroupMapper implements Mapper<PersistableP
 			destination = new ProductVariantGroup();
 		}
 		
-		destination.setId(source.getId());
-		
-		
 		List<ProductVariant> productVariants = productVariantService.getByIds(source.getproductVariants(), store);
 		
 		for(ProductVariant p : productVariants) {
@@ -59,8 +56,8 @@ public class PersistableProductVariantGroupMapper implements Mapper<PersistableP
 		}
 
 		//images are not managed from this object
-		if(source.getId() != null) {
-			List<ProductVariantImage> images = productVariantImageService.listByProductVariantGroup(source.getId(), store);
+		if(destination.getId() != null) {
+			List<ProductVariantImage> images = productVariantImageService.listByProductVariantGroup(destination.getId(), store);
 			destination.setImages(images);
 		}
 		destination.setMerchantStore(store);
