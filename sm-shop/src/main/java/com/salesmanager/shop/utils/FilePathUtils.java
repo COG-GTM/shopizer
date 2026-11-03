@@ -12,7 +12,11 @@ import static com.salesmanager.shop.constants.Constants.SLASH;
 import static com.salesmanager.shop.constants.Constants.STATIC_URI;
 import static com.salesmanager.shop.constants.Constants.URL_EXTENSION;
 
+import java.net.URI;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Locale;
+import java.util.Objects;
 import java.util.Properties;
 
 import javax.annotation.Resource;
@@ -39,6 +43,7 @@ public class FilePathUtils {
 	public static final String X_FORWARDED_HOST = "X-Forwarded-Host";
 	public static final String HTTP = "http://";
 	public static final String HTTPS = "https://";
+	public static final String PASSWORD_RESET_ALLOWED_URLS = "PASSWORD_RESET_ALLOWED_URLS";
 
 	@Inject
 	private CoreConfiguration coreConfiguration;
@@ -167,7 +172,7 @@ public class FilePathUtils {
 	}
 
 	public String validUrl(final String url) {
-		if (!StringUtils.isBlank(url) && !url.startsWith(HTTP) && !url.startsWith(HTTP)) {
+		if (!StringUtils.isBlank(url) && !url.startsWith(HTTP) && !url.startsWith(HTTPS)) {
 			return HTTPS + url;
 		}
 		return url;
@@ -177,6 +182,51 @@ public class FilePathUtils {
 		String contextPath = normalizePath(request.getContextPath());
 		String scheme = getScheme(store);
 		return scheme + DOUBLE_SLASH + contextPath;
+	}
+
+	/**
+	 * Base url, ending with a slash, used for links sent in password reset
+	 * emails. A client supplied url is only used when it exactly matches one of
+	 * the comma separated urls configured in PASSWORD_RESET_ALLOWED_URLS;
+	 * otherwise the link is built from the store domain name.
+	 */
+	public String buildPasswordResetBaseUrl(String requestedUrl, MerchantStore store) {
+		String requested = normalizeResetUrl(requestedUrl);
+		if (requested != null) {
+			String allowed = properties.getProperty(PASSWORD_RESET_ALLOWED_URLS, BLANK);
+			boolean match = Arrays.stream(allowed.split(","))
+					.map(this::normalizeResetUrl)
+					.filter(Objects::nonNull)
+					.anyMatch(requested::equals);
+			if (match) {
+				return requested + SLASH;
+			}
+		}
+		String domain = StringUtils.removeEnd(getDomainName(store.getDomainName()), SLASH);
+		return validUrl(domain) + SLASH;
+	}
+
+	private String normalizeResetUrl(String url) {
+		if (StringUtils.isBlank(url)) {
+			return null;
+		}
+		try {
+			URI uri = new URI(url.trim());
+			String scheme = uri.getScheme();
+			if (scheme == null || uri.getHost() == null || uri.getRawUserInfo() != null
+					|| uri.getRawQuery() != null || uri.getRawFragment() != null) {
+				return null;
+			}
+			scheme = scheme.toLowerCase(Locale.ROOT);
+			if (!"http".equals(scheme) && !"https".equals(scheme)) {
+				return null;
+			}
+			String port = uri.getPort() == -1 ? BLANK : ":" + uri.getPort();
+			String path = StringUtils.removeEnd(StringUtils.defaultString(uri.getRawPath()), SLASH);
+			return scheme + DOUBLE_SLASH + uri.getHost().toLowerCase(Locale.ROOT) + port + path;
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 	public String buildBaseUrl(String contextPath, MerchantStore store) {

@@ -274,12 +274,12 @@ ul.sidebar li a h1,ul.sidebar li a h2,ul.sidebar li a h3,ul.sidebar li a h4,ul.s
 			<table>
 				<tr>
 					<td>
-						<h4>${LABEL_HI} ${EMAIL_USER_FIRSTNAME},<br/></h4>
+						<h4>${LABEL_HI} ${EMAIL_USER_FIRSTNAME?html},<br/></h4>
 						<p class="lead">
 							${RESET_PASSWORD_TEXT}
 						</p>
 						<p>
-    						${LABEL_LINK_TITLE} <a href="${RESET_PASSWORD_LINK}">${LABEL_LINK}</a><br />
+    						${LABEL_LINK_TITLE} <a href="${RESET_PASSWORD_LINK?html}">${LABEL_LINK}</a><br />
 
 						</p>
 					</td>

@@ -115,9 +115,7 @@ public class CustomerFacadeImpl implements CustomerFacade {
 
 			customerService.saveOrUpdate(customer);
 
-			// reset password link
-			// this will build http | https ://domain/contextPath
-			String baseUrl = filePathUtils.buildBaseUrl(customerContextPath, store);
+			String baseUrl = filePathUtils.buildPasswordResetBaseUrl(customerContextPath, store);
 
 			// need to add link to controller receiving user reset password
 			// request
@@ -213,6 +211,7 @@ public class CustomerFacadeImpl implements CustomerFacade {
 
 		Customer customer = verifyCustomerLink(token, store);// reverify
 		customer.setPassword(passwordEncoder.encode(password));
+		customer.setCredentialsResetRequest(null);
 		try {
 			customerService.save(customer);
 		} catch (ServiceException e) {
