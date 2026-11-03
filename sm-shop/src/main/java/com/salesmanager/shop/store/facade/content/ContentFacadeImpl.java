@@ -231,7 +231,7 @@ public class ContentFacadeImpl implements ContentFacade {
 		contentModel.setLinkToMenu(content.isLinkToMenu());
 		contentModel.setVisible(content.isVisible());
 		contentModel.setDescriptions(descriptions);
-		contentModel.setId(content.getId());
+		contentModel.setId(model != null ? model.getId() : null);
 		return contentModel;
 	}
 
@@ -251,7 +251,7 @@ public class ContentFacadeImpl implements ContentFacade {
 		contentModel.setMerchantStore(store);
 		contentModel.setVisible(content.isVisible());
 		contentModel.setDescriptions(descriptions);
-		contentModel.setId(content.getId());
+		contentModel.setId(model != null ? model.getId() : null);
 		return contentModel;
 	}
 
@@ -705,6 +705,7 @@ public class ContentFacadeImpl implements ContentFacade {
 						+ merchantStore.getCode() + "]");
 			}
 
+			page.setId(null);
 			content = convertContentPageToContent(merchantStore, content, page);
 			contentService.saveOrUpdate(content);
 			return content.getId();
@@ -728,6 +729,7 @@ public class ContentFacadeImpl implements ContentFacade {
 						+ merchantStore.getCode() + "]");
 			}
 
+			box.setId(null);
 			content = convertContentBoxToContent(merchantStore, content, box);
 			contentService.saveOrUpdate(content);
 			return content.getId();
