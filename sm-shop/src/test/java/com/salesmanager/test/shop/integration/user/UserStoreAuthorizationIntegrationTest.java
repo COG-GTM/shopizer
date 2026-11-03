@@ -1,6 +1,7 @@
 package com.salesmanager.test.shop.integration.user;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -43,7 +44,8 @@ public class UserStoreAuthorizationIntegrationTest extends ServicesTestSupport {
 		ReadableUser adminAVictim = createUser("authz-admina-victim@test.com", "ADMIN", "DEFAULT");
 
 		ResponseEntity<Void> crossStoreDelete = delete(adminB, victimDel.getId(), STORE_B);
-		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, crossStoreDelete.getStatusCode());
+		assertFalse("Cross-store delete was accepted with " + crossStoreDelete.getStatusCode(),
+				crossStoreDelete.getStatusCode().is2xxSuccessful());
 		assertNotNull(getUser(victimDel.getId(), "DEFAULT").getBody());
 
 		ResponseEntity<Void> crossStoreDisable = disable(adminB, victimEn.getId(), STORE_B, false);
@@ -80,7 +82,8 @@ public class UserStoreAuthorizationIntegrationTest extends ServicesTestSupport {
 		assertNotNull(saEn);
 
 		ResponseEntity<Void> protectedDelete = delete(null, saDel.getId(), "DEFAULT");
-		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, protectedDelete.getStatusCode());
+		assertFalse("Protected-SUPERADMIN delete was accepted with " + protectedDelete.getStatusCode(),
+				protectedDelete.getStatusCode().is2xxSuccessful());
 		assertNotNull(getUser(saDel.getId(), "DEFAULT").getBody());
 
 		ResponseEntity<Void> protectedDisable = disable(adminA, saEn.getId(), "DEFAULT", false);

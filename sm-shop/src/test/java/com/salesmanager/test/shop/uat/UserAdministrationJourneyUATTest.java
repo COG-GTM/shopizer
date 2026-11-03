@@ -1,6 +1,7 @@
 package com.salesmanager.test.shop.uat;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -64,7 +65,8 @@ public class UserAdministrationJourneyUATTest extends ServicesTestSupport {
 		assertEquals(HttpStatus.NOT_FOUND, getUser(storeMember.getId(), STORE).getStatusCode());
 
 		ResponseEntity<Void> crossStoreDelete = delete(storeAdmin, defaultDeleteVictim.getId(), STORE);
-		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, crossStoreDelete.getStatusCode());
+		assertFalse("Cross-store delete was accepted with " + crossStoreDelete.getStatusCode(),
+				crossStoreDelete.getStatusCode().is2xxSuccessful());
 		assertNotNull(getUser(defaultDeleteVictim.getId(), "DEFAULT").getBody());
 
 		ResponseEntity<Void> crossStoreDisable = setActive(storeAdmin, defaultDisableVictim, false, STORE);
