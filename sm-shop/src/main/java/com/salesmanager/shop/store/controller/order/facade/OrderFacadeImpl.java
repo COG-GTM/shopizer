@@ -1252,9 +1252,17 @@ public class OrderFacadeImpl implements OrderFacade {
 
 			// get shipping quote if asked for
 			if (order.getShippingQuote() != null && order.getShippingQuote().longValue() > 0) {
-				shippingSummary = shippingQuoteService.getShippingSummary(order.getShippingQuote(), store);
+				shippingSummary = shippingQuoteService.getShippingSummary(order.getShippingQuote(), cart, customer, store);
 				if (shippingSummary != null) {
 					modelOrder.setShippingModuleCode(shippingSummary.getShippingModule());
+				}
+			} else if (shippingService.requiresShipping(items, store)) {
+				// no quote supplied: only accept free shipping or a store without shipping modules
+				ShippingQuote serverQuote = getShippingQuote(customer, cart, store, language);
+				if (serverQuote != null && !serverQuote.isFreeShipping()
+						&& !ShippingQuote.NO_SHIPPING_MODULE_CONFIGURED.equals(serverQuote.getShippingReturnCode())) {
+					throw new ServiceException(ServiceException.EXCEPTION_VALIDATION,
+							"A shipping quote is required for this order");
 				}
 			}
 
