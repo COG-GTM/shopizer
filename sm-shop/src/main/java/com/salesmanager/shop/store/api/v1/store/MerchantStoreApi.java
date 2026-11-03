@@ -48,6 +48,7 @@ import com.salesmanager.shop.store.api.exception.RestApiException;
 import com.salesmanager.shop.store.api.exception.UnauthorizedException;
 import com.salesmanager.shop.store.controller.store.facade.StoreFacade;
 import com.salesmanager.shop.store.controller.user.facade.UserFacade;
+import com.salesmanager.shop.utils.AuthorizationUtils;
 import com.salesmanager.shop.utils.ServiceRequestCriteriaBuilderUtils;
 
 import io.swagger.annotations.Api;
@@ -75,6 +76,12 @@ public class MerchantStoreApi {
 
 	@Inject
 	private UserFacade userFacade;
+
+	@Inject
+	private AuthorizationUtils authorizationUtils;
+
+	private static final List<String> STORE_ADMIN_GROUPS = Arrays.asList(Constants.GROUP_SUPERADMIN,
+			Constants.GROUP_ADMIN, Constants.GROUP_ADMIN_RETAIL);
 
 	@GetMapping(value = { "/store/{code}" }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ApiOperation(httpMethod = "GET", value = "Get merchant store", notes = "", response = ReadableMerchantStore.class)
@@ -243,10 +250,7 @@ public class MerchantStoreApi {
 	}
 
 	private void validateUserPermission(String userName, String code) {
-		// TODO reviewed Spring Security should be used
-		if (!userFacade.authorizedStore(userName, code)) {
-			throw new UnauthorizedException("User " + userName + " not authorized");
-		}
+		authorizationUtils.authorizeUser(userName, STORE_ADMIN_GROUPS, code);
 	}
 
 	@ResponseStatus(HttpStatus.OK)

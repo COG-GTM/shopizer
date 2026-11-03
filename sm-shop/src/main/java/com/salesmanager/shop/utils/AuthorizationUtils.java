@@ -34,11 +34,15 @@ public class AuthorizationUtils {
 	}
 	
 	public void authorizeUser(String authenticatedUser, List<String> roles, MerchantStore store) {
+		authorizeUser(authenticatedUser, roles, store.getCode());
+	}
+
+	public void authorizeUser(String authenticatedUser, List<String> roles, String storeCode) {
 		userFacade.authorizedGroup(authenticatedUser, roles);
 		if (!userFacade.userInRoles(authenticatedUser, Arrays.asList(Constants.GROUP_SUPERADMIN))) {
-			if (!userFacade.authorizedStore(authenticatedUser, store.getCode())) {
+			if (!userFacade.authorizedStore(authenticatedUser, storeCode)) {
 				throw new UnauthorizedException("Operation unauthorized for user [" + authenticatedUser
-						+ "] and store [" + store.getCode() + "]");
+						+ "] and store [" + storeCode + "]");
 			}
 		}
 	}
