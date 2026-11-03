@@ -1,5 +1,6 @@
 package com.salesmanager.shop.store.api.v1.product;
 
+import java.security.Principal;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -22,11 +23,13 @@ import com.salesmanager.core.business.services.catalog.product.ProductService;
 import com.salesmanager.core.business.services.catalog.product.review.ProductReviewService;
 import com.salesmanager.core.model.catalog.product.Product;
 import com.salesmanager.core.model.catalog.product.review.ProductReview;
+import com.salesmanager.core.model.customer.Customer;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.shop.constants.Constants;
 import com.salesmanager.shop.model.catalog.product.PersistableProductReview;
 import com.salesmanager.shop.model.catalog.product.ReadableProductReview;
+import com.salesmanager.shop.store.controller.customer.facade.CustomerFacade;
 import com.salesmanager.shop.store.controller.product.facade.ProductCommonFacade;
 
 import io.swagger.annotations.ApiImplicitParam;
@@ -43,16 +46,11 @@ public class ProductReviewApi {
 
   @Inject private ProductReviewService productReviewService;
 
+  @Inject private CustomerFacade customerFacade;
+
   private static final Logger LOGGER = LoggerFactory.getLogger(ProductReviewApi.class);
 
-  @RequestMapping(
-      value = {
-        "/private/products/{id}/reviews",
-        "/auth/products/{id}/reviews",
-        "/auth/products/{id}/reviews",
-        "/auth/products/{id}/reviews"
-      },
-      method = RequestMethod.POST)
+  @RequestMapping(value = "/private/products/{id}/reviews", method = RequestMethod.POST)
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
   @ApiImplicitParams({
@@ -67,7 +65,57 @@ public class ProductReviewApi {
       HttpServletRequest request,
       HttpServletResponse response) {
 
+    return saveReview(id, review, merchantStore, language, response);
+  }
+
+  @RequestMapping(value = "/auth/products/{id}/reviews", method = RequestMethod.POST)
+  @ResponseStatus(HttpStatus.CREATED)
+  @ResponseBody
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
+      @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en")
+  })
+  public PersistableProductReview createAsCustomer(
+      @PathVariable final Long id,
+      @Valid @RequestBody PersistableProductReview review,
+      @ApiIgnore MerchantStore merchantStore,
+      @ApiIgnore Language language,
+      HttpServletRequest request,
+      HttpServletResponse response) {
+
     try {
+      Principal principal = request.getUserPrincipal();
+      Customer customer =
+          principal == null
+              ? null
+              : customerFacade.getCustomerByUserName(principal.getName(), merchantStore);
+      if (customer == null) {
+        response.sendError(401, "Customer not authorized for this store");
+        return null;
+      }
+      review.setCustomerId(customer.getId());
+    } catch (Exception e) {
+      LOGGER.error("Error while resolving authenticated customer", e);
+      try {
+        response.sendError(401, "Customer not authorized for this store");
+      } catch (Exception ignore) {
+      }
+      return null;
+    }
+
+    return saveReview(id, review, merchantStore, language, response);
+  }
+
+  private PersistableProductReview saveReview(
+      Long id,
+      PersistableProductReview review,
+      MerchantStore merchantStore,
+      Language language,
+      HttpServletResponse response) {
+
+    try {
+      review.setProductId(id);
+
       // rating already exist
       ProductReview prodReview =
           productReviewService.getByProductAndCustomer(
@@ -82,8 +130,6 @@ public class ProductReviewApi {
         response.sendError(503, "Maximum rating score is " + Constants.MAX_REVIEW_RATING_SCORE);
         return null;
       }
-
-      review.setProductId(id);
 
       productCommonFacade.saveOrUpdateReview(review, merchantStore, language);
 
