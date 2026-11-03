@@ -482,6 +482,7 @@ public class ProductOptionFacadeImpl implements ProductOptionFacade {
 
 		//convert to model
 		List<ProductAttribute> modelAttributes = attributes.stream().map(attr -> {
+			attr.setProductId(product.getId());
 			ProductAttribute modelAttribute = persistableProductAttributeMapper.convert(attr, store, null);
 			modelAttribute.setProduct(product);
 			return modelAttribute;
