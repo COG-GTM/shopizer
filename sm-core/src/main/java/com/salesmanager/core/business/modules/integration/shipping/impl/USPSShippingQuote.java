@@ -6,11 +6,15 @@ import java.io.StringReader;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -30,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import com.salesmanager.core.business.constants.Constants;
 import com.salesmanager.core.business.services.reference.country.CountryService;
 import com.salesmanager.core.business.utils.DataUtils;
+import com.salesmanager.core.business.utils.SecureDigesterFactory;
 import com.salesmanager.core.business.utils.ProductPriceUtils;
 import com.salesmanager.core.constants.MeasureUnit;
 import com.salesmanager.core.model.common.Delivery;
@@ -57,6 +62,13 @@ import com.salesmanager.core.modules.integration.shipping.model.ShippingQuoteMod
 public class USPSShippingQuote implements ShippingQuoteModule {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(USPSShippingQuote.class);
+
+	private static final Set<String> ALLOWED_SCHEMES = Collections.unmodifiableSet(
+			new HashSet<String>(Arrays.asList("http", "https")));
+
+	private static final Set<String> ALLOWED_HOSTS = Collections.unmodifiableSet(new HashSet<String>(
+			Arrays.asList("testing.shippingapis.com", "production.shippingapis.com", "secure.shippingapis.com",
+					"stg-secure.shippingapis.com")));
 
 	
 	@Inject
@@ -187,10 +199,6 @@ public class USPSShippingQuote implements ShippingQuoteModule {
 			}
 
 			
-			String host = null;
-			String protocol = null;
-			String port = null;
-			String url = null;
 		
 			
 			
@@ -202,17 +210,17 @@ public class USPSShippingQuote implements ShippingQuoteModule {
 				throw new IntegrationException("Can't use the service for store country code ");
 			}
 
+			ModuleConfig envConfig = null;
 			Map<String, ModuleConfig> moduleConfigsMap = module.getModuleConfigs();
 			for(String key : moduleConfigsMap.keySet()) {
 				
 				ModuleConfig moduleConfig = moduleConfigsMap.get(key);
 				if(moduleConfig.getEnv().equals(env)) {
-					host = moduleConfig.getHost();
-					protocol = moduleConfig.getScheme();
-					port = moduleConfig.getPort();
-					url = moduleConfig.getUri();
+					envConfig = moduleConfig;
 				}
 			}
+
+			String endpoint = CarrierEndpoint.buildUrl("USPS", envConfig, ALLOWED_SCHEMES, ALLOWED_HOSTS);
 			
 
 			StringBuilder xmlheader = new StringBuilder();
@@ -429,15 +437,14 @@ public class USPSShippingQuote implements ShippingQuoteModule {
 			@SuppressWarnings("deprecation")
 			String encoded = java.net.URLEncoder.encode(xmlbuffer.toString());
 
-			String completeUri = url + "?API=RateV3&XML=" + encoded;
+			String completeUri = endpoint + "?API=RateV3&XML=" + encoded;
 			if(!store.getCountry().getIsoCode().equals(delivery.getCountry().getIsoCode())) {
-				completeUri = url + "?API=IntlRate&XML=" + encoded;
+				completeUri = endpoint + "?API=IntlRate&XML=" + encoded;
 			}
 
 			// ?API=RateV3
 
-			httpget = new HttpGet(protocol + "://" + host + ":" + port
-					+ completeUri);
+			httpget = new HttpGet(completeUri);
 			// RequestEntity entity = new
 			// StringRequestEntity(xmlbuffer.toString(),"text/plain","UTF-8");
 			// httpget.setRequestEntity(entity);
@@ -471,7 +478,7 @@ public class USPSShippingQuote implements ShippingQuoteModule {
 			 * <ZipDestination>20770</ZipDestination>
 			 */
 
-			Digester digester = new Digester();
+			Digester digester = SecureDigesterFactory.newDigester();
 			digester.push(parsed);
 
 			if(store.getCountry().getIsoCode().equals(delivery.getCountry().getIsoCode())) {
