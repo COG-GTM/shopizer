@@ -4,11 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.lang.management.ManagementFactory;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +47,10 @@ import com.salesmanager.shop.model.store.ReadableMerchantStore;
 import com.salesmanager.shop.model.catalog.product.ReadableProduct;
 import com.salesmanager.test.shop.common.ServicesTestSupport;
 
+/**
+ * On JDK 16+, run configured-shipping cases with
+ * {@code -DargLine="--add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.text=ALL-UNNAMED --add-opens=java.base/java.time=ALL-UNNAMED --add-opens=java.base/java.math=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.desktop/java.beans=ALL-UNNAMED --add-opens=java.desktop/java.awt.font=ALL-UNNAMED"}.
+ */
 class ShippingQuoteCheckoutIntegrationTest extends ServicesTestSupport {
 
 	@Autowired
@@ -287,6 +293,8 @@ class ShippingQuoteCheckoutIntegrationTest extends ServicesTestSupport {
 	}
 
 	private void enablePickupShipping() throws Exception {
+		Assumptions.assumeTrue(droolsShippingPathSupported(),
+				"Drools/XStream on JDK 16+ requires -DargLine with java.desktop/java.awt.font open");
 		MerchantStore store = merchantStoreService.getByCode("DEFAULT");
 		shippingService.saveShippingConfiguration(new ShippingConfiguration(), store);
 		IntegrationConfiguration primaryModule = new IntegrationConfiguration();
@@ -304,6 +312,12 @@ class ShippingQuoteCheckoutIntegrationTest extends ServicesTestSupport {
 		keys.put("note", "Pick up");
 		pickupModule.setIntegrationKeys(keys);
 		shippingService.saveShippingQuoteModuleConfiguration(pickupModule, store);
+	}
+
+	private boolean droolsShippingPathSupported() {
+		return Runtime.version().feature() < 16
+				|| ManagementFactory.getRuntimeMXBean().getInputArguments().stream()
+						.anyMatch(argument -> argument.contains("java.desktop/java.awt.font"));
 	}
 
 	private ReadableOrderTotalSummary total(ReadableShoppingCart cart, Long quoteId) {
