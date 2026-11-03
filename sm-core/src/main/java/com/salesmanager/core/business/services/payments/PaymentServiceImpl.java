@@ -360,17 +360,19 @@ public class PaymentServiceImpl implements PaymentService {
 			throw new ServiceException("Payment module " + payment.getModuleName() + " is not available for this store");
 		}
 		
+		//plugin payment modules (ModuleStarter) do not declare a type; fall back to the requested type for those
 		PaymentType modulePaymentType = PaymentType.fromString(integrationModule.getType());
-		if(modulePaymentType==null) {
-			throw new ServiceException("Payment module " + payment.getModuleName() + " has no valid payment type");
+		if(modulePaymentType!=null) {
+			if(payment.getPaymentType()!=null && payment.getPaymentType()!=modulePaymentType) {
+				throw new ServiceException("Payment type " + payment.getPaymentType().name() + " does not match payment module " + payment.getModuleName());
+			}
+			payment.setPaymentType(modulePaymentType);
+		} else if(payment.getPaymentType()==null) {
+			throw new ServiceException("Payment type is required for payment module " + payment.getModuleName());
 		}
 		
-		if(payment.getPaymentType()!=null && payment.getPaymentType()!=modulePaymentType) {
-			throw new ServiceException("Payment type " + payment.getPaymentType().name() + " does not match payment module " + payment.getModuleName());
-		}
-		
-		payment.setPaymentType(modulePaymentType);
-		order.setPaymentType(modulePaymentType);
+		PaymentType effectivePaymentType = payment.getPaymentType();
+		order.setPaymentType(effectivePaymentType);
 		
 		if(payment instanceof CreditCardPayment && "true".equals(coreConfiguration.getProperty("VALIDATE_CREDIT_CARD"))) {
 			CreditCardPayment creditCardPayment = (CreditCardPayment)payment;
@@ -401,7 +403,7 @@ public class PaymentServiceImpl implements PaymentService {
 		
 		if(transactionType == TransactionType.AUTHORIZECAPTURE)  {
 			order.setStatus(OrderStatus.ORDERED);
-			boolean moneyOrder = modulePaymentType == PaymentType.MONEYORDER
+			boolean moneyOrder = effectivePaymentType == PaymentType.MONEYORDER
 					|| (transaction != null && transaction.getPaymentType() == PaymentType.MONEYORDER);
 			if(!moneyOrder) {
 				order.setStatus(OrderStatus.PROCESSED);

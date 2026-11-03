@@ -55,6 +55,7 @@ public class PaymentServiceImplTest {
 		Map<String, PaymentModule> paymentModules = new HashMap<>();
 		paymentModules.put("moneyorder", moneyOrderModule);
 		paymentModules.put("stripe", creditCardModule);
+		paymentModules.put("custompay", creditCardModule);
 
 		ReflectionTestUtils.setField(paymentService, "transactionService", transactionService);
 		ReflectionTestUtils.setField(paymentService, "paymentModules", paymentModules);
@@ -63,9 +64,11 @@ public class PaymentServiceImplTest {
 		Map<String, IntegrationConfiguration> configured = new HashMap<>();
 		configured.put("moneyorder", activeConfiguration("moneyorder"));
 		configured.put("stripe", activeConfiguration("stripe"));
+		configured.put("custompay", activeConfiguration("custompay"));
 		doReturn(configured).when(paymentService).getPaymentModulesConfigured(store);
 		doReturn(integrationModule("moneyorder", "moneyorder")).when(paymentService).getPaymentMethodByCode(store, "moneyorder");
 		doReturn(integrationModule("stripe", "creditcard")).when(paymentService).getPaymentMethodByCode(store, "stripe");
+		doReturn(integrationModule("custompay", null)).when(paymentService).getPaymentMethodByCode(store, "custompay");
 	}
 
 	@Test
@@ -112,6 +115,23 @@ public class PaymentServiceImplTest {
 		paymentService.processPayment(new Customer(), store, payment("stripe", PaymentType.CREDITCARD), new ArrayList<>(), order);
 		assertEquals(OrderStatus.PROCESSED, order.getStatus());
 		assertEquals(PaymentType.CREDITCARD, order.getPaymentType());
+	}
+
+	@Test
+	public void pluginModuleWithoutTypeUsesRequestedType() throws Exception {
+		Transaction transaction = new Transaction();
+		transaction.setTransactionType(TransactionType.AUTHORIZECAPTURE);
+		when(creditCardModule.authorizeAndCapture(any(), any(), any(), any(), any(), any(), any())).thenReturn(transaction);
+
+		Order order = order();
+		paymentService.processPayment(new Customer(), store, payment("custompay", PaymentType.CREDITCARD), new ArrayList<>(), order);
+		assertEquals(OrderStatus.PROCESSED, order.getStatus());
+		assertEquals(PaymentType.CREDITCARD, order.getPaymentType());
+	}
+
+	@Test(expected = ServiceException.class)
+	public void pluginModuleWithoutAnyTypeIsRejected() throws Exception {
+		paymentService.processPayment(new Customer(), store, payment("custompay", null), new ArrayList<>(), order());
 	}
 
 	private static IntegrationConfiguration activeConfiguration(String code) {
