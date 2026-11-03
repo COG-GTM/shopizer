@@ -144,6 +144,7 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 			cartModel = createCartModel(shoppingCartCode, store, customer);
 
 		}
+		validateAddQuantity(item.getQuantity());
 		com.salesmanager.core.model.shoppingcart.ShoppingCartItem shoppingCartItem = createCartItem(cartModel, item,
 				store);
 
@@ -156,7 +157,7 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 					if (CollectionUtils.isEmpty(cartItem.getAttributes())) {
 						if (!duplicateFound) {
 							if (!shoppingCartItem.isProductVirtual()) {
-								cartItem.setQuantity(cartItem.getQuantity() + shoppingCartItem.getQuantity());
+								cartItem.setQuantity(summedQuantity(cartItem.getQuantity(), shoppingCartItem.getQuantity()));
 							}
 							duplicateFound = true;
 							break;
@@ -254,6 +255,8 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 	private com.salesmanager.core.model.shoppingcart.ShoppingCartItem createCartItem(ShoppingCart cartModel,
 			PersistableShoppingCartItem shoppingCartItem, MerchantStore store) throws Exception {
 
+		validateQuantity(shoppingCartItem.getQuantity());
+
 		// USE Product sku
 		Product product = null;
 
@@ -345,6 +348,10 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 	// used for api
 	private List<com.salesmanager.core.model.shoppingcart.ShoppingCartItem> createCartItems(ShoppingCart cartModel,
 			List<PersistableShoppingCartItem> shoppingCartItems, MerchantStore store) throws Exception {
+
+		for (PersistableShoppingCartItem shoppingCartItem : shoppingCartItems) {
+			validateQuantity(shoppingCartItem.getQuantity());
+		}
 
 		List<String> productSkus = shoppingCartItems.stream().map(s -> s.getProduct()).collect(Collectors.toList());
 
@@ -830,6 +837,7 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 	private ReadableShoppingCart readableShoppingCart(ShoppingCart cartModel, PersistableShoppingCartItem item,
 			MerchantStore store, Language language) throws Exception {
 
+		validateAddQuantity(item.getQuantity());
 		com.salesmanager.core.model.shoppingcart.ShoppingCartItem itemModel = createCartItem(cartModel, item, store);
 
 		// need to check if the item is already in the cart
@@ -843,7 +851,7 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 					if (CollectionUtils.isEmpty(cartItem.getAttributes())) {
 						if (!duplicateFound) {
 							if (!itemModel.isProductVirtual()) {
-								cartItem.setQuantity(cartItem.getQuantity() + item.getQuantity());
+								cartItem.setQuantity(summedQuantity(cartItem.getQuantity(), item.getQuantity()));
 							}
 							duplicateFound = true;
 							break;
@@ -910,7 +918,7 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 
 			}
 
-			if (!itemModified) {
+			if (!itemModified && item.getQuantity() > 0) {
 				newItems.add(itemModel);
 			}
 
@@ -1001,8 +1009,10 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 				++itemUpdatedCnt;
 			} else {
 				// addition of new item
-				cartModel.getLineItems().add(newItemValue);
-				++itemUpdatedCnt;
+				if (newItemValue.getQuantity() > 0) {
+					cartModel.getLineItems().add(newItemValue);
+					++itemUpdatedCnt;
+				}
 			}
 		}
 		// at the moment we expect that some change have been done
@@ -1071,6 +1081,27 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 		}
 
 		return modifyCartMulti(cartModel, items, store, language);
+	}
+
+	private void validateQuantity(int quantity) throws CartModificationException {
+		if (quantity < 0) {
+			throw new CartModificationException("Quantity must not be negative");
+		}
+	}
+
+	private void validateAddQuantity(int quantity) throws CartModificationException {
+		if (quantity < 1) {
+			throw new CartModificationException("Quantity must not be less than one");
+		}
+	}
+
+	private int summedQuantity(Integer existingQuantity, Integer addedQuantity) throws CartModificationException {
+		long total = (long) (existingQuantity == null ? 0 : existingQuantity)
+				+ (addedQuantity == null ? 0 : addedQuantity);
+		if (total < 1 || total > Integer.MAX_VALUE) {
+			throw new CartModificationException("Invalid cart item quantity");
+		}
+		return (int) total;
 	}
 
 	private void saveShoppingCart(ShoppingCart shoppingCart) throws Exception {

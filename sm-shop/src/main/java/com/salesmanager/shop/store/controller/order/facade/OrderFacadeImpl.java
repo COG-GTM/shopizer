@@ -395,6 +395,7 @@ public class OrderFacadeImpl implements OrderFacade {
 				/**
 				 * Before processing order quantity of item must be > 0
 				 */
+				validateCartItemQuantity(item);
 
 				Product product = productService.getBySku(item.getSku(), store, language);
 				if (product == null) {
@@ -562,6 +563,13 @@ public class OrderFacadeImpl implements OrderFacade {
 			throw new ServiceException(e);
 		}
 
+	}
+
+	private void validateCartItemQuantity(ShoppingCartItem item) throws ServiceException {
+		if (item.getQuantity() == null || item.getQuantity() < 1) {
+			throw new ServiceException(ServiceException.EXCEPTION_VALIDATION,
+					"Invalid quantity " + item.getQuantity() + " for item " + item.getSku());
+		}
 	}
 
 	private void orderCustomer(Customer customer, Order order, Language language) throws Exception {
@@ -1216,6 +1224,14 @@ public class OrderFacadeImpl implements OrderFacade {
 			}
 
 			Set<ShoppingCartItem> shoppingCartItems = cart.getLineItems();
+
+			if (CollectionUtils.isEmpty(shoppingCartItems)) {
+				throw new ServiceException(ServiceException.EXCEPTION_VALIDATION,
+						"Shopping cart with id " + shoppingCartId + " has no items");
+			}
+			for (ShoppingCartItem item : shoppingCartItems) {
+				validateCartItemQuantity(item);
+			}
 
 			List<ShoppingCartItem> items = new ArrayList<ShoppingCartItem>(shoppingCartItems);
 
