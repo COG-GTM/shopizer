@@ -355,12 +355,28 @@ public class PaymentServiceImpl implements PaymentService {
 			throw new ServiceException("Payment module " + payment.getModuleName() + " does not exist");
 		}
 		
+		IntegrationModule integrationModule = getPaymentMethodByCode(store,payment.getModuleName());
+		if(integrationModule==null) {
+			throw new ServiceException("Payment module " + payment.getModuleName() + " is not available for this store");
+		}
+		
+		PaymentType modulePaymentType = PaymentType.fromString(integrationModule.getType());
+		if(modulePaymentType==null) {
+			throw new ServiceException("Payment module " + payment.getModuleName() + " has no valid payment type");
+		}
+		
+		if(payment.getPaymentType()!=null && payment.getPaymentType()!=modulePaymentType) {
+			throw new ServiceException("Payment type " + payment.getPaymentType().name() + " does not match payment module " + payment.getModuleName());
+		}
+		
+		payment.setPaymentType(modulePaymentType);
+		order.setPaymentType(modulePaymentType);
+		
 		if(payment instanceof CreditCardPayment && "true".equals(coreConfiguration.getProperty("VALIDATE_CREDIT_CARD"))) {
 			CreditCardPayment creditCardPayment = (CreditCardPayment)payment;
 			validateCreditCard(creditCardPayment.getCreditCardNumber(),creditCardPayment.getCreditCard(),creditCardPayment.getExpirationMonth(),creditCardPayment.getExpirationYear());
 		}
 		
-		IntegrationModule integrationModule = getPaymentMethodByCode(store,payment.getModuleName());
 		TransactionType transactionType = TransactionType.valueOf(sTransactionType);
 		if(transactionType==null) {
 			transactionType = payment.getTransactionType();
@@ -385,7 +401,9 @@ public class PaymentServiceImpl implements PaymentService {
 		
 		if(transactionType == TransactionType.AUTHORIZECAPTURE)  {
 			order.setStatus(OrderStatus.ORDERED);
-			if(!payment.getPaymentType().name().equals(PaymentType.MONEYORDER.name())) {
+			boolean moneyOrder = modulePaymentType == PaymentType.MONEYORDER
+					|| (transaction != null && transaction.getPaymentType() == PaymentType.MONEYORDER);
+			if(!moneyOrder) {
 				order.setStatus(OrderStatus.PROCESSED);
 			}
 		}
