@@ -1,6 +1,5 @@
 package com.salesmanager.shop.store.facade.category;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -70,6 +69,7 @@ public class CategoryFacadeImplStoreScopeTest {
             categoryFacade.saveCategory(store, category);
         } finally {
             verify(categoryService).getById(5L, 2);
+            verify(categoryService, never()).getById(5L);
             verify(categoryService, never()).findById(5L);
             verify(categoryService, never()).saveOrUpdate(any(Category.class));
             verify(categoryService, never()).create(any(Category.class));
@@ -86,6 +86,7 @@ public class CategoryFacadeImplStoreScopeTest {
             categoryFacade.deleteCategory(5L, store);
         } finally {
             verify(categoryService).getById(5L, 2);
+            verify(categoryService, never()).getById(5L);
             verify(categoryService, never()).findById(5L);
             verify(categoryService, never()).delete(any(Category.class));
         }
@@ -115,6 +116,7 @@ public class CategoryFacadeImplStoreScopeTest {
         }
 
         verify(categoryService, never()).getById(anyLong(), anyInt());
+        verify(categoryService, never()).getById(anyLong());
         verify(categoryService, never()).findById(anyLong());
         verify(categoryService, never()).getById(any(MerchantStore.class), any(Long.class));
         verify(categoryService, org.mockito.Mockito.times(2)).saveOrUpdate(any(Category.class));
