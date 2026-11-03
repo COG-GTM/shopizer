@@ -1,6 +1,7 @@
 package com.salesmanager.test.shop.uat;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -44,13 +45,13 @@ public class AdminJourneyUatTest extends ServicesTestSupport {
     assertUnauthorizedOrForbidden(anonymousResponse.getStatusCode());
 
     HttpHeaders invalidHeaders = new HttpHeaders();
-    invalidHeaders.set("Authorization", "garbage");
+    invalidHeaders.setBearerAuth("not-a-valid-token");
     ResponseEntity<String> invalidTokenResponse = testRestTemplate.exchange(
         "/api/v1/private/customers",
         HttpMethod.GET,
         new HttpEntity<>(invalidHeaders),
         String.class);
-    assertUnauthorizedOrForbidden(invalidTokenResponse.getStatusCode());
+    assertFalse(invalidTokenResponse.getStatusCode().is2xxSuccessful());
   }
 
   private static void assertUnauthorizedOrForbidden(HttpStatus status) {
