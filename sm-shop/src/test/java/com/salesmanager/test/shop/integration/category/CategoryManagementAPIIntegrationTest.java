@@ -7,6 +7,7 @@ import static org.junit.Assert.assertThat;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,6 +33,8 @@ import com.salesmanager.shop.model.catalog.manufacturer.PersistableManufacturer;
 import com.salesmanager.shop.model.catalog.manufacturer.ReadableManufacturer;
 import com.salesmanager.shop.model.catalog.product.product.PersistableProduct;
 import com.salesmanager.shop.model.catalog.product.product.ProductSpecification;
+import com.salesmanager.shop.model.references.PersistableAddress;
+import com.salesmanager.shop.model.store.PersistableMerchantStore;
 import com.salesmanager.test.shop.common.ServicesTestSupport;
 
 @SpringBootTest(classes = ShopApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -464,5 +467,77 @@ public class CategoryManagementAPIIntegrationTest extends ServicesTestSupport {
         }
     }
         **/
+
+    @Test
+    public void cannotModifyCategoryOfAnotherStore() throws Exception {
+
+        PersistableCategory newCategory = new PersistableCategory();
+        newCategory.setCode("crossstore");
+        newCategory.setSortOrder(1);
+        newCategory.setVisible(true);
+
+        CategoryDescription description = new CategoryDescription();
+        description.setLanguage("en");
+        description.setName("crossstore");
+        description.setFriendlyUrl("crossstore");
+        description.setTitle("crossstore");
+        newCategory.setDescriptions(Arrays.asList(description));
+
+        ResponseEntity<PersistableCategory> created = testRestTemplate.postForEntity("/api/v1/private/category",
+                new HttpEntity<>(newCategory, getHeader()), PersistableCategory.class);
+        assertThat(created.getStatusCode(), is(CREATED));
+        Long categoryId = created.getBody().getId();
+
+        PersistableAddress address = new PersistableAddress();
+        address.setAddress("1 other store street");
+        address.setPostalCode("12345");
+        address.setCountry("US");
+        address.setCity("FT LD");
+        address.setStateProvince("FL");
+
+        String otherStore = "othercat";
+        PersistableMerchantStore store = new PersistableMerchantStore();
+        store.setCode(otherStore);
+        store.setCurrency("CAD");
+        store.setDefaultLanguage("en");
+        store.setEmail("other@test.com");
+        store.setName(otherStore);
+        store.setPhone("444-555-6666");
+        store.setSupportedLanguages(Arrays.asList("en"));
+        store.setAddress(address);
+        ResponseEntity<Void> storeResponse = testRestTemplate.exchange("/api/v1/private/store/", HttpMethod.POST,
+                new HttpEntity<>(store, getHeader()), Void.class);
+        assertThat(storeResponse.getStatusCode(), is(OK));
+
+        PersistableCategory update = new PersistableCategory();
+        update.setCode("hijacked");
+        update.setVisible(false);
+        update.setDescriptions(Arrays.asList(description));
+        ResponseEntity<String> updateResponse = testRestTemplate.exchange(
+                "/api/v1/private/category/" + categoryId + "?store=" + otherStore, HttpMethod.PUT,
+                new HttpEntity<>(update, getHeader()), String.class);
+        assertThat(updateResponse.getStatusCode(), is(HttpStatus.NOT_FOUND));
+
+        ResponseEntity<String> deleteResponse = testRestTemplate.exchange(
+                "/api/v1/private/category/" + categoryId + "?store=" + otherStore, HttpMethod.DELETE,
+                new HttpEntity<>(getHeader()), String.class);
+        assertThat(deleteResponse.getStatusCode(), is(HttpStatus.NOT_FOUND));
+
+        PersistableCategory withId = new PersistableCategory();
+        withId.setId(categoryId);
+        withId.setCode("hijacked2");
+        withId.setDescriptions(Arrays.asList(description));
+        ResponseEntity<String> createWithId = testRestTemplate.postForEntity(
+                "/api/v1/private/category?store=" + otherStore, new HttpEntity<>(withId, getHeader()), String.class);
+        assertThat(createWithId.getStatusCode(), is(HttpStatus.BAD_REQUEST));
+
+        ResponseEntity<String> ownerUpdate = testRestTemplate.exchange("/api/v1/private/category/" + categoryId,
+                HttpMethod.PUT, new HttpEntity<>(newCategory, getHeader()), String.class);
+        assertThat(ownerUpdate.getStatusCode(), is(OK));
+
+        ResponseEntity<String> ownerDelete = testRestTemplate.exchange("/api/v1/private/category/" + categoryId,
+                HttpMethod.DELETE, new HttpEntity<>(getHeader()), String.class);
+        assertThat(ownerDelete.getStatusCode(), is(OK));
+    }
 
 }

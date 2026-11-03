@@ -162,9 +162,8 @@ public class CategoryFacadeImpl implements CategoryFacade {
 
 			Long categoryId = category.getId();
 			Category target = Optional.ofNullable(categoryId)
-					.filter(merchant -> store !=null)
 					.filter(id -> id > 0)
-					.map(categoryService::getById)
+					.map(id -> getById(store, id))
 					.orElse(new Category());
 
 			Category dbCategory = populateCategory(store, category, target);
@@ -358,13 +357,8 @@ public class CategoryFacadeImpl implements CategoryFacade {
 
 	@Override
 	public void deleteCategory(Long categoryId, MerchantStore store) {
-		Category category = getOne(categoryId, store.getId());
+		Category category = getById(store, categoryId);
 		deleteCategory(category);
-	}
-
-	private Category getOne(Long categoryId, int storeId) {
-		return Optional.ofNullable(categoryService.getById(categoryId)).orElseThrow(
-				() -> new ResourceNotFoundException(String.format("No Category found for ID : %s", categoryId)));
 	}
 
 	@Override
