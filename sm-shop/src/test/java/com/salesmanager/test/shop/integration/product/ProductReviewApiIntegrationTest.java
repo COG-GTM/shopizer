@@ -49,9 +49,15 @@ public class ProductReviewApiIntegrationTest extends ServicesTestSupport {
     Long victimId = victimReview.getBody().getCustomerId();
     assertNotNull(victimId);
 
+    Long victimReviewId = victimReview.getBody().getId();
+    assertNotNull(victimReviewId);
+
+    PersistableProductReview spoofedReview = review(victimId, victimProduct.getId());
+    spoofedReview.setId(victimReviewId);
     ResponseEntity<PersistableProductReview> spoofed =
-        postReview(targetProduct.getId(), review(victimId, victimProduct.getId()), attackerHeaders);
+        postReview(targetProduct.getId(), spoofedReview, attackerHeaders);
     assertThat(spoofed.getStatusCode(), is(CREATED));
+    assertThat(spoofed.getBody().getId(), not(victimReviewId));
     assertNotNull(spoofed.getBody().getCustomerId());
     assertThat(spoofed.getBody().getCustomerId(), not(victimId));
     assertThat(spoofed.getBody().getProductId(), is(targetProduct.getId()));

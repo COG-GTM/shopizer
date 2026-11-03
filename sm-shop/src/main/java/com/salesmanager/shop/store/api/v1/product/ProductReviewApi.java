@@ -97,7 +97,7 @@ public class ProductReviewApi {
     } catch (Exception e) {
       LOGGER.error("Error while resolving authenticated customer", e);
       try {
-        response.sendError(401, "Customer not authorized for this store");
+        response.sendError(503, "Error while saving product review");
       } catch (Exception ignore) {
       }
       return null;
@@ -114,6 +114,7 @@ public class ProductReviewApi {
       HttpServletResponse response) {
 
     try {
+      review.setId(null);
       review.setProductId(id);
 
       // rating already exist
