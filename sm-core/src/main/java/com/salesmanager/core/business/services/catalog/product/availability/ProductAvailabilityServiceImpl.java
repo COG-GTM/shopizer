@@ -73,7 +73,7 @@ public class ProductAvailabilityServiceImpl extends SalesManagerEntityServiceImp
 	@Override
 	public Optional<ProductAvailability> getById(Long availabilityId, MerchantStore store) {
 		Validate.notNull(store, "Merchant must not be null");
-		return Optional.ofNullable(productAvailabilityRepository.getById(availabilityId));
+		return Optional.ofNullable(productAvailabilityRepository.getById(availabilityId, store.getId()));
 	}
 
 	@Override
@@ -81,12 +81,6 @@ public class ProductAvailabilityServiceImpl extends SalesManagerEntityServiceImp
 		Validate.notNull(store, "MerchantStore cannot be null");
 		Pageable pageRequest = PageRequest.of(page, count);
 		return pageableProductAvailabilityRepository.getBySku(sku, store.getCode(), pageRequest);
-	}
-
-	@Override
-	public Page<ProductAvailability> getBySku(String sku, int page, int count) {
-		Pageable pageRequest = PageRequest.of(page, count);
-		return pageableProductAvailabilityRepository.getBySku(sku, pageRequest);
 	}
 
 	@Override

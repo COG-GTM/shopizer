@@ -17,6 +17,8 @@ public interface ProductPriceService extends SalesManagerEntityService<Long, Pro
 	List<ProductPrice> findByProductSku(String sku, MerchantStore store);
 	
 	ProductPrice findById(Long priceId, String sku, MerchantStore store);
+
+	ProductPrice findById(Long priceId, MerchantStore store);
 	
 	List<ProductPrice> findByInventoryId(Long productInventoryId, String sku, MerchantStore store);
 	

@@ -68,6 +68,16 @@ public class ProductPriceServiceImpl extends SalesManagerEntityServiceImpl<Long,
 	}
 
 	@Override
+	public ProductPrice findById(Long priceId, MerchantStore store) {
+		ProductPrice price = productPriceRepository.findOne(priceId);
+		if (price == null
+				|| !price.getProductAvailability().getProduct().getMerchantStore().getId().equals(store.getId())) {
+			return null;
+		}
+		return price;
+	}
+
+	@Override
 	public List<ProductPrice> findByInventoryId(Long productInventoryId, String sku, MerchantStore store) {
 
 		return productPriceRepository.findByProductInventoty(sku, productInventoryId, store.getCode());

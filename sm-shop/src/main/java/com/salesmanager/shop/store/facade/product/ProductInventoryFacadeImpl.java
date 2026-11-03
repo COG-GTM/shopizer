@@ -66,7 +66,7 @@ public class ProductInventoryFacadeImpl implements ProductInventoryFacade {
 		Optional<ProductAvailability> availability = productAvailabilityService.getById(inventoryId, store);
 		try {
 			if (availability.isPresent()) {
-				if(availability.get().getProduct().getId() == productId) {
+				if(availability.get().getProduct().getId().equals(productId)) {
 					productAvailabilityService.delete(availability.get());
 				} else {
 					throw new ResourceNotFoundException("Product with id [" + productId + "] and inventory id [" +  inventoryId + "] not found for store id [" + store.getId() + "]");
@@ -219,7 +219,7 @@ public class ProductInventoryFacadeImpl implements ProductInventoryFacade {
 		Validate.notNull(store, "MerchantStore code cannot be null");
 		Validate.notNull(language, "Language cannot be null");
 		
-		Page<ProductAvailability> availabilities = productAvailabilityService.getBySku(sku, page, count);
+		Page<ProductAvailability> availabilities = productAvailabilityService.getBySku(sku, store, page, count);
 		
 		/**
 		 * br -> if availabilities is null, it may be bcz a variant is a decorated product with no specific inventory.
