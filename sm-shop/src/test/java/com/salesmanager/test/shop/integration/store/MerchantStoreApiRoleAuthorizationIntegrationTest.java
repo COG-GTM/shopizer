@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.UUID;
 
 import org.junit.Test;
-import org.junit.Assume;
 import org.junit.runner.RunWith;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpEntity;
@@ -47,8 +46,6 @@ public class MerchantStoreApiRoleAuthorizationIntegrationTest extends ServicesTe
 
 		ResponseEntity<String> catalogueRead = exchange("/api/v1/private/store/DEFAULT/marketing", HttpMethod.GET,
 				null, catalogueUser);
-		Assume.assumeTrue("Skip base behavior that permits operations against DEFAULT",
-				catalogueRead.getStatusCode() != HttpStatus.OK);
 		assertEquals(HttpStatus.UNAUTHORIZED, catalogueRead.getStatusCode());
 		assertUnauthorizedDefaultRoutes(catalogueUser);
 		assertUnauthorized(HttpMethod.PUT, "/api/v1/private/store/DEFAULT", storePayload("DEFAULT", "Not changed"),
