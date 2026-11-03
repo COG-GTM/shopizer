@@ -65,6 +65,11 @@ public class JWTAdminAuthenticationManager extends CustomAuthenticationManager {
       // For simple validation it is completely sufficient to just check the token integrity. You
       // don't have to call
       // the database compellingly. Again it's up to you ;)
+      if (userDetails != null && !userDetails.isEnabled()) {
+        logger.warn("user " + username + " is disabled, rejecting token");
+        throw new CustomAuthenticationException("User account is disabled");
+      }
+
       if (userDetails != null && jwtTokenUtil.validateToken(authToken, userDetails)) {
         authentication = new UsernamePasswordAuthenticationToken(userDetails, null,
             userDetails.getAuthorities());

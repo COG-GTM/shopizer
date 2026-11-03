@@ -147,6 +147,10 @@ public class User extends SalesManagerEntity<Long, User> implements Auditable {
 	@Column(name = "LOGIN_ACCESS")
 	private Date loginTime;
 	
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "PASSWORD_CHANGED")
+	private Date passwordChangedDate;
+
 	@Embedded
 	private CredentialsReset credentialsResetRequest = null;
 
@@ -201,7 +205,19 @@ public class User extends SalesManagerEntity<Long, User> implements Auditable {
 	}
 
 	public void setAdminPassword(String adminPassword) {
+		if (adminPassword != null && !adminPassword.equals(this.adminPassword)) {
+			// second precision to match JWT issued-at claims
+			this.passwordChangedDate = new Date((System.currentTimeMillis() / 1000) * 1000);
+		}
 		this.adminPassword = adminPassword;
+	}
+
+	public Date getPasswordChangedDate() {
+		return passwordChangedDate;
+	}
+
+	public void setPasswordChangedDate(Date passwordChangedDate) {
+		this.passwordChangedDate = passwordChangedDate;
 	}
 
 	public String getFirstName() {

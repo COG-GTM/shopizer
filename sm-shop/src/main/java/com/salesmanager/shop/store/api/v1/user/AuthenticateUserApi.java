@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -81,7 +82,7 @@ public class AuthenticateUserApi {
                 );
 
     	} catch(Exception e) {
-    		if(e instanceof BadCredentialsException) {
+    		if(e instanceof BadCredentialsException || e instanceof DisabledException) {
     			return new ResponseEntity<>("{\"message\":\"Bad credentials\"}",HttpStatus.UNAUTHORIZED);
     		}
     		LOGGER.error("Error during authentication " + e.getMessage());
@@ -115,7 +116,7 @@ public class AuthenticateUserApi {
         String username = jwtTokenUtil.getUsernameFromToken(token);
         JWTUser user = (JWTUser) jwtAdminDetailsService.loadUserByUsername(username);
 
-        if (jwtTokenUtil.canTokenBeRefreshedWithGrace(token, user.getLastPasswordResetDate())) {
+        if (user.isEnabled() && jwtTokenUtil.canTokenBeRefreshedWithGrace(token, user.getLastPasswordResetDate())) {
             String refreshedToken = jwtTokenUtil.refreshToken(token);
             return ResponseEntity.ok(new AuthenticationResponse(user.getId(),refreshedToken));
         } else {
