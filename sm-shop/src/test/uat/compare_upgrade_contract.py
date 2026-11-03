@@ -17,7 +17,7 @@ def shape(value):
     if isinstance(value, dict):
         return {key: shape(item) for key, item in sorted(value.items())}
     if isinstance(value, list):
-        return sorted({json.dumps(shape(item), sort_keys=True) for item in value})
+        return sorted(json.dumps(shape(item), sort_keys=True) for item in value)
     if value is None:
         return "null"
     if isinstance(value, bool):
