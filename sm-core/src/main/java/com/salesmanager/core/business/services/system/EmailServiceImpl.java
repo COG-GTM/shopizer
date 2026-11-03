@@ -12,6 +12,7 @@ import com.salesmanager.core.business.modules.email.EmailConfig;
 import com.salesmanager.core.business.modules.email.HtmlEmailSender;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.system.MerchantConfiguration;
+import com.salesmanager.core.model.system.MerchantConfigurationType;
 
 @Service("emailService")
 public class EmailServiceImpl implements EmailService {
@@ -27,8 +28,7 @@ public class EmailServiceImpl implements EmailService {
 
 		EmailConfig emailConfig = getEmailConfiguration(store);
 		
-		sender.setEmailConfig(emailConfig);
-		sender.send(email);
+		sender.send(email, emailConfig);
 	}
 
 	@Override
@@ -36,7 +36,7 @@ public class EmailServiceImpl implements EmailService {
 		
 		MerchantConfiguration configuration = merchantConfigurationService.getMerchantConfiguration(Constants.EMAIL_CONFIG, store);
 		EmailConfig emailConfig = null;
-		if(configuration!=null) {
+		if(configuration!=null && configuration.getMerchantConfigurationType() != MerchantConfigurationType.SOCIAL) {
 			String value = configuration.getValue();
 			
 			ObjectMapper mapper = new ObjectMapper();
@@ -58,6 +58,7 @@ public class EmailServiceImpl implements EmailService {
 			configuration.setMerchantStore(store);
 			configuration.setKey(Constants.EMAIL_CONFIG);
 		}
+		configuration.setMerchantConfigurationType(MerchantConfigurationType.INTEGRATION);
 		
 		String value = emailConfig.toJSONString();
 		configuration.setValue(value);

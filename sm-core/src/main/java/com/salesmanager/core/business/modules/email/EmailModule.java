@@ -4,6 +4,8 @@ public interface EmailModule {
   
   void send(final Email email) throws Exception;
 
+  void send(final Email email, EmailConfig emailConfig) throws Exception;
+
   void setEmailConfig(EmailConfig emailConfig);
 
 }
