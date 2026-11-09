@@ -43,7 +43,6 @@ public class CustomShippingQuotesConfiguration extends IntegrationConfiguration 
 		if(regions!=null && regions.size()>0) {
 			
 			returnString.append(",");
-			//org.json.simple.ArrayNode array=new org.json.simple.ArrayNode();
 			StringBuilder regionsList = new StringBuilder();
 			int countRegion = 0;
 			regionsList.append("[");
