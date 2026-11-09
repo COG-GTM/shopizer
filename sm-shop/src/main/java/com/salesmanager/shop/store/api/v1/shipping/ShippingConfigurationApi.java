@@ -37,19 +37,16 @@ import com.salesmanager.shop.store.api.exception.ServiceRuntimeException;
 import com.salesmanager.shop.store.controller.shipping.facade.ShippingFacade;
 import com.salesmanager.shop.utils.AuthorizationUtils;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.SwaggerDefinition;
-import io.swagger.annotations.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Parameter;
 
 @RestController
 @RequestMapping("/api/v1")
-@Api(tags = { "Shipping configuration resource (Shipping Management Api)" })
-@SwaggerDefinition(tags = {
-		@Tag(name = "Shipping management resource", description = "Manage shipping configuration") })
+@Tag(name = "Shipping configuration resource (Shipping Management Api)", description = "Manage shipping configuration")
 public class ShippingConfigurationApi {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ShippingConfigurationApi.class);
@@ -63,7 +60,7 @@ public class ShippingConfigurationApi {
 	@Autowired
 	private ShippingService shippingService;
 
-	@ApiOperation(httpMethod = "GET", value = "Get shipping origin for a specific merchant store", notes = "", produces = "application/json", response = ReadableAddress.class)
+	@Operation(summary = "Get shipping origin for a specific merchant store")
 	@RequestMapping(value = { "/private/shipping/origin" }, method = RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
@@ -91,7 +88,7 @@ public class ShippingConfigurationApi {
 	}
 
 	// list packaging
-	@ApiOperation(httpMethod = "GET", value = "Get list of configured packages types for a specific merchant store", notes = "", produces = "application/json", response = List.class)
+	@Operation(summary = "Get list of configured packages types for a specific merchant store")
 	@RequestMapping(value = { "/private/shipping/packages" }, method = RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK)
 	public List<PackageDetails> listPackages(@Parameter(hidden = true) MerchantStore merchantStore, @Parameter(hidden = true) Language language) {
@@ -105,7 +102,7 @@ public class ShippingConfigurationApi {
 	}
 
 	// get packaging
-	@ApiOperation(httpMethod = "GET", value = "Get package details", notes = "", produces = "application/json", response = PackageDetails.class)
+	@Operation(summary = "Get package details")
 	@RequestMapping(value = { "/private/shipping/package/{code}" }, method = RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK)
 	public PackageDetails getPackage(@PathVariable String code, @Parameter(hidden = true) MerchantStore merchantStore,
@@ -120,7 +117,7 @@ public class ShippingConfigurationApi {
 	}
 
 	// create packaging
-	@ApiOperation(httpMethod = "POST", value = "Create new package specification", notes = "", produces = "application/json", response = Void.class)
+	@Operation(summary = "Create new package specification")
 	@RequestMapping(value = { "/private/shipping/package" }, method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.OK)
 	public void createPackage(@RequestBody PackageDetails details, @Parameter(hidden = true) MerchantStore merchantStore,
@@ -135,7 +132,7 @@ public class ShippingConfigurationApi {
 	}
 
 	// edit packaging
-	@ApiOperation(httpMethod = "PUT", value = "Edit package specification", notes = "", produces = "application/json", response = Void.class)
+	@Operation(summary = "Edit package specification")
 	@RequestMapping(value = { "/private/shipping/package/{code}" }, method = RequestMethod.PUT)
 	@ResponseStatus(HttpStatus.OK)
 	public void updatePackage(@PathVariable String code, @RequestBody PackageDetails details,
@@ -150,7 +147,7 @@ public class ShippingConfigurationApi {
 	}
 
 	// delete packaging
-	@ApiOperation(httpMethod = "DELETE", value = "Delete a package specification", notes = "", produces = "application/json", response = Void.class)
+	@Operation(summary = "Delete a package specification")
 	@RequestMapping(value = { "/private/shipping/package/{code}" }, method = RequestMethod.DELETE)
 	@ResponseStatus(HttpStatus.OK)
 	public void deletePackage(@PathVariable String code, @Parameter(hidden = true) MerchantStore merchantStore,
@@ -172,8 +169,8 @@ public class ShippingConfigurationApi {
 	 * @return
 	 */
 	@GetMapping("/private/modules/shipping")
-	@ApiOperation(httpMethod = "GET", value = "List list of shipping modules", notes = "Requires administration access", produces = "application/json", response = List.class)
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT") })
+	@Operation(summary = "List list of shipping modules", description = "Requires administration access")
+	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")) })
 	public List<IntegrationModuleSummaryEntity> shippingModules(@Parameter(hidden = true) MerchantStore merchantStore,
 			@Parameter(hidden = true) Language language) {
 
@@ -201,8 +198,8 @@ public class ShippingConfigurationApi {
 	 * @return
 	 */
 	@GetMapping("/private/modules/shipping/{code}")
-	@ApiOperation(httpMethod = "GET", value = "Shipping module by code", produces = "application/json", response = List.class)
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT") })
+	@Operation(summary = "Shipping module by code")
+	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")) })
 	public IntegrationConfiguration shippingModule(@PathVariable String code,
 			@Parameter(hidden = true) MerchantStore merchantStore, @Parameter(hidden = true) Language language) {
 

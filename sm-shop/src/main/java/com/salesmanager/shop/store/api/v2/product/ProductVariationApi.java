@@ -46,12 +46,11 @@ import com.salesmanager.shop.store.controller.category.facade.CategoryFacade;
 import com.salesmanager.shop.store.controller.product.facade.ProductVariationFacade;
 import com.salesmanager.shop.utils.ImageFilePath;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.SwaggerDefinition;
-import io.swagger.annotations.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Parameter;
 
 /**
@@ -66,10 +65,7 @@ import io.swagger.v3.oas.annotations.Parameter;
  */
 @Controller
 @RequestMapping("/api/v2")
-@Api(tags = {"Product variation resource (Product variant Api)"})
-@SwaggerDefinition(tags = {
-    @Tag(name = "Product variation resource", description = "List variations of products by different grouping")
-})
+@Tag(name = "Product variation resource (Product variant Api)", description = "List variations of products by different grouping")
 public class ProductVariationApi {
 
 
@@ -102,16 +98,11 @@ public class ProductVariationApi {
    */
   @RequestMapping(value = "/product/{id}/variation", method = RequestMethod.POST)
   @ResponseStatus(HttpStatus.OK)
-  @ApiOperation(
-      httpMethod = "POST",
-      value = "Get product price variation based on selected product",
-      notes = "",
-      produces = "application/json",
-      response = ReadableProductPrice.class)
+  @Operation(summary = "Get product price variation based on selected product")
   @ResponseBody
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-      @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en")
+  @Parameters({
+      @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+      @Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en"))
   })
   public ReadableProductPrice calculateVariant(
       @PathVariable final Long id,
@@ -161,16 +152,11 @@ public class ProductVariationApi {
   
   @RequestMapping(value = "/category/{id}/variations", method = RequestMethod.GET)
   @ResponseStatus(HttpStatus.OK)
-  @ApiOperation(
-      httpMethod = "GET",
-      value = "Get all variation for all items in a given category",
-      notes = "",
-      produces = "application/json",
-      response = List.class)
+  @Operation(summary = "Get all variation for all items in a given category")
   @ResponseBody
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-      @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en")
+  @Parameters({
+      @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+      @Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en"))
   })
   public List<ReadableProductVariant> categoryVariantList(
       @PathVariable final Long id, //category id
@@ -185,14 +171,9 @@ public class ProductVariationApi {
 
 	@ResponseStatus(HttpStatus.CREATED)
 	@RequestMapping(value = { "/private/product/variation" }, method = RequestMethod.POST)
-	@ApiOperation(
-		      httpMethod = "POST",
-		      value = "Creates a new product variant",
-		      notes = "",
-		      produces = "application/json",
-		      response = Void.class)
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
+	@Operation(summary = "Creates a new product variant")
+	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
 	public @ResponseBody Entity create(
 			@Valid @RequestBody PersistableProductVariation variation, 
 			@Parameter(hidden = true) MerchantStore merchantStore,
@@ -205,10 +186,10 @@ public class ProductVariationApi {
 
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping(value = { "/private/product/variation/unique" }, produces = MediaType.APPLICATION_JSON_VALUE)
-	@ApiImplicitParams({ 
-		@ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "string", defaultValue = "en") })
-	@ApiOperation(httpMethod = "GET", value = "Check if option set code already exists", notes = "", response = EntityExists.class)
+	@Parameters({ 
+		@Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
+	@Operation(summary = "Check if option set code already exists")
 	public ResponseEntity<EntityExists> exists(
 			@RequestParam(value = "code") String code,
 			@Parameter(hidden = true) MerchantStore merchantStore, 
@@ -221,8 +202,8 @@ public class ProductVariationApi {
 
 	@ResponseStatus(HttpStatus.OK)
 	@RequestMapping(value = { "/private/product/variation/{variationId}" }, method = RequestMethod.GET)
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
+	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
 	@ResponseBody
 	public ReadableProductVariation get(
 			@PathVariable Long variationId, 
@@ -236,8 +217,8 @@ public class ProductVariationApi {
 
 	@ResponseStatus(HttpStatus.OK)
 	@RequestMapping(value = { "/private/product/variation/{variationId}" }, method = RequestMethod.PUT)
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
+	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
 	public void update(
 			@Valid @RequestBody PersistableProductVariation variation, 
 			@PathVariable Long variationId,
@@ -252,9 +233,9 @@ public class ProductVariationApi {
 
 	@ResponseStatus(HttpStatus.OK)
 	@RequestMapping(value = { "/private/product/variation/{variationId}" }, method = RequestMethod.DELETE)
-	@ApiImplicitParams({ 
-		@ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
+	@Parameters({ 
+		@Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
 	public void delete(
 			@PathVariable Long variationId,
 			@Parameter(hidden = true) MerchantStore merchantStore,
@@ -267,9 +248,9 @@ public class ProductVariationApi {
 
 	@ResponseStatus(HttpStatus.OK)
 	@RequestMapping(value = { "/private/product/variations" }, method = RequestMethod.GET)
-	@ApiImplicitParams({ 
-		@ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
+	@Parameters({ 
+		@Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
 	public @ResponseBody ReadableEntityList<ReadableProductVariation> list(
 			@Parameter(hidden = true) MerchantStore merchantStore,
 			@Parameter(hidden = true) Language language,

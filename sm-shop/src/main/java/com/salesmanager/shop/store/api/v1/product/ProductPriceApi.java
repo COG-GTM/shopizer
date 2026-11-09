@@ -23,11 +23,10 @@ import com.salesmanager.shop.model.catalog.product.ReadableProductPrice;
 import com.salesmanager.shop.model.entity.Entity;
 import com.salesmanager.shop.store.controller.product.facade.ProductPriceFacade;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.SwaggerDefinition;
-import io.swagger.annotations.Tag;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Parameter;
 
 /**
@@ -38,8 +37,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 
 @Controller
 @RequestMapping("/api/v1")
-@Api(tags = { "Product price api" })
-@SwaggerDefinition(tags = { @Tag(name = "Product price management", description = "Edit price and discount") })
+@Tag(name = "Product price api", description = "Edit price and discount")
 public class ProductPriceApi {
 
 
@@ -52,8 +50,8 @@ public class ProductPriceApi {
 	@ResponseStatus(HttpStatus.OK)
 	@RequestMapping(value = { "/private/product/{sku}/inventory/{inventoryId}/price"},
 			method = RequestMethod.POST)
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
+	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
 	public @ResponseBody Entity save(
 			@PathVariable String sku,
 			@PathVariable Long inventoryId,
@@ -73,8 +71,8 @@ public class ProductPriceApi {
 	@ResponseStatus(HttpStatus.CREATED)
 	@RequestMapping(value = { "/private/product/{sku}/price"},
 			method = RequestMethod.POST)
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
+	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
 	public @ResponseBody Entity save(
 			@PathVariable String sku,
 			@Valid @RequestBody PersistableProductPrice price,
@@ -92,8 +90,8 @@ public class ProductPriceApi {
 	@ResponseStatus(HttpStatus.OK)
 	@RequestMapping(value = { "/private/product/{sku}/inventory/{inventoryId}/price/{priceId}"},
 			method = RequestMethod.PUT)
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
+	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
 	public void edit(
 			@PathVariable String sku,
 			@PathVariable Long inventoryId,
@@ -115,8 +113,8 @@ public class ProductPriceApi {
 	@ResponseStatus(HttpStatus.OK)
 	@RequestMapping(value = { "/private/product/{sku}/price/{priceId}"},
 			method = RequestMethod.GET)
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
+	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
 	public ReadableProductPrice get(
 			@PathVariable String sku,
 			@PathVariable Long priceId,
@@ -134,8 +132,8 @@ public class ProductPriceApi {
 	
 	@RequestMapping(value = { "/private/product/{sku}/inventory/{inventoryId}/price"},
 			method = RequestMethod.GET)
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
+	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
 	public List<ReadableProductPrice> list(
 			@PathVariable String sku,
 			@PathVariable Long inventoryId,
@@ -151,8 +149,8 @@ public class ProductPriceApi {
 	
 	@RequestMapping(value = { "/private/product/{sku}/prices"},
 			method = RequestMethod.GET)
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
+	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
 	public List<ReadableProductPrice> list(
 			@PathVariable String sku,
 			@Parameter(hidden = true) MerchantStore merchantStore, 
@@ -167,8 +165,8 @@ public class ProductPriceApi {
 	@ResponseStatus(HttpStatus.OK)
 	@RequestMapping(value = { "/private/product/{sku}/price/{priceId}"},
 			method = RequestMethod.DELETE)
-	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
+	@Parameters({ @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+			@Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en")) })
 	public void delete(
 			@PathVariable String sku,
 			@PathVariable Long priceId,

@@ -32,19 +32,15 @@ import com.salesmanager.shop.populator.order.ReadableOrderSummaryPopulator;
 import com.salesmanager.shop.store.controller.shoppingCart.facade.ShoppingCartFacade;
 import com.salesmanager.shop.utils.LabelUtils;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.SwaggerDefinition;
-import io.swagger.annotations.Tag;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Parameter;
 
 @Controller
 @RequestMapping("/api/v1")
-@Api(tags = {"Order Total calculation for a given shopping cart (Order Total Api)"})
-@SwaggerDefinition(tags = {
-    @Tag(name = "Order Total resource", description = "Calculates order total for a giben shopping cart")
-})
+@Tag(name = "Order Total calculation for a given shopping cart (Order Total Api)", description = "Calculates order total for a giben shopping cart")
 public class OrderTotalApi {
 
   @Inject private ShoppingCartFacade shoppingCartFacade;
@@ -76,9 +72,9 @@ public class OrderTotalApi {
       value = {"/auth/cart/{id}/total"},
       method = RequestMethod.GET)
   @ResponseBody
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-      @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en")
+  @Parameters({
+      @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+      @Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en"))
   })
   public ReadableOrderTotalSummary payment(
       @PathVariable final Long id,
@@ -166,9 +162,9 @@ public class OrderTotalApi {
       value = {"/cart/{code}/total"},
       method = RequestMethod.GET)
   @ResponseBody
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-      @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en")
+  @Parameters({
+      @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+      @Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en"))
   })
   public ReadableOrderTotalSummary calculateTotal(
       @PathVariable final String code,
