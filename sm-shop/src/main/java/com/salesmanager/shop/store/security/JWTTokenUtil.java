@@ -131,10 +131,6 @@ public class JWTTokenUtil implements Serializable {
 		return (lastPasswordReset != null && created.before(lastPasswordReset));
 	}
 
-	private Boolean isCreatedBeforeLastPasswordResetWithGrace(Date created, Date lastPasswordReset) {
-		return (lastPasswordReset != null && created.before(addSeconds(lastPasswordReset, GRACE_PERIOD)));
-	}
-
 	private Date addSeconds(Date date, Integer seconds) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
@@ -170,7 +166,7 @@ public class JWTTokenUtil implements Serializable {
 
 	public Boolean canTokenBeRefreshedWithGrace(String token, Date lastPasswordReset) {
 		final Date created = getIssuedAtDateFromToken(token);
-		return !isCreatedBeforeLastPasswordResetWithGrace(created, lastPasswordReset)
+		return !isCreatedBeforeLastPasswordReset(created, lastPasswordReset)
 				&& (!isTokenExpiredWithGrace(token) || ignoreTokenExpiration(token));
 	}
 

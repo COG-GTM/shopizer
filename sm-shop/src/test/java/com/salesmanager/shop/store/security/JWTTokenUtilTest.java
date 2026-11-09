@@ -55,6 +55,16 @@ class JWTTokenUtilTest {
 		assertFalse(util.validateToken(token, user("admin@shopizer.com", future)));
 		assertFalse(util.canTokenBeRefreshed(token, future));
 		assertTrue(util.canTokenBeRefreshed(token, null));
+		assertFalse(util.canTokenBeRefreshedWithGrace(token, future));
+	}
+
+	@Test
+	void tokenIssuedRightAfterPasswordResetCanBeRefreshed() {
+		Date justReset = new Date(System.currentTimeMillis() - 10_000);
+		String token = util.generateToken(user("admin@shopizer.com", justReset));
+
+		assertTrue(util.canTokenBeRefreshed(token, justReset));
+		assertTrue(util.canTokenBeRefreshedWithGrace(token, justReset));
 	}
 
 	@Test
