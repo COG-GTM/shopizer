@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Ehcache 3 (JCache / JSR-107) configuration used by Spring's JCacheCacheManager -->
+<!-- Ehcache 3 (JCache / JSR-107) configuration used by Spring's JCacheCacheManager and Hibernate's second level cache -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns="http://www.ehcache.org/v3"
 	xsi:schemaLocation="http://www.ehcache.org/v3 http://www.ehcache.org/schema/ehcache-core-3.0.xsd">
@@ -35,6 +35,25 @@
 
 	<cache alias="languageByCode">
 		<heap unit="entries">50</heap>
+	</cache>
+
+	<!-- Hibernate second level cache regions (@Cacheable entities and query cache) -->
+	<cache alias="com.salesmanager.core.model.reference.country.Country">
+		<heap unit="entries">500</heap>
+	</cache>
+
+	<cache alias="com.salesmanager.core.model.reference.currency.Currency">
+		<heap unit="entries">500</heap>
+	</cache>
+
+	<cache alias="com.salesmanager.core.model.reference.language.Language">
+		<heap unit="entries">50</heap>
+	</cache>
+
+	<cache alias="default-query-results-region" uses-template="default"/>
+
+	<cache alias="default-update-timestamps-region">
+		<heap unit="entries">10000</heap>
 	</cache>
 
 </config>
