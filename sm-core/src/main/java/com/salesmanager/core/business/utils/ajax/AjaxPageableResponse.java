@@ -1,9 +1,11 @@
 package com.salesmanager.core.business.utils.ajax;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import java.util.Map;
 import java.util.Set;
 
-import org.json.simple.JSONObject;
 
 public class AjaxPageableResponse extends AjaxResponse {
 	
@@ -53,12 +55,12 @@ public class AjaxPageableResponse extends AjaxResponse {
 				if(dataEntries == null) {
 					dataEntries = new StringBuilder();
 				}
-				JSONObject data = new JSONObject();
+				ObjectNode data = JsonNodeFactory.instance.objectNode();
 				Set<String> keys = keyValue.keySet();
 				for(String key : keys) {
-					data.put(key, keyValue.get(key));
+					data.putPOJO(key, keyValue.get(key));
 				}
-				String dataField = data.toJSONString();
+				String dataField = data.toString();
 				dataEntries.append(dataField);
 				if(count<super.getData().size()-1) {
 					dataEntries.append(",");

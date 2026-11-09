@@ -10,13 +10,12 @@ import jakarta.inject.Inject;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.salesmanager.core.business.constants.Constants;
 import com.salesmanager.core.business.exception.ServiceException;
@@ -47,6 +46,8 @@ public class ModuleConfigurationServiceImpl extends SalesManagerEntityServiceImp
 	private List<ModuleStarter> payments = null; // all bound payment module starters if any
 
 	@Inject
+	private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
+
 	public ModuleConfigurationServiceImpl(ModuleConfigurationRepository moduleConfigurationRepository) {
 		super(moduleConfigurationRepository);
 		this.moduleConfigurationRepository = moduleConfigurationRepository;
@@ -76,8 +77,7 @@ public class ModuleConfigurationServiceImpl extends SalesManagerEntityServiceImp
 
 					String regions = mod.getRegions();
 					if (regions != null) {
-						Object objRegions = JSONValue.parse(regions);
-						JSONArray arrayRegions = (JSONArray) objRegions;
+						List<Object> arrayRegions = JSON_MAPPER.readValue(regions, new TypeReference<List<Object>>() {});
 						for (Object arrayRegion : arrayRegions) {
 							mod.getRegionsSet().add((String) arrayRegion);
 						}
@@ -86,7 +86,8 @@ public class ModuleConfigurationServiceImpl extends SalesManagerEntityServiceImp
 					String details = mod.getConfigDetails();
 					if (details != null) {
 
-						Map<String, String> objDetails = (Map<String, String>) JSONValue.parse(details);
+						Map<String, String> objDetails = JSON_MAPPER.readValue(details,
+								new TypeReference<Map<String, String>>() {});
 						mod.setDetails(objDetails);
 
 					}
@@ -94,14 +95,13 @@ public class ModuleConfigurationServiceImpl extends SalesManagerEntityServiceImp
 					String configs = mod.getConfiguration();
 					if (configs != null) {
 
-						Object objConfigs = JSONValue.parse(configs);
-						JSONArray arrayConfigs = (JSONArray) objConfigs;
+						List<Map<String, Object>> arrayConfigs = JSON_MAPPER.readValue(configs,
+								new TypeReference<List<Map<String, Object>>>() {});
 
 						Map<String, ModuleConfig> moduleConfigs = new HashMap<String, ModuleConfig>();
 
-						for (Object arrayConfig : arrayConfigs) {
+						for (Map<String, Object> values : arrayConfigs) {
 
-							Map values = (Map) arrayConfig;
 							String env = (String) values.get("env");
 							ModuleConfig config = new ModuleConfig();
 							config.setScheme((String) values.get("scheme"));

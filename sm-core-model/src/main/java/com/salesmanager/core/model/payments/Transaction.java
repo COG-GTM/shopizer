@@ -26,7 +26,6 @@ import jakarta.persistence.Transient;
 
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-import org.json.simple.JSONAware;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +41,7 @@ import com.salesmanager.core.model.order.Order;
 @Entity
 @EntityListeners(value = AuditListener.class)
 @Table(name = "SM_TRANSACTION")
-public class Transaction extends SalesManagerEntity<Long, Transaction> implements Serializable, Auditable, JSONAware {
+public class Transaction extends SalesManagerEntity<Long, Transaction> implements Serializable, Auditable {
 	
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(Transaction.class);
@@ -169,7 +168,7 @@ public class Transaction extends SalesManagerEntity<Long, Transaction> implement
 		this.transactionDetails = transactionDetails;
 	}
 
-	@Override
+	
 	public String toJSONString() {
 		
 		if(this.getTransactionDetails()!=null && this.getTransactionDetails().size()>0) {

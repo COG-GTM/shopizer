@@ -1,6 +1,5 @@
 package com.salesmanager.core.model.system;
 
-import org.json.simple.JSONAware;
 
 /**
  * Used as a marker interface to commit additional
@@ -8,7 +7,10 @@ import org.json.simple.JSONAware;
  * @author casams1
  *
  */
-public interface CustomIntegrationConfiguration extends JSONAware{
+public interface CustomIntegrationConfiguration {
+
+	String toJSONString();
+
 	
 
 }

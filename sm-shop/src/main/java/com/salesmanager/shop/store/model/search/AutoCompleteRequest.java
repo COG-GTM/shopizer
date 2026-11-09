@@ -1,6 +1,8 @@
 package com.salesmanager.shop.store.model.search;
 
-import org.json.simple.JSONObject;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 
 public class AutoCompleteRequest {
 	
@@ -32,20 +34,20 @@ public class AutoCompleteRequest {
 
 		
 		
-		JSONObject keyword = new JSONObject();
-		JSONObject q = new JSONObject();
-		JSONObject mq = new JSONObject();
-		JSONObject match = new JSONObject();
+		ObjectNode keyword = JsonNodeFactory.instance.objectNode();
+		ObjectNode q = JsonNodeFactory.instance.objectNode();
+		ObjectNode mq = JsonNodeFactory.instance.objectNode();
+		ObjectNode match = JsonNodeFactory.instance.objectNode();
 		
 		q.put(QUERY, query);
 		q.put(ANALYZER, STD_ANALYZER);
 		
-		keyword.put(KEYWORD, q);
+		keyword.set(KEYWORD, q);
 		
-		match.put(MATCH, keyword);
+		match.set(MATCH, keyword);
 		
-		mq.put(QUERY, match);
-		return mq.toJSONString();
+		mq.set(QUERY, match);
+		return mq.toString();
 	}
 	
 	/** keyword_en_default **/

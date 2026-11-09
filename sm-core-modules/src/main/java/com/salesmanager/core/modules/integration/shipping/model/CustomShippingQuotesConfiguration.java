@@ -1,5 +1,9 @@
 package com.salesmanager.core.modules.integration.shipping.model;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +26,7 @@ public class CustomShippingQuotesConfiguration extends IntegrationConfiguration 
 	
 	@SuppressWarnings("unchecked")
 	public String toJSONString() {
-		//JSONObject data = new JSONObject();
+		//ObjectNode data = JsonNodeFactory.instance.objectNode();
 		
 		//data.put("active", super.isActive());
 		//data.put("moduleCode", this.getModuleCode());
@@ -39,7 +43,6 @@ public class CustomShippingQuotesConfiguration extends IntegrationConfiguration 
 		if(regions!=null && regions.size()>0) {
 			
 			returnString.append(",");
-			//org.json.simple.JSONArray array=new org.json.simple.JSONArray();
 			StringBuilder regionsList = new StringBuilder();
 			int countRegion = 0;
 			regionsList.append("[");
@@ -54,7 +57,7 @@ public class CustomShippingQuotesConfiguration extends IntegrationConfiguration 
 			returnString.append("\"regions\"").append(":").append(regionsList.toString());
 		}
 
-		//return data.toJSONString();
+		//return data.toString();
 		returnString.append("}");
 		return returnString.toString();
 		

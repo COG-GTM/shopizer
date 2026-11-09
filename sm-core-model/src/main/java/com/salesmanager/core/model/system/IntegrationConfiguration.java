@@ -1,11 +1,12 @@
 package com.salesmanager.core.model.system;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.json.simple.JSONAware;
-import org.json.simple.JSONObject;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -16,7 +17,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author csamson
  *
  */
-public class IntegrationConfiguration implements JSONAware {
+public class IntegrationConfiguration {
 
 
   public final static String TEST_ENVIRONMENT = "TEST";
@@ -75,7 +76,7 @@ public class IntegrationConfiguration implements JSONAware {
 
 
   @SuppressWarnings("unchecked")
-  @Override
+  
   public String toJSONString() {
 
 
@@ -84,12 +85,12 @@ public class IntegrationConfiguration implements JSONAware {
 
     if (this.getIntegrationKeys().size() > 0) {
 
-      JSONObject data = new JSONObject();
+      ObjectNode data = JsonNodeFactory.instance.objectNode();
       Set<String> keys = this.getIntegrationKeys().keySet();
       for (String key : keys) {
         data.put(key, this.getIntegrationKeys().get(key));
       }
-      String dataField = data.toJSONString();
+      String dataField = data.toString();
 
       returnString.append(",").append("\"integrationKeys\"").append(":");
       returnString.append(dataField.toString());
@@ -100,7 +101,7 @@ public class IntegrationConfiguration implements JSONAware {
 
     if (this.getIntegrationOptions() != null && this.getIntegrationOptions().size() > 0) {
 
-      // JSONObject data = new JSONObject();
+      // ObjectNode data = JsonNodeFactory.instance.objectNode();
       StringBuilder optionDataEntries = new StringBuilder();
       Set<String> keys = this.getIntegrationOptions().keySet();
       int countOptions = 0;

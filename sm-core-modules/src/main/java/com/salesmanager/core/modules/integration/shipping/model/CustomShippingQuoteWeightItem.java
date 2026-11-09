@@ -1,9 +1,10 @@
 package com.salesmanager.core.modules.integration.shipping.model;
 
-import org.json.simple.JSONAware;
-import org.json.simple.JSONObject;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
-public class CustomShippingQuoteWeightItem extends CustomShippingQuoteItem implements JSONAware {
+
+public class CustomShippingQuoteWeightItem extends CustomShippingQuoteItem {
 	
 	private int maximumWeight;
 	
@@ -27,11 +28,11 @@ public class CustomShippingQuoteWeightItem extends CustomShippingQuoteItem imple
 
 	@SuppressWarnings("unchecked")
 	public String toJSONString() {
-		JSONObject data = new JSONObject();
+		ObjectNode data = JsonNodeFactory.instance.objectNode();
 		data.put("price", super.getPrice());
 		data.put("maximumWeight", this.getMaximumWeight());
 		
-		return data.toJSONString();
+		return data.toString();
 	}
 
 

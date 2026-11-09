@@ -1,5 +1,9 @@
 package com.salesmanager.core.business.utils.ajax;
 
+import com.fasterxml.jackson.core.io.JsonStringEncoder;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -7,10 +11,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.json.simple.JSONAware;
-import org.json.simple.JSONObject;
 
-public class AjaxResponse implements JSONAware {
+public class AjaxResponse {
 	
 	public final static int RESPONSE_STATUS_SUCCESS=0;
 	public final static int RESPONSE_STATUS_FAIURE=-1;
@@ -79,14 +81,14 @@ public class AjaxResponse implements JSONAware {
 		returnString.append("{");
 		returnString.append("\"status\"").append(":").append(this.getStatus());
 		if(this.getStatusMessage()!=null && this.getStatus()!=0) {
-			returnString.append(",").append("\"statusMessage\"").append(":\"").append(JSONObject.escape(this.getStatusMessage())).append("\"");
+			returnString.append(",").append("\"statusMessage\"").append(":\"").append(new String(JsonStringEncoder.getInstance().quoteAsString(this.getStatusMessage()))).append("\"");
 		}
 		return returnString.toString();
 		
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@Override
+	
 	public String toJSONString() {
 		StringBuilder returnString = new StringBuilder();
 		
@@ -99,12 +101,12 @@ public class AjaxResponse implements JSONAware {
 				if(dataEntries == null) {
 					dataEntries = new StringBuilder();
 				}
-				JSONObject data = new JSONObject();
+				ObjectNode data = JsonNodeFactory.instance.objectNode();
 				Set<String> keys = keyValue.keySet();
 				for(String key : keys) {
-					data.put(key, keyValue.get(key));
+					data.putPOJO(key, keyValue.get(key));
 				}
-				String dataField = data.toJSONString();
+				String dataField = data.toString();
 				dataEntries.append(dataField);
 				if(count<this.data.size()-1) {
 					dataEntries.append(",");

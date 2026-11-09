@@ -1,9 +1,10 @@
 package com.salesmanager.core.business.modules.email;
 
-import org.json.simple.JSONAware;
-import org.json.simple.JSONObject;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
-public class EmailConfig implements JSONAware {
+
+public class EmailConfig {
 
 	private String host;
 	private String port;
@@ -16,9 +17,9 @@ public class EmailConfig implements JSONAware {
 	private String emailTemplatesPath = null;
 	
 	@SuppressWarnings("unchecked")
-	@Override
+	
 	public String toJSONString() {
-		JSONObject data = new JSONObject();
+		ObjectNode data = JsonNodeFactory.instance.objectNode();
 		data.put("host", this.getHost());
 		data.put("port", this.getPort());
 		data.put("protocol", this.getProtocol());
@@ -26,7 +27,7 @@ public class EmailConfig implements JSONAware {
 		data.put("smtpAuth", this.isSmtpAuth());
 		data.put("starttls", this.isStarttls());
 		data.put("password", this.getPassword());
-		return data.toJSONString();
+		return data.toString();
 	}
 	
 	

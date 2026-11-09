@@ -1,8 +1,8 @@
 package com.salesmanager.test.shop.integration.product;
 
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.springframework.http.HttpStatus.CREATED;
 
 import java.io.BufferedInputStream;
@@ -12,16 +12,16 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -47,7 +47,7 @@ import com.salesmanager.shop.model.catalog.product.product.ProductSpecification;
 import com.salesmanager.test.shop.common.ServicesTestSupport;
 
 @SpringBootTest(classes = ShopApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class ProductManagementAPIIntegrationTest extends ServicesTestSupport {
 
 	private RestTemplate restTemplate;
@@ -112,7 +112,7 @@ public class ProductManagementAPIIntegrationTest extends ServicesTestSupport {
 	 *
 	 * @throws Exception
 	 */
-	@Ignore
+	@Disabled
 	@Test
 	public void createProductReview() throws Exception {
 
@@ -144,7 +144,7 @@ public class ProductManagementAPIIntegrationTest extends ServicesTestSupport {
 	 * @throws Exception
 	 */
 	@Test
-	@Ignore
+	@Disabled
 	public void createOptionValue() throws Exception {
 
 		final ProductOptionValueDescription description = new ProductOptionValueDescription();
@@ -190,7 +190,7 @@ public class ProductManagementAPIIntegrationTest extends ServicesTestSupport {
 	 * @throws Exception
 	 */
 	@Test
-	@Ignore
+	@Disabled
 	public void createOption() throws Exception {
 
 		final ProductOptionDescription description = new ProductOptionDescription();
@@ -232,7 +232,7 @@ public class ProductManagementAPIIntegrationTest extends ServicesTestSupport {
 	}
 
 	@Test
-	@Ignore
+	@Disabled
 	public void getProducts() throws Exception {
 		restTemplate = new RestTemplate();
 
@@ -250,7 +250,7 @@ public class ProductManagementAPIIntegrationTest extends ServicesTestSupport {
 	}
 
 	@Test
-	@Ignore
+	@Disabled
 	public void putProduct() throws Exception {
 		restTemplate = new RestTemplate();
 
@@ -259,7 +259,7 @@ public class ProductManagementAPIIntegrationTest extends ServicesTestSupport {
 	}
 
 	@Test
-	@Ignore
+	@Disabled
 	public void postProduct() throws Exception {
 		restTemplate = new RestTemplate();
 		

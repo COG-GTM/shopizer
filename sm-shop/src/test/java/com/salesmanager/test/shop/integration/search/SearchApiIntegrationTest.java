@@ -1,19 +1,19 @@
 package com.salesmanager.test.shop.integration.search;
 
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.springframework.http.HttpStatus.CREATED;
 
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import com.salesmanager.core.business.constants.Constants;
 import com.salesmanager.shop.application.ShopApplication;
@@ -23,8 +23,8 @@ import com.salesmanager.shop.model.catalog.product.product.PersistableProduct;
 import com.salesmanager.test.shop.common.ServicesTestSupport;
 
 @SpringBootTest(classes = ShopApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
-@RunWith(SpringRunner.class)
-@Ignore
+@ExtendWith(SpringExtension.class)
+@Disabled
 public class SearchApiIntegrationTest extends ServicesTestSupport {
 
     @Autowired
@@ -39,7 +39,7 @@ public class SearchApiIntegrationTest extends ServicesTestSupport {
      * @throws Exception
      */
     //@Test
-    @Ignore
+    @Disabled
     public void searchItem() throws Exception {
     	
     	PersistableProduct product = super.product("TESTPRODUCT");

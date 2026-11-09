@@ -1,19 +1,20 @@
 package com.salesmanager.core.model.shipping;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONAware;
-import org.json.simple.JSONObject;
 
 /**
  * Object saved in the database maintaining various shipping options
  * @author casams1
  *
  */
-public class ShippingConfiguration implements JSONAware {
+public class ShippingConfiguration {
 	
 	//enums
 	private ShippingType shippingType = ShippingType.NATIONAL;
@@ -181,9 +182,9 @@ public class ShippingConfiguration implements JSONAware {
 	}
 
 	@SuppressWarnings("unchecked")
-	@Override
+	
 	public String toJSONString() {
-		JSONObject data = new JSONObject();
+		ObjectNode data = JsonNodeFactory.instance.objectNode();
 		data.put("shipBaseType", this.getShippingBasisType().name());
 		data.put("shipOptionPriceType", this.getShippingOptionPriceType().name());
 		data.put("shipType", this.getShippingType().name());
@@ -205,21 +206,21 @@ public class ShippingConfiguration implements JSONAware {
 		data.put("taxOnShipping", this.taxOnShipping);
 		
 		
-		JSONArray jsonArray = new JSONArray();
+		ArrayNode jsonArray = JsonNodeFactory.instance.arrayNode();
 
 		for(Package p : this.getPackages()) {
 			jsonArray.add(transformPackage(p));
 		}
 		
-		data.put("packages", jsonArray);
+		data.set("packages", jsonArray);
 		
 		
-		return data.toJSONString();
+		return data.toString();
 	}
 	
 	@SuppressWarnings("unchecked")
-	private JSONObject transformPackage(Package p) {
-		JSONObject data = new JSONObject();
+	private ObjectNode transformPackage(Package p) {
+		ObjectNode data = JsonNodeFactory.instance.objectNode();
 		data.put("boxWidth", p.getBoxWidth());
 		data.put("boxHeight", p.getBoxHeight());
 		data.put("boxLength", p.getBoxLength());
