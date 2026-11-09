@@ -104,7 +104,7 @@ public class UserApi {
 	 * @return
 	 */
 	@ResponseStatus(HttpStatus.OK)
-	@PostMapping(value = { "/private/user/" }, produces = MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping(value = { "/private/user" }, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ApiOperation(httpMethod = "POST", value = "Creates a new user", notes = "", response = ReadableUser.class)
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })

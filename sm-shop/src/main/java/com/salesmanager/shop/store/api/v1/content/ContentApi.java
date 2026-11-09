@@ -507,7 +507,7 @@ public class ContentApi {
 	 *
 	 * @param name
 	 */
-	@DeleteMapping(value = "/private/content/")
+	@DeleteMapping(value = "/private/content")
 	@ApiOperation(httpMethod = "DELETE", value = "Deletes a file from CMS", notes = "Delete a file from server", response = Void.class)
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
