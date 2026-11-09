@@ -1,8 +1,8 @@
 package com.salesmanager.shop.store.api.v1.product;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,14 +27,14 @@ import com.salesmanager.shop.model.catalog.product.ReadableProductList;
 import com.salesmanager.shop.model.catalog.product.group.ProductGroup;
 import com.salesmanager.shop.store.controller.items.facade.ProductItemsFacade;
 
-import antlr.collections.List;
+import java.util.List;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
-import springfox.documentation.annotations.ApiIgnore;
+import io.swagger.v3.oas.annotations.Parameter;
 
 /**
  * Used for product grouping such as featured items
@@ -63,8 +63,8 @@ public class ProductGroupApi {
   })
   public @ResponseBody ProductGroup creteGroup(
       @RequestBody ProductGroup group,
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language,
+			@Parameter(hidden = true) MerchantStore merchantStore,
+			@Parameter(hidden = true) Language language,
       HttpServletResponse response)
       throws Exception {
 	  
@@ -82,8 +82,8 @@ public class ProductGroupApi {
   public void updateGroup(
       @RequestBody ProductGroup group,
       @PathVariable String code,
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language,
+			@Parameter(hidden = true) MerchantStore merchantStore,
+			@Parameter(hidden = true) Language language,
       HttpServletResponse response)
       throws Exception {
 	  
@@ -98,8 +98,8 @@ public class ProductGroupApi {
       @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en")
   })
   public @ResponseBody java.util.List<ProductGroup> list(
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language,
+			@Parameter(hidden = true) MerchantStore merchantStore,
+			@Parameter(hidden = true) Language language,
       HttpServletResponse response)
       throws Exception {
 	  
@@ -130,8 +130,8 @@ public class ProductGroupApi {
   })
   public @ResponseBody ReadableProductList getProductItemsByGroup(
       @PathVariable final String code,
-			@ApiIgnore MerchantStore merchantStore,
-			@ApiIgnore Language language,
+			@Parameter(hidden = true) MerchantStore merchantStore,
+			@Parameter(hidden = true) Language language,
       HttpServletResponse response)
       throws Exception {
     try {
@@ -161,8 +161,8 @@ public class ProductGroupApi {
   public @ResponseBody ReadableProductList addProductToGroup(
       @PathVariable Long productId,
       @PathVariable String code,
-      @ApiIgnore MerchantStore merchantStore,
-      @ApiIgnore Language language,
+      @Parameter(hidden = true) MerchantStore merchantStore,
+      @Parameter(hidden = true) Language language,
       HttpServletResponse response) {
 
 	  
@@ -205,8 +205,8 @@ public class ProductGroupApi {
   public @ResponseBody ReadableProductList removeProductFromGroup(
       @PathVariable Long productId,
       @PathVariable String code,
-      @ApiIgnore MerchantStore merchantStore,
-      @ApiIgnore Language language,
+      @Parameter(hidden = true) MerchantStore merchantStore,
+      @Parameter(hidden = true) Language language,
       HttpServletRequest request,
       HttpServletResponse response) {
 
@@ -244,8 +244,8 @@ public class ProductGroupApi {
   })
   public void deleteGroup(
       @PathVariable final String code,
-	  @ApiIgnore MerchantStore merchantStore,
-	  @ApiIgnore Language language,
+	  @Parameter(hidden = true) MerchantStore merchantStore,
+	  @Parameter(hidden = true) Language language,
       HttpServletResponse response) {
 	  
 	  productItemsFacade.deleteGroup(code, merchantStore);
