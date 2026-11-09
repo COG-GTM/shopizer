@@ -2,9 +2,8 @@ package com.salesmanager.core.modules.integration.shipping.model;
 
 import java.util.List;
 
-import org.json.simple.JSONAware;
 
-public class CustomShippingQuotesRegion implements JSONAware {
+public class CustomShippingQuotesRegion {
 	
 	private String customRegionName;//a name given by the merchant for this custom region
 	private List<String> countries;//a list of country code for this region

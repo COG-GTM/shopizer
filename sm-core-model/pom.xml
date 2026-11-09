@@ -83,13 +83,6 @@
 		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
-			<version>20211205</version>
-		</dependency>
-
-		<!-- https://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple -->
-		<dependency>
-			<groupId>com.googlecode.json-simple</groupId>
-			<artifactId>json-simple</artifactId>
 		</dependency>
 
 
@@ -113,10 +106,9 @@
 			<artifactId>commons-io</artifactId>
 		</dependency>
 
-		<!-- http://mvnrepository.com/artifact/commons-fileupload/commons-fileupload -->
 		<dependency>
-			<groupId>commons-fileupload</groupId>
-			<artifactId>commons-fileupload</artifactId>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-fileupload2-jakarta-servlet6</artifactId>
 		</dependency>
 
 	</dependencies>

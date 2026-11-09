@@ -6,14 +6,13 @@ import org.jsoup.helper.Validate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailPreparationException;
 import org.springframework.stereotype.Component;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
-import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClientBuilder;
-import com.amazonaws.services.simpleemail.model.Body;
-import com.amazonaws.services.simpleemail.model.Content;
-import com.amazonaws.services.simpleemail.model.Destination;
-import com.amazonaws.services.simpleemail.model.Message;
-import com.amazonaws.services.simpleemail.model.SendEmailRequest;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.ses.SesClient;
+import software.amazon.awssdk.services.ses.model.Body;
+import software.amazon.awssdk.services.ses.model.Content;
+import software.amazon.awssdk.services.ses.model.Destination;
+import software.amazon.awssdk.services.ses.model.Message;
+import software.amazon.awssdk.services.ses.model.SendEmailRequest;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -54,21 +53,20 @@ public class SESEmailSenderImpl implements EmailModule {
 
       Validate.notNull(region,"AWS region is null");
 
-      AmazonSimpleEmailService client = AmazonSimpleEmailServiceClientBuilder.standard()
-          // Replace US_WEST_2 with the AWS Region you're using for
-          // Amazon SES.
-          .withRegion(Regions.valueOf(region.toUpperCase())).build();
-      SendEmailRequest request = new SendEmailRequest()
-          .withDestination(new Destination().withToAddresses(email.getTo()))
-          .withMessage(new Message()
-              .withBody(new Body().withHtml(new Content().withCharset("UTF-8").withData(prepareHtml(email)))
-                  .withText(new Content().withCharset("UTF-8").withData(TEXTBODY)))
-              .withSubject(new Content().withCharset("UTF-8").withData(email.getSubject())))
-          .withSource(email.getFromEmail());
-          // Comment or remove the next line if you are not using a
-          // configuration set
-          //.withConfigurationSetName(CONFIGSET);
-      client.sendEmail(request);
+      // accepts both the enum style (US_EAST_1) and the region id style (us-east-1)
+      Region awsRegion = Region.of(region.trim().toLowerCase().replace('_', '-'));
+      SendEmailRequest request = SendEmailRequest.builder()
+          .destination(Destination.builder().toAddresses(email.getTo()).build())
+          .message(Message.builder()
+              .body(Body.builder()
+                  .html(Content.builder().charset("UTF-8").data(prepareHtml(email)).build())
+                  .text(Content.builder().charset("UTF-8").data(TEXTBODY).build()).build())
+              .subject(Content.builder().charset("UTF-8").data(email.getSubject()).build()).build())
+          .source(email.getFromEmail())
+          .build();
+      try (SesClient client = SesClient.builder().region(awsRegion).build()) {
+        client.sendEmail(request);
+      }
 
 
   }

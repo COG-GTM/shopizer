@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import jakarta.inject.Inject;
 
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 
 import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.services.content.ContentService;
@@ -16,18 +16,18 @@ import com.salesmanager.core.model.merchant.MerchantStore;
  * @author Carl Samson
  *
  */
-@Ignore
+@Disabled
 public class ContentFolderTest extends com.salesmanager.test.common.AbstractSalesManagerCoreTestCase {
 
 	@Inject
 	private ContentService contentService;
 
 
-	@Ignore
+	@Disabled
 	public void listImages() {	
 	}
 	
-	@Ignore
+	@Disabled
 	public void addFolder() {
 		
 		MerchantStore store;
@@ -51,12 +51,12 @@ public class ContentFolderTest extends com.salesmanager.test.common.AbstractSale
 		
 	}
 	
-	@Ignore
+	@Disabled
 	public void listFolders() {
 		
 	}
 	
-	@Ignore
+	@Disabled
 	public void removeFolder() {
 		
 	}

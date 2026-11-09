@@ -40,9 +40,9 @@ import com.salesmanager.core.model.reference.country.Country;
 import com.salesmanager.core.model.reference.currency.Currency;
 import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.core.model.reference.zone.Zone;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -50,7 +50,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 
-@Ignore
+@Disabled
 public class OrderTest extends com.salesmanager.test.common.AbstractSalesManagerCoreTestCase {
 
 
@@ -391,9 +391,9 @@ public class OrderTest extends com.salesmanager.test.common.AbstractSalesManager
 		OrderList ordserList = orderService.listByStore(merchant, criteria);
 
 		
-		Assert.assertNotNull(ordserList);
-		Assert.assertNotNull("Merchant Orders are null.", ordserList.getOrders());
-		Assert.assertTrue("Merchant Orders count is not one." , (ordserList.getOrders() != null && ordserList.getOrders().size() == 1) );
+		Assertions.assertNotNull(ordserList);
+		Assertions.assertNotNull(ordserList.getOrders(), "Merchant Orders are null.");
+		Assertions.assertTrue((ordserList.getOrders() != null && ordserList.getOrders().size() == 1), "Merchant Orders count is not one.");
 	}
 	
 

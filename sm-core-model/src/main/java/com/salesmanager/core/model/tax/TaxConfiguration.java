@@ -1,14 +1,15 @@
 package com.salesmanager.core.model.tax;
 
-import org.json.simple.JSONAware;
-import org.json.simple.JSONObject;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 
 /**
  * Set of various tax configuration settings saved in MerchantConfiguration
  * @author carl samson
  *
  */
-public class TaxConfiguration implements JSONAware {
+public class TaxConfiguration {
 	
 	private TaxBasisCalculation taxBasisCalculation = TaxBasisCalculation.SHIPPINGADDRESS;
 	
@@ -16,12 +17,12 @@ public class TaxConfiguration implements JSONAware {
 	private boolean collectTaxIfDifferentCountryOfStoreCountry = false;
 
 	@SuppressWarnings("unchecked")
-	@Override
+	
 	public String toJSONString() {
-		JSONObject data = new JSONObject();
+		ObjectNode data = JsonNodeFactory.instance.objectNode();
 		data.put("taxBasisCalculation", this.getTaxBasisCalculation().name());
 		
-		return data.toJSONString();
+		return data.toString();
 	}
 
 	public void setTaxBasisCalculation(TaxBasisCalculation taxBasisCalculation) {

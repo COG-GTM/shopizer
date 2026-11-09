@@ -16,12 +16,11 @@ import jakarta.inject.Inject;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.salesmanager.core.business.constants.ShippingConstants;
 import com.salesmanager.core.business.exception.ServiceException;
@@ -764,11 +763,7 @@ public class ShippingServiceImpl implements ShippingService {
 			String countries = configuration.getValue();
 			if(!StringUtils.isBlank(countries)) {
 
-				Object objRegions=JSONValue.parse(countries); 
-				JSONArray arrayRegions=(JSONArray)objRegions;
-				for (Object arrayRegion : arrayRegions) {
-					supportedCountries.add((String) arrayRegion);
-				}
+				supportedCountries.addAll(parseCountryCodes(countries));
 			}
 			
 		}
@@ -805,11 +800,7 @@ public class ShippingServiceImpl implements ShippingService {
 				String countries = configuration.getValue();
 				if(!StringUtils.isBlank(countries)) {
 
-					Object objRegions=JSONValue.parse(countries); 
-					JSONArray arrayRegions=(JSONArray)objRegions;
-					for (Object arrayRegion : arrayRegions) {
-						supportedCountries.add((String) arrayRegion);
-					}
+					supportedCountries.addAll(parseCountryCodes(countries));
 				}
 				
 			}
@@ -820,6 +811,14 @@ public class ShippingServiceImpl implements ShippingService {
 
 	}
 	
+
+	private List<String> parseCountryCodes(String countries) throws ServiceException {
+		try {
+			return new ObjectMapper().readValue(countries, new TypeReference<List<String>>() {});
+		} catch (Exception e) {
+			throw new ServiceException("Cannot parse supported countries " + countries, e);
+		}
+	}
 
 	@Override
 	public void setSupportedCountries(MerchantStore store, List<String> countryCodes) throws ServiceException {
