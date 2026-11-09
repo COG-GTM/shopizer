@@ -24,7 +24,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -32,7 +34,6 @@ import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import com.salesmanager.core.business.configuration.CoreApplicationConfiguration;
-import com.salesmanager.shop.filter.CorsFilter;
 import com.salesmanager.shop.filter.XssFilter;
 import com.salesmanager.shop.utils.LabelUtils;
 
@@ -44,6 +45,12 @@ import com.salesmanager.shop.utils.LabelUtils;
 public class ShopApplicationConfiguration implements WebMvcConfigurer {
 
   protected final Log logger = LogFactory.getLog(getClass());
+
+  private final CorsProperties corsProperties;
+
+  public ShopApplicationConfiguration(CorsProperties corsProperties) {
+    this.corsProperties = corsProperties;
+  }
 
   @EventListener(ApplicationReadyEvent.class)
   public void applicationReadyCode() {
@@ -87,14 +94,14 @@ public class ShopApplicationConfiguration implements WebMvcConfigurer {
         // customer section filter
         .addPathPatterns("/customer/**");
      **/
+  }
 
-    registry
-        .addInterceptor(corsFilter())
-        // public services cors filter
-        .addPathPatterns("/services/**")
-        // REST api
-        .addPathPatterns("/api/**");
-
+  @Override
+  public void addCorsMappings(CorsRegistry registry) {
+    CorsConfiguration config = corsProperties.toCorsConfiguration();
+    for (String path : CorsProperties.PATHS) {
+      registry.addMapping(path).combine(config);
+    }
   }
 
   @Bean
@@ -115,11 +122,6 @@ public class ShopApplicationConfiguration implements WebMvcConfigurer {
 	/*
 	 * @Bean public StoreFilter storeFilter() { return new StoreFilter(); }
 	 */
-
-  @Bean
-  public CorsFilter corsFilter() {
-    return new CorsFilter();
-  }
 
 
   @Bean
