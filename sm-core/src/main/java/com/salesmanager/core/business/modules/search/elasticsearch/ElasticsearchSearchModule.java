@@ -10,6 +10,7 @@ import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -72,6 +73,10 @@ public class ElasticsearchSearchModule implements SearchModule {
 	private static final String DEFAULT_AGGREGATION = "aggregations";
 	private static final String DEFAULT_LANGUAGE = "en";
 	private static final String TRUSTSTORE_PASSWORD = "instaclustr";
+
+	private static String indexName(String prefix, String language) {
+		return prefix + language.toLowerCase(Locale.ROOT);
+	}
 
 	private final ObjectMapper mapper = new ObjectMapper()
 			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -141,7 +146,7 @@ public class ElasticsearchSearchModule implements SearchModule {
 	}
 
 	private void createIndex(String prefix, String language, String mappings, String settings) throws Exception {
-		String index = prefix + language.toLowerCase();
+		String index = indexName(prefix, language);
 		if (client.indices().exists(e -> e.index(index)).value()) {
 			return;
 		}
@@ -167,12 +172,12 @@ public class ElasticsearchSearchModule implements SearchModule {
 		checkConfigured();
 
 		String id = String.valueOf(item.getId());
-		client.index(i -> i.index(PRODUCTS_INDEX + item.getLanguage()).id(id).document(fields(item)));
+		client.index(i -> i.index(indexName(PRODUCTS_INDEX, item.getLanguage())).id(id).document(fields(item)));
 
 		Map<String, String> keywords = new HashMap<>();
 		keywords.put("store", item.getStore());
 		keywords.put("suggestions", item.getName());
-		client.index(i -> i.index(KEYWORDS_INDEX + item.getLanguage()).id(id).document(keywords));
+		client.index(i -> i.index(indexName(KEYWORDS_INDEX, item.getLanguage())).id(id).document(keywords));
 	}
 
 	@Override
@@ -187,9 +192,8 @@ public class ElasticsearchSearchModule implements SearchModule {
 		checkConfigured();
 		Validate.notEmpty(languages, "Languages cannot be empty");
 		for (String language : languages) {
-			String lang = language.toLowerCase();
-			client.delete(d -> d.index(PRODUCTS_INDEX + lang).id(String.valueOf(id)));
-			client.delete(d -> d.index(KEYWORDS_INDEX + lang).id(String.valueOf(id)));
+			client.delete(d -> d.index(indexName(PRODUCTS_INDEX, language)).id(String.valueOf(id)));
+			client.delete(d -> d.index(indexName(KEYWORDS_INDEX, language)).id(String.valueOf(id)));
 		}
 	}
 
@@ -212,7 +216,7 @@ public class ElasticsearchSearchModule implements SearchModule {
 
 		@SuppressWarnings("rawtypes")
 		co.elastic.clients.elasticsearch.core.SearchResponse<Map> response = client.search(
-				s -> s.index(KEYWORDS_INDEX + searchRequest.getLanguage()).query(query), Map.class);
+				s -> s.index(indexName(KEYWORDS_INDEX, searchRequest.getLanguage())).query(query), Map.class);
 
 		return toSearchResponse(response);
 	}
@@ -240,7 +244,7 @@ public class ElasticsearchSearchModule implements SearchModule {
 
 		@SuppressWarnings("rawtypes")
 		co.elastic.clients.elasticsearch.core.SearchResponse<Map> response = client.search(s -> {
-			s.index(PRODUCTS_INDEX + searchRequest.getLanguage()).query(query);
+			s.index(indexName(PRODUCTS_INDEX, searchRequest.getLanguage())).query(query);
 			if (aggregationField != null) {
 				s.aggregations(DEFAULT_AGGREGATION, a -> a.terms(t -> t.field(aggregationField)));
 			}
@@ -261,7 +265,7 @@ public class ElasticsearchSearchModule implements SearchModule {
 		checkConfigured();
 
 		@SuppressWarnings("rawtypes")
-		GetResponse<Map> response = client.get(g -> g.index(PRODUCTS_INDEX + language).id(String.valueOf(id)),
+		GetResponse<Map> response = client.get(g -> g.index(indexName(PRODUCTS_INDEX, language)).id(String.valueOf(id)),
 				Map.class);
 
 		if (response.found() && response.source() != null) {
