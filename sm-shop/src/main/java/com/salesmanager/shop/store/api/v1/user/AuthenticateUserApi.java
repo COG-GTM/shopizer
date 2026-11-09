@@ -1,6 +1,7 @@
 package com.salesmanager.shop.store.api.v1.user;
 
 import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
@@ -48,6 +49,7 @@ public class AuthenticateUserApi {
     private String tokenHeader;
 
     @Inject
+    @Named("jwtAdminAuthenticationManager")
     private AuthenticationManager jwtAdminAuthenticationManager;
     
     @Inject

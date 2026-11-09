@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -150,7 +151,8 @@ public class CustomerFacadeImpl implements CustomerFacade {
   private EmailTemplatesUtils emailTemplatesUtils;
 
   @Inject
-  private AuthenticationManager customerAuthenticationManager;
+  @Named("customerAuthenticationManager")
+    private AuthenticationManager customerAuthenticationManager;
 
   @Inject
   private CustomerReviewService customerReviewService;
