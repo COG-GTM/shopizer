@@ -1,8 +1,7 @@
 package com.salesmanager.shop.application.config;
 
-import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
-
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -15,7 +14,9 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,10 +24,16 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.salesmanager.shop.admin.security.UserAuthenticationSuccessHandler;
 import com.salesmanager.shop.store.controller.customer.facade.CustomerFacade;
 import com.salesmanager.shop.store.security.AuthenticationTokenFilter;
+import com.salesmanager.shop.store.security.RestAuthenticationEntryPoint;
 import com.salesmanager.shop.store.security.ServicesAuthenticationSuccessHandler;
 import com.salesmanager.shop.store.security.admin.JWTAdminAuthenticationProvider;
 import com.salesmanager.shop.store.security.customer.JWTCustomerAuthenticationProvider;
@@ -55,9 +62,33 @@ public class MultipleEntryPointsSecurityConfig {
 		return new CredentialsServiceImpl();
 	}
 
+	/**
+	 * Stored hashes are raw (unprefixed) bcrypt in 60 character columns, so a
+	 * {@code DelegatingPasswordEncoder} ({bcrypt} prefix) cannot be used without
+	 * widening ADMIN_PASSWORD / CUSTOMER_PASSWORD first.
+	 */
 	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
+	public PasswordEncoder passwordEncoder(
+			@Value("${shopizer.security.password.bcrypt-strength:10}") int bcryptStrength) {
+		return new BCryptPasswordEncoder(BCryptPasswordEncoder.BCryptVersion.$2A, bcryptStrength);
+	}
+
+	@Bean
+	public CorsConfigurationSource corsConfigurationSource(CorsProperties corsProperties) {
+		CorsConfiguration config = corsProperties.toCorsConfiguration();
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		for (String path : CorsProperties.PATHS) {
+			source.registerCorsConfiguration(path, config);
+		}
+		return source;
+	}
+
+	private static RequestMatcher path(String pattern) {
+		return PathPatternRequestMatcher.withDefaults().matcher(pattern);
+	}
+
+	private static RequestMatcher path(HttpMethod method, String pattern) {
+		return PathPatternRequestMatcher.withDefaults().matcher(method, pattern);
 	}
 
 	@Bean
@@ -78,12 +109,12 @@ public class MultipleEntryPointsSecurityConfig {
 	@Bean
 	public WebSecurityCustomizer webSecurityCustomizer() {
 		return web -> web.ignoring().requestMatchers(
-				antMatcher("/"),
-				antMatcher("/error"),
-				antMatcher("/resources/**"),
-				antMatcher("/static/**"),
-				antMatcher("/services/public/**"),
-				antMatcher("/swagger-ui.html"));
+				path("/"),
+				path("/error"),
+				path("/resources/**"),
+				path("/static/**"),
+				path("/services/public/**"),
+				path("/swagger-ui.html"));
 	}
 
 	private static DaoAuthenticationProvider daoProvider(UserDetailsService userDetailsService,
@@ -116,18 +147,18 @@ public class MultipleEntryPointsSecurityConfig {
 			@Qualifier("customerAuthenticationManager") AuthenticationManager customerAuthenticationManager)
 			throws Exception {
 		http
-			.securityMatcher(antMatcher("/shop/**"))
+			.securityMatcher(path("/shop/**"))
 			.authenticationManager(customerAuthenticationManager)
 			.csrf(AbstractHttpConfigurer::disable)
 			.authorizeHttpRequests(auth -> auth
-				.requestMatchers(antMatcher("/shop/")).permitAll()
-				.requestMatchers(antMatcher("/shop/**")).permitAll()
-				.requestMatchers(antMatcher("/shop/customer/logon*")).permitAll()
-				.requestMatchers(antMatcher("/shop/customer/registration*")).permitAll()
-				.requestMatchers(antMatcher("/shop/customer/logout*")).permitAll()
-				.requestMatchers(antMatcher("/shop/customer/customLogon*")).permitAll()
-				.requestMatchers(antMatcher("/shop/customer/denied*")).permitAll()
-				.requestMatchers(antMatcher("/shop/customer/**")).hasRole("AUTH_CUSTOMER")
+				.requestMatchers(path("/shop/")).permitAll()
+				.requestMatchers(path("/shop/**")).permitAll()
+				.requestMatchers(path("/shop/customer/logon*")).permitAll()
+				.requestMatchers(path("/shop/customer/registration*")).permitAll()
+				.requestMatchers(path("/shop/customer/logout*")).permitAll()
+				.requestMatchers(path("/shop/customer/customLogon*")).permitAll()
+				.requestMatchers(path("/shop/customer/denied*")).permitAll()
+				.requestMatchers(path("/shop/customer/**")).hasRole("AUTH_CUSTOMER")
 				.anyRequest().authenticated())
 			.httpBasic(basic -> basic.authenticationEntryPoint(shopAuthenticationEntryPoint()))
 			.logout(logout -> logout
@@ -158,12 +189,13 @@ public class MultipleEntryPointsSecurityConfig {
 			PasswordEncoder passwordEncoder,
 			ServicesAuthenticationSuccessHandler servicesAuthenticationSuccessHandler) throws Exception {
 		http
-			.securityMatcher(antMatcher("/services/**"))
+			.securityMatcher(path("/services/**"))
 			.authenticationManager(new ProviderManager(daoProvider(userDetailsService, passwordEncoder)))
 			.csrf(AbstractHttpConfigurer::disable)
+			.cors(Customizer.withDefaults())
 			.authorizeHttpRequests(auth -> auth
-				.requestMatchers(antMatcher("/services/public/**")).permitAll()
-				.requestMatchers(antMatcher("/services/private/**")).hasRole("AUTH")
+				.requestMatchers(path("/services/public/**")).permitAll()
+				.requestMatchers(path("/services/private/**")).hasRole("AUTH")
 				.anyRequest().authenticated())
 			.httpBasic(basic -> basic.authenticationEntryPoint(servicesAuthenticationEntryPoint()))
 			.formLogin(form -> form.successHandler(servicesAuthenticationSuccessHandler));
@@ -201,15 +233,18 @@ public class MultipleEntryPointsSecurityConfig {
 			@Qualifier("jwtAdminAuthenticationManager") AuthenticationManager jwtAdminAuthenticationManager,
 			AuthenticationTokenFilter authenticationTokenFilter) throws Exception {
 		http
-			.securityMatcher(antMatcher(API_VERSION + "/private/**"))
+			.securityMatcher(path(API_VERSION + "/private/**"))
 			.authenticationManager(jwtAdminAuthenticationManager)
 			.authorizeHttpRequests(auth -> auth
-				.requestMatchers(antMatcher(API_VERSION + "/private/login*")).permitAll()
-				.requestMatchers(antMatcher(API_VERSION + "/private/refresh")).permitAll()
-				.requestMatchers(antMatcher(HttpMethod.OPTIONS, API_VERSION + "/private/**")).permitAll()
-				.requestMatchers(antMatcher(API_VERSION + "/private/**")).hasRole("AUTH")
+				.requestMatchers(path(API_VERSION + "/private/login*")).permitAll()
+				.requestMatchers(path(API_VERSION + "/private/refresh")).permitAll()
+				.requestMatchers(path(HttpMethod.OPTIONS, API_VERSION + "/private/**")).permitAll()
+				.requestMatchers(path(API_VERSION + "/private/**")).hasRole("AUTH")
 				.anyRequest().authenticated())
 			.httpBasic(basic -> basic.authenticationEntryPoint(apiAdminAuthenticationEntryPoint()))
+			.exceptionHandling(ex -> ex.authenticationEntryPoint(new RestAuthenticationEntryPoint("api-admin-realm")))
+			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+			.cors(Customizer.withDefaults())
 			.addFilterAfter(authenticationTokenFilter, BasicAuthenticationFilter.class)
 			.csrf(AbstractHttpConfigurer::disable);
 		return http.build();
@@ -244,16 +279,19 @@ public class MultipleEntryPointsSecurityConfig {
 			@Qualifier("jwtCustomerAuthenticationManager") AuthenticationManager jwtCustomerAuthenticationManager,
 			AuthenticationTokenFilter authenticationTokenFilter) throws Exception {
 		http
-			.securityMatcher(antMatcher(API_VERSION + "/auth/**"))
+			.securityMatcher(path(API_VERSION + "/auth/**"))
 			.authenticationManager(jwtCustomerAuthenticationManager)
 			.authorizeHttpRequests(auth -> auth
-				.requestMatchers(antMatcher(API_VERSION + "/auth/refresh")).permitAll()
-				.requestMatchers(antMatcher(API_VERSION + "/auth/login")).permitAll()
-				.requestMatchers(antMatcher(API_VERSION + "/auth/register")).permitAll()
-				.requestMatchers(antMatcher(HttpMethod.OPTIONS, API_VERSION + "/auth/**")).permitAll()
-				.requestMatchers(antMatcher(API_VERSION + "/auth/**")).hasRole("AUTH_CUSTOMER")
+				.requestMatchers(path(API_VERSION + "/auth/refresh")).permitAll()
+				.requestMatchers(path(API_VERSION + "/auth/login")).permitAll()
+				.requestMatchers(path(API_VERSION + "/auth/register")).permitAll()
+				.requestMatchers(path(HttpMethod.OPTIONS, API_VERSION + "/auth/**")).permitAll()
+				.requestMatchers(path(API_VERSION + "/auth/**")).hasRole("AUTH_CUSTOMER")
 				.anyRequest().authenticated())
 			.httpBasic(basic -> basic.authenticationEntryPoint(apiCustomerAuthenticationEntryPoint()))
+			.exceptionHandling(ex -> ex.authenticationEntryPoint(new RestAuthenticationEntryPoint("api-customer-realm")))
+			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+			.cors(Customizer.withDefaults())
 			.csrf(AbstractHttpConfigurer::disable)
 			.addFilterAfter(authenticationTokenFilter, BasicAuthenticationFilter.class);
 		return http.build();

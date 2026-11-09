@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import io.jsonwebtoken.JwtException;
+
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @ControllerAdvice({"com.salesmanager.shop.store.api"})
 public class RestErrorHandler {
@@ -84,6 +86,14 @@ public class RestErrorHandler {
         ErrorEntity errorEntity = createErrorEntity(exception.getErrorCode(), exception.getErrorMessage(),
                 exception.getLocalizedMessage());
         return errorEntity;
+    }
+
+    @RequestMapping(produces = "application/json")
+    @ExceptionHandler(JwtException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public @ResponseBody ErrorEntity handleJwtException(JwtException exception) {
+        log.warn("Invalid JWT token: {}", exception.getMessage());
+        return createErrorEntity("401", "Invalid or expired token", null);
     }
 
     @RequestMapping(produces = "application/json")
