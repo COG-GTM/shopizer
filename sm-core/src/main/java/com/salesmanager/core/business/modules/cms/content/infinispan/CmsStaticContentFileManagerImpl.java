@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import org.apache.commons.io.IOUtils;
 import org.infinispan.tree.Fqn;
 import org.infinispan.tree.Node;

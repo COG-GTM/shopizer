@@ -6,6 +6,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+
+import com.shopizer.modules.shipping.canadapost.autoconfigure.CanadaPostAutoConfiguration;
+import com.shopizer.search.autoconfigure.SearchAutoConfiguration;
 
 import com.salesmanager.core.modules.integration.payment.model.PaymentModule;
 import com.salesmanager.core.modules.integration.shipping.model.ShippingQuoteModule;
@@ -16,7 +20,9 @@ import com.salesmanager.core.modules.integration.shipping.model.ShippingQuoteMod
  * New Way - out of xml config and using spring boot starters
  *
  */
+// Boot 3 no longer reads EnableAutoConfiguration from spring.factories used by these legacy starters
 @Configuration
+@Import({ CanadaPostAutoConfiguration.class, SearchAutoConfiguration.class })
 public class ModulesConfiguration {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(ModulesConfiguration.class);

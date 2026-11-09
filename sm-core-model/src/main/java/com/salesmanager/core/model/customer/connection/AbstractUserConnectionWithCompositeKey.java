@@ -1,16 +1,12 @@
 package com.salesmanager.core.model.customer.connection;
 
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import jakarta.persistence.Id;
+import jakarta.persistence.MappedSuperclass;
 
 import com.salesmanager.core.constants.SchemaConstant;
 
 @Deprecated
 @MappedSuperclass
-@Table(name="USERCONNECTION", uniqueConstraints = { @UniqueConstraint(columnNames = { "userId",
-		"providerId", "userRank" }) })
 public abstract class AbstractUserConnectionWithCompositeKey extends
 		AbstractUserConnection<UserConnectionPK> {
 

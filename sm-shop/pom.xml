@@ -96,15 +96,22 @@
 			<artifactId>jjwt</artifactId>
 		</dependency>
 
-		<!-- Swagger 2 documentation -->
+		<!-- jjwt 0.8 needs javax.xml.bind.DatatypeConverter (removed from the JDK); drop with the jjwt 0.12 upgrade (Ticket 4) -->
 		<dependency>
-			<groupId>io.springfox</groupId>
-			<artifactId>springfox-swagger2</artifactId>
+			<groupId>javax.xml.bind</groupId>
+			<artifactId>jaxb-api</artifactId>
+			<version>2.3.1</version>
+		</dependency>
+
+		<!-- OpenAPI 3 documentation -->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 		</dependency>
 
 		<dependency>
-			<groupId>io.springfox</groupId>
-			<artifactId>springfox-swagger-ui</artifactId>
+			<groupId>io.swagger</groupId>
+			<artifactId>swagger-annotations</artifactId>
 		</dependency>
 
 		<dependency>

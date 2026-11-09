@@ -2,7 +2,7 @@ package com.salesmanager.core.business.configuration;
 
 import java.util.Properties;
 
-import javax.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityManagerFactory;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -105,12 +105,16 @@ public class DataConfiguration {
         hibernateProperties.setProperty("hibernate.show_sql", showSql);
         hibernateProperties.setProperty("hibernate.cache.use_second_level_cache", "true");
         hibernateProperties.setProperty("hibernate.cache.use_query_cache", "true");
-        hibernateProperties.setProperty("hibernate.cache.region.factory_class", "org.hibernate.cache.ehcache.EhCacheRegionFactory");
+        hibernateProperties.setProperty("hibernate.cache.region.factory_class", "jcache");
+        hibernateProperties.setProperty("hibernate.javax.cache.provider", "org.ehcache.jsr107.EhcacheCachingProvider");
+        hibernateProperties.setProperty("hibernate.javax.cache.missing_cache_strategy", "create");
         hibernateProperties.setProperty("hibernate.connection.CharSet", "utf8");
         hibernateProperties.setProperty("hibernate.connection.characterEncoding", "utf8");
         hibernateProperties.setProperty("hibernate.connection.useUnicode", "true");
         hibernateProperties.setProperty("hibernate.id.new_generator_mappings", "false"); //unless you run on a new schema
         hibernateProperties.setProperty("hibernate.generate_statistics", "false");
+        // Hibernate Validator is now on the classpath (via springdoc); keep the pre-Boot 3 behaviour of no persist-time validation
+        hibernateProperties.setProperty("jakarta.persistence.validation.mode", "none");
         // hibernateProperties.setProperty("hibernate.globally_quoted_identifiers", "true");
         return hibernateProperties;
     }
