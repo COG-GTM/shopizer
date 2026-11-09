@@ -5,6 +5,7 @@ import static org.springframework.security.web.util.matcher.AntPathRequestMatche
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -95,6 +96,8 @@ public class MultipleEntryPointsSecurityConfig {
 	/**
 	 * shop / customer
 	 */
+	// Every filter chain sets its own manager; @Primary only satisfies HttpSecurity's single-manager lookup
+	@Primary
 	@Bean("customerAuthenticationManager")
 	public AuthenticationManager customerAuthenticationManager(
 			@Qualifier("customerDetailsService") UserDetailsService customerDetailsService,

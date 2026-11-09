@@ -4,6 +4,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
@@ -64,6 +65,7 @@ public class AuthenticateCustomerApi {
     private String tokenHeader;
 
     @Inject
+    @Named("jwtCustomerAuthenticationManager")
     private AuthenticationManager jwtCustomerAuthenticationManager;
 
     @Inject

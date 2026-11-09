@@ -96,6 +96,13 @@
 			<artifactId>jjwt</artifactId>
 		</dependency>
 
+		<!-- jjwt 0.8 needs javax.xml.bind.DatatypeConverter (removed from the JDK); drop with the jjwt 0.12 upgrade (Ticket 4) -->
+		<dependency>
+			<groupId>javax.xml.bind</groupId>
+			<artifactId>jaxb-api</artifactId>
+			<version>2.3.1</version>
+		</dependency>
+
 		<!-- OpenAPI 3 documentation -->
 		<dependency>
 			<groupId>org.springdoc</groupId>
