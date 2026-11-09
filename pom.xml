@@ -44,8 +44,6 @@
 		<shopizer.search.version>2.11.1</shopizer.search.version>
 		<shopizer-canadapost.version>2.15.0</shopizer-canadapost.version>
 
-		<!-- TODO replace with starter -->
-		<elasticsearch.version>7.5.2</elasticsearch.version>
 		<guava.version>27.1-jre</guava.version>
 		<commons-lang.version>3.5</commons-lang.version>
 		<commons-io.version>2.7</commons-io.version>
@@ -55,10 +53,6 @@
 		<org.mapstruct.version>1.6.3</org.mapstruct.version>
 
 		<org.apache.httpcomponent.version>4.5.2</org.apache.httpcomponent.version>
-		<!-- Infinispan 9.4 needs Caffeine 2.x (CacheWriter was removed in 3.x); drop once Infinispan is upgraded (Ticket 5) -->
-		<caffeine.version>2.9.3</caffeine.version>
-		<infinispan.version>9.4.18.Final</infinispan.version>
-		<infinispan.tree.version>9.4.18.Final</infinispan.tree.version>
 		<mysql-jdbc-version>8.0.21</mysql-jdbc-version>
 		<oracle.version>18.3.0.0</oracle.version>
 		<postgresql.version>42.2.18</postgresql.version>
@@ -200,25 +194,6 @@
 				<version>${drools.version}</version>
 			</dependency>
 			<!-- end rules engine -->
-
-			<!-- Infinispan -->
-			<dependency>
-				<groupId>org.infinispan</groupId>
-				<artifactId>infinispan-core</artifactId>
-				<version>${infinispan.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.infinispan</groupId>
-				<artifactId>infinispan-cachestore-jdbc</artifactId>
-				<version>${infinispan.tree.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.infinispan</groupId>
-				<artifactId>infinispan-tree</artifactId>
-				<version>${infinispan.version}</version>
-			</dependency>
 
 			<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-collections4 -->
 			<dependency>

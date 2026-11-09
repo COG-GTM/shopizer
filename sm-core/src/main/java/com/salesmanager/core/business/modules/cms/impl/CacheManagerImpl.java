@@ -1,11 +1,12 @@
 package com.salesmanager.core.business.modules.cms.impl;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import org.infinispan.Cache;
 import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.manager.EmbeddedCacheManager;
-import org.infinispan.tree.TreeCache;
-import org.infinispan.tree.TreeCacheFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,71 +14,45 @@ public abstract class CacheManagerImpl implements CacheManager {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CacheManagerImpl.class);
 
-  //private static final String LOCATION_PROPERTIES = "location";
-
   protected String location = null;
 
-  @SuppressWarnings("rawtypes")
-  private TreeCache treeCache = null;
+  private CmsTreeCache treeCache = null;
 
-  @SuppressWarnings("unchecked")
   protected void init(String namedCache, String locationFolder) {
-
 
     try {
 
       this.location = locationFolder;
-      // manager = new DefaultCacheManager(repositoryFileName);
 
       VendorCacheManager manager = VendorCacheManager.getInstance();
 
-      if (manager == null) {
+      if (manager == null || manager.getManager() == null) {
         LOGGER.error("CacheManager is null");
         return;
       }
-      
-      TreeCacheFactory f = null;
-      
-      
-/*      @SuppressWarnings("rawtypes")
-      Cache c = manager.getManager().getCache(namedCache);
-      
-      if(c != null) {
-    	  f = new TreeCacheFactory();
-    	  treeCache = f.createTreeCache(c);
-    	  //this.treeCache = (TreeCache)c;
-    	  return;
-      }*/
-      
-      
+
+      // one soft-index file store per named cache, several caches may share the same location
+      Path storeLocation = Paths.get(location, namedCache).toAbsolutePath().normalize();
+
       Configuration config = new ConfigurationBuilder()
-    		   .persistence().passivation(false)
-    		   .addSingleFileStore()
-    		   .segmented(false)
-    		   .location(location).async().enable()
-    		   .preload(false).shared(false)
-    		   .invocationBatching().enable()
-    		   .build();
-      
+          .persistence().passivation(false)
+          .addSoftIndexFileStore()
+          .dataLocation(storeLocation.resolve("data").toString())
+          .indexLocation(storeLocation.resolve("index").toString())
+          .async().enable()
+          .preload(false).shared(false)
+          .build();
+
       manager.getManager().defineConfiguration(namedCache, config);
 
-      final Cache<String, String> cache = manager.getManager().getCache(namedCache);
-      
-      f = new TreeCacheFactory();
-      treeCache = f.createTreeCache(cache);
-      cache.start();
+      final Cache<String, byte[]> cache = manager.getManager().getCache(namedCache);
+      treeCache = new CmsTreeCache(cache);
 
       LOGGER.debug("CMS started");
 
-
-
     } catch (Exception e) {
       LOGGER.error("Error while instantiating CmsImageFileManager", e);
-    } finally {
-
     }
-
-
 
   }
 
@@ -85,11 +60,8 @@ public abstract class CacheManagerImpl implements CacheManager {
     return VendorCacheManager.getInstance().getManager();
   }
 
-  @SuppressWarnings("rawtypes")
-  public TreeCache getTreeCache() {
+  public CmsTreeCache getTreeCache() {
     return treeCache;
   }
-
-
 
 }

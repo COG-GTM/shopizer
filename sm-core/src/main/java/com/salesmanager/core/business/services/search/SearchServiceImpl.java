@@ -1,7 +1,7 @@
 package com.salesmanager.core.business.services.search;
 
-import java.io.File;
-import java.nio.file.Files;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -76,16 +76,7 @@ public class SearchServiceImpl implements com.salesmanager.core.business.service
 	private final static String VSKU = "VSKU";
 	
 	
-	/**
-	 * TODO properties file
-	 */
-	
-	private final static String KEYWORDS_MAPPING_DEFAULT = "{\"properties\":"
-			+ "      {\n\"id\": {\n"
-			+ "        \"type\": \"long\"\n"
-			+ "      }\n"
-			+ "     }\n"
-			+ "    }";	
+	private final static String KEYWORDS_MAPPING_DEFAULT = "search/KEYWORDS_MAPPINGS.json";	
 	
 
 
@@ -98,17 +89,32 @@ public class SearchServiceImpl implements com.salesmanager.core.business.service
 	@Autowired
 	private ProductInventoryService productInventoryService;
 
+	@Value("${search.engine:opensearch}")
+	private String searchEngine;
+
 	@Autowired(required = false)
+	private List<SearchModule> searchModules = Collections.emptyList();
+
 	private SearchModule searchModule;
 
 	@PostConstruct
 	public void init() throws Exception {
 
+		searchModule = searchModules.stream()
+				.filter(m -> searchEngine.equalsIgnoreCase(m.getUniqueCode()))
+				.findFirst()
+				.orElse(null);
+
+		if (searchModule == null) {
+			LOGGER.warn("No SearchModule found for search.engine [" + searchEngine + "]");
+			return;
+		}
+
 		/**
 		 * Configure search module
 		 */
 
-		if (searchModule != null && !noIndex) {
+		if (!noIndex) {
 
 			SearchConfiguration searchConfiguration = config();
 			try {
@@ -504,16 +510,15 @@ public class SearchServiceImpl implements com.salesmanager.core.business.service
 
 
 		config.getProductMappings().put(language, loadClassPathResource(PRODUCT_MAPPING_DEFAULT));
-		config.getKeywordsMappings().put(language, KEYWORDS_MAPPING_DEFAULT);
+		config.getKeywordsMappings().put(language, loadClassPathResource(KEYWORDS_MAPPING_DEFAULT));
 			
 	}
 	
 	public String loadClassPathResource(String file) throws Exception {
 		Resource res = new ClassPathResource(file);
-		File f = res.getFile();
-		
-		return new String(
-			      Files.readAllBytes(f.toPath()));
+		try (InputStream is = res.getInputStream()) {
+			return new String(is.readAllBytes(), StandardCharsets.UTF_8);
+		}
 	}
 
 }
