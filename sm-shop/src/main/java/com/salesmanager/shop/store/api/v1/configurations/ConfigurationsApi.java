@@ -11,32 +11,24 @@ import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.shop.model.configuration.ReadableConfiguration;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.SwaggerDefinition;
-import io.swagger.annotations.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Parameter;
 
 @RestController
 @RequestMapping(value = "/api/v1")
-@Api(tags = { "Configurations management" })
-@SwaggerDefinition(tags = {
-		@Tag(name = "Configurations management", description = "Configurations management for modules") })
+@Tag(name = "Configurations management", description = "Configurations management for modules")
 public class ConfigurationsApi {
 	
 	
 	  /** Configurations of modules */
 	  @PostMapping("/private/configurations/payment")
-	  @ApiOperation(
-	      httpMethod = "POST",
-	      value = "Manages payment configurations",
-	      notes = "Requires administration access",
-	      produces = "application/json",
-	      response = Void.class)
-	  @ApiImplicitParams({
-	      @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT")
+	  @Operation(summary = "Manages payment configurations", description = "Requires administration access")
+	  @Parameters({
+	      @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT"))
 	  })
 	  public Void create(
 	      @Parameter(hidden = true) MerchantStore merchantStore,
@@ -49,14 +41,9 @@ public class ConfigurationsApi {
 	  
 	  /** Configurations of payment modules */
 	  @GetMapping("/private/configurations/payment")
-	  @ApiOperation(
-	      httpMethod = "GET",
-	      value = "List payment configurations summary",
-	      notes = "Requires administration access",
-	      produces = "application/json",
-	      response = List.class)
-	  @ApiImplicitParams({
-	      @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT")
+	  @Operation(summary = "List payment configurations summary", description = "Requires administration access")
+	  @Parameters({
+	      @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT"))
 	  })
 	  public List<ReadableConfiguration> listPaymentConfigurations(
 	      @Parameter(hidden = true) MerchantStore merchantStore,
@@ -71,14 +58,9 @@ public class ConfigurationsApi {
 	  
 	  /** Configurations of shipping modules */
 	  @GetMapping("/private/configurations/shipping")
-	  @ApiOperation(
-	      httpMethod = "GET",
-	      value = "List shipping configurations summary",
-	      notes = "Requires administration access",
-	      produces = "application/json",
-	      response = List.class)
-	  @ApiImplicitParams({
-	      @ApiImplicitParam(name = "store", dataType = "string", defaultValue = "DEFAULT")
+	  @Operation(summary = "List shipping configurations summary", description = "Requires administration access")
+	  @Parameters({
+	      @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT"))
 	  })
 	  public List<ReadableConfiguration> listShippingConfigurations(
 	      @Parameter(hidden = true) MerchantStore merchantStore,

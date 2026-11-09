@@ -14,9 +14,10 @@ import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.shop.model.system.PersistableOptin;
 import com.salesmanager.shop.model.system.ReadableOptin;
 import com.salesmanager.shop.store.controller.optin.OptinFacade;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.Parameter;
 
 /** Optin a customer to events such s newsletter */
@@ -31,14 +32,10 @@ public class OptinApi {
 
   /** Create new optin */
   @PostMapping("/private/optin")
-  @ApiOperation(
-      httpMethod = "POST",
-      value = "Creates an optin event type definition",
-      notes = "",
-      produces = "application/json")
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-      @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en")
+  @Operation(summary = "Creates an optin event type definition")
+  @Parameters({
+      @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+      @Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en"))
   })
   public ReadableOptin create(
       @Valid @RequestBody PersistableOptin optin, 

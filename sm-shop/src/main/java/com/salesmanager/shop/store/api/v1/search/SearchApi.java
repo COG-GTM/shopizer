@@ -16,11 +16,10 @@ import com.salesmanager.shop.model.catalog.SearchProductRequest;
 import com.salesmanager.shop.model.entity.ValueList;
 import com.salesmanager.shop.store.controller.search.facade.SearchFacade;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.SwaggerDefinition;
-import io.swagger.annotations.Tag;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import modules.commons.search.request.SearchItem;
 import io.swagger.v3.oas.annotations.Parameter;
 
@@ -32,10 +31,7 @@ import io.swagger.v3.oas.annotations.Parameter;
  */
 @RestController
 @RequestMapping("/api/v1")
-@Api(tags = {"Search products and search word/sentence completion functionality (Search Api)"})
-@SwaggerDefinition(tags = {
-    @Tag(name = "Search products resource", description = "Search products and search term completion functionality")
-})
+@Tag(name = "Search products and search word/sentence completion functionality (Search Api)", description = "Search products and search term completion functionality")
 public class SearchApi {
 
   @Inject private SearchFacade searchFacade;
@@ -45,9 +41,9 @@ public class SearchApi {
    * Search products from underlying elastic search
    */
   @PostMapping("/search")
-  @ApiImplicitParams({
-    @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-    @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en")
+  @Parameters({
+    @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+    @Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en"))
   })
   
   //TODO use total, count and page
@@ -60,9 +56,9 @@ public class SearchApi {
   }
 
   @PostMapping("/search/autocomplete")
-  @ApiImplicitParams({
-    @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-    @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en")
+  @Parameters({
+    @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+    @Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en"))
   })
   public @ResponseBody ValueList autocomplete(
       @RequestBody SearchProductRequest searchRequest,

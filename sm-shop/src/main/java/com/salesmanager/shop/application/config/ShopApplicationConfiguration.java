@@ -43,6 +43,8 @@ import com.salesmanager.shop.utils.LabelUtils;
 @EnableWebSecurity
 public class ShopApplicationConfiguration implements WebMvcConfigurer {
 
+  private static final MediaType IMAGE_WEBP = MediaType.parseMediaType("image/webp");
+
   protected final Log logger = LogFactory.getLog(getClass());
 
   @EventListener(ApplicationReadyEvent.class)
@@ -99,7 +101,7 @@ public class ShopApplicationConfiguration implements WebMvcConfigurer {
 
   @Bean
   public ByteArrayHttpMessageConverter byteArrayHttpMessageConverter() {
-    List<MediaType> supportedMediaTypes = Arrays.asList(IMAGE_JPEG, IMAGE_GIF, IMAGE_PNG, APPLICATION_OCTET_STREAM);
+    List<MediaType> supportedMediaTypes = Arrays.asList(IMAGE_JPEG, IMAGE_GIF, IMAGE_PNG, IMAGE_WEBP, APPLICATION_OCTET_STREAM);
 
     ByteArrayHttpMessageConverter byteArrayHttpMessageConverter =
         new ByteArrayHttpMessageConverter();

@@ -23,17 +23,13 @@ import com.salesmanager.shop.model.order.history.ReadableOrderStatusHistory;
 import com.salesmanager.shop.store.controller.order.facade.OrderFacade;
 import com.salesmanager.shop.utils.AuthorizationUtils;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.SwaggerDefinition;
-import io.swagger.annotations.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Parameter;
 
 @RestController
 @RequestMapping("/api/v1")
-@Api(tags = { "Order status history api" })
-@SwaggerDefinition(tags = {
-		@Tag(name = "Order status history resource", description = "Related to OrderManagement api") })
+@Tag(name = "Order status history api", description = "Related to OrderManagement api")
 public class OrderStatusHistoryApi {
 
 	@Inject
@@ -58,7 +54,7 @@ public class OrderStatusHistoryApi {
 
 	@RequestMapping(value = { "private/orders/{id}/history" }, method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.CREATED)
-	@ApiOperation(httpMethod = "POST", value = "Add order history", notes = "Adds a new status to an order", produces = "application/json", response = Void.class)
+	@Operation(summary = "Add order history", description = "Adds a new status to an order")
 	@ResponseBody
 	public void create(@PathVariable final Long id, @RequestBody PersistableOrderStatusHistory history,
 			@Parameter(hidden = true) MerchantStore merchantStore, @Parameter(hidden = true) Language language) {

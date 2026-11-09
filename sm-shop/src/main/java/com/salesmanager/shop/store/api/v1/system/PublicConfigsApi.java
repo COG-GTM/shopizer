@@ -12,9 +12,10 @@ import com.salesmanager.shop.model.system.Configs;
 import com.salesmanager.shop.store.controller.store.facade.StoreFacade;
 import com.salesmanager.shop.store.controller.system.MerchantConfigurationFacade;
 import com.salesmanager.shop.utils.LanguageUtils;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.Parameter;
 
 @RestController
@@ -35,15 +36,10 @@ public class PublicConfigsApi {
    * @return
    */
   @GetMapping("/config")
-  @ApiOperation(
-      httpMethod = "GET",
-      value = "Get public configuration for a given merchant store",
-      notes = "",
-      produces = "application/json",
-      response = Configs.class)
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
-      @ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en")
+  @Operation(summary = "Get public configuration for a given merchant store")
+  @Parameters({
+      @Parameter(name = "store", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "DEFAULT")),
+      @Parameter(name = "lang", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "en"))
   })
   public Configs getConfig(@Parameter(hidden = true) MerchantStore merchantStore, @Parameter(hidden = true) Language language) {
     return configurationFacade.getMerchantConfig(merchantStore, language);
