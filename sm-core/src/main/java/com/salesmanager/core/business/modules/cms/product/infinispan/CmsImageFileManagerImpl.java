@@ -262,8 +262,11 @@ public class CmsImageFileManagerImpl implements ProductAssetsManager {
           .append(Constants.SLASH).append(productImage.getProduct().getSku());
 
 
-      CmsTreeNode productNode = this.getNode(nodePath.toString());
-      productNode.remove(productImage.getProductImage());
+      // images are stored under the SMALL and LARGE child nodes of the product node
+      for (String size : new String[] {null, SMALL, LARGE}) {
+        String path = size == null ? nodePath.toString() : nodePath + Constants.SLASH + size;
+        this.getNode(path).remove(productImage.getProductImage());
+      }
 
 
 
