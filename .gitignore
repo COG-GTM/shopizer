@@ -31,3 +31,7 @@ sm-shop/src/main/resources/database.properties
 .DS_Store
 
 .mvnw/*.jar
+
+# Infinispan soft-index file stores created at runtime by the CMS cache managers
+sm-shop/files/repos/*Repository/
+sm-shop/files/store/*Repository/

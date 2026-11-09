@@ -11,14 +11,13 @@ import java.util.List;
 import java.util.Set;
 import jakarta.annotation.PostConstruct;
 import org.apache.commons.io.IOUtils;
-import org.infinispan.tree.Fqn;
-import org.infinispan.tree.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.salesmanager.core.business.constants.Constants;
 import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.modules.cms.impl.CMSManager;
 import com.salesmanager.core.business.modules.cms.impl.CacheManager;
+import com.salesmanager.core.business.modules.cms.impl.CmsTreeNode;
 import com.salesmanager.core.business.modules.cms.product.ProductAssetsManager;
 import com.salesmanager.core.model.catalog.product.Product;
 import com.salesmanager.core.model.catalog.product.file.ProductImageSize;
@@ -123,7 +122,7 @@ public class CmsImageFileManagerImpl implements ProductAssetsManager {
         nodePath.append(LARGE);
       }
 
-      Node<String, Object> productNode = this.getNode(nodePath.toString());
+      CmsTreeNode productNode = this.getNode(nodePath.toString());
 
 
       InputStream isFile = contentImage.getFile();
@@ -179,7 +178,7 @@ public class CmsImageFileManagerImpl implements ProductAssetsManager {
       StringBuilder nodePath = new StringBuilder();
       nodePath.append(product.getMerchantStore().getCode());
 
-      Node<String, Object> merchantNode = this.getNode(nodePath.toString());
+      CmsTreeNode merchantNode = this.getNode(nodePath.toString());
 
       if (merchantNode == null) {
         return null;
@@ -234,7 +233,7 @@ public class CmsImageFileManagerImpl implements ProductAssetsManager {
 
       final StringBuilder merchantPath = new StringBuilder();
       merchantPath.append(getRootName()).append(merchantStoreCode);
-      cacheManager.getTreeCache().getRoot().remove(merchantPath.toString());
+      cacheManager.getTreeCache().removeNode(merchantPath.toString());
 
 
 
@@ -263,8 +262,11 @@ public class CmsImageFileManagerImpl implements ProductAssetsManager {
           .append(Constants.SLASH).append(productImage.getProduct().getSku());
 
 
-      Node<String, Object> productNode = this.getNode(nodePath.toString());
-      productNode.remove(productImage.getProductImage());
+      // images are stored under the SMALL and LARGE child nodes of the product node
+      for (String size : new String[] {null, SMALL, LARGE}) {
+        String path = size == null ? nodePath.toString() : nodePath + Constants.SLASH + size;
+        this.getNode(path).remove(productImage.getProductImage());
+      }
 
 
 
@@ -288,12 +290,10 @@ public class CmsImageFileManagerImpl implements ProductAssetsManager {
 
 
       StringBuilder nodePath = new StringBuilder();
-      nodePath.append(product.getMerchantStore().getCode());
+      nodePath.append(getRootName()).append(product.getMerchantStore().getCode())
+          .append(Constants.SLASH).append(product.getSku());
 
-
-      Node<String, Object> merchantNode = this.getNode(nodePath.toString());
-
-      merchantNode.remove(product.getSku());
+      cacheManager.getTreeCache().removeNode(nodePath.toString());
 
 
 
@@ -323,17 +323,17 @@ public class CmsImageFileManagerImpl implements ProductAssetsManager {
       nodePath.append(merchantStoreCode);
 
 
-      Node<String, Object> merchantNode = this.getNode(nodePath.toString());
+      CmsTreeNode merchantNode = this.getNode(nodePath.toString());
 
-      Set<Node<String, Object>> childs = merchantNode.getChildren();
+      Set<CmsTreeNode> childs = merchantNode.getChildren();
 
       // TODO image sizes
-      for (Node<String, Object> node : childs) {
+      for (CmsTreeNode node : childs) {
 
         for (String key : node.getKeys()) {
 
 
-          byte[] imageBytes = (byte[]) merchantNode.get(key);
+          byte[] imageBytes = node.get(key);
 
           OutputContentFile contentImage = new OutputContentFile();
 
@@ -396,7 +396,7 @@ public class CmsImageFileManagerImpl implements ProductAssetsManager {
       nodePath.append(merchantStoreCode).append(Constants.SLASH).append(productCode)
           .append(Constants.SLASH).append(size);
 
-      Node<String, Object> productNode = this.getNode(nodePath.toString());
+      CmsTreeNode productNode = this.getNode(nodePath.toString());
 
 
       byte[] imageBytes = (byte[]) productNode.get(imageName);
@@ -435,23 +435,12 @@ public class CmsImageFileManagerImpl implements ProductAssetsManager {
 
 
   @SuppressWarnings("unchecked")
-  private Node<String, Object> getNode(final String node) {
+  private CmsTreeNode getNode(final String node) {
     LOGGER.debug("Fetching node for store {} from Infinispan", node);
     final StringBuilder merchantPath = new StringBuilder();
     merchantPath.append(getRootName()).append(node);
 
-    Fqn contentFilesFqn = Fqn.fromString(merchantPath.toString());
-
-    Node<String, Object> nd = cacheManager.getTreeCache().getRoot().getChild(contentFilesFqn);
-
-    if (nd == null) {
-
-      cacheManager.getTreeCache().getRoot().addChild(contentFilesFqn);
-      nd = cacheManager.getTreeCache().getRoot().getChild(contentFilesFqn);
-
-    }
-
-    return nd;
+    return cacheManager.getTreeCache().getOrCreateNode(merchantPath.toString());
 
   }
 

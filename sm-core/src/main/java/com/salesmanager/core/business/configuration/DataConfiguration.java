@@ -83,7 +83,7 @@ public class DataConfiguration {
     }
 
 	@Bean
-	public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
+	public LocalContainerEntityManagerFactoryBean entityManagerFactory(javax.cache.CacheManager springCacheManager) {
 
 		HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
 		vendorAdapter.setGenerateDdl(true);
@@ -92,6 +92,8 @@ public class DataConfiguration {
 		factory.setJpaVendorAdapter(vendorAdapter);
 		factory.setPackagesToScan("com.salesmanager.core.model");
 		factory.setJpaProperties(additionalProperties());
+		// Hibernate second level cache regions share the Ehcache 3 manager configured from spring/ehcache.xml
+		factory.getJpaPropertyMap().put("hibernate.javax.cache.cache_manager", springCacheManager);
 		factory.setDataSource(dataSource());
 		return factory;
 	}
@@ -107,7 +109,7 @@ public class DataConfiguration {
         hibernateProperties.setProperty("hibernate.cache.use_query_cache", "true");
         hibernateProperties.setProperty("hibernate.cache.region.factory_class", "jcache");
         hibernateProperties.setProperty("hibernate.javax.cache.provider", "org.ehcache.jsr107.EhcacheCachingProvider");
-        hibernateProperties.setProperty("hibernate.javax.cache.missing_cache_strategy", "create");
+        hibernateProperties.setProperty("hibernate.javax.cache.missing_cache_strategy", "create-warn");
         hibernateProperties.setProperty("hibernate.connection.CharSet", "utf8");
         hibernateProperties.setProperty("hibernate.connection.characterEncoding", "utf8");
         hibernateProperties.setProperty("hibernate.connection.useUnicode", "true");

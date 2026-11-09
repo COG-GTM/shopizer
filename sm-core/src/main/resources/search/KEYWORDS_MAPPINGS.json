@@ -1,0 +1,13 @@
+{
+	"properties": {
+		"id": {
+			"type": "long"
+		},
+		"store": {
+			"type": "keyword"
+		},
+		"suggestions": {
+			"type": "search_as_you_type"
+		}
+	}
+}
