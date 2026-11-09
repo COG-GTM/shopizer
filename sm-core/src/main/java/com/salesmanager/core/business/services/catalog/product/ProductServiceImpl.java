@@ -378,7 +378,7 @@ public class ProductServiceImpl extends SalesManagerEntityServiceImpl<Long, Prod
 			if(products.isEmpty()) {
 				throw new ServiceException("Cannot get product with sku [" + productCode + "]");
 			}
-			BigInteger id = (BigInteger) products.get(0);
+			Number id = (Number) products.get(0);
 			return productRepository.getById(id.longValue(), merchant, language);
 		} catch (Exception e) {
 			throw new ServiceException("Cannot get product with sku [" + productCode + "]", e);
@@ -395,7 +395,7 @@ public class ProductServiceImpl extends SalesManagerEntityServiceImpl<Long, Prod
 			if(products.isEmpty()) {
 				throw new ServiceException("Cannot get product with sku [" + productCode + "]");
 			}
-			BigInteger id = (BigInteger) products.get(0);
+			Number id = (Number) products.get(0);
 			return this.findOne(id.longValue(), merchant);
 		} catch (Exception e) {
 			throw new ServiceException("Cannot get product with sku [" + productCode + "]", e);
