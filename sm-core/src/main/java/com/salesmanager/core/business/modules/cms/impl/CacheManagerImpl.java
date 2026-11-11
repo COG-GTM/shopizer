@@ -13,14 +13,19 @@ public abstract class CacheManagerImpl implements CacheManager {
     this.location = locationFolder;
     EmbeddedCacheManager manager = getManager();
     Configuration config = new ConfigurationBuilder()
-        .persistence().passivation(false)
+        .persistence().passivation(false).connectionAttempts(1)
         .addSingleFileStore().segmented(false)
         .location(location).async().enable()
         .preload(false).shared(false)
         .build();
     manager.defineConfiguration(namedCache, config);
-    cache = manager.getCache(namedCache);
-    cache.start();
+    try {
+      cache = manager.getCache(namedCache);
+      cache.start();
+    } catch (RuntimeException e) {
+      throw new IllegalStateException("Cannot start CMS store at " + location
+          + ": stores using the removed Infinispan tree layout must be migrated", e);
+    }
   }
 
   public EmbeddedCacheManager getManager() {
