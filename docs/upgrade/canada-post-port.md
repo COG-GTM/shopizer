@@ -142,18 +142,21 @@ and its ShippingOption JSON and request contracts captured. Further cases
 were captured with the original autoconfigure JAR explicitly first on the
 classpath. The committed goldens are reference outputs, not expected values
 derived from the new implementation. See the fixture README for reproduction.
-Twelve scenarios cover domestic/US, international rejection, error status,
+Thirteen scenarios cover domestic/US, international rejection, error status,
 empty/malformed responses, imperial conversion, tax, multiple packages,
-PROD routing, blank postcode, and empty packages.
+PROD routing, blank postcode, empty packages, and an empty HTTP response body.
 All ShippingOption properties (including null delivery estimates) are compared.
 Requests compare method/path, authorization, media types, language and a
 namespace-aware XML tree, ignoring only XML declaration and namespace-prefix
 spelling. Separate tests cover module validation and bean configuration.
 
 Verified on JDK 17 with `mvn -B install` and JDK 21 with `mvn -B verify`:
-all six reactor modules succeed; tests total 64, with 21 existing skips.
-The Canada Post test class has 3 tests (12 replay scenarios within its
-contract test), all passing. Existing full-suite tests rewrite
+all six reactor modules succeed. After merging the epic's JUnit 5 migration,
+tests total 55, with 12 existing skips (previously 64 with 21 skips under
+Vintage).
+The Canada Post test class has 3 tests (13 replay scenarios within its
+contract test), all passing. The contract test uses JUnit Jupiter after merging
+the epic branch's JUnit 5 migration. Existing full-suite tests rewrite
 `sm-shop/files/store/DownlaodRepository.dat`; their generated binary diff
 was reversed after verification, leaving tracked seed data unchanged.
 

@@ -19,7 +19,8 @@ is available in the reference checkout:
 mvn -B -pl sm-core dependency:build-classpath -Dmdep.outputFile=$HOME/cp-original-classpath.txt
 mkdir -p "$HOME/cp-baseline-classes"
 ORIGINAL="$HOME/.m2/repository/com/shopizer/shipping-canadapost-spring-boot-autoconfigure/2.17.0/shipping-canadapost-spring-boot-autoconfigure-2.17.0.jar"
-CP="$ORIGINAL:$(cat "$HOME/cp-original-classpath.txt")"
+mvn -B -pl sm-core-modules dependency:build-classpath -Dmdep.outputFile=$HOME/cp-port-test-classpath.txt
+CP="$ORIGINAL:$(cat "$HOME/cp-original-classpath.txt"):$(cat "$HOME/cp-port-test-classpath.txt")"
 javac -proc:none -cp "$CP" -d "$HOME/cp-baseline-classes" sm-core-modules/src/test/java/com/shopizer/modules/shipping/canadapost/CanadaPostContractTest.java
 java -Dcanadapost.fixtures=sm-core-modules/src/test/resources/canadapost -cp "$HOME/cp-baseline-classes:$CP" com.shopizer.modules.shipping.canadapost.CanadaPostContractTest
 ```

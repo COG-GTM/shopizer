@@ -17,8 +17,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.math.BigDecimal;
 import java.util.*;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Node;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -115,8 +115,8 @@ public class CanadaPostContractTest {
             Files.writeString(requestGolden, requestText);
             System.out.println(scenario + ": " + result + " requests=" + requests.size());
         } else {
-            assertEquals(scenario, Files.readString(golden).trim(), result);
-            assertEquals(scenario + " request", Files.readString(requestGolden), requestText);
+            assertEquals(Files.readString(golden).trim(), result, scenario);
+            assertEquals(Files.readString(requestGolden), requestText, scenario + " request");
         }
     }
 

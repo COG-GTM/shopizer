@@ -1,8 +1,5 @@
 package com.salesmanager.shop.store.controller.error;
 
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +22,6 @@ public class ShopErrorController {
     
 	@ExceptionHandler(Exception.class)
 	@ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
-	@Produces({MediaType.APPLICATION_JSON})
 	public ModelAndView handleException(Exception ex) {
 		
 		LOGGER.error("Error page controller",ex);
@@ -51,7 +47,6 @@ public class ShopErrorController {
 	
 	@ExceptionHandler(RuntimeException.class)
 	@ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
-	@Produces({MediaType.APPLICATION_JSON})
 	public ModelAndView handleRuntimeException(Exception ex) {
 		
 		LOGGER.error("Error page controller",ex);
