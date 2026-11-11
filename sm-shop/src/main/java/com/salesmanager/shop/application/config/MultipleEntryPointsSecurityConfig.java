@@ -7,11 +7,14 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.ProviderNotFoundException;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -41,6 +44,23 @@ import com.salesmanager.shop.store.security.services.CredentialsServiceImpl;
 public class MultipleEntryPointsSecurityConfig {
 
 	private static final String API_VERSION = "/api/v*";
+
+	@Autowired
+	public void configureGlobalAuthentication(AuthenticationManagerBuilder auth) {
+		auth.parentAuthenticationManager(authentication -> {
+			throw new ProviderNotFoundException("Authentication requires a chain-specific manager");
+		});
+	}
+
+	private static AuthenticationManager authenticationManager(UserDetailsService userDetailsService,
+			PasswordEncoder passwordEncoder, AuthenticationProvider... additionalProviders) {
+		DaoAuthenticationProvider daoProvider = new DaoAuthenticationProvider();
+		daoProvider.setUserDetailsService(userDetailsService);
+		daoProvider.setPasswordEncoder(passwordEncoder);
+		java.util.List<AuthenticationProvider> providers = new java.util.ArrayList<>(java.util.Arrays.asList(additionalProviders));
+		providers.add(daoProvider);
+		return new ProviderManager(providers);
+	}
 
 	@Bean
 	public AuthenticationTokenFilter authenticationTokenFilter() {
@@ -81,39 +101,35 @@ public class MultipleEntryPointsSecurityConfig {
 	 *
 	 */
 	@Configuration
-	@Order(1)
-	public static class CustomerConfigurationAdapter extends WebSecurityConfigurerAdapter {
+	public static class CustomerConfiguration {
 
 		@Bean("customerAuthenticationManager")
-		@Override
-		public AuthenticationManager authenticationManagerBean() throws Exception {
-			return super.authenticationManagerBean();
+		public AuthenticationManager customerAuthenticationManager(PasswordEncoder passwordEncoder) {
+			return authenticationManager(customerDetailsService, passwordEncoder);
 		}
 
 		@Autowired
 		private UserDetailsService customerDetailsService;
-
-		public CustomerConfigurationAdapter() {
-			super();
-		}
 		
-		@Override
-		public void configure(WebSecurity web) {
+		@Bean
+		public WebSecurityCustomizer publicResourcesIgnoring() {
+			return web -> {
+
 			web.ignoring().antMatchers("/");
 			web.ignoring().antMatchers("/error");
 			web.ignoring().antMatchers("/resources/**");
 			web.ignoring().antMatchers("/static/**");
 			web.ignoring().antMatchers("/services/public/**");
+			};
 		}
 
 
-		@Override
-		public void configure(AuthenticationManagerBuilder auth) throws Exception {
-			auth.userDetailsService(customerDetailsService);
-		}
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+
+		@Bean
+		@Order(1)
+		public SecurityFilterChain customerSecurityFilterChain(HttpSecurity http, PasswordEncoder passwordEncoder) throws Exception {
+			http.authenticationManager(customerAuthenticationManager(passwordEncoder));
 			http
 			.antMatcher("/shop/**")
 			.csrf().disable()			
@@ -141,6 +157,8 @@ public class MultipleEntryPointsSecurityConfig {
 					.and()
 					.exceptionHandling().accessDeniedPage("/shop/");
 
+			return http.build();
+
 		}
 
 		@Bean
@@ -160,8 +178,7 @@ public class MultipleEntryPointsSecurityConfig {
 	 *
 	 */
 	@Configuration
-	@Order(2)
-	public static class ServicesApiConfigurationAdapter extends WebSecurityConfigurerAdapter {
+	public static class ServicesApiConfiguration {
 
 		@Autowired
 		private WebUserServices userDetailsService;
@@ -169,17 +186,17 @@ public class MultipleEntryPointsSecurityConfig {
 		@Autowired
 		private ServicesAuthenticationSuccessHandler servicesAuthenticationSuccessHandler;
 
-		public ServicesApiConfigurationAdapter() {
-			super();
+		@Bean
+		public AuthenticationManager servicesAuthenticationManager(PasswordEncoder passwordEncoder) {
+			return authenticationManager(userDetailsService, passwordEncoder);
 		}
 
-		@Override
-		public void configure(AuthenticationManagerBuilder auth) throws Exception {
-			auth.userDetailsService(userDetailsService);
-		}
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+
+		@Bean
+		@Order(2)
+		public SecurityFilterChain servicesSecurityFilterChain(HttpSecurity http, PasswordEncoder passwordEncoder) throws Exception {
+			http.authenticationManager(servicesAuthenticationManager(passwordEncoder));
 			http
 			.antMatcher("/services/**")
 			.csrf().disable()
@@ -190,6 +207,8 @@ public class MultipleEntryPointsSecurityConfig {
 					.and().httpBasic().authenticationEntryPoint(servicesAuthenticationEntryPoint())
 					.and().formLogin()
 					.successHandler(servicesAuthenticationSuccessHandler);
+
+			return http.build();
 
 		}
 
@@ -203,88 +222,13 @@ public class MultipleEntryPointsSecurityConfig {
 	}
 
 	/**
-	 * admin
-	 * 
-	 * @author dur9213
-	 *
-	 */
-	/**
-	@Configuration
-	@Order(3)
-	public static class AdminConfigurationAdapter extends WebSecurityConfigurerAdapter {
-
-		@Autowired
-		private WebUserServices userDetailsService;
-
-		@Autowired
-		private UserAuthenticationSuccessHandler userAuthenticationSuccessHandler;
-
-		public AdminConfigurationAdapter() {
-			super();
-		}
-
-		@Override
-		public void configure(AuthenticationManagerBuilder auth) throws Exception {
-			auth.userDetailsService(userDetailsService);
-		}
-		
-		@Override
-		public void configure(WebSecurity web) {
-		}
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			http
-			.antMatcher("/admin/**")
-					.authorizeRequests()
-					.antMatchers("/admin/logon*").permitAll()
-					.antMatchers("/admin/resources/**").permitAll()
-					.antMatchers("/admin/layout/**").permitAll()
-					.antMatchers("/admin/denied*").permitAll()
-					.antMatchers("/admin/unauthorized*").permitAll()
-					.antMatchers("/admin/users/resetPassword*").permitAll()
-					.antMatchers("/admin/").hasRole("AUTH")
-					.antMatchers("/admin/**").hasRole("AUTH")
-					.antMatchers("/admin/**").hasRole("AUTH")
-					.antMatchers("/admin/users/resetPasswordSecurityQtn*").permitAll()
-					.anyRequest()
-					.authenticated()
-					.and()
-					.httpBasic()
-					.authenticationEntryPoint(adminAuthenticationEntryPoint())
-					.and()
-					.formLogin().usernameParameter("username").passwordParameter("password")
-					.loginPage("/admin/logon.html")
-					.loginProcessingUrl("/admin/performUserLogin")
-					.successHandler(userAuthenticationSuccessHandler)
-					.failureUrl("/admin/logon.html?login_error=true")
-					.and()
-					.csrf().disable()
-					.logout().logoutUrl("/admin/logout").logoutSuccessUrl("/admin/home.html")
-					.invalidateHttpSession(true).and().exceptionHandling().accessDeniedPage("/admin/denied.html");
-			
-
-		}
-
-		@Bean
-		public AuthenticationEntryPoint adminAuthenticationEntryPoint() {
-			BasicAuthenticationEntryPoint entryPoint = new BasicAuthenticationEntryPoint();
-			entryPoint.setRealmName("admin-realm");
-			return entryPoint;
-		}
-
-	}
-	**/
-
-	/**
 	 * api - private
 	 * 
 	 * @author dur9213
 	 *
 	 */
 	@Configuration
-	@Order(5)
-	public static class UserApiConfigurationAdapter extends WebSecurityConfigurerAdapter {
+	public static class UserApiConfiguration {
 
 		@Autowired
 		private AuthenticationTokenFilter authenticationTokenFilter;
@@ -293,36 +237,30 @@ public class MultipleEntryPointsSecurityConfig {
 		JWTAdminServicesImpl jwtUserDetailsService;
 
 		@Bean("jwtAdminAuthenticationManager")
-		@Override
-		public AuthenticationManager authenticationManagerBean() throws Exception {
-			AuthenticationManager mgr = super.authenticationManagerBean();
-			return mgr;
+		public AuthenticationManager jwtAdminAuthenticationManager(PasswordEncoder passwordEncoder) {
+			return authenticationManager(jwtUserDetailsService, passwordEncoder, adminAuthenticationProvider());
 		}
 		
 		
 
-		public UserApiConfigurationAdapter() {
-			super();
-		}
 
-		@Override
-		public void configure(AuthenticationManagerBuilder auth) throws Exception {
-		       auth.userDetailsService(jwtUserDetailsService)
-	            .and()
-	            .authenticationProvider(authenticationProvider());
-		}
 		
-		@Override
-		public void configure(WebSecurity web) {
+		@Bean
+		public WebSecurityCustomizer apiDocumentationIgnoring() {
+			return web -> {
+
 			web.ignoring().antMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs", "/v3/api-docs/**");
+			};
 		}
 
 		
 		/**
 		 * Admin user api
 		 */
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		@Order(5)
+		public SecurityFilterChain jwtAdminSecurityFilterChain(HttpSecurity http, PasswordEncoder passwordEncoder) throws Exception {
+			http.authenticationManager(jwtAdminAuthenticationManager(passwordEncoder));
 			http
 					.antMatcher(API_VERSION + "/private/**")
 					.authorizeRequests()
@@ -337,10 +275,12 @@ public class MultipleEntryPointsSecurityConfig {
 					.addFilterAfter(authenticationTokenFilter, BasicAuthenticationFilter.class)
 					.csrf().disable();
 
+			return http.build();
+
 		}
 		
 	    @Bean
-	    public AuthenticationProvider authenticationProvider() {
+	    public AuthenticationProvider adminAuthenticationProvider() {
 	    	JWTAdminAuthenticationProvider provider = new JWTAdminAuthenticationProvider();
 	        provider.setUserDetailsService(jwtUserDetailsService);
 	        return provider;
@@ -364,32 +304,25 @@ public class MultipleEntryPointsSecurityConfig {
 	 *
 	 */
 	@Configuration
-	@Order(6)
-	public static class CustomeApiConfigurationAdapter extends WebSecurityConfigurerAdapter {
+	public static class CustomeApiConfiguration {
 
 		@Autowired
 		private AuthenticationTokenFilter authenticationTokenFilter;
 
 		@Autowired
 		private UserDetailsService jwtCustomerDetailsService;
-
-		public CustomeApiConfigurationAdapter() {
-			super();
-		}
 		
 		@Bean("jwtCustomerAuthenticationManager")
-		@Override
-		public AuthenticationManager authenticationManagerBean() throws Exception {
-			return super.authenticationManagerBean();
+		public AuthenticationManager jwtCustomerAuthenticationManager(PasswordEncoder passwordEncoder) {
+			return authenticationManager(jwtCustomerDetailsService, passwordEncoder);
 		}
 
-		@Override
-		public void configure(AuthenticationManagerBuilder auth) throws Exception {
-			auth.userDetailsService(jwtCustomerDetailsService);
-		}
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+
+		@Bean
+		@Order(6)
+		public SecurityFilterChain jwtCustomerSecurityFilterChain(HttpSecurity http, PasswordEncoder passwordEncoder) throws Exception {
+			http.authenticationManager(jwtCustomerAuthenticationManager(passwordEncoder));
 			http
 			
 				.antMatcher(API_VERSION + "/auth/**")
@@ -405,10 +338,12 @@ public class MultipleEntryPointsSecurityConfig {
 					.authenticationEntryPoint(apiCustomerAuthenticationEntryPoint()).and().csrf().disable()
 					.addFilterAfter(authenticationTokenFilter, BasicAuthenticationFilter.class);
 
+			return http.build();
+
 		}
 		
 	    @Bean
-	    public AuthenticationProvider authenticationProvider() {
+	    public AuthenticationProvider customerAuthenticationProvider() {
 	    	JWTCustomerAuthenticationProvider provider = new JWTCustomerAuthenticationProvider();
 	        provider.setUserDetailsService(jwtCustomerDetailsService);
 	        return provider;
