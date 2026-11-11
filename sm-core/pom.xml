@@ -168,16 +168,14 @@
 			<artifactId>httpclient</artifactId>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-s3 -->
 		<dependency>
-			<groupId>com.amazonaws</groupId>
-			<artifactId>aws-java-sdk-s3</artifactId>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>s3</artifactId>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-ses -->
 		<dependency>
-			<groupId>com.amazonaws</groupId>
-			<artifactId>aws-java-sdk-ses</artifactId>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>ses</artifactId>
 		</dependency>
 
 		<!-- google cloud storage -->
@@ -197,7 +195,7 @@
 		<!-- Paypal -->
 		<dependency>
 			<groupId>com.paypal.sdk</groupId>
-			<artifactId>merchantsdk</artifactId>
+			<artifactId>paypal-server-sdk</artifactId>
 		</dependency>
 
 		<!-- Stripe -->
