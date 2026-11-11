@@ -151,21 +151,32 @@ public class PayPalExpressCheckoutPayment implements PaymentModule {
     public Transaction authorize(MerchantStore store, Customer customer, List<ShoppingCartItem> items,
             BigDecimal amount, Payment payment, IntegrationConfiguration configuration, IntegrationModule module)
             throws IntegrationException {
-        return process(amount, payment, configuration, false);
+        return process(store, amount, payment, configuration, false);
     }
 
     @Override
     public Transaction authorizeAndCapture(MerchantStore store, Customer customer, List<ShoppingCartItem> items,
             BigDecimal amount, Payment payment, IntegrationConfiguration configuration, IntegrationModule module)
             throws IntegrationException {
-        return process(amount, payment, configuration, true);
+        return process(store, amount, payment, configuration, true);
     }
 
-    private Transaction process(BigDecimal amount, Payment payment, IntegrationConfiguration configuration,
+    private Transaction process(MerchantStore store, BigDecimal amount, Payment payment, IntegrationConfiguration configuration,
             boolean capture) throws IntegrationException {
         try {
             PaypalPayment paypal = (PaypalPayment) payment;
             Validate.notNull(paypal.getPaymentToken(), "A paypal payment token is required to process this transaction");
+            com.paypal.sdk.models.Order approvedOrder = gateway(configuration).getOrder(paypal.getPaymentToken());
+            if (approvedOrder == null || approvedOrder.getPurchaseUnits() == null
+                || approvedOrder.getPurchaseUnits().size() != 1
+                || approvedOrder.getPurchaseUnits().get(0) == null
+                || approvedOrder.getPurchaseUnits().get(0).getAmount() == null
+                || !pricingService.getStringAmount(amount, store).equals(
+                    approvedOrder.getPurchaseUnits().get(0).getAmount().getValue())
+                || !store.getCurrency().getCode().equals(
+                    approvedOrder.getPurchaseUnits().get(0).getAmount().getCurrencyCode())) {
+                throw new IntegrationException("PayPal order amount or currency does not match the cart");
+            }
             PayPalGateway.Result result = capture ? gateway(configuration).captureOrder(paypal.getPaymentToken())
                 : gateway(configuration).authorize(paypal.getPaymentToken());
             Transaction transaction = transaction(amount, payment.getTransactionType());

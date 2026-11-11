@@ -11,6 +11,7 @@ import com.paypal.sdk.models.CaptureOrderInput;
 import com.paypal.sdk.models.CaptureRequest;
 import com.paypal.sdk.models.CapturedPayment;
 import com.paypal.sdk.models.CreateOrderInput;
+import com.paypal.sdk.models.GetOrderInput;
 import com.paypal.sdk.models.Money;
 import com.paypal.sdk.models.Order;
 import com.paypal.sdk.models.OrderAuthorizeResponse;
@@ -50,6 +51,10 @@ class PayPalGateway {
                 .ifPresent(link -> result.approvalUrl = link.getHref());
         }
         return result;
+    }
+
+    Order getOrder(String orderId) throws Exception {
+        return client.getOrdersController().getOrder(new GetOrderInput.Builder(orderId).build()).getResult();
     }
 
     Result authorize(String orderId) throws Exception {

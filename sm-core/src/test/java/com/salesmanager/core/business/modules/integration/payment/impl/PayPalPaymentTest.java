@@ -11,6 +11,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.springframework.test.util.ReflectionTestUtils;
 import com.paypal.sdk.models.CheckoutPaymentIntent;
+import com.paypal.sdk.models.AmountWithBreakdown;
+import com.paypal.sdk.models.PurchaseUnit;
 import com.paypal.sdk.models.Money;
 import com.paypal.sdk.models.OrderRequest;
 import com.salesmanager.core.business.services.catalog.pricing.PricingService;
@@ -48,6 +50,7 @@ class PayPalPaymentTest {
         payment.setTransactionType(TransactionType.AUTHORIZE);
         PayPalExpressCheckoutPayment module = rest ? new PayPalRestPayment() : new PayPalExpressCheckoutPayment();
         module.setGateway(gateway);
+        when(gateway.getOrder("order-id")).thenReturn(approvedOrder("USD", "12.34"));
         PricingService pricing = mock(PricingService.class);
         when(pricing.getStringAmount(any(BigDecimal.class), eq(store)))
             .thenAnswer(invocation -> ((BigDecimal) invocation.getArgument(0)).toPlainString());
@@ -170,5 +173,32 @@ class PayPalPaymentTest {
         assertEquals(amount, transaction.getAmount());
         assertEquals(id, transaction.getTransactionDetails().get("TRANSACTIONID"));
         assertNotNull(transaction.getTransactionDate());
+    }
+
+    private com.paypal.sdk.models.Order approvedOrder(String currency, String value) {
+        PurchaseUnit unit = new PurchaseUnit();
+        unit.setAmount(new AmountWithBreakdown.Builder(currency, value).build());
+        com.paypal.sdk.models.Order approved = new com.paypal.sdk.models.Order();
+        approved.setPurchaseUnits(Collections.singletonList(unit));
+        return approved;
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    void mismatchedOrMissingOrderAmountRejectsAuthorizeAndCapture(boolean rest) throws Exception {
+        PayPalExpressCheckoutPayment module = module(rest);
+        com.paypal.sdk.models.Order[] invalidOrders = {
+            approvedOrder("USD", "1.00"), approvedOrder("EUR", "12.34"),
+            new com.paypal.sdk.models.Order(), null
+        };
+        for (com.paypal.sdk.models.Order approved : invalidOrders) {
+            when(gateway.getOrder("order-id")).thenReturn(approved);
+            assertThrows(IntegrationException.class,
+                () -> module.authorize(store, null, Collections.emptyList(), amount, payment, config, null));
+            assertThrows(IntegrationException.class,
+                () -> module.authorizeAndCapture(store, null, Collections.emptyList(), amount, payment, config, null));
+        }
+        verify(gateway, never()).authorize(anyString());
+        verify(gateway, never()).captureOrder(anyString());
     }
 }

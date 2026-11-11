@@ -63,6 +63,17 @@ class PayPalGatewayTest {
     }
 
     @Test
+    void getsOrderAmountBeforePayment() throws Exception {
+        PayPalGateway gateway = gateway("{\"id\":\"order-id\",\"purchase_units\":[{"
+            + "\"amount\":{\"currency_code\":\"USD\",\"value\":\"12.34\"}}]}");
+        com.paypal.sdk.models.Order order = gateway.getOrder("order-id");
+        assertEquals("GET", request.get().method());
+        assertEquals("/v2/checkout/orders/order-id", request.get().url().encodedPath());
+        assertEquals("USD", order.getPurchaseUnits().get(0).getAmount().getCurrencyCode());
+        assertEquals("12.34", order.getPurchaseUnits().get(0).getAmount().getValue());
+    }
+
+    @Test
     void authorizeExtractsAuthorizationAndPayer() throws Exception {
         PayPalGateway gateway = gateway("{\"id\":\"order-id\",\"status\":\"COMPLETED\","
             + "\"payer\":{\"payer_id\":\"payer\"},\"purchase_units\":[{\"payments\":{"
