@@ -14,15 +14,15 @@ public final class FlatCacheFiles {
   }
 
   public void put(String name, Object value) {
-    cache.put(prefix + name, value);
+    cache.put(prefix + encode(name), value);
   }
 
   public Object get(String name) {
-    return cache.get(prefix + name);
+    return cache.get(prefix + encode(name));
   }
 
   public void remove(String name) {
-    cache.remove(prefix + name);
+    cache.remove(prefix + encode(name));
   }
 
   public Set<String> getKeys() {
@@ -31,7 +31,7 @@ public final class FlatCacheFiles {
       if (key.startsWith(prefix)) {
         String name = key.substring(prefix.length());
         if (!name.contains("/")) {
-          names.add(name);
+          names.add(name.replace("%2F", "/").replace("%25", "%"));
         }
       }
     }
@@ -58,5 +58,9 @@ public final class FlatCacheFiles {
         cache.remove(key);
       }
     }
+  }
+
+  private String encode(String name) {
+    return name.replace("%", "%25").replace("/", "%2F");
   }
 }

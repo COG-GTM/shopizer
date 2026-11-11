@@ -114,6 +114,29 @@ class FlatCacheContentTest {
   }
 
   @Test
+  void fileNamesWithSlashesRoundTripWithoutChangingPaths() {
+    FlatCacheFiles files = new FlatCacheFiles(cache, "product-fileDEFAULT/LOGO");
+    assertTrue(files.getKeys().isEmpty());
+    assertNull(files.get("a/b.txt"));
+    files.put("a/b.txt", bytes);
+    files.put("a%2Fb.txt", new byte[] {4});
+    assertArrayEquals(bytes, (byte[]) cache.get("product-fileDEFAULT/LOGO/a%2Fb.txt"));
+    assertTrue(files.getKeys().contains("a/b.txt"));
+    assertTrue(files.getKeys().contains("a%2Fb.txt"));
+    assertEquals(2, files.getKeys().size());
+    assertTrue(files.getChildren().isEmpty());
+    assertArrayEquals(bytes, (byte[]) files.get("a/b.txt"));
+    assertArrayEquals(new byte[] {4}, (byte[]) files.get("a%2Fb.txt"));
+    files.remove("a/b.txt");
+    assertNull(files.get("a/b.txt"));
+    files.remove("a%2Fb.txt");
+    assertTrue(files.getKeys().isEmpty());
+    cache.put("product-fileDEFAULT/LOGO/image.jpg", bytes);
+    assertArrayEquals(bytes, (byte[]) files.get("image.jpg"));
+    assertEquals(Collections.singleton("image.jpg"), files.getKeys());
+  }
+
+  @Test
   void productManagerPutGetAndMerchantRemoval() throws Exception {
     assertNull(images.getProductImage(image));
     addImage(FileContentType.PRODUCT);
