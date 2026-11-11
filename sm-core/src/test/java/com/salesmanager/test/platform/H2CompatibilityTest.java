@@ -1,17 +1,17 @@
 package com.salesmanager.test.platform;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import java.nio.file.*;
 import java.sql.*;
 import java.util.Properties;
 import java.io.InputStream;
-import org.junit.Assume;
-import org.junit.Test;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.Test;
 
 public class H2CompatibilityTest {
     @Test
     public void legacyPageStoreSupportsSql() throws Exception {
-        assertTrue(org.h2.engine.Constants.VERSION, org.h2.engine.Constants.VERSION.startsWith("1.4.200"));
+        assertTrue(org.h2.engine.Constants.VERSION.startsWith("1.4.200"), org.h2.engine.Constants.VERSION);
         try (Connection connection = DriverManager.getConnection("jdbc:h2:mem:compatibility;MV_STORE=FALSE", "sa", "");
              Statement statement = connection.createStatement()) {
             statement.execute("CREATE TABLE sample (id INT PRIMARY KEY, name VARCHAR(40))");
@@ -28,7 +28,7 @@ public class H2CompatibilityTest {
     public void readsCopyOfSeedDatabase() throws Exception {
         Path shop = Paths.get("../sm-shop");
         Path seed = shop.resolve("SALESMANAGER.h2.db");
-        Assume.assumeTrue("Seed database not present", Files.isRegularFile(seed));
+        Assumptions.assumeTrue(Files.isRegularFile(seed), "Seed database not present");
         Properties properties = new Properties();
         try (InputStream stream = Files.newInputStream(shop.resolve("src/main/resources/profiles/docker/database.properties"))) {
             properties.load(stream);

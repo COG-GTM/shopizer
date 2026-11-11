@@ -1,16 +1,16 @@
 package com.salesmanager.test.shop.uat;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import java.util.UUID;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.*;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.salesmanager.test.shop.common.ServicesTestSupport;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class StorefrontAdminJourneyTest extends ServicesTestSupport {
     private final ObjectMapper json = new ObjectMapper();
 
@@ -20,7 +20,7 @@ public class StorefrontAdminJourneyTest extends ServicesTestSupport {
     }
 
     private JsonNode expect(ResponseEntity<String> response, int status) throws Exception {
-        assertEquals(response.getBody(), status, response.getStatusCodeValue());
+        assertEquals(status, response.getStatusCodeValue(), response.getBody());
         assertNotNull(response.getBody());
         return json.readTree(response.getBody());
     }
@@ -49,7 +49,7 @@ public class StorefrontAdminJourneyTest extends ServicesTestSupport {
         HttpHeaders headers = login("/api/v1/private/login", "admin@shopizer.com", "password");
         expect(request(HttpMethod.GET, "/api/v1/private/user/profile", null, headers), 200);
         ResponseEntity<String> anonymous = request(HttpMethod.GET, "/api/v1/private/user/profile", null, new HttpHeaders());
-        assertTrue(anonymous.toString(), anonymous.getStatusCodeValue() == 401 || anonymous.getStatusCodeValue() == 403);
+        assertTrue(anonymous.getStatusCodeValue() == 401 || anonymous.getStatusCodeValue() == 403, anonymous.toString());
     }
 
     @Test
