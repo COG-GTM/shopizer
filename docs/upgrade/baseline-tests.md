@@ -172,15 +172,17 @@ test resources; no external database, SMTP server, or payment service is needed.
 Key output on both JDKs:
 
 ```text
-sm-core: Tests run: 28, Failures: 0, Errors: 0, Skipped: 13
-sm-shop: Tests run: 46, Failures: 0, Errors: 0, Skipped: 9
+sm-core: Tests run: 21, Failures: 0, Errors: 0, Skipped: 6
+sm-shop: Tests run: 44, Failures: 0, Errors: 0, Skipped: 7
 BUILD SUCCESS
 ```
 
-Surefire XML totals: **74 reported, 52 executed, 22 skipped, 0 failures, 0 errors**.
+Surefire XML totals: **65 reported, 52 executed, 13 skipped, 0 failures, 0 errors**.
 New JUnit 5 tests comprise eight enabled HTTP smoke tests, one live contract test,
 three inventory tests, and one disabled defect characterization. Existing ignored
-tests remain ignored. See [known-failures.md](known-failures.md) for the observed
+tests remain disabled after the prerequisite AB-537 JUnit 5 migration; removal
+of Vintage changes reported/skipped counts compared with AB-532, not the number
+of enabled tests. See [known-failures.md](known-failures.md) for the observed
 deleted-product defect and its disabled test; this ticket does not fix it.
 
 ### Coverage measurement
@@ -197,12 +199,12 @@ covered / (covered + missed). JDK 17 and 21 produced identical line/branch count
 
 | Module | Covered / total lines | Line coverage | Covered / total branches | Branch coverage |
 | --- | ---: | ---: | ---: | ---: |
-| sm-core-model | 1,764 / 4,037 | 43.70% | 39 / 156 | 25.00% |
+| sm-core-model | 1,768 / 4,037 | 43.79% | 39 / 156 | 25.00% |
 | sm-core-modules | 0 / 107 | 0.00% | 0 / 20 | 0.00% |
-| sm-core | 2,311 / 9,904 | 23.33% | 490 / 3,010 | 16.28% |
+| sm-core | 2,316 / 9,904 | 23.38% | 491 / 3,010 | 16.31% |
 | sm-shop-model | 1,182 / 2,899 | 40.77% | 2 / 64 | 3.12% |
 | sm-shop | 3,336 / 13,832 | 24.12% | 754 / 4,402 | 17.13% |
-| **Total** | **8,593 / 30,779** | **27.92%** | **1,285 / 7,652** | **16.79%** |
+| **Total** | **8,602 / 30,779** | **27.95%** | **1,286 / 7,652** | **16.81%** |
 
 Parent/reporting POMs have no executable source. Zero coverage for
 `sm-core-modules` is measured, not omitted. This is an observational baseline,
