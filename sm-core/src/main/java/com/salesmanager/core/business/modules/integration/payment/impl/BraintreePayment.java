@@ -29,6 +29,16 @@ import com.salesmanager.core.modules.integration.payment.model.PaymentModule;
 
 public class BraintreePayment implements PaymentModule {
 
+	private BraintreeGateway client;
+
+	void setGateway(BraintreeGateway client) {
+		this.client = client;
+	}
+
+	private BraintreeGateway gateway(Environment environment, String merchantId, String publicKey, String privateKey) {
+		return client == null ? new BraintreeGateway(environment, merchantId, publicKey, privateKey) : client;
+	}
+
 	@Override
 	public void validateModuleConfiguration(IntegrationConfiguration integrationConfiguration, MerchantStore store)
 			throws IntegrationException {
@@ -96,7 +106,7 @@ public class BraintreePayment implements PaymentModule {
 			environment= Environment.SANDBOX;
 		}
 		
-	    BraintreeGateway gateway = new BraintreeGateway(
+	    BraintreeGateway gateway = gateway(
 	    		   environment,
 	    		   merchantId,
 	    		   publicKey,
@@ -147,7 +157,7 @@ public class BraintreePayment implements PaymentModule {
 			environment= Environment.SANDBOX;
 		}
 		
-	    BraintreeGateway gateway = new BraintreeGateway(
+	    BraintreeGateway gateway = gateway(
 	    		   environment,
 	    		   merchantId,
 	    		   publicKey,
@@ -237,7 +247,7 @@ public class BraintreePayment implements PaymentModule {
 			environment= Environment.SANDBOX;
 		}
 		
-	    BraintreeGateway gateway = new BraintreeGateway(
+	    BraintreeGateway gateway = gateway(
 	    		   environment,
 	    		   merchantId,
 	    		   publicKey,
@@ -324,7 +334,7 @@ public class BraintreePayment implements PaymentModule {
 			environment= Environment.SANDBOX;
 		}
 		
-	    BraintreeGateway gateway = new BraintreeGateway(
+	    BraintreeGateway gateway = gateway(
 	    		   environment,
 	    		   merchantId,
 	    		   publicKey,
@@ -413,7 +423,7 @@ public class BraintreePayment implements PaymentModule {
 			environment= Environment.SANDBOX;
 		}
 		
-	    BraintreeGateway gateway = new BraintreeGateway(
+	    BraintreeGateway gateway = gateway(
 	    		   environment,
 	    		   merchantId,
 	    		   publicKey,
