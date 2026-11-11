@@ -2,6 +2,7 @@ package com.salesmanager.core.business.services.common.generic;
 
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -46,8 +47,12 @@ public abstract class SalesManagerEntityServiceImpl<K extends Serializable & Com
 	}
 	
 	public void saveAll(Iterable<E> entities) throws ServiceException {
-		entities.forEach(this::normalizeNewEntityId);
-		repository.saveAll(entities);
+		List<E> batch = new ArrayList<>();
+		for (E entity : entities) {
+			normalizeNewEntityId(entity);
+			batch.add(entity);
+		}
+		repository.saveAll(batch);
 	}
 	
 	
