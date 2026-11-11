@@ -80,6 +80,7 @@ public class ProductVariantServiceImpl extends SalesManagerEntityServiceImpl<Lon
 	@Override
 	public ProductVariant saveProductVariant(ProductVariant variant) throws ServiceException {
 
+		normalizeNewEntityId(variant);
 		variant = productVariantRepository.save(variant);
 		return variant;
 	}

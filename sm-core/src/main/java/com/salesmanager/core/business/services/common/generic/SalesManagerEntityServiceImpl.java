@@ -41,10 +41,12 @@ public abstract class SalesManagerEntityServiceImpl<K extends Serializable & Com
 
 	
 	public void save(E entity) throws ServiceException {
+		normalizeNewEntityId(entity);
 		repository.saveAndFlush(entity);
 	}
 	
 	public void saveAll(Iterable<E> entities) throws ServiceException {
+		entities.forEach(this::normalizeNewEntityId);
 		repository.saveAll(entities);
 	}
 	
@@ -81,7 +83,14 @@ public abstract class SalesManagerEntityServiceImpl<K extends Serializable & Com
 	}
 	
 	protected E saveAndFlush(E entity) {
+		normalizeNewEntityId(entity);
 		return repository.saveAndFlush(entity);
+	}
+
+	protected final void normalizeNewEntityId(E entity) {
+		if (Long.valueOf(0L).equals(entity.getId())) {
+			entity.setId(null);
+		}
 	}
 
 }
