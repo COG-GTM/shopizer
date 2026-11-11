@@ -1,12 +1,12 @@
 package com.salesmanager.test.catalog;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.model.catalog.category.Category;
@@ -55,7 +55,7 @@ public class CategoryTest extends com.salesmanager.test.common.AbstractSalesMana
 	    Long bookId = materingstuff.getId();
 	    
 	    Category fetchedBook = categoryService.getById(bookId, store.getId());
-		Assert.assertEquals(2, fetchedBook.getDescriptions().size());
+		Assertions.assertEquals(2, fetchedBook.getDescriptions().size());
 
 	    // Clean up for other tests
 	    categoryService.delete(materingstuff);
