@@ -2,8 +2,8 @@ package com.salesmanager.test.modules;
 
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.salesmanager.core.business.constants.Constants;
@@ -20,7 +20,7 @@ public class ModulesTest extends com.salesmanager.test.common.AbstractSalesManag
 	public void testModulesConfigurations() throws Exception {
 		List<IntegrationModule> modules = moduleConfigurationService.getIntegrationModules(Constants.PAYMENT_MODULES);
 		
-		Assert.assertNotNull(modules);
+		Assertions.assertNotNull(modules);
 	}
 	
 
