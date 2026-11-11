@@ -1,4 +1,4 @@
-# 0001. Spring Boot 2.7.18 and a Java 17 bytecode/runtime baseline
+# 0002. Spring Boot 2.7.18 and a Java 17 bytecode/runtime baseline
 
 - **Status:** Proposed
 - **Date:** 2026-11-11

@@ -1,14 +1,16 @@
 package com.salesmanager.test.shipping;
 
-import java.util.ArrayList;
-import java.util.List;
+import static org.junit.jupiter.api.Assertions.assertSame;
+
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Locale;
 
-import javax.inject.Inject;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 
-import org.junit.Ignore;
-import org.junit.Test;
-
+import com.salesmanager.core.business.configuration.DroolsBeanFactory;
 import com.salesmanager.core.business.modules.integration.shipping.impl.ShippingDecisionPreProcessorImpl;
 import com.salesmanager.core.model.common.Delivery;
 import com.salesmanager.core.model.reference.country.Country;
@@ -17,72 +19,67 @@ import com.salesmanager.core.model.shipping.PackageDetails;
 import com.salesmanager.core.model.shipping.ShippingQuote;
 import com.salesmanager.core.model.system.IntegrationModule;
 
+class ShippingMethodDecisionTest {
 
+    private ShippingDecisionPreProcessorImpl processor;
 
-@Ignore
-public class ShippingMethodDecisionTest extends com.salesmanager.test.common.AbstractSalesManagerCoreTestCase {
-	
-	@Inject
-	ShippingDecisionPreProcessorImpl shippingMethodDecisionProcess;
+    @BeforeEach
+    void setUp() {
+        processor = new ShippingDecisionPreProcessorImpl();
+        ReflectionTestUtils.setField(processor, "droolsBeanFactory", new DroolsBeanFactory());
+    }
 
-	@Test
-	@Ignore
-	public void validateShippingMethod() throws Exception {
-		
-		ShippingQuote quote = new ShippingQuote();
-		PackageDetails pDetail = new PackageDetails();
-		pDetail.setShippingHeight(20);
-		pDetail.setShippingLength(10);
-		pDetail.setShippingWeight(70);
-		pDetail.setShippingWidth(78);
-		List<PackageDetails> details = new ArrayList<PackageDetails>();
-		details.add(pDetail);
+    @Test
+    void validateShippingMethod() throws Exception {
+        // Original oversized Quebec fixture: the rule selects priceByDistance.
+        assertShippingMethod(70, 78, "CA", "QC", "priceByDistance");
+    }
 
-		Delivery delivery = new Delivery();
-		delivery.setAddress("358 Du Languedoc");
-		delivery.setCity("Boucherville");
-		delivery.setPostalCode("J4B 8J9");
-		
-		Country country = new Country();
-		country.setIsoCode("CA");
-		country.setName("Canada");
-		
-		//country.setIsoCode("US");
-		//country.setName("United States");
-		
-		delivery.setCountry(country);
-		
-		Zone zone = new Zone();
-		zone.setCode("QC");
-		zone.setName("Quebec");
-		
-		//zone.setCode("NY");
-		//zone.setName("New York");
-		
-		delivery.setZone(zone);
-		
-		IntegrationModule currentModule = new IntegrationModule();
-		currentModule.setCode("canadapost");
-		quote.setCurrentShippingModule(currentModule);
-		quote.setShippingModuleCode(currentModule.getCode());
-		
-		IntegrationModule canadapost = new IntegrationModule();
-		canadapost.setCode("canadapost");
-		
-		IntegrationModule ups = new IntegrationModule();
-		ups.setCode("ups");
-		
-		IntegrationModule inhouse = new IntegrationModule();
-		inhouse.setCode("customQuotesRules");
-		
-		List<IntegrationModule> allModules = new ArrayList<IntegrationModule>();
-		allModules.add(canadapost);
-		allModules.add(ups);
-		allModules.add(inhouse);
+    @Test
+    void selectsCanadaPostForSmallCanadianPackage() throws Exception {
+        assertShippingMethod(61, 65, "CA", "ON", "canadapost");
+    }
 
-		shippingMethodDecisionProcess.prePostProcessShippingQuotes(quote, details, null, delivery, null, null, null, currentModule, null, allModules, Locale.CANADA);
-		
-		System.out.println("Done : " + quote.getCurrentShippingModule()!=null ? quote.getCurrentShippingModule().getCode() : currentModule.getCode());
+    @Test
+    void retainsCurrentModuleWhenNoRuleMatches() throws Exception {
+        assertShippingMethod(70, 78, "US", "NY", "ups");
+    }
 
-	}
+    private void assertShippingMethod(double weight, double width, String countryCode,
+            String zoneCode, String expectedCode) throws Exception {
+        PackageDetails pack = new PackageDetails();
+        pack.setShippingHeight(20);
+        pack.setShippingLength(10);
+        pack.setShippingWeight(weight);
+        pack.setShippingWidth(width);
+
+        Country country = new Country();
+        country.setIsoCode(countryCode);
+        Zone zone = new Zone();
+        zone.setCode(zoneCode);
+        Delivery delivery = new Delivery();
+        delivery.setCountry(country);
+        delivery.setZone(zone);
+
+        IntegrationModule canadaPost = module("canadapost");
+        IntegrationModule ups = module("ups");
+        IntegrationModule priceByDistance = module("priceByDistance");
+        ShippingQuote quote = new ShippingQuote();
+        quote.setCurrentShippingModule(ups);
+        quote.setShippingModuleCode(ups.getCode());
+
+        processor.prePostProcessShippingQuotes(quote, Collections.singletonList(pack), null,
+                delivery, null, null, null, ups, null,
+                Arrays.asList(canadaPost, ups, priceByDistance), Locale.CANADA);
+
+        IntegrationModule expected = "canadapost".equals(expectedCode) ? canadaPost
+                : "priceByDistance".equals(expectedCode) ? priceByDistance : ups;
+        assertSame(expected, quote.getCurrentShippingModule());
+    }
+
+    private IntegrationModule module(String code) {
+        IntegrationModule module = new IntegrationModule();
+        module.setCode(code);
+        return module;
+    }
 }
