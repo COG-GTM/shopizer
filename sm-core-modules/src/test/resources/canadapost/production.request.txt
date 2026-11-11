@@ -1,0 +1,6 @@
+POST /prod
+Basic dGVzdC11c2VyOnRlc3QtcGFzc3dvcmQ=
+application/vnd.cpc.ship.rate-v4+xml
+application/vnd.cpc.ship.rate-v4+xml
+en-CA
+{http://www.canadapost.ca/ws/ship/rate-v4}mailing-scenario[{http://www.canadapost.ca/ws/ship/rate-v4}customer-number[1234567890]{http://www.canadapost.ca/ws/ship/rate-v4}parcel-characteristics[{http://www.canadapost.ca/ws/ship/rate-v4}weight[2.5]{http://www.canadapost.ca/ws/ship/rate-v4}dimensions[{http://www.canadapost.ca/ws/ship/rate-v4}length[5]{http://www.canadapost.ca/ws/ship/rate-v4}width[4]{http://www.canadapost.ca/ws/ship/rate-v4}height[3]]]{http://www.canadapost.ca/ws/ship/rate-v4}services[{http://www.canadapost.ca/ws/ship/rate-v4}service-code[DOM.RP]{http://www.canadapost.ca/ws/ship/rate-v4}service-code[DOM.XP]]{http://www.canadapost.ca/ws/ship/rate-v4}origin-postal-code[H2B1A0]{http://www.canadapost.ca/ws/ship/rate-v4}destination[{http://www.canadapost.ca/ws/ship/rate-v4}domestic[{http://www.canadapost.ca/ws/ship/rate-v4}postal-code[K1A0B1]]]]
