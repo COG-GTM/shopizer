@@ -111,6 +111,7 @@ public class ProductImageServiceImpl extends SalesManagerEntityServiceImpl<Long,
 	@Override
 	public ProductImage saveOrUpdate(ProductImage productImage) throws ServiceException {
 
+		normalizeNewEntityId(productImage);
 		return productImageRepository.save(productImage);
 
 	}
@@ -200,6 +201,7 @@ public class ProductImageServiceImpl extends SalesManagerEntityServiceImpl<Long,
 		Validate.notNull(product, "Product cannot be null");
 		Validate.notNull(productImage, "ProductImage cannot be null");
 		productImage.setProduct(product);
+		normalizeNewEntityId(productImage);
 		productImageRepository.save(productImage);
 
 	}

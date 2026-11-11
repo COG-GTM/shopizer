@@ -40,6 +40,7 @@ public class ProductTypeServiceImpl extends SalesManagerEntityServiceImpl<Long, 
 
 	@Override
 	public void update(String code, MerchantStore store, ProductType type) throws ServiceException {
+		normalizeNewEntityId(type);
 		productTypeRepository.save(type);
 
 	}

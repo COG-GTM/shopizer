@@ -70,6 +70,7 @@ public class UserServiceImpl extends SalesManagerEntityServiceImpl<Long, User> i
 
 	@Override
 	public void saveOrUpdate(User user) throws ServiceException {
+		normalizeNewEntityId(user);
 		userRepository.save(user);
 	}
 

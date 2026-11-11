@@ -38,6 +38,7 @@ implements CatalogService {
 
 	@Override
 	public Catalog saveOrUpdate(Catalog catalog, MerchantStore store) {
+		normalizeNewEntityId(catalog);
 		catalogRepository.save(catalog);
 		return catalog;
 	}
