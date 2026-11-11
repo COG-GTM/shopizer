@@ -132,9 +132,9 @@ public class PayPalExpressCheckoutPayment implements PaymentModule {
         String url = base + (StringUtils.isNotBlank(base) && !base.endsWith(Constants.SLASH) ? Constants.SLASH : "")
             + coreConfiguration.getProperty("CONTEXT_PATH", "sm-shop") + Constants.SHOP_URI
             + "/paypal/checkout" + coreConfiguration.getProperty("URL_EXTENSION", ".html");
-        CheckoutPaymentIntent intent = TransactionType.AUTHORIZECAPTURE.name().equalsIgnoreCase(
-            configuration.getIntegrationKeys().get("transaction")) ? CheckoutPaymentIntent.CAPTURE
-            : CheckoutPaymentIntent.AUTHORIZE;
+        CheckoutPaymentIntent intent = TransactionType.AUTHORIZE.name().equalsIgnoreCase(
+            configuration.getIntegrationKeys().get("transaction")) ? CheckoutPaymentIntent.AUTHORIZE
+            : CheckoutPaymentIntent.CAPTURE;
         OrderRequest request = new OrderRequest.Builder(intent, Collections.singletonList(unit))
             .paymentSource(new PaymentSource.Builder().paypal(new PaypalWallet.Builder()
                 .experienceContext(new PaypalWalletExperienceContext.Builder()

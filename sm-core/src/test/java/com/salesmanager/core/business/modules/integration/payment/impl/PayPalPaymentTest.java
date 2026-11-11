@@ -87,6 +87,24 @@ class PayPalPaymentTest {
 
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
+    void missingOrInvalidTransactionDefaultsToCaptureIntent(boolean rest) throws Exception {
+        PayPalExpressCheckoutPayment module = module(rest);
+        when(gateway.create(any(OrderRequest.class))).thenReturn(new PayPalGateway.Result("order-id", "debug"));
+        config.getIntegrationKeys().remove("transaction");
+        module.initTransaction(store, null, amount, payment, config, null);
+        config.getIntegrationKeys().put("transaction", "invalid");
+        module.initTransaction(store, null, amount, payment, config, null);
+        config.getIntegrationKeys().put("transaction", "authorize");
+        module.initTransaction(store, null, amount, payment, config, null);
+        ArgumentCaptor<OrderRequest> request = ArgumentCaptor.forClass(OrderRequest.class);
+        verify(gateway, times(3)).create(request.capture());
+        assertEquals(CheckoutPaymentIntent.CAPTURE, request.getAllValues().get(0).getIntent());
+        assertEquals(CheckoutPaymentIntent.CAPTURE, request.getAllValues().get(1).getIntent());
+        assertEquals(CheckoutPaymentIntent.AUTHORIZE, request.getAllValues().get(2).getIntent());
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
     void authorizePreservesDetails(boolean rest) throws Exception {
         PayPalExpressCheckoutPayment module = module(rest);
         PayPalGateway.Result result = new PayPalGateway.Result("auth-id", "debug");

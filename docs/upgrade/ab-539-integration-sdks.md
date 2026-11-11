@@ -17,7 +17,7 @@ The `integrationKeys` map must be migrated:
 | --- | --- |
 | EC `username`, `api`, `signature` | `clientId`, `clientSecret` from a REST app; these are **not** converted NVP credentials |
 | REST `client`, `secret` | `clientId`, `clientSecret` |
-| `transaction` | Unchanged: `AUTHORIZECAPTURE` creates a CAPTURE-intent order; other values create an AUTHORIZE-intent order |
+| `transaction` | `AUTHORIZE` (case-insensitive) creates an AUTHORIZE-intent order; all other values, including missing or invalid values, create a CAPTURE-intent order, matching payment processing |
 
 1. Sign in to <https://developer.paypal.com/dashboard/applications> with the
    merchant's PayPal business account. Select **Sandbox** or **Live**, then
