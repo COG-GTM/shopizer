@@ -16,8 +16,8 @@ AB-535 (`SecurityFilterChain`, needs Spring Security 5.7) and AB-544 (the Boot 3
 
 Boot 2.6/2.7 changes that affect Shopizer:
 
-- MVC path matching defaults to `PathPatternParser`, which springfox 2.9.2 cannot read.
-  Actuator endpoint mappings use `PathPatternParser` even when the MVC strategy is overridden.
+- MVC path matching defaults to `PathPatternParser`, which has different semantics from the
+  `AntPathMatcher` that Boot 2.5 used.
 - Circular bean references are prohibited by default.
 - Boot 2.7 manages H2 2.1.x, which cannot open the committed PageStore `SALESMANAGER.h2.db` or the
   `mv_store=false` URLs in the `docker`/`cloud` profiles.
@@ -30,8 +30,7 @@ Java 11 → 17 for the deployable jar and its container image). Not triggered: T
 We will build on `spring-boot-starter-parent` 2.7.18 with `maven.compiler.release` 17. We keep
 current behaviour with `spring.mvc.pathmatch.matching-strategy=ant_path_matcher` and
 `spring.main.allow-circular-references=true`. The existing bean cycles are listed in the AB-534
-PR for later cleanup. springfox skips the PathPatternParser-based actuator handler mappings, which
-it never documented. `h2.version` stays pinned to 1.4.200 until AB-544. The container base image
+PR for later cleanup. `h2.version` stays pinned to 1.4.200 until AB-544. The container base image
 moves to `eclipse-temurin:17-jre`, because Java 17 bytecode cannot run on the Java 11 image.
 
 ## Alternatives considered
@@ -110,10 +109,10 @@ C4Container
 ## Consequences
 
 - Positive: Unblocks AB-535 and AB-544. Moves to a supported Boot 2.x line and a maintained JRE image.
-- Negative / risks: Allowed circular references and the springfox actuator workaround are
+- Negative / risks: Allowed circular references and the `ant_path_matcher` override are
   temporary debt. The JVM implementation in the image changes from OpenJ9 to HotSpot (Temurin),
   so memory and GC profiles may differ in production.
-- Follow-ups: Break the listed bean cycles. AB-536 removes springfox and this workaround.
+- Follow-ups: Break the listed bean cycles and move to `PathPatternParser`.
   AB-544 removes the H2 pin. AB-547 moves the image to `eclipse-temurin:21-jre`.
 
 ## Open questions

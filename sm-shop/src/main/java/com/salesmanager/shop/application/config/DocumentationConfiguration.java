@@ -1,145 +1,143 @@
 package com.salesmanager.shop.application.config;
 
-import static io.swagger.models.auth.In.HEADER;
-import static java.util.Collections.singletonList;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Arrays;
 
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springdoc.core.GroupedOpenApi;
+import org.springdoc.core.SpringDocUtils;
+import org.springdoc.core.customizers.OperationCustomizer;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.util.ReflectionUtils;
+import org.springframework.core.type.filter.AnnotationTypeFilter;
+import org.springframework.stereotype.Controller;
+import org.springframework.util.ClassUtils;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.servlet.mvc.method.RequestMappingInfoHandlerMapping;
 
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Contact;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.info.License;
+import io.swagger.v3.oas.models.responses.ApiResponse;
+import io.swagger.v3.oas.models.responses.ApiResponses;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 
-import springfox.documentation.RequestHandler;
-import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.builders.ResponseMessageBuilder;
-import springfox.documentation.schema.ModelRef;
-import springfox.documentation.service.ApiInfo;
-import springfox.documentation.service.ApiKey;
-import springfox.documentation.service.AuthorizationScope;
-import springfox.documentation.service.Contact;
-import springfox.documentation.service.ResponseMessage;
-import springfox.documentation.service.SecurityReference;
-import springfox.documentation.service.SecurityScheme;
-import springfox.documentation.service.VendorExtension;
-import springfox.documentation.spi.DocumentationType;
-import springfox.documentation.spi.service.contexts.SecurityContext;
-import springfox.documentation.spring.web.plugins.Docket;
-import springfox.documentation.spring.web.plugins.WebMvcRequestHandlerProvider;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
-
+/**
+ * OpenAPI 3 documentation (springdoc).
+ *
+ * http://localhost:8080/swagger-ui.html (redirects to /swagger-ui/index.html)
+ * http://localhost:8080/v3/api-docs
+ */
 @Configuration
-@EnableSwagger2
 public class DocumentationConfiguration {
 
-	public static final Contact DEFAULT_CONTACT = new Contact("Shopizer", "https://www.shopizer.com", "");
-	
-	private static final String HOST = "localhost:8080";
+	public static final String GROUP = "default";
 
-	/**
-	 * http://localhost:8080/swagger-ui.html#/ http://localhost:8080/v2/api-docs
-	 */
+	public static final String SECURITY_SCHEME = "JWT";
 
-	@Bean
-	public Docket api() {
+	static final String[] API_PACKAGES = { "com.salesmanager.shop.store.api.v1",
+			"com.salesmanager.shop.store.api.v2" };
 
-		final List<ResponseMessage> getMessages = new ArrayList<ResponseMessage>();
-		getMessages.add(new ResponseMessageBuilder().code(500).message("500 message")
-				.responseModel(new ModelRef("Error")).build());
-		getMessages.add(new ResponseMessageBuilder().code(403).message("Forbidden").build());
-		getMessages.add(new ResponseMessageBuilder().code(401).message("Unauthorized").build());
-
-		Set<String> produces = new HashSet<>();
-		produces.add("application/json");
-
-		Set<String> consumes = new HashSet<>();
-		consumes.add("application/json");
-
-		return new Docket(DocumentationType.SWAGGER_2)
-				.host(HOST)
-				.select()
-				.apis(requestHandlers()).build()
-				.securitySchemes(Collections.singletonList(new ApiKey("JWT", AUTHORIZATION, HEADER.name())))
-		        .securityContexts(singletonList(
-		            SecurityContext.builder()
-		                .securityReferences(
-		                    singletonList(SecurityReference.builder()
-		                        .reference("JWT")
-		                        .scopes(new AuthorizationScope[0])
-		                        .build()
-		                    )
-		                )
-		                .build())
-		        )
-				.produces(produces).consumes(consumes).globalResponseMessage(RequestMethod.GET, getMessages)
-	            .globalResponseMessage(RequestMethod.GET, getMessages);
-
+	static {
+		SpringDocUtils.getConfig().addRestControllers(apiControllers());
 	}
-	
+
 	/**
-	 * Spring Boot 2.6+ registers the actuator endpoint handler mappings with a
-	 * PathPatternParser even when spring.mvc.pathmatch.matching-strategy is
-	 * ant_path_matcher. springfox 2.9.2 only understands ant-style
-	 * PatternsRequestCondition and fails at startup on those mappings, so they are
-	 * removed from what springfox scans. They are outside the documented packages.
+	 * Several API classes are plain {@code @Controller}s whose handlers return {@code void} or
+	 * {@code ResponseEntity} without {@code @ResponseBody}. the Swagger 2 setup documented every handler in the
+	 * API packages; registering these classes as REST controllers keeps those operations documented.
+	 */
+	static Class<?>[] apiControllers() {
+		ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
+		scanner.addIncludeFilter(new AnnotationTypeFilter(Controller.class));
+		ClassLoader classLoader = DocumentationConfiguration.class.getClassLoader();
+		return Arrays.stream(API_PACKAGES)
+				.flatMap(pkg -> scanner.findCandidateComponents(pkg).stream())
+				.map(BeanDefinition::getBeanClassName)
+				.map(name -> ClassUtils.resolveClassName(name, classLoader))
+				.toArray(Class<?>[]::new);
+	}
+
+	@Bean
+	public OpenAPI shopizerOpenAPI() {
+		return new OpenAPI()
+				.info(new Info().title("Shopizer REST API")
+						.description("API for Shopizer e-commerce. Contains public end points as well as private end points requiring basic authentication and remote authentication based on jwt bearer token. URL patterns containing /private/** use bearer token; those are authorized customer and administrators administration actions.")
+						.version("1.0")
+						.termsOfService("urn:tos")
+						.contact(new Contact().name("Shopizer").url("https://www.shopizer.com"))
+						.license(new License().name("Apache 2.0").url("http://www.apache.org/licenses/LICENSE-2.0")))
+				.components(new Components().addSecuritySchemes(SECURITY_SCHEME,
+						new SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT")
+								.in(SecurityScheme.In.HEADER).name(AUTHORIZATION)))
+				.addSecurityItem(new SecurityRequirement().addList(SECURITY_SCHEME));
+	}
+
+	@Bean
+	public GroupedOpenApi shopizerApi() {
+		return GroupedOpenApi.builder()
+				.group(GROUP)
+				.packagesToScan(API_PACKAGES)
+				.addOperationCustomizer(defaultSummary())
+				.addOperationCustomizer(globalGetResponses())
+				.build();
+	}
+
+	/**
+	 * Operations without an explicit summary fall back to the handler method name, as the Swagger 2 setup did.
 	 */
 	@Bean
-	public static BeanPostProcessor springfoxHandlerProviderBeanPostProcessor() {
-		return new BeanPostProcessor() {
-
-			@Override
-			public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-				if (bean instanceof WebMvcRequestHandlerProvider) {
-					handlerMappings(bean).removeIf(mapping -> mapping.getPatternParser() != null);
-				}
-				return bean;
+	public OperationCustomizer defaultSummary() {
+		return (operation, handlerMethod) -> {
+			if (operation.getSummary() == null || operation.getSummary().isEmpty()) {
+				operation.setSummary(handlerMethod.getMethod().getName());
 			}
-
-			@SuppressWarnings("unchecked")
-			private List<RequestMappingInfoHandlerMapping> handlerMappings(Object bean) {
-				Field field = ReflectionUtils.findField(bean.getClass(), "handlerMappings");
-				ReflectionUtils.makeAccessible(field);
-				return (List<RequestMappingInfoHandlerMapping>) ReflectionUtils.getField(field, bean);
-			}
+			return operation;
 		};
 	}
 
-	final Predicate<RequestHandler> requestHandlers() {
-		
-		   Set<Predicate<RequestHandler>> matchers = new HashSet<Predicate<RequestHandler>>();
-		   matchers.add(RequestHandlerSelectors.basePackage("com.salesmanager.shop.store.api.v1"));
-		   matchers.add(RequestHandlerSelectors.basePackage("com.salesmanager.shop.store.api.v2"));
-		   
-		   return Predicates.or(matchers);
-
+	/**
+	 * Documents the 500 / 403 / 401 responses on every GET operation, as the Swagger 2 Docket did.
+	 */
+	@Bean
+	public OperationCustomizer globalGetResponses() {
+		return (operation, handlerMethod) -> {
+			if (isGet(handlerMethod.getMethod().getAnnotation(GetMapping.class),
+					handlerMethod.getMethod().getAnnotation(RequestMapping.class))) {
+				if (operation.getResponses() == null) {
+					operation.setResponses(new ApiResponses());
+				}
+				operation.getResponses().putIfAbsent("500", new ApiResponse().description("500 message"));
+				operation.getResponses().putIfAbsent("403", new ApiResponse().description("Forbidden"));
+				operation.getResponses().putIfAbsent("401", new ApiResponse().description("Unauthorized"));
+			}
+			return operation;
+		};
 	}
 
-	@SuppressWarnings("rawtypes")
-	private ApiInfo apiInfo() {
-		return new ApiInfo("Shopizer REST API",
-				"API for Shopizer e-commerce. Contains public end points as well as private end points requiring basic authentication and remote authentication based on jwt bearer token. URL patterns containing /private/** use bearer token; those are authorized customer and administrators administration actions.",
-				"1.0", "urn:tos", DEFAULT_CONTACT, "Apache 2.0", "http://www.apache.org/licenses/LICENSE-2.0",
-				new ArrayList<VendorExtension>());
-
-	}
-
-	private static ArrayList<? extends SecurityScheme> securitySchemes() {
-		return (ArrayList<? extends SecurityScheme>) Stream.of(new ApiKey("Bearer", "Authorization", "header"))
-				.collect(Collectors.toList());
+	private static boolean isGet(GetMapping getMapping, RequestMapping requestMapping) {
+		if (getMapping != null) {
+			return true;
+		}
+		if (requestMapping == null) {
+			return false;
+		}
+		RequestMethod[] methods = requestMapping.method();
+		if (methods.length == 0) {
+			return true;
+		}
+		for (RequestMethod m : methods) {
+			if (m == RequestMethod.GET) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }
