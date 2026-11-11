@@ -35,7 +35,7 @@ public class CanadaPostContractTest {
     }
 
     private static List<String> scenarios() {
-        return Arrays.asList("domestic", "us", "international", "error", "empty", "imperial", "tax", "multiple", "malformed", "production", "blank-postal", "no-packages");
+        return Arrays.asList("domestic", "us", "international", "error", "empty", "imperial", "tax", "multiple", "malformed", "production", "blank-postal", "no-packages", "empty-body");
     }
 
     @Test public void originalContracts() throws Exception {
@@ -45,7 +45,8 @@ public class CanadaPostContractTest {
     private static void run(String scenario, boolean record) throws Exception {
         String fixture = Arrays.asList("domestic", "us", "international", "error", "empty", "malformed")
                 .contains(scenario) ? scenario : "domestic";
-        byte[] response = Files.readAllBytes(DATA.resolve(fixture + ".xml"));
+        byte[] response = "empty-body".equals(scenario) ? new byte[0]
+                : Files.readAllBytes(DATA.resolve(fixture + ".xml"));
         List<String> requests = new ArrayList<>();
         HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
         server.createContext("/", exchange -> {

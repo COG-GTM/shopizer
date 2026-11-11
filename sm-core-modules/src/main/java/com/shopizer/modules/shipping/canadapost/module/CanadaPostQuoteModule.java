@@ -207,7 +207,8 @@ public class CanadaPostQuoteModule implements ShippingQuoteModule {
                 headers.set("Accept-Language", "en-CA");
                 ResponseEntity<byte[]> response = serviceClient.exchange(link, HttpMethod.POST,
                         new HttpEntity<>(xml.toString().getBytes(StandardCharsets.UTF_8), headers), byte[].class);
-                respIS = new ByteArrayInputStream(response.getBody());
+                byte[] body = response.getBody();
+                respIS = new ByteArrayInputStream(body == null ? new byte[0] : body);
             } catch (jakarta.xml.bind.JAXBException e) {
                 throw new IllegalStateException(e);
             }
