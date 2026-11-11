@@ -86,6 +86,12 @@
 		<dependencies>
 
 			<dependency>
+				<groupId>com.shopizer</groupId>
+				<artifactId>shopizer-payment-square-spring-boot-autoconfigure</artifactId>
+				<version>1.0.0</version>
+			</dependency>
+
+			<dependency>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-starter-web</artifactId>
 			</dependency>
@@ -462,41 +468,6 @@
 
 	</dependencies>
 
-	<repositories>
-		<!-- Sonatype snapshot repo -->
-		<repository>
-			<id>oss-sonatype</id>
-			<name>oss-sonatype</name>
-			<url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>spring-releases</id>
-			<name>Spring Releases</name>
-			<url>https://repo.spring.io/libs-release</url>
-		</repository>
-		<!-- Milestone repo -->
-		<repository>
-			<id>spring-milestone</id>
-			<name>Spring Milestone</name>
-			<url>https://repo.spring.io/milestone/</url>
-		</repository>
-		<repository>
-			<id>org.jboss.repository.releases</id>
-			<name>JBoss Maven Release Repository</name>
-			<url>https://repository.jboss.org/nexus/content/repositories/releases</url>
-		</repository>
-	</repositories>
-
-	<pluginRepositories>
-		<pluginRepository>
-			<id>spring-releases</id>
-			<name>Spring Releases</name>
-			<url>https://repo.spring.io/libs-release</url>
-		</pluginRepository>
-	</pluginRepositories>
 
 	<build>
 		<plugins>
