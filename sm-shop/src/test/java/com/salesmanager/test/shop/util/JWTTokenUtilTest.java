@@ -52,6 +52,14 @@ class JWTTokenUtilTest {
     }
 
     @Test
+    void returnsNullWhenAudienceIsAbsent() {
+        String token = Jwts.builder().subject(user.getUsername())
+                .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret)), Jwts.SIG.HS512)
+                .compact();
+        assertNull(util.getAudienceFromToken(token));
+    }
+
+    @Test
     void rejectsExpiredToken() {
         ReflectionTestUtils.setField(util, "expiration", -3600L);
         assertThrows(ExpiredJwtException.class, () -> util.validateToken(util.generateToken(user), user));

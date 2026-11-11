@@ -85,7 +85,10 @@ public class JWTTokenUtil implements Serializable {
 	    }
 
 	    public String getAudienceFromToken(String token) {
-	        return getClaimFromToken(token, claims -> claims.getAudience().iterator().next());
+	        return getClaimFromToken(token, claims -> {
+	            java.util.Set<String> audience = claims.getAudience();
+	            return audience == null || audience.isEmpty() ? null : audience.iterator().next();
+	        });
 	    }
 
 	    public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
