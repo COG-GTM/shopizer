@@ -20,7 +20,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.5.12</version>
+		<version>2.7.18</version>
 	</parent>
 
 	<modules>
@@ -36,13 +36,14 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
 		<!--java version -->
-		<java.version>11</java.version>
+		<java.version>17</java.version>
+		<maven.compiler.release>${java.version}</maven.compiler.release>
 		<gson.version>2.10.1</gson.version>
 		<okhttp3.version>4.12.0</okhttp3.version>
 		<kotlin.version>1.9.10</kotlin.version>
 
-		<maven.compiler.source>${java.version}</maven.compiler.source>
-		<maven.compiler.target>${java.version}</maven.compiler.target>
+		<!-- Boot 2.7 manages H2 2.1.x, which cannot open the bundled PageStore SALESMANAGER.h2.db or mv_store=false URLs. Remove with the H2 2.x migration (AB-544). -->
+		<h2.version>1.4.200</h2.version>
 
 		<shopizer.search.version>2.11.1</shopizer.search.version>
 		<jakarta-xml-bind.version>4.0.2</jakarta-xml-bind.version>
@@ -542,8 +543,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<source>${maven.compiler.source}</source>
-					<target>${maven.compiler.target}</target>
+					<release>${maven.compiler.release}</release>
 					<annotationProcessorPaths>
 						<path>
 							<groupId>org.mapstruct</groupId>
