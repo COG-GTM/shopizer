@@ -244,6 +244,15 @@ cp sm-shop/target/contract/operations.json sm-shop/src/test/resources/contract/o
 Review both diffs, particularly removals/security changes, and run the full
 verification without `contract.capture`. Never enable capture in CI.
 
+AB-536 baseline correction: springfox published `changeProductOrder`
+(`@RequestMapping(..., method = PATCH)` on `/private/product/{id}` and
+`/auth/product/{id}`) as `POST`, because its Swagger 2 annotation declared
+`httpMethod = "POST"`. Those `POST` routes never existed. `operations.json` now records
+`PATCH /api/v1/auth/product/{id}` in their place and drops the `POST` entry for the
+private path, which `PATCH /api/v1/private/product/{id}` (also mapped by the
+inventory `update` handler) already covers, leaving 308 operations. `swagger-v2.json`
+is kept as the raw springfox capture.
+
 ### HTTP smoke suite
 
 `BehaviourSmokeTest` uses JUnit 5, `@SpringBootTest(RANDOM_PORT)`, `TestRestTemplate`,

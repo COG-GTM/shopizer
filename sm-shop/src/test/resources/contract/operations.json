@@ -3918,6 +3918,31 @@
   } ]
 }, {
   "method" : "PATCH",
+  "path" : "/api/v1/auth/product/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  }, {
+    "in" : "query",
+    "name" : "order",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PATCH",
   "path" : "/api/v1/auth/product/{id}/image/{id}",
   "parameters" : [ {
     "in" : "",
@@ -4288,31 +4313,6 @@
     "in" : "body",
     "name" : "body",
     "required" : true
-  } ],
-  "requestMediaTypes" : [ "application/json" ],
-  "responseMediaTypes" : [ "application/json" ],
-  "security" : [ {
-    "JWT" : [ ]
-  } ]
-}, {
-  "method" : "POST",
-  "path" : "/api/v1/auth/product/{id}",
-  "parameters" : [ {
-    "in" : "",
-    "name" : "lang",
-    "required" : false
-  }, {
-    "in" : "",
-    "name" : "store",
-    "required" : false
-  }, {
-    "in" : "path",
-    "name" : "id",
-    "required" : true
-  }, {
-    "in" : "query",
-    "name" : "order",
-    "required" : false
   } ],
   "requestMediaTypes" : [ "application/json" ],
   "responseMediaTypes" : [ "application/json" ],
@@ -5248,31 +5248,6 @@
     "in" : "body",
     "name" : "body",
     "required" : true
-  } ],
-  "requestMediaTypes" : [ "application/json" ],
-  "responseMediaTypes" : [ "application/json" ],
-  "security" : [ {
-    "JWT" : [ ]
-  } ]
-}, {
-  "method" : "POST",
-  "path" : "/api/v1/private/product/{id}",
-  "parameters" : [ {
-    "in" : "",
-    "name" : "lang",
-    "required" : false
-  }, {
-    "in" : "",
-    "name" : "store",
-    "required" : false
-  }, {
-    "in" : "path",
-    "name" : "id",
-    "required" : true
-  }, {
-    "in" : "query",
-    "name" : "order",
-    "required" : false
   } ],
   "requestMediaTypes" : [ "application/json" ],
   "responseMediaTypes" : [ "application/json" ],
