@@ -47,6 +47,21 @@
 
   <dependencies>
     <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.xml.bind</groupId>
+      <artifactId>jakarta.xml.bind-api</artifactId>
+      <version>${jakarta-xml-bind.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.jaxb</groupId>
+      <artifactId>jaxb-runtime</artifactId>
+      <version>${glassfish-jaxb.version}</version>
+    </dependency>
+    <dependency>
       <groupId>com.shopizer</groupId>
       <artifactId>sm-core-model</artifactId>
     </dependency>
