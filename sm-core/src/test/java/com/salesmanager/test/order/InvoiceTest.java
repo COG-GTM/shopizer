@@ -1,6 +1,8 @@
 package com.salesmanager.test.order;
 
-import org.junit.Ignore;
+import org.junit.jupiter.api.Assertions;
+
+import org.junit.jupiter.api.Disabled;
 
 
 /**
@@ -8,14 +10,14 @@ import org.junit.Ignore;
  * @author c.samson
  *
  */
-@Ignore
+@Disabled("Invoice scenario has no enabled test method.")
 public class InvoiceTest extends com.salesmanager.test.common.AbstractSalesManagerCoreTestCase {
 /*	
 	@Inject
 	ProductPriceUtils priceUtil;
 
 
-	@Ignore
+	@Disabled("Invoice scenario has no enabled test method.")
 	public void createInvoice() throws ServiceException {
 		
 
@@ -309,7 +311,7 @@ public class InvoiceTest extends com.salesmanager.test.common.AbstractSalesManag
 		order.getOrderTotal().add(total);
 		
 		orderService.create(order);
-		Assert.assertTrue(orderService.count() == 1);
+		Assertions.assertTrue(orderService.count() == 1);
 		
 		Locale locale = Locale.ENGLISH;
 		
