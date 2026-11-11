@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<price-quotes xmlns="http://www.canadapost.ca/ws/ship/rate-v4">
+  <price-quote>
+    <service-code>DOM.RP</service-code>
+    <service-link href="https://ct.soa-gw.canadapost.ca/rs/ship/service/DOM.RP" rel="service"/>
+    <service-name>Regular Parcel</service-name>
+    <price-details><base>12.34</base><taxes><gst percent="5">0.62</gst><pst>0</pst><hst>0</hst></taxes><due>12.96</due></price-details>
+    <weight-details><cubed-weight>1.00</cubed-weight></weight-details>
+    <service-standard><am-delivery>false</am-delivery><guaranteed-delivery>true</guaranteed-delivery><expected-transit-time>3</expected-transit-time><expected-delivery-date>2026-03-20</expected-delivery-date></service-standard>
+  </price-quote>
+</price-quotes>
