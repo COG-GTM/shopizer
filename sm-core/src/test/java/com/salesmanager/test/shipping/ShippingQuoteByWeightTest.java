@@ -8,7 +8,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 import org.springframework.util.Assert;
 
 import com.salesmanager.core.business.exception.ServiceException;
@@ -41,7 +41,7 @@ import com.salesmanager.core.modules.integration.shipping.model.CustomShippingQu
 import com.salesmanager.core.modules.integration.shipping.model.CustomShippingQuotesConfiguration;
 import com.salesmanager.core.modules.integration.shipping.model.CustomShippingQuotesRegion;
 
-@Ignore
+@Disabled("Shipping quote scenario has no enabled test method.")
 public class ShippingQuoteByWeightTest extends com.salesmanager.test.common.AbstractSalesManagerCoreTestCase {
 	
 	private static final Date date = new Date(System.currentTimeMillis());
@@ -55,7 +55,7 @@ public class ShippingQuoteByWeightTest extends com.salesmanager.test.common.Abst
 
 	
 	
-	@Ignore
+	@Disabled("Shipping quote scenario has no enabled test method.")
 	//@Test
 	public void testGetCustomShippingQuotesByWeight() throws ServiceException {
 
