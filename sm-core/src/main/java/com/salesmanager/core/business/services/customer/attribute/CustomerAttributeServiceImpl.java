@@ -35,7 +35,8 @@ public class CustomerAttributeServiceImpl extends
 	public void saveOrUpdate(CustomerAttribute customerAttribute)
 			throws ServiceException {
 
-			customerAttributeRepository.save(customerAttribute);
+		normalizeNewEntityId(customerAttribute);
+		customerAttributeRepository.save(customerAttribute);
 
 		
 	}

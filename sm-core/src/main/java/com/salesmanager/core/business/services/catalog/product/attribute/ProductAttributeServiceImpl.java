@@ -85,6 +85,7 @@ public class ProductAttributeServiceImpl extends SalesManagerEntityServiceImpl<L
 
 	@Override
 	public ProductAttribute saveOrUpdate(ProductAttribute productAttribute) throws ServiceException {
+		normalizeNewEntityId(productAttribute);
 		productAttribute = productAttributeRepository.save(productAttribute);
 		return productAttribute;
 

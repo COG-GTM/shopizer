@@ -46,6 +46,7 @@ public class ProductVariantGroupServiceImpl extends SalesManagerEntityServiceImp
 	@Override
 	public ProductVariantGroup saveOrUpdate(ProductVariantGroup entity) throws ServiceException {
 		
+		normalizeNewEntityId(entity);
 		entity = productVariantGroupRepository.save(entity);
 		return entity;
 		

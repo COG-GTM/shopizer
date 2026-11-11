@@ -39,6 +39,7 @@ public class ProductPriceServiceImpl extends SalesManagerEntityServiceImpl<Long,
 	public ProductPrice saveOrUpdate(ProductPrice price) throws ServiceException {
 		
 		
+		normalizeNewEntityId(price);
 		ProductPrice returnEntity = productPriceRepository.save(price);
 
 		return returnEntity;

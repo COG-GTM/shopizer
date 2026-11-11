@@ -31,6 +31,7 @@ public class CustomerOptinServiceImpl extends SalesManagerEntityServiceImpl<Long
 	public void optinCumtomer(CustomerOptin optin) throws ServiceException {
 		Validate.notNull(optin,"CustomerOptin must not be null");
 		
+		normalizeNewEntityId(optin);
 		customerOptinRepository.save(optin);
 		
 

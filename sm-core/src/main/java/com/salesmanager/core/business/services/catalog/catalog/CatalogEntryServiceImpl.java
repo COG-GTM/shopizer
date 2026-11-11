@@ -35,6 +35,7 @@ implements CatalogEntryService {
 	@Override
 	public void add(CatalogCategoryEntry entry, Catalog catalog) {
 		entry.setCatalog(catalog);
+		normalizeNewEntityId(entry);
 		catalogEntryRepository.save(entry);
 	}
 

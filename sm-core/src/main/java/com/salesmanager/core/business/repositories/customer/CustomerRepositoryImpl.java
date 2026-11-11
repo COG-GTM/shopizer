@@ -44,7 +44,7 @@ public class CustomerRepositoryImpl implements CustomerRepositoryCustom {
 		}
 		
 		if(!StringUtils.isBlank(criteria.getFirstName())) {
-			String nameQuery =" and c..billing.firstName like:fn";
+			String nameQuery =" and c.billing.firstName like:fn";
 			countBuilderWhere.append(nameQuery);
 			objectBuilderWhere.append(nameQuery);
 		}
