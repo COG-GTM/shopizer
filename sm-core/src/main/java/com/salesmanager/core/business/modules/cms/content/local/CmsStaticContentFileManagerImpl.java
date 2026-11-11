@@ -96,13 +96,6 @@ public class CmsStaticContentFileManagerImpl implements ContentAssetsManager {
 	@Override
 	public void addFile(final String merchantStoreCode, Optional<String> folderPath,
 			final InputContentFile inputStaticContentData) throws ServiceException {
-		/*
-		 * if ( cacheManager.getTreeCache() == null ) { LOGGER.error(
-		 * "Unable to find cacheManager.getTreeCache() in Infinispan.." ); throw
-		 * new ServiceException(
-		 * "CmsStaticContentFileManagerInfinispanImpl has a null cacheManager.getTreeCache()"
-		 * ); }
-		 */
 		try {
 
 			// base path
@@ -138,8 +131,6 @@ public class CmsStaticContentFileManagerImpl implements ContentAssetsManager {
 
 			// String nodePath = this.getNodePath(merchantStoreCode,
 			// inputStaticContentData.getFileContentType());
-
-			// final Node<String, Object> merchantNode = this.getNode(nodePath);
 
 			// merchantNode.put(inputStaticContentData.getFileName(),
 			// IOUtils.toByteArray(
@@ -179,13 +170,6 @@ public class CmsStaticContentFileManagerImpl implements ContentAssetsManager {
 	@Override
 	public void addFiles(final String merchantStoreCode, Optional<String> folderPath,
 			final List<InputContentFile> inputStaticContentDataList) throws ServiceException {
-		/*
-		 * if ( cacheManager.getTreeCache() == null ) { LOGGER.error(
-		 * "Unable to find cacheManager.getTreeCache() in Infinispan.." ); throw
-		 * new ServiceException(
-		 * "CmsStaticContentFileManagerInfinispanImpl has a null cacheManager.getTreeCache()"
-		 * ); }
-		 */
 		try {
 
 			// base path
@@ -216,8 +200,6 @@ public class CmsStaticContentFileManagerImpl implements ContentAssetsManager {
 
 				// String nodePath = this.getNodePath(merchantStoreCode,
 				// inputStaticContentData.getFileContentType());
-
-				// final Node<String, Object> merchantNode =
 				// this.getNode(nodePath);
 				// merchantNode.put(inputStaticContentData.getFileName(),
 				// IOUtils.toByteArray(
