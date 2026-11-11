@@ -3,6 +3,8 @@ package com.salesmanager.core.business.configuration;
 import java.util.Properties;
 
 import javax.persistence.EntityManagerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -20,6 +22,10 @@ import com.zaxxer.hikari.HikariDataSource;
 @Configuration
 @EnableCaching
 public class DataConfiguration {
+
+    @Autowired
+    @Qualifier("springCacheManager")
+    private javax.cache.CacheManager cacheManager;
 
 	/**
 	 * Datasource
@@ -105,7 +111,9 @@ public class DataConfiguration {
         hibernateProperties.setProperty("hibernate.show_sql", showSql);
         hibernateProperties.setProperty("hibernate.cache.use_second_level_cache", "true");
         hibernateProperties.setProperty("hibernate.cache.use_query_cache", "true");
-        hibernateProperties.setProperty("hibernate.cache.region.factory_class", "org.hibernate.cache.ehcache.EhCacheRegionFactory");
+        hibernateProperties.setProperty("hibernate.cache.region.factory_class", "org.hibernate.cache.jcache.JCacheRegionFactory");
+        hibernateProperties.put("hibernate.javax.cache.cache_manager", cacheManager);
+        hibernateProperties.setProperty("hibernate.javax.cache.missing_cache_strategy", "fail");
         hibernateProperties.setProperty("hibernate.connection.CharSet", "utf8");
         hibernateProperties.setProperty("hibernate.connection.characterEncoding", "utf8");
         hibernateProperties.setProperty("hibernate.connection.useUnicode", "true");

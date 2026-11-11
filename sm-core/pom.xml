@@ -28,10 +28,10 @@
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-ehcache -->
+		<!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-jcache -->
 		<dependency>
 			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-ehcache</artifactId>
+			<artifactId>hibernate-jcache</artifactId>
 		</dependency>
 
 		<!-- sm-core-model -->
@@ -88,20 +88,6 @@
 			<artifactId>google-maps-services</artifactId>
 		</dependency>
 
-		<dependency>
-			<groupId>org.kie</groupId>
-			<artifactId>kie-ci</artifactId>
-			<exclusions>
-				<exclusion>
-					<groupId>com.google.guava</groupId>
-					<artifactId>guava</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>javax.annotation</groupId>
-					<artifactId>jsr250-api</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
 
 		<dependency>
 			<groupId>org.drools</groupId>
@@ -118,22 +104,23 @@
 			<artifactId>drools-compiler</artifactId>
 		</dependency>
 
-		<!--spring integration -->
+		<!-- The DRL files use dialect "mvel", split from drools-compiler in Drools 7. -->
 		<dependency>
-			<groupId>org.kie</groupId>
-			<artifactId>kie-spring</artifactId>
+			<groupId>org.drools</groupId>
+			<artifactId>drools-mvel</artifactId>
 		</dependency>
 		<!-- end rules engine -->
+
+		<!-- Application Validate imports previously relied on kie-ci -> wagon-http -> jsoup. -->
+		<dependency>
+			<groupId>org.jsoup</groupId>
+			<artifactId>jsoup</artifactId>
+		</dependency>
 
 		<!-- Infinispan -->
 		<dependency>
 			<groupId>org.infinispan</groupId>
 			<artifactId>infinispan-core</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.infinispan</groupId>
-			<artifactId>infinispan-tree</artifactId>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-collections4 -->
@@ -172,16 +159,14 @@
 			<artifactId>httpclient</artifactId>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-s3 -->
 		<dependency>
-			<groupId>com.amazonaws</groupId>
-			<artifactId>aws-java-sdk-s3</artifactId>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>s3</artifactId>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-ses -->
 		<dependency>
-			<groupId>com.amazonaws</groupId>
-			<artifactId>aws-java-sdk-ses</artifactId>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>ses</artifactId>
 		</dependency>
 
 		<!-- google cloud storage -->
@@ -201,7 +186,7 @@
 		<!-- Paypal -->
 		<dependency>
 			<groupId>com.paypal.sdk</groupId>
-			<artifactId>merchantsdk</artifactId>
+			<artifactId>paypal-server-sdk</artifactId>
 		</dependency>
 
 		<!-- Stripe -->

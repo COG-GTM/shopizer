@@ -37,6 +37,12 @@ import com.stripe.model.Charge;
 import com.stripe.model.Refund;
 
 public class StripePayment implements PaymentModule {
+
+	private StripeGateway gateway = new StripeGateway();
+
+	void setGateway(StripeGateway gateway) {
+		this.gateway = gateway;
+	}
 	
 	@Inject
 	private ProductPriceUtils productPriceUtils;
@@ -159,7 +165,7 @@ public class StripePayment implements PaymentModule {
 			Stripe.apiKey = apiKey;
 			
 			
-			Charge ch = Charge.create(chargeParams);
+			Charge ch = gateway.createCharge(chargeParams);
 
 			//Map<String,String> metadata = ch.getMetadata();
 			
@@ -221,8 +227,8 @@ public class StripePayment implements PaymentModule {
 
 				Stripe.apiKey = apiKey;
 				
-				Charge ch = Charge.retrieve(chargeId);
-				ch.capture();
+				Charge ch = gateway.retrieveCharge(chargeId);
+				gateway.captureCharge(ch);
 				
 				
 				transaction.setAmount(order.getTotal());
@@ -304,7 +310,7 @@ public class StripePayment implements PaymentModule {
 			Stripe.apiKey = apiKey;
 			
 			
-			Charge ch = Charge.create(chargeParams);
+			Charge ch = gateway.createCharge(chargeParams);
 	
 			//Map<String,String> metadata = ch.getMetadata();
 			
@@ -364,12 +370,12 @@ public class StripePayment implements PaymentModule {
 			String strAmount = String.valueOf(amnt);
 			strAmount = strAmount.replace(".","");
 
-			Charge ch = Charge.retrieve(trnID);
+			Charge ch = gateway.retrieveCharge(trnID);
 
 			Map<String, Object> params = new HashMap<>();
 			params.put("charge", ch.getId());
 			params.put("amount", strAmount);
-			Refund re = Refund.create(params);
+			Refund re = gateway.refund(params);
 
 			transaction = new Transaction();
 			transaction.setAmount(order.getTotal());
