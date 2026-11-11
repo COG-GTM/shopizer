@@ -14,7 +14,7 @@ class CacheManagerPersistenceTest {
   Path directory;
 
   @Test
-  void emptyStorePersistsFlatEntries() {
+  void emptyStorePersistsFlatEntries() throws Exception {
     try (DefaultCacheManager embedded = new DefaultCacheManager()) {
       TestManager manager = new TestManager(embedded);
       manager.start(directory);
