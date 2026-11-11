@@ -84,20 +84,6 @@
 			<artifactId>google-maps-services</artifactId>
 		</dependency>
 
-		<dependency>
-			<groupId>org.kie</groupId>
-			<artifactId>kie-ci</artifactId>
-			<exclusions>
-				<exclusion>
-					<groupId>com.google.guava</groupId>
-					<artifactId>guava</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>javax.annotation</groupId>
-					<artifactId>jsr250-api</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
 
 		<dependency>
 			<groupId>org.drools</groupId>
@@ -114,12 +100,18 @@
 			<artifactId>drools-compiler</artifactId>
 		</dependency>
 
-		<!--spring integration -->
+		<!-- The DRL files use dialect "mvel", split from drools-compiler in Drools 7. -->
 		<dependency>
-			<groupId>org.kie</groupId>
-			<artifactId>kie-spring</artifactId>
+			<groupId>org.drools</groupId>
+			<artifactId>drools-mvel</artifactId>
 		</dependency>
 		<!-- end rules engine -->
+
+		<!-- Application Validate imports previously relied on kie-ci -> wagon-http -> jsoup. -->
+		<dependency>
+			<groupId>org.jsoup</groupId>
+			<artifactId>jsoup</artifactId>
+		</dependency>
 
 		<!-- Infinispan -->
 		<dependency>
