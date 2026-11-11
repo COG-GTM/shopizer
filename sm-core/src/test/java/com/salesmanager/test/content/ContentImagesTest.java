@@ -12,7 +12,7 @@ import java.io.OutputStream;
 import javax.inject.Inject;
 
 import org.apache.commons.io.IOUtils;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 
 import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.services.content.ContentService;
@@ -27,14 +27,14 @@ import com.salesmanager.core.model.merchant.MerchantStore;
  * @author Carl Samson
  *
  */
-@Ignore
+@Disabled("Content image scenario has no enabled test method.")
 public class ContentImagesTest extends com.salesmanager.test.common.AbstractSalesManagerCoreTestCase {
 
 	@Inject
 	private ContentService contentService;
 
 	// @Test
-	@Ignore
+	@Disabled("Content image scenario has no enabled test method.")
 	public void createStoreLogo() throws ServiceException, FileNotFoundException, IOException {
 
 		MerchantStore store = merchantService.getByCode(MerchantStore.DEFAULT_STORE);
