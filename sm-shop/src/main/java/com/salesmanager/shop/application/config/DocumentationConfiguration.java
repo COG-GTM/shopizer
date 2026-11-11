@@ -4,6 +4,7 @@ import static io.swagger.models.auth.In.HEADER;
 import static java.util.Collections.singletonList;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -12,9 +13,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.mvc.method.RequestMappingInfoHandlerMapping;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
@@ -34,6 +39,7 @@ import springfox.documentation.service.VendorExtension;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
+import springfox.documentation.spring.web.plugins.WebMvcRequestHandlerProvider;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @Configuration
@@ -84,6 +90,34 @@ public class DocumentationConfiguration {
 
 	}
 	
+	/**
+	 * Spring Boot 2.6+ registers the actuator endpoint handler mappings with a
+	 * PathPatternParser even when spring.mvc.pathmatch.matching-strategy is
+	 * ant_path_matcher. springfox 2.9.2 only understands ant-style
+	 * PatternsRequestCondition and fails at startup on those mappings, so they are
+	 * removed from what springfox scans. They are outside the documented packages.
+	 */
+	@Bean
+	public static BeanPostProcessor springfoxHandlerProviderBeanPostProcessor() {
+		return new BeanPostProcessor() {
+
+			@Override
+			public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+				if (bean instanceof WebMvcRequestHandlerProvider) {
+					handlerMappings(bean).removeIf(mapping -> mapping.getPatternParser() != null);
+				}
+				return bean;
+			}
+
+			@SuppressWarnings("unchecked")
+			private List<RequestMappingInfoHandlerMapping> handlerMappings(Object bean) {
+				Field field = ReflectionUtils.findField(bean.getClass(), "handlerMappings");
+				ReflectionUtils.makeAccessible(field);
+				return (List<RequestMappingInfoHandlerMapping>) ReflectionUtils.getField(field, bean);
+			}
+		};
+	}
+
 	final Predicate<RequestHandler> requestHandlers() {
 		
 		   Set<Predicate<RequestHandler>> matchers = new HashSet<Predicate<RequestHandler>>();
