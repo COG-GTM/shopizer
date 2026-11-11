@@ -25,7 +25,7 @@ public interface ManufacturerRepository extends JpaRepository<Manufacturer, Long
 	List<Manufacturer> findByStore(Integer storeId, Integer languageId, String name);
 	
 
-	@Query("select distinct manufacturer from Product as p join p.manufacturer manufacturer join manufacturer.descriptions md join p.categories categs where categs.id in (?1) and md.language.id=?2")
+	@Query("select distinct manufacturerRef from Product as p join p.manufacturer manufacturerRef join manufacturerRef.descriptions md join p.categories categs where categs.id in (?1) and md.language.id=?2")
 	List<Manufacturer> findByCategoriesAndLanguage(List<Long> categoryIds, Integer languageId);
 	
 	@Query("select m from Manufacturer m left join m.descriptions md join fetch m.merchantStore ms where m.code=?1 and ms.id=?2")
@@ -34,10 +34,10 @@ public interface ManufacturerRepository extends JpaRepository<Manufacturer, Long
 	@Query("select count(distinct m) from Manufacturer as m where m.merchantStore.id=?1")
 	int count(Integer storeId);
 	
-	@Query(value="select distinct manufacturer from Product as p "
-			+ "join p.manufacturer manufacturer "
-			+ "left join manufacturer.descriptions pmd "
-			+ "join fetch manufacturer.merchantStore pms "
+	@Query(value="select distinct manufacturerRef from Product as p "
+			+ "join p.manufacturer manufacturerRef "
+			+ "left join manufacturerRef.descriptions pmd "
+			+ "join fetch manufacturerRef.merchantStore pms "
 			+ "join p.categories pc "
 			+ "where pms.id = ?1 "
 			+ "and pc.id IN (select c.id from Category c where c.lineage like %?2% and pmd.language.id = ?3)")

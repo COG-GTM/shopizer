@@ -126,7 +126,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 			qs.append("left join fetch categs.descriptions categsd ");
 
 			// images
-			qs.append("left join fetch p.images images ");
+			qs.append("left join fetch p.images productImages ");
 			// options
 			qs.append("left join fetch p.attributes pattr ");
 			qs.append("left join fetch pattr.productOption po ");
@@ -137,7 +137,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 			// other lefts
 			qs.append("left join fetch p.manufacturer manuf ");
 			qs.append("left join fetch manuf.descriptions manufd ");
-			qs.append("left join fetch p.type type ");
+			qs.append("left join fetch p.type productTypeRef ");
 			qs.append("left join fetch p.taxClass tx ");
 
 			// RENTAL
@@ -185,7 +185,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 			// other lefts
 			qs.append("left join fetch p.manufacturer manuf ");
 			qs.append("left join fetch manuf.descriptions manufd ");
-			qs.append("left join fetch p.type type ");
+			qs.append("left join fetch p.type productTypeRef ");
 
 
 			qs.append("where p.sku=:code and pm.id=:id");
@@ -222,7 +222,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 		qs.append("left join fetch categs.descriptions categsd ");
 
 		// images
-		qs.append("left join fetch p.images images ");
+		qs.append("left join fetch p.images productImages ");
 		// options
 		qs.append("left join fetch p.attributes pattr ");
 		qs.append("left join fetch pattr.productOption po ");
@@ -233,7 +233,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 		// other lefts
 		qs.append("left join fetch p.manufacturer manuf ");
 		qs.append("left join fetch manuf.descriptions manufd ");
-		qs.append("left join fetch p.type type ");
+		qs.append("left join fetch p.type productTypeRef ");
 		qs.append("left join fetch p.taxClass tx ");
 
 		// RENTAL
@@ -293,7 +293,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 		qs.append("left join fetch pap.descriptions papd ");
 
 		// images
-		qs.append("left join fetch p.images images ");
+		qs.append("left join fetch p.images productImages ");
 		// options
 		qs.append("left join fetch p.attributes pattr ");
 		qs.append("left join fetch pattr.productOption po ");
@@ -304,7 +304,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 		// other lefts
 		qs.append("left join fetch p.manufacturer manuf ");
 		qs.append("left join fetch manuf.descriptions manufd ");
-		qs.append("left join fetch p.type type ");
+		qs.append("left join fetch p.type productTypeRef ");
 		qs.append("left join fetch p.taxClass tx ");
 
 		// RENTAL
@@ -360,7 +360,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 		qs.append("left join fetch pap.descriptions papd ");
 
 		// images
-		qs.append("left join fetch p.images images ");
+		qs.append("left join fetch p.images productImages ");
 
 		// options (do not need attributes for listings)
 		qs.append("left join fetch p.attributes pattr ");
@@ -371,7 +371,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
 		// other lefts
 		qs.append("left join fetch p.manufacturer manuf ");
-		qs.append("left join fetch p.type type ");
+		qs.append("left join fetch p.type productTypeRef ");
 		qs.append("left join fetch p.taxClass tx ");
 
 		// RENTAL
@@ -416,7 +416,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 		qs.append("left join fetch pap.descriptions papd ");
 
 		// images
-		qs.append("left join fetch p.images images ");
+		qs.append("left join fetch p.images productImages ");
 
 		// options (do not need attributes for listings)
 		qs.append("left join fetch p.attributes pattr ");
@@ -428,7 +428,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 		// other lefts
 		qs.append("left join fetch p.manufacturer manuf ");
 		qs.append("left join fetch manuf.descriptions manufd ");
-		qs.append("left join fetch p.type type ");
+		qs.append("left join fetch p.type productTypeRef ");
 		qs.append("left join fetch p.taxClass tx ");
 
 		// RENTAL
@@ -489,7 +489,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 		ProductList productList = new ProductList();
 
 		Query countQ = this.em.createQuery(
-				"select count(p) from Product as p INNER JOIN p.availabilities pa INNER JOIN p.categories categs where p.merchantStore.id=:mId and categs.id in (:cid) and pa.region in (:lid) and p.available=1 and p.dateAvailable<=:dt");
+				"select count(p) from Product as p INNER JOIN p.availabilities pa INNER JOIN p.categories categs where p.merchantStore.id=:mId and categs.id in (:cid) and pa.region in (:lid) and p.available=true and p.dateAvailable<=:dt");
 
 		countQ.setParameter("cid", categoryIds);
 		countQ.setParameter("lid", regionList);
@@ -516,7 +516,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 		// qs.append("join fetch pap.descriptions papd ");
 
 		// images
-		qs.append("left join fetch p.images images ");
+		qs.append("left join fetch p.images productImages ");
 
 		// options (do not need attributes for listings)
 		// qs.append("left join fetch p.attributes pattr ");
@@ -528,14 +528,14 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 		// other lefts
 		qs.append("left join fetch p.manufacturer manuf ");
 		qs.append("left join fetch manuf.descriptions manufd ");
-		qs.append("left join fetch p.type type ");
+		qs.append("left join fetch p.type productTypeRef ");
 		qs.append("left join fetch p.taxClass tx ");
 
 		// RENTAL
 		//qs.append("left join fetch p.owner owner ");
 
 		// qs.append("where pa.region in (:lid) ");
-		qs.append("where p.merchantStore.id=mId and categs.id in (:cid) and pa.region in (:lid) ");
+		qs.append("where p.merchantStore.id=:mId and categs.id in (:cid) and pa.region in (:lid) ");
 		// qs.append("and p.available=true and p.dateAvailable<=:dt and
 		// pd.language.id=:lang and manufd.language.id=:lang");
 		qs.append("and p.available=true and p.dateAvailable<=:dt and pd.language.id=:lang");
@@ -760,12 +760,12 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 		
 
 		// images
-		qs.append("left join fetch p.images images ");
+		qs.append("left join fetch p.images productImages ");
 
 		// other lefts
 		qs.append("left join fetch p.manufacturer manuf ");
 		qs.append("left join fetch manuf.descriptions manufd ");
-		qs.append("left join fetch p.type type ");
+		qs.append("left join fetch p.type productTypeRef ");
 		qs.append("left join fetch p.taxClass tx ");
 
 		// RENTAL
@@ -804,7 +804,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 			qs.append(" left join fetch pvv.productOption pvvpo ");
 			qs.append(" left join fetch pvv.productOptionValue pvvpov ");
 			qs.append(" left join fetch pvvpo.descriptions povvpod ");
-			qs.append(" left join fetch pvpov.descriptions povvpovd ");	
+
 			
 			//variant availability and price
 			qs.append(" left join fetch pinst.availabilities pinsta ");
@@ -990,7 +990,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 		qs.append("left join fetch pap.descriptions papd ");
 
 		// images
-		qs.append("left join fetch p.images images ");
+		qs.append("left join fetch p.images productImages ");
 
 		// options (do not need attributes for listings)
 		qs.append("left join fetch p.attributes pattr ");
@@ -1002,7 +1002,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 		// other lefts
 		qs.append("left join fetch p.manufacturer manuf ");
 		qs.append("left join fetch manuf.descriptions manufd ");
-		qs.append("left join fetch p.type type ");
+		qs.append("left join fetch p.type productTypeRef ");
 		qs.append("left join fetch p.taxClass tx ");
 
 		// RENTAL
@@ -1043,7 +1043,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 		qs.append("left join fetch pap.descriptions papd ");
 
 		// images
-		qs.append("left join fetch p.images images ");
+		qs.append("left join fetch p.images productImages ");
 
 		// options (do not need attributes for listings)
 		qs.append("left join fetch p.attributes pattr ");
@@ -1055,7 +1055,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 		// other lefts
 		qs.append("left join fetch p.manufacturer manuf ");
 		qs.append("left join fetch manuf.descriptions manufd ");
-		qs.append("left join fetch p.type type ");
+		qs.append("left join fetch p.type productTypeRef ");
 		qs.append("left join fetch p.taxClass tx ");
 
 		// RENTAL
@@ -1092,7 +1092,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 		qs.append("left join fetch pap.descriptions papd ");
 
 		// images
-		qs.append("left join fetch p.images images ");
+		qs.append("left join fetch p.images productImages ");
 		// options
 		qs.append("left join fetch p.attributes pattr ");
 		qs.append("left join fetch pattr.productOption po ");
@@ -1110,7 +1110,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 		// other lefts
 		qs.append("left join fetch p.manufacturer manuf ");
 		qs.append("left join fetch manuf.descriptions manufd ");
-		qs.append("left join fetch p.type type ");
+		qs.append("left join fetch p.type productTypeRef ");
 		qs.append("left join fetch p.taxClass tx ");
 
 		// RENTAL REMOVED
@@ -1125,9 +1125,9 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 		qs.append("join fetch p.descriptions pd ");
 		qs.append("join fetch p.merchantStore merch ");
 		qs.append("left join fetch p.availabilities pavail ");
-		qs.append("left join fetch p.type type ");
+		qs.append("left join fetch p.type productTypeRef ");
 		// images
-		qs.append("left join fetch p.images images ");
+		qs.append("left join fetch p.images productImages ");
 		qs.append("left join fetch pavail.prices pavailpr ");
 		qs.append("left join fetch pavailpr.descriptions pavailprdesc ");
 
@@ -1144,7 +1144,6 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 		// other lefts
 		qs.append("left join fetch p.manufacturer manuf ");
 		qs.append("left join fetch manuf.descriptions manufd ");
-		qs.append("left join fetch p.type type ");
 		
 		//variants
 		qs.append("left join fetch p.variants pinst ");
@@ -1158,7 +1157,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 		qs.append("left join fetch pvv.productOption pvvpo ");
 		qs.append("left join fetch pvv.productOptionValue pvvpov ");
 		qs.append("left join fetch pvvpo.descriptions povvpod ");
-		qs.append("left join fetch pvpov.descriptions povvpovd ");	
+
 		
 		//variant availability and price
 		qs.append("left join fetch pinst.availabilities pinsta ");
@@ -1184,7 +1183,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 			qs.append("join fetch p.descriptions pd ");
 			qs.append("join fetch p.merchantStore pm ");
 			qs.append("left join fetch p.availabilities pavail ");
-			qs.append("left join fetch p.type type ");
+			qs.append("left join fetch p.type productTypeRef ");
 			qs.append("left join fetch pavail.prices pavailpr ");
 			qs.append("left join fetch pavailpr.descriptions pavailprdesc ");
 
@@ -1201,7 +1200,6 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 			// other lefts
 			qs.append("left join fetch p.manufacturer manuf ");
 			qs.append("left join fetch manuf.descriptions manufd ");
-			qs.append("left join fetch p.type type ");
 			
 			//variants
 			qs.append("left join fetch p.variants pinst ");
@@ -1215,7 +1213,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 			qs.append("left join fetch pvv.productOption pvvpo ");
 			qs.append("left join fetch pvv.productOptionValue pvvpov ");
 			qs.append("left join fetch pvvpo.descriptions povvpod ");
-			qs.append("left join fetch pvpov.descriptions povvpovd ");	
+
 			
 			//variant availability and price
 			qs.append("left join fetch pinst.availabilities pinsta ");

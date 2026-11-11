@@ -47,7 +47,7 @@ public class ProductRelationshipRepositoryImpl implements ProductRelationshipRep
           + "left join fetch pap.descriptions papd "
           + "left join fetch rp.manufacturer manuf "
           + "left join fetch manuf.descriptions manufd "
-          + "left join fetch rp.type type "
+          + "left join fetch rp.type productTypeRef "
           + "where pr.code=:code "
           + "and rp.available=:available "
           + "and p.id=:pId";
@@ -109,7 +109,7 @@ public class ProductRelationshipRepositoryImpl implements ProductRelationshipRep
           + "left join fetch pap.descriptions papd "
           + "left join fetch rp.manufacturer manuf "
           + "left join fetch manuf.descriptions manufd "
-          + "left join fetch rp.type type "
+          + "left join fetch rp.type productTypeRef "
           + "where pr.code=:code "
           + "and pr.store.id=:storeId ";
   private static final String HQL_GET_PRODUCT_RELATIONSHIP_BY_STORE_ID =
