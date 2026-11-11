@@ -40,6 +40,12 @@ import com.stripe.param.PaymentIntentCreateParams;
 
 public class Stripe3Payment implements PaymentModule {
 
+	private StripeGateway gateway = new StripeGateway();
+
+	void setGateway(StripeGateway gateway) {
+		this.gateway = gateway;
+	}
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(Stripe3Payment.class);
 
 	@Inject
@@ -83,7 +89,7 @@ public class Stripe3Payment implements PaymentModule {
 					.build();
 
 			// Create a PaymentIntent with the order amount and currency
-			PaymentIntent intent = PaymentIntent.create(createParams);
+			PaymentIntent intent = gateway.createIntent(createParams);
 
 			intent.getClientSecret();
 
@@ -178,7 +184,7 @@ public class Stripe3Payment implements PaymentModule {
 
 			Stripe.apiKey = apiKey;
 			
-			PaymentIntent paymentIntent = PaymentIntent.retrieve(
+			PaymentIntent paymentIntent = gateway.retrieveIntent(
 					token
 			);
 			
@@ -241,7 +247,7 @@ public class Stripe3Payment implements PaymentModule {
 			Stripe.apiKey = apiKey;
 
 
-			PaymentIntent paymentIntent = PaymentIntent.retrieve(
+			PaymentIntent paymentIntent = gateway.retrieveIntent(
 					chargeId
 			);
 
@@ -255,7 +261,7 @@ public class Stripe3Payment implements PaymentModule {
 							)
 					.build();
 
-			paymentIntent = paymentIntent.capture(params);
+			paymentIntent = gateway.captureIntent(paymentIntent, params);
 
 			transaction.setAmount(order.getTotal());
 			transaction.setOrder(order);
@@ -331,7 +337,7 @@ public class Stripe3Payment implements PaymentModule {
 			Stripe.apiKey = apiKey;
 			
 
-			PaymentIntent paymentIntent = PaymentIntent.retrieve(
+			PaymentIntent paymentIntent = gateway.retrieveIntent(
 					token
 		  	);
 
@@ -345,7 +351,7 @@ public class Stripe3Payment implements PaymentModule {
 							)
 					.build();
 
-			paymentIntent = paymentIntent.capture(params);
+			paymentIntent = gateway.captureIntent(paymentIntent, params);
 	
 			//Map<String,String> metadata = ch.getMetadata();
 			
@@ -407,14 +413,14 @@ public class Stripe3Payment implements PaymentModule {
 			String strAmount = String.valueOf(amnt);
 			strAmount = strAmount.replace(".","");
 
-			PaymentIntent paymentIntent = PaymentIntent.retrieve(
+			PaymentIntent paymentIntent = gateway.retrieveIntent(
 					trnID
 			);
 
 			Map<String, Object> params = new HashMap<>();
 			params.put("payment_intent", paymentIntent.getId());
 			params.put("amount", strAmount);
-			Refund re = Refund.create(params);
+			Refund re = gateway.refund(params);
 
 			transaction = new Transaction();
 			transaction.setAmount(order.getTotal());

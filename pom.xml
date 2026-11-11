@@ -36,6 +36,9 @@
 
 		<!--java version -->
 		<java.version>11</java.version>
+		<gson.version>2.10.1</gson.version>
+		<okhttp3.version>4.12.0</okhttp3.version>
+		<kotlin.version>1.9.10</kotlin.version>
 
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
@@ -291,18 +294,12 @@
 				</exclusions>
 			</dependency>
 
-			<!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-s3 -->
 			<dependency>
-				<groupId>com.amazonaws</groupId>
-				<artifactId>aws-java-sdk-s3</artifactId>
-				<version>1.11.640</version>
-			</dependency>
-
-			<!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-ses -->
-			<dependency>
-				<groupId>com.amazonaws</groupId>
-				<artifactId>aws-java-sdk-ses</artifactId>
-				<version>1.11.640</version>
+				<groupId>software.amazon.awssdk</groupId>
+				<artifactId>bom</artifactId>
+				<version>2.51.0</version>
+				<type>pom</type>
+				<scope>import</scope>
 			</dependency>
 
 			<!-- google cloud storage -->
@@ -320,26 +317,31 @@
 
 
 			<!-- Payment dependencies -->
+			<dependency>
+				<groupId>com.squareup.okio</groupId>
+				<artifactId>okio</artifactId>
+				<version>3.6.0</version>
+			</dependency>
 
 			<!-- Paypal -->
 			<dependency>
 				<groupId>com.paypal.sdk</groupId>
-				<artifactId>merchantsdk</artifactId>
-				<version>2.6.109</version>
+				<artifactId>paypal-server-sdk</artifactId>
+				<version>2.4.0</version>
 			</dependency>
 
 			<!-- Stripe -->
 			<dependency>
 				<groupId>com.stripe</groupId>
 				<artifactId>stripe-java</artifactId>
-				<version>19.5.0</version>
+				<version>34.1.0</version>
 			</dependency>
 
 			<!-- Braintree -->
 			<dependency>
 				<groupId>com.braintreepayments.gateway</groupId>
 				<artifactId>braintree-java</artifactId>
-				<version>2.73.0</version>
+				<version>3.55.1</version>
 			</dependency>
 
 			<!-- https://mvnrepository.com/artifact/com.maxmind.geoip2/geoip2 -->
