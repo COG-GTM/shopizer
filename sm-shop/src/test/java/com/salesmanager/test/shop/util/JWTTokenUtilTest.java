@@ -44,6 +44,9 @@ class JWTTokenUtilTest {
         String token = util.generateToken(user);
         assertTrue(util.validateToken(token, user));
         assertEquals("api", util.getAudienceFromToken(token));
+        String payload = new String(Decoders.BASE64URL.decode(token.split("\\.")[1]),
+                StandardCharsets.UTF_8);
+        assertTrue(payload.contains("\"aud\":\"api\""), "Audience must remain a JSON string");
         assertEquals("HS512", Jwts.parser().verifyWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret)))
                 .build().parseSignedClaims(token).getHeader().getAlgorithm());
         assertTrue(util.validateToken(util.refreshToken(token), user));

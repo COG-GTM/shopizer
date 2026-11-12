@@ -380,7 +380,7 @@ public class USPSShippingQuote implements ShippingQuoteModule {
 				xmldatabuffer.append(pack);
 				xmldatabuffer.append("</MailType>");
 				xmldatabuffer.append("<ValueOfContents>");
-				xmldatabuffer.append(productPriceUtils.getAdminFormatedAmount(store, orderTotal));
+				xmldatabuffer.append(productPriceUtils.getStringAmount(orderTotal));
 				xmldatabuffer.append("</ValueOfContents>");
 				xmldatabuffer.append("<Country>");
 				xmldatabuffer.append(destination.getName());

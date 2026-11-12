@@ -1,4 +1,4 @@
-# Shopizer 3 (for java 17 +) (tested with Java 11, 17)
+# Shopizer 3 (Java 21, Spring Boot 3.5)
 
 3.2.7
 
@@ -8,7 +8,7 @@
 [![Official site](https://img.shields.io/website-up-down-green-red/https/shields.io.svg?label=official%20site)](http://www.shopizer.com/)
 [![Docker Pulls](https://img.shields.io/docker/pulls/shopizerecomm/shopizer.svg)](https://hub.docker.com/r/shopizerecomm/shopizer)
 [![stackoverflow](https://img.shields.io/badge/shopizer-stackoverflow-orange.svg?style=flat)](http://stackoverflow.com/questions/tagged/shopizer)
-[![CircleCI](https://circleci.com/gh/shopizer-ecommerce/shopizer.svg?style=svg)](https://circleci.com/gh/shopizer-ecommerce/shopizer)
+[![Maven build](https://github.com/COG-GTM/shopizer/actions/workflows/build.yml/badge.svg)](https://github.com/COG-GTM/shopizer/actions/workflows/build.yml)
 
 
 Java open source e-commerce software
@@ -79,13 +79,32 @@ To build the application:
 
 1. Shopizer backend
 
+Requires JDK 21 (Eclipse Temurin 21 is what CI uses). The Maven wrapper downloads Maven 3.9.16.
 
 From the command line:
 
 	$ cd shopizer
-	$ mvnw clean install
-	$ cd sm-shop
-	$ mvnw spring-boot:run
+	$ ./mvnw clean install
+	$ ./mvnw -pl sm-shop spring-boot:run
+
+`./mvnw clean install` compiles every module and runs the full test suite (all tests use in-memory H2).
+The default Spring profile reads `database.properties` from the classpath. For the bundled H2 database
+(`sm-shop/SALESMANAGER.mv.db`), copy `sm-shop/src/main/resources/profiles/docker/database.properties`
+to `sm-shop/src/main/resources/database.properties` (git-ignored) before running.
+
+Run in Docker:
+
+The image is built from `sm-shop/Dockerfile` on `eclipse-temurin:21-jre`. It bundles the H2 seed database,
+runs as the non-root `shopizer` user, and reports container health from `/actuator/health`.
+
+	$ ./mvnw clean install
+	$ docker build -t shopizer sm-shop
+	$ docker run -d --name shopizer -p 8080:8080 shopizer
+	$ docker inspect --format '{{.State.Health.Status}}' shopizer   # healthy once started
+	$ curl http://localhost:8080/actuator/health
+
+Continuous integration runs on GitHub Actions (`.github/workflows/build.yml`). It runs `./mvnw -B verify`
+on JDK 21, builds the Docker image (the image is not pushed) and checks that the container reports `UP`.
 
 2. Shopizer admin
 

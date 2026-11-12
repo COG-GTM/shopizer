@@ -17,6 +17,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  *
  */
 public class JWTCustomerAuthenticationProvider extends DaoAuthenticationProvider {
+
+    public JWTCustomerAuthenticationProvider(UserDetailsService userDetailsService) {
+        super(userDetailsService);
+    }
 	
     @Inject
     private UserDetailsService jwtCustomerDetailsService;

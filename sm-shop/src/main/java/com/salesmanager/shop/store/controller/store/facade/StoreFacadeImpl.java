@@ -11,7 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.Validate;
-import org.drools.core.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -214,7 +214,7 @@ public class StoreFacadeImpl implements StoreFacade {
 	@Override
 	public void update(PersistableMerchantStore store) {
 
-		Validate.notNull(store);
+		Validate.notNull(store, "The validated object is null");
 
 		MerchantStore mStore = mergePersistableMerchantStoreToMerchantStore(store, store.getCode(),
 				languageService.defaultLanguage());
@@ -346,7 +346,7 @@ public class StoreFacadeImpl implements StoreFacade {
 		configTO.setKey(config.getKey());
 		configTO.setMerchantConfigurationType(configurationType);
 		configTO.setValue(config.getValue());
-		configTO.setActive(new Boolean(config.isActive()));
+		configTO.setActive(Boolean.valueOf(config.isActive()));
 		return configTO;
 	}
 

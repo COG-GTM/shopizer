@@ -144,7 +144,7 @@ public class CanadaPostQuoteModule implements ShippingQuoteModule {
         RestTemplate serviceClient = new RestTemplate();
         serviceClient.setErrorHandler(new ResponseErrorHandler() {
             public boolean hasError(ClientHttpResponse response) { return false; }
-            public void handleError(ClientHttpResponse response) { }
+            public void handleError(java.net.URI url, org.springframework.http.HttpMethod method, ClientHttpResponse response) { }
         });
         mailingScenario.setOriginPostalCode(origin.getPostalCode().replaceAll("\\s+", "").toUpperCase());
         MailingScenario.Destination destination = new MailingScenario.Destination();

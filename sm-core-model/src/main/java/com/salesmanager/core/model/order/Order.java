@@ -24,7 +24,7 @@ import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import jakarta.validation.Valid;
 
-import org.hibernate.annotations.OrderBy;
+import org.hibernate.annotations.SQLOrder;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.salesmanager.core.model.common.Billing;
@@ -147,11 +147,11 @@ public class Order extends SalesManagerEntity<Long, Order> {
 	private Set<OrderProduct> orderProducts = new LinkedHashSet<OrderProduct>();
 	
 	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
-	@OrderBy(clause = "sort_order asc")
+	@SQLOrder( "sort_order asc")
 	private Set<OrderTotal> orderTotal = new LinkedHashSet<OrderTotal>();
 	
 	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
-	@OrderBy(clause = "ORDER_STATUS_HISTORY_ID asc")
+	@SQLOrder( "ORDER_STATUS_HISTORY_ID asc")
 	private Set<OrderStatusHistory> orderHistory = new LinkedHashSet<OrderStatusHistory>();
 	
 	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL)

@@ -58,7 +58,7 @@ public class MerchantConfigurationServiceImpl extends
 	
 	@Override
 	public void delete(MerchantConfiguration merchantConfiguration) throws ServiceException {
-		MerchantConfiguration config = merchantConfigurationRepository.getOne(merchantConfiguration.getId());
+		MerchantConfiguration config = merchantConfigurationRepository.getReferenceById(merchantConfiguration.getId());
 		if(config!=null) {
 			super.delete(config);
 		}
