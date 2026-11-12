@@ -22,7 +22,7 @@ public class ReadableCountryPopulator extends AbstractDataPopulator<Country, Rea
 			target = new ReadableCountry();
 		}
 		
-		target.setId(new Long(source.getId()));
+		target.setId(Long.valueOf(source.getId()));
 		target.setCode(source.getIsoCode());
 		target.setSupported(source.getSupported());
 		if(!CollectionUtils.isEmpty(source.getDescriptions())) {

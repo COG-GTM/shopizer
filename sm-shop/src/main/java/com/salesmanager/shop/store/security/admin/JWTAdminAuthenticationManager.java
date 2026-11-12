@@ -17,7 +17,7 @@ import com.salesmanager.shop.store.security.JWTTokenUtil;
 import com.salesmanager.shop.store.security.common.CustomAuthenticationException;
 import com.salesmanager.shop.store.security.common.CustomAuthenticationManager;
 import static java.util.Optional.ofNullable;
-import static org.apache.commons.lang3.StringUtils.removeStart;
+import static org.apache.commons.lang3.Strings.CS;
 import io.jsonwebtoken.ExpiredJwtException;
 
 @Component("jwtCustomAdminAuthenticationManager")
@@ -40,7 +40,7 @@ public class JWTAdminAuthenticationManager extends CustomAuthenticationManager {
     String username = null;
     final String authToken;
 
-    authToken = ofNullable(requestHeader).map(value -> removeStart(value, BEARER)).map(String::trim)
+    authToken = ofNullable(requestHeader).map(value -> CS.removeStart(value, BEARER)).map(String::trim)
         .orElseThrow(() -> new CustomAuthenticationException("Missing Authentication Token"));
 
     try {

@@ -183,7 +183,7 @@ public class Product extends SalesManagerEntity<Long, Product> implements Audita
 	private Integer productOrdered;
 	
 	@Column(name = "SORT_ORDER")
-	private Integer sortOrder = new Integer(0);
+	private Integer sortOrder = Integer.valueOf(0);
 
 	@NotEmpty
 	@Pattern(regexp="^[a-zA-Z0-9_]*$")

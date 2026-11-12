@@ -53,7 +53,7 @@ public class Manufacturer extends SalesManagerEntity<Long, Manufacturer> impleme
 	private String image;
 	
 	@Column(name="SORT_ORDER")
-	private Integer order = new Integer(0);
+	private Integer order = Integer.valueOf(0);
 
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name="MERCHANT_ID", nullable=false)

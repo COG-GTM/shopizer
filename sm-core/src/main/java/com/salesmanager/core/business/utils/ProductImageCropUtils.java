@@ -115,11 +115,11 @@ public class ProductImageCropUtils {
 		// crop factor
 /*		double factor = 1;
 		if (this.getCropeBaseline() == 0) {// width
-			factor = new Integer(width).doubleValue()
-					/ new Integer(specificationsWidth).doubleValue();
+			factor = Integer.valueOf(width).doubleValue()
+					/ Integer.valueOf(specificationsWidth).doubleValue();
 		} else {// height
-			factor = new Integer(height).doubleValue()
-					/ new Integer(specificationsHeight).doubleValue();
+			factor = Integer.valueOf(height).doubleValue()
+					/ Integer.valueOf(specificationsHeight).doubleValue();
 		}*/
 
 		double w = factor * specificationsWidth;

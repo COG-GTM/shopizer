@@ -27,7 +27,7 @@ public class ProductInventoryServiceImpl implements ProductInventoryService {
 
 	@Override
 	public ProductInventory inventory(Product product) throws ServiceException {
-		Validate.notNull(product.getAvailabilities());
+		Validate.notNull(product.getAvailabilities(), "The validated object is null");
 		
 		ProductAvailability availability = defaultAvailability(product.getAvailabilities());
 		FinalPrice finalPrice = pricingService.calculateProductPrice(product);
@@ -39,8 +39,8 @@ public class ProductInventoryServiceImpl implements ProductInventoryService {
 
 	@Override
 	public ProductInventory inventory(ProductVariant variant) throws ServiceException {
-		Validate.notNull(variant.getAvailabilities());
-		Validate.notNull(variant.getProduct());
+		Validate.notNull(variant.getAvailabilities(), "The validated object is null");
+		Validate.notNull(variant.getProduct(), "The validated object is null");
 		
 		ProductAvailability availability = null;
 		if(!CollectionUtils.isEmpty(variant.getAvailabilities())) {
