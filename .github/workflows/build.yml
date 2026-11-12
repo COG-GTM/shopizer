@@ -34,7 +34,11 @@ jobs:
             [ "$(docker inspect --format '{{.State.Running}}' shopizer)" = true ] || break
             sleep 5
           done
-          docker inspect --format 'user={{.Config.User}} health={{.State.Health.Status}}' shopizer
+          user=$(docker inspect --format '{{.Config.User}}' shopizer)
+          status=$(docker inspect --format '{{.State.Health.Status}}' shopizer)
+          echo "user=$user health=$status"
+          [ "$status" = healthy ] || { echo "container is not healthy" >&2; exit 1; }
+          case "$user" in ''|0|0:*|root|root:*) echo "container runs as root" >&2; exit 1 ;; esac
           curl -fsS http://localhost:8080/actuator/health | tee health.json
           python3 -c 'import json; s = json.load(open("health.json"))["status"]; assert s == "UP", s'
       - name: Container logs
