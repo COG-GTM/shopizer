@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -278,7 +278,7 @@ public class InitializationDatabaseImpl implements InitializationDatabase {
 				countryService.create(country);
 				
 				for (Language language : languages) {
-					String name = locale.getDisplayCountry(new Locale(language.getCode()));
+					String name = locale.getDisplayCountry(Locale.of(language.getCode()));
 					//byte[] ptext = value.getBytes(Constants.ISO_8859_1); 
 					//String name = new String(ptext, Constants.UTF_8); 
 					CountryDescription description = new CountryDescription(language, name);

@@ -2,7 +2,7 @@ package com.salesmanager.core.business.services.customer.optin;
 
 
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.apache.commons.lang3.Validate;
 import org.springframework.stereotype.Service;
@@ -31,6 +31,7 @@ public class CustomerOptinServiceImpl extends SalesManagerEntityServiceImpl<Long
 	public void optinCumtomer(CustomerOptin optin) throws ServiceException {
 		Validate.notNull(optin,"CustomerOptin must not be null");
 		
+		normalizeNewEntityId(optin);
 		customerOptinRepository.save(optin);
 		
 

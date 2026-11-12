@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,11 +57,11 @@ public class LanguageServiceImpl extends SalesManagerEntityServiceImpl<Integer, 
 		
 			String countryCode = store.getCountry().getIsoCode();
 			
-			return new Locale(language.getCode(), countryCode);
+			return Locale.of(language.getCode(), countryCode);
 		
 		} else {
 			
-			return new Locale(language.getCode());
+			return Locale.of(language.getCode());
 		}
 	}
 	

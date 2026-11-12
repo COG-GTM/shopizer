@@ -1,8 +1,8 @@
 package com.salesmanager.test.shipping;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 
 import com.salesmanager.core.model.common.Delivery;
 import com.salesmanager.core.model.reference.country.Country;
@@ -11,13 +11,13 @@ import com.salesmanager.core.model.shipping.ShippingOrigin;
 import com.salesmanager.core.model.shipping.ShippingQuote;
 import com.salesmanager.core.modules.integration.shipping.model.ShippingQuotePrePostProcessModule;
 
-@Ignore
+@Disabled("Shipping distance scenario has no enabled test method.")
 public class ShippingDistanceProcessorTest {
 	
 	@Inject
 	ShippingQuotePrePostProcessModule shippingDecisionTablePreProcessor;
 
-	@Ignore
+	@Disabled("Shipping distance scenario has no enabled test method.")
 	public void testDistance() throws Exception {
 		
 		ShippingQuote shippingQuote = new ShippingQuote();

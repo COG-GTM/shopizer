@@ -1,0 +1,6685 @@
+[ {
+  "method" : "DELETE",
+  "path" : "/api/v1/auth/cache/store/{storeId}/clear",
+  "parameters" : [ {
+    "in" : "path",
+    "name" : "storeId",
+    "required" : true
+  }, {
+    "in" : "query",
+    "name" : "cacheKey",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v1/auth/customer/",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v1/auth/product/images/{id}",
+  "parameters" : [ {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v1/auth/product/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v1/auth/products/{id}/reviews/{reviewid}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "reviewId",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v1/cart/{code}/product/{sku}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "code",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "sku",
+    "required" : true
+  }, {
+    "in" : "query",
+    "name" : "body",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v1/content/folder",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "folder",
+    "required" : true
+  }, {
+    "in" : "query",
+    "name" : "parent",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v1/newsletter/{email}",
+  "parameters" : [ {
+    "in" : "path",
+    "name" : "email",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v1/private/catalog/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v1/private/catalog/{id}/entry/{entryId}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "entryId",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v1/private/category/{id}",
+  "parameters" : [ {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v1/private/content/",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "contentType",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "name",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v1/private/content/box/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v1/private/content/images/remove",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "path",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v1/private/content/page/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v1/private/content/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "id",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v1/private/customer/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v1/private/customers/{id}/reviews/{reviewId}",
+  "parameters" : [ {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "reviewId",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v1/private/manufacturer/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v1/private/product/image/{id}",
+  "parameters" : [ {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v1/private/product/option/value/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v1/private/product/option/value/{id}/image",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v1/private/product/option/{optionId}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "optionId",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v1/private/product/property/set/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v1/private/product/type/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v1/private/product/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v1/private/product/{id}/attribute/{attributeId}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "attributeId",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v1/private/product/{id}/image/{imageId}",
+  "parameters" : [ {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "imageId",
+    "required" : true
+  }, {
+    "in" : "query",
+    "name" : "id",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "name",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v1/private/product/{productId}/category/{categoryId}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "categoryId",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "productId",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v1/private/product/{productId}/inventory/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "productId",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v1/private/product/{sku}/price/{priceId}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "priceId",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "sku",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v1/private/products/{id}/reviews/{reviewid}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "reviewId",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v1/private/products/{productId}/group/{code}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "code",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "productId",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v1/private/shipping/package/{code}",
+  "parameters" : [ {
+    "in" : "path",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v1/private/store/{code}",
+  "parameters" : [ {
+    "in" : "path",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v1/private/store/{code}/marketing/logo",
+  "parameters" : [ {
+    "in" : "path",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v1/private/tax/class/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v1/private/tax/rate/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v1/private/user/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v1/products/group/{code}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v2/private/product/productVariantGroup/{id}",
+  "parameters" : [ {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v2/private/product/productVariantGroup/{id}/image/{imageId}",
+  "parameters" : [ {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "imageId",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v2/private/product/variation/{variationId}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "variationId",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v2/private/product/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "DELETE",
+  "path" : "/api/v2/private/product/{id}/variant/{variantId}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "variantId",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/auth/cart/{code}/shipping",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/auth/cart/{id}/total",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  }, {
+    "in" : "query",
+    "name" : "quote",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/auth/customer/cart",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "cart",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/auth/customer/profile",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/auth/customer/refresh",
+  "parameters" : [ ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/auth/customer/{id}/cart",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  }, {
+    "in" : "query",
+    "name" : "cart",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/auth/orders",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "count",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "page",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/auth/orders/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/auth/refresh",
+  "parameters" : [ ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/cart/{code}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/cart/{code}/total",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "code",
+    "required" : true
+  }, {
+    "in" : "query",
+    "name" : "quote",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/category",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "count",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "filter",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "name",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "page",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/category/product/{ProductId}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "ProductId",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/category/{friendlyUrl}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "friendlyUrl",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/category/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/category/{id}/manufacturer",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/config",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/content/boxes",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "count",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "page",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/content/boxes/{code}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/content/images",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "path",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/content/images/download",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "path",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/content/pages",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "count",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "page",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/content/pages/name/{name}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "name",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/content/pages/{code}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/content/summary",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/country",
+  "parameters" : [ ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/currency",
+  "parameters" : [ ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/customer/{store}/reset/{token}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "token",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/customers/{id}/reviews",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/languages",
+  "parameters" : [ ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/manufacturer/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/manufacturers",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "count",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "name",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "page",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/measures",
+  "parameters" : [ ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/catalog/unique",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/catalog/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/catalog/{id}/entry",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  }, {
+    "in" : "query",
+    "name" : "count",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "page",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/catalogs",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "count",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "page",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "present",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/category/unique",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/configurations/payment",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/configurations/shipping",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/content/any/{code}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/content/box/{code}/exists",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/content/boxes",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "count",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "page",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/content/boxes/{code}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/content/folder",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "path",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/content/list",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "parentPath",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/content/page/{code}/exists",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/content/pages",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "count",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "page",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/contents/any",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/customer/profile",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/customer/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/customers",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "count",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "page",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/manufacturer/unique",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/manufacturers",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "count",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "name",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "page",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/marketplace/{store}",
+  "parameters" : [ {
+    "in" : "path",
+    "name" : "store",
+    "required" : true
+  }, {
+    "in" : "query",
+    "name" : "lang",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/merchant/{code}/children",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "code",
+    "required" : true
+  }, {
+    "in" : "query",
+    "name" : "count",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "page",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/merchant/{code}/stores",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "code",
+    "required" : true
+  }, {
+    "in" : "query",
+    "name" : "count",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "page",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/modules/payment",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/modules/payment/{code}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/modules/shipping",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/modules/shipping/{code}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/orders",
+  "parameters" : [ {
+    "in" : "query",
+    "name" : "count",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "email",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "id",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "name",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "page",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "phone",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "status",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/orders/customers/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  }, {
+    "in" : "query",
+    "name" : "count",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "start",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/orders/payment/capturable",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "endDate",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "startDate",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/orders/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/orders/{id}/history",
+  "parameters" : [ {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/orders/{id}/payment/nextTransaction",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/orders/{id}/payment/transactions",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/product/groups",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/product/inventory",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "count",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "page",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "productId",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/product/option/unique",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/product/option/value/unique",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/product/option/value/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/product/option/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/product/options",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "count",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "name",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "page",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/product/options/values",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "count",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "name",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "page",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/product/property/set",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "productType",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/product/property/set/unique",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/product/property/set/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/product/type/unique",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/product/type/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/product/types",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "count",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "page",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/product/unique",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/product/{id}/attribute/{attributeId}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "attributeId",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/product/{id}/attributes",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  }, {
+    "in" : "query",
+    "name" : "count",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "page",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/product/{sku}/inventory",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "sku",
+    "required" : true
+  }, {
+    "in" : "query",
+    "name" : "count",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "page",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/product/{sku}/inventory/{inventoryId}/price",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "inventoryId",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "sku",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/product/{sku}/price/{priceId}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "priceId",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "sku",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/product/{sku}/prices",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "sku",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/shipping/expedition",
+  "parameters" : [ ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/shipping/origin",
+  "parameters" : [ ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/shipping/package/{code}",
+  "parameters" : [ {
+    "in" : "path",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/shipping/packages",
+  "parameters" : [ ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/store/unique",
+  "parameters" : [ {
+    "in" : "query",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/store/{code}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/store/{code}/marketing",
+  "parameters" : [ {
+    "in" : "path",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/stores",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "count",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "page",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/stores/names",
+  "parameters" : [ {
+    "in" : "query",
+    "name" : "count",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "page",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/tax/class",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "count",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "page",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/tax/class/unique",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/tax/class/{code}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/tax/rate/unique",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/tax/rate/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/tax/rates",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "count",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "page",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/user/profile",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/users",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "count",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "emailAddress",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "page",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/private/users/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/product/friendly/{friendlyUrl}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "friendlyUrl",
+    "required" : true
+  }, {
+    "in" : "query",
+    "name" : "lang",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/product/{friendlyUrl}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "friendlyUrl",
+    "required" : true
+  }, {
+    "in" : "query",
+    "name" : "lang",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/product/{id}/related",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/product/{id}/reviews",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/product/{productId}/images",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "productId",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/products",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "available",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "category",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "count",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "manufacturer",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "name",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "optionValues",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "origin",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "owner",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "page",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "sku",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "slug",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "status",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/products/group/{code}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/sec/private/groups",
+  "parameters" : [ ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/sec/private/permissions",
+  "parameters" : [ ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/sec/private/{group}/permissions",
+  "parameters" : [ {
+    "in" : "path",
+    "name" : "group",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/shipping/country",
+  "parameters" : [ ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/store/languages",
+  "parameters" : [ ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/store/unique",
+  "parameters" : [ {
+    "in" : "query",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/store/{code}",
+  "parameters" : [ {
+    "in" : "path",
+    "name" : "code",
+    "required" : true
+  }, {
+    "in" : "query",
+    "name" : "lang",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/store/{store}/signup/{token}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "token",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/user/{store}/reset/{token}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "token",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v1/zones",
+  "parameters" : [ {
+    "in" : "query",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v2/category/{id}/variations",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v2/private/product/productVariantGroup/{id}",
+  "parameters" : [ {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v2/private/product/variation/unique",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v2/private/product/variation/{variationId}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "variationId",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v2/private/product/variations",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "count",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "page",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v2/private/product/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v2/private/product/{id}/productVariantGroup",
+  "parameters" : [ {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  }, {
+    "in" : "query",
+    "name" : "count",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "page",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v2/private/product/{id}/variant/{sku}/unique",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "sku",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v2/private/product/{id}/variant/{variantId}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "variantId",
+    "required" : true
+  }, {
+    "in" : "query",
+    "name" : "lang",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v2/private/product/{id}/variants",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  }, {
+    "in" : "query",
+    "name" : "count",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "page",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v2/product/friendly/{friendlyUrl}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "friendlyUrl",
+    "required" : true
+  }, {
+    "in" : "query",
+    "name" : "lang",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v2/product/name/{friendlyUrl}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "friendlyUrl",
+    "required" : true
+  }, {
+    "in" : "query",
+    "name" : "lang",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v2/product/{sku}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "sku",
+    "required" : true
+  }, {
+    "in" : "query",
+    "name" : "lang",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v2/products",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "attributeCriteria[0].attributeCode",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "attributeCriteria[0].attributeValue",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "availabilities",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "available",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "categoryIds",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "code",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "count",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "criteriaOrderByField",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "language",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "legacyPagination",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "manufacturerId",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "maxCount",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "name",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "option",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "optionValueCodes",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "optionValueIds",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "orderBy",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "origin",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "ownerId",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "pageSize",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "productIds",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "productName",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "search",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "sku",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "startIndex",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "startPage",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "status",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "storeCode",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "storeIds",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "user",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "GET",
+  "path" : "/api/v2/products/category/{friendlyUrl}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "friendlyUrl",
+    "required" : true
+  }, {
+    "in" : "query",
+    "name" : "count",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "page",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PATCH",
+  "path" : "/api/v1/auth/customer/",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PATCH",
+  "path" : "/api/v1/auth/customer/address",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PATCH",
+  "path" : "/api/v1/auth/product/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  }, {
+    "in" : "query",
+    "name" : "order",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PATCH",
+  "path" : "/api/v1/auth/product/{id}/image/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "imageId",
+    "required" : true
+  }, {
+    "in" : "query",
+    "name" : "order",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PATCH",
+  "path" : "/api/v1/private/catalog/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PATCH",
+  "path" : "/api/v1/private/category/{id}/visible",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PATCH",
+  "path" : "/api/v1/private/customer/{id}/address",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PATCH",
+  "path" : "/api/v1/private/orders/{id}/customer",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PATCH",
+  "path" : "/api/v1/private/product/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PATCH",
+  "path" : "/api/v1/private/product/{id}/image/{imageId}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "imageId",
+    "required" : true
+  }, {
+    "in" : "query",
+    "name" : "order",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PATCH",
+  "path" : "/api/v1/private/products/group/{code}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PATCH",
+  "path" : "/api/v1/private/user/{id}/enabled",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PATCH",
+  "path" : "/api/v1/private/user/{id}/password",
+  "parameters" : [ {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PATCH",
+  "path" : "/api/v2/private/product/{sku}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "sku",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/auth/cart/{code}/checkout",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "code",
+    "required" : true
+  }, {
+    "in" : "query",
+    "name" : "ISO3Country",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "ISO3Language",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "country",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "displayCountry",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "displayLanguage",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "displayName",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "displayScript",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "displayVariant",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "language",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "script",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "unicodeLocaleAttributes",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "unicodeLocaleKeys",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "variant",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/auth/cart/{code}/payment/init",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/auth/customer/password",
+  "parameters" : [ {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/auth/product/{id}/image",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "formData",
+    "name" : "defaultImage",
+    "required" : false
+  }, {
+    "in" : "formData",
+    "name" : "file",
+    "required" : true
+  }, {
+    "in" : "formData",
+    "name" : "order",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "multipart/form-data" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/auth/products",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/auth/products/{id}/reviews",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/cart",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/cart/{code}/checkout",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/cart/{code}/multi",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/cart/{code}/payment/init",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/cart/{code}/promo/{promo}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "code",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "promo",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/cart/{code}/shipping",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/contact",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/customer/login",
+  "parameters" : [ {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/customer/password/reset/request",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/customer/register",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/customer/{store}/password/{token}",
+  "parameters" : [ {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "store",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "token",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/customers/{id}/cart",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/newsletter",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/catalog",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/catalog/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/category",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/configurations/payment",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/content/box",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/content/images/add",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "formData",
+    "name" : "parentPath",
+    "required" : false
+  }, {
+    "in" : "formData",
+    "name" : "qqfile",
+    "required" : true
+  }, {
+    "in" : "formData",
+    "name" : "qqfilename",
+    "required" : true
+  }, {
+    "in" : "formData",
+    "name" : "qqpartindex",
+    "required" : false
+  }, {
+    "in" : "formData",
+    "name" : "qqtotalfilesize",
+    "required" : false
+  }, {
+    "in" : "formData",
+    "name" : "qqtotalparts",
+    "required" : false
+  }, {
+    "in" : "formData",
+    "name" : "qquuid",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "multipart/form-data" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/content/images/rename",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "query",
+    "name" : "newName",
+    "required" : true
+  }, {
+    "in" : "query",
+    "name" : "path",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/content/page",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/customer",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/customers/{id}/reviews",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/file",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "formData",
+    "name" : "file",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "multipart/form-data" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/files",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "formData",
+    "name" : "file[]",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "multipart/form-data" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/login",
+  "parameters" : [ {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/manufacturer",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/modules/payment",
+  "parameters" : [ {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/modules/shipping",
+  "parameters" : [ {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/optin",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/orders/{id}/authorize",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/orders/{id}/capture",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/orders/{id}/history",
+  "parameters" : [ {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/orders/{id}/refund",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/product",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/product/option",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/product/option/value",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/product/option/value/{id}/image",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "formData",
+    "name" : "file",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "multipart/form-data" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/product/property/set",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/product/type",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/product/{id}/attribute",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/product/{id}/attributes",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/product/{id}/image",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "formData",
+    "name" : "defaultImage",
+    "required" : false
+  }, {
+    "in" : "formData",
+    "name" : "file",
+    "required" : true
+  }, {
+    "in" : "formData",
+    "name" : "order",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "multipart/form-data" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/product/{productId}/category/{categoryId}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "categoryId",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "productId",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/product/{productId}/inventory",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "productId",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/product/{sku}/inventory/{inventoryId}/price",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "inventoryId",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "sku",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/product/{sku}/price",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "sku",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/products/group",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/products/{id}/reviews",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/products/{productId}/group/{code}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "code",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "productId",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/shipping/expedition",
+  "parameters" : [ {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/shipping/origin",
+  "parameters" : [ {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/shipping/package",
+  "parameters" : [ {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/store",
+  "parameters" : [ {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/store/{code}/marketing",
+  "parameters" : [ {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/store/{code}/marketing/logo",
+  "parameters" : [ {
+    "in" : "formData",
+    "name" : "file",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "multipart/form-data" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/system/search/index",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/tax/class",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/tax/rate",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/user/",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/private/user/unique",
+  "parameters" : [ {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/search",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/search/autocomplete",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/store/signup",
+  "parameters" : [ {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/user/password/reset/request",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v1/user/{store}/password/{token}",
+  "parameters" : [ {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "store",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "token",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v2/private/product",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v2/private/product/inventory",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v2/private/product/productVariantGroup",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v2/private/product/productVariantGroup/{id}/image",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "formData",
+    "name" : "file",
+    "required" : true
+  }, {
+    "in" : "formData",
+    "name" : "order",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "multipart/form-data" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v2/private/product/variation",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v2/private/product/{productId}/variant",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "productId",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "POST",
+  "path" : "/api/v2/product/{id}/variation",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PUT",
+  "path" : "/api/v1/auth/product/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PUT",
+  "path" : "/api/v1/auth/products/{id}/reviews/{reviewid}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "reviewId",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PUT",
+  "path" : "/api/v1/cart/{code}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PUT",
+  "path" : "/api/v1/newsletter/{email}",
+  "parameters" : [ {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "email",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PUT",
+  "path" : "/api/v1/private/category/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PUT",
+  "path" : "/api/v1/private/category/{id}/move/{parent}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "parent",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PUT",
+  "path" : "/api/v1/private/content/box/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PUT",
+  "path" : "/api/v1/private/content/page/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PUT",
+  "path" : "/api/v1/private/content/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PUT",
+  "path" : "/api/v1/private/customer/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PUT",
+  "path" : "/api/v1/private/customers/{id}/reviews/{reviewid}",
+  "parameters" : [ {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "reviewId",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PUT",
+  "path" : "/api/v1/private/manufacturer/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PUT",
+  "path" : "/api/v1/private/orders/{id}/status",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PUT",
+  "path" : "/api/v1/private/product/option/value/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PUT",
+  "path" : "/api/v1/private/product/option/{optionId}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "optionId",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PUT",
+  "path" : "/api/v1/private/product/property/set/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PUT",
+  "path" : "/api/v1/private/product/type/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PUT",
+  "path" : "/api/v1/private/product/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PUT",
+  "path" : "/api/v1/private/product/{id}/attribute/{attributeId}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "attributeId",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PUT",
+  "path" : "/api/v1/private/product/{productId}/inventory/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "productId",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PUT",
+  "path" : "/api/v1/private/product/{sku}/inventory/{inventoryId}/price/{priceId}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "inventoryId",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "priceId",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "sku",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PUT",
+  "path" : "/api/v1/private/products/{id}/reviews/{reviewid}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "reviewId",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PUT",
+  "path" : "/api/v1/private/shipping/package/{code}",
+  "parameters" : [ {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PUT",
+  "path" : "/api/v1/private/store/{code}",
+  "parameters" : [ {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "code",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PUT",
+  "path" : "/api/v1/private/tax/class/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PUT",
+  "path" : "/api/v1/private/tax/rate/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PUT",
+  "path" : "/api/v1/private/user/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PUT",
+  "path" : "/api/v2/private/product/productVariantGroup/{id}",
+  "parameters" : [ {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PUT",
+  "path" : "/api/v2/private/product/variation/{variationId}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "variationId",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PUT",
+  "path" : "/api/v2/private/product/{id}",
+  "parameters" : [ {
+    "in" : "",
+    "name" : "lang",
+    "required" : false
+  }, {
+    "in" : "",
+    "name" : "store",
+    "required" : false
+  }, {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+}, {
+  "method" : "PUT",
+  "path" : "/api/v2/private/product/{id}/variant/{variantId}",
+  "parameters" : [ {
+    "in" : "body",
+    "name" : "body",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "id",
+    "required" : true
+  }, {
+    "in" : "path",
+    "name" : "variantId",
+    "required" : true
+  } ],
+  "requestMediaTypes" : [ "application/json" ],
+  "responseMediaTypes" : [ "application/json" ],
+  "security" : [ {
+    "JWT" : [ ]
+  } ]
+} ]

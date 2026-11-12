@@ -14,7 +14,6 @@ public interface ProductAvailabilityRepository extends JpaRepository<ProductAvai
       + "left join fetch p.merchantStore pm "
       + "left join fetch p.prices pp "
       + "left join fetch pp.descriptions ppd "
-      + "left join fetch p.merchantStore pm "
       + "join fetch p.product ppr "
       + "join fetch ppr.merchantStore pprm "
       + "where p.id=?1 ")
@@ -24,7 +23,6 @@ public interface ProductAvailabilityRepository extends JpaRepository<ProductAvai
       + "left join fetch p.merchantStore pm "
       + "left join fetch p.prices pp "
       + "left join fetch pp.descriptions ppd "
-      + "left join fetch p.merchantStore pm "
       + "join fetch p.product ppr "
       + "join fetch ppr.merchantStore pprm "
       + "where p.id=?1 "

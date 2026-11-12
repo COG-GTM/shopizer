@@ -3,9 +3,9 @@ package com.salesmanager.core.business.repositories.catalog.category;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
 
 import com.salesmanager.core.model.catalog.category.Category;
 import com.salesmanager.core.model.merchant.MerchantStore;
@@ -21,11 +21,11 @@ public class CategoryRepositoryImpl implements CategoryRepositoryCustom {
 
 		
 		StringBuilder qs = new StringBuilder();
-		qs.append("select category.id, count(product.id) from Product product ");
-		qs.append("inner join product.categories category ");
-		qs.append("where category.id in (:cid) ");
-		qs.append("and product.available=true and product.dateAvailable<=:dt ");
-		qs.append("group by category.id");
+		qs.append("select categoryRef.id, count(productRef.id) from Product productRef ");
+		qs.append("inner join productRef.categories categoryRef ");
+		qs.append("where categoryRef.id in (:cid) ");
+		qs.append("and productRef.available=true and productRef.dateAvailable<=:dt ");
+		qs.append("group by categoryRef.id");
 		
     	String hql = qs.toString();
 		Query q = this.em.createQuery(hql);
@@ -54,7 +54,7 @@ public class CategoryRepositoryImpl implements CategoryRepositoryCustom {
 		if (store == null) {
 			if (category == null) {
 				//query.from(qCategory)
-				queryBuilder.append(" where c.parent IsNull ");
+				queryBuilder.append(" where c.parent is null ");
 					//.where(qCategory.parent.isNull())
 					//.orderBy(qCategory.sortOrder.asc(),qCategory.id.desc());
 			} else {
@@ -66,13 +66,13 @@ public class CategoryRepositoryImpl implements CategoryRepositoryCustom {
 		} else {
 			if (category == null) {
 				//query.from(qCategory)
-				queryBuilder.append(" where c.parent IsNull and cm.id=:mid ");
+				queryBuilder.append(" where c.parent is null and cm.id=:mid ");
 					//.where(qCategory.parent.isNull()
 					//	.and(qCategory.merchantStore.eq(store)))
 					//.orderBy(qCategory.sortOrder.asc(),qCategory.id.desc());
 			} else {
 				//query.from(qCategory)
-				queryBuilder.append(" join fetch c.parent cp where cp.id =:cId and cm.id=:mid ");
+				queryBuilder.append(" join fetch c.parent cp where cp.id =:cid and cm.id=:mid ");
 					//.where(qCategory.parent.eq(category)
 					//	.and(qCategory.merchantStore.eq(store)))
 					//.orderBy(qCategory.sortOrder.asc(),qCategory.id.desc());
@@ -84,7 +84,9 @@ public class CategoryRepositoryImpl implements CategoryRepositoryCustom {
     	String hql = queryBuilder.toString();
 		Query q = this.em.createQuery(hql);
 
-    	q.setParameter("cid", category.getId());
+		if (category != null) {
+			q.setParameter("cid", category.getId());
+		}
     	if (store != null) {
     		q.setParameter("mid", store.getId());
     	}
@@ -99,10 +101,10 @@ public class CategoryRepositoryImpl implements CategoryRepositoryCustom {
 		
 		
 		StringBuilder qs = new StringBuilder();
-		qs.append("select category from Product product ");
-		qs.append("inner join product.categories category inner join product.merchantStore pm ");
-		qs.append("where product.id=:id and pm.id=:mid ");
-		qs.append("group by category.id");
+		qs.append("select categoryRef from Product productRef ");
+		qs.append("inner join productRef.categories categoryRef inner join productRef.merchantStore pm ");
+		qs.append("where productRef.id=:id and pm.id=:mid ");
+		qs.append("group by categoryRef.id");
 		
     	String hql = qs.toString();
 		Query q = this.em.createQuery(hql);

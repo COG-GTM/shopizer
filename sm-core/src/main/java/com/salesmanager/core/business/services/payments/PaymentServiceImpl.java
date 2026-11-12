@@ -10,8 +10,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.annotation.Resource;
-import javax.inject.Inject;
+import jakarta.annotation.Resource;
+import jakarta.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -302,11 +302,11 @@ public class PaymentServiceImpl implements PaymentService {
 			throws ServiceException {
 
 
-		Validate.notNull(customer);
-		Validate.notNull(store);
-		Validate.notNull(payment);
-		Validate.notNull(order);
-		Validate.notNull(order.getTotal());
+		Validate.notNull(customer, "The validated object is null");
+		Validate.notNull(store, "The validated object is null");
+		Validate.notNull(payment, "The validated object is null");
+		Validate.notNull(order, "The validated object is null");
+		Validate.notNull(order.getTotal(), "The validated object is null");
 		
 		payment.setCurrency(store.getCurrency());
 		
@@ -407,9 +407,9 @@ public class PaymentServiceImpl implements PaymentService {
 			throws ServiceException {
 
 
-		Validate.notNull(customer);
-		Validate.notNull(store);
-		Validate.notNull(order);
+		Validate.notNull(customer, "The validated object is null");
+		Validate.notNull(store, "The validated object is null");
+		Validate.notNull(order, "The validated object is null");
 
 		
 
@@ -476,11 +476,11 @@ public class PaymentServiceImpl implements PaymentService {
 			throws ServiceException {
 		
 		
-		Validate.notNull(customer);
-		Validate.notNull(store);
-		Validate.notNull(amount);
-		Validate.notNull(order);
-		Validate.notNull(order.getOrderTotal());
+		Validate.notNull(customer, "The validated object is null");
+		Validate.notNull(store, "The validated object is null");
+		Validate.notNull(amount, "The validated object is null");
+		Validate.notNull(order, "The validated object is null");
+		Validate.notNull(order.getOrderTotal(), "The validated object is null");
 		
 		
 		BigDecimal orderTotal = order.getTotal();
@@ -699,10 +699,10 @@ public class PaymentServiceImpl implements PaymentService {
 	@Override
 	public Transaction initTransaction(Order order, Customer customer, Payment payment, MerchantStore store) throws ServiceException {
 		
-		Validate.notNull(store);
-		Validate.notNull(payment);
-		Validate.notNull(order);
-		Validate.notNull(order.getTotal());
+		Validate.notNull(store, "The validated object is null");
+		Validate.notNull(payment, "The validated object is null");
+		Validate.notNull(order, "The validated object is null");
+		Validate.notNull(order.getTotal(), "The validated object is null");
 		
 		payment.setCurrency(store.getCurrency());
 		
@@ -738,9 +738,9 @@ public class PaymentServiceImpl implements PaymentService {
 	@Override
 	public Transaction initTransaction(Customer customer, Payment payment, MerchantStore store) throws ServiceException {
 
-		Validate.notNull(store);
-		Validate.notNull(payment);
-		Validate.notNull(payment.getAmount());
+		Validate.notNull(store, "The validated object is null");
+		Validate.notNull(payment, "The validated object is null");
+		Validate.notNull(payment.getAmount(), "The validated object is null");
 		
 		payment.setCurrency(store.getCurrency());
 		

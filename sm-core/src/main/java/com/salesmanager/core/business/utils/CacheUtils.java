@@ -3,7 +3,7 @@ package com.salesmanager.core.business.utils;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,9 +51,10 @@ public class CacheUtils {
 	
 	public List<String> getCacheKeys(MerchantStore store) throws Exception {
 		
-		  net.sf.ehcache.Cache cacheImpl = (net.sf.ehcache.Cache) cache.getNativeCache();
+		  javax.cache.Cache<?, ?> cacheImpl = (javax.cache.Cache<?, ?>) cache.getNativeCache();
 		  List<String> returnKeys = new ArrayList<String>();
-		  for (Object key: cacheImpl.getKeys()) {
+		  for (javax.cache.Cache.Entry<?, ?> entry: cacheImpl) {
+              Object key = entry.getKey();
 		    
 			  
 				try {
@@ -86,8 +87,9 @@ public class CacheUtils {
 	}
 	
 	public void removeAllFromCache(MerchantStore store) throws Exception {
-		  net.sf.ehcache.Cache cacheImpl = (net.sf.ehcache.Cache) cache.getNativeCache();
-		  for (Object key: cacheImpl.getKeys()) {
+		  javax.cache.Cache<?, ?> cacheImpl = (javax.cache.Cache<?, ?>) cache.getNativeCache();
+		  for (javax.cache.Cache.Entry<?, ?> entry: cacheImpl) {
+              Object key = entry.getKey();
 				try {
 					String sKey = (String)key;
 					

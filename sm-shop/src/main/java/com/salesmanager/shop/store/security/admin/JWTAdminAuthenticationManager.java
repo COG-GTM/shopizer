@@ -1,8 +1,8 @@
 package com.salesmanager.shop.store.security.admin;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,7 +17,7 @@ import com.salesmanager.shop.store.security.JWTTokenUtil;
 import com.salesmanager.shop.store.security.common.CustomAuthenticationException;
 import com.salesmanager.shop.store.security.common.CustomAuthenticationManager;
 import static java.util.Optional.ofNullable;
-import static org.apache.commons.lang3.StringUtils.removeStart;
+import static org.apache.commons.lang3.Strings.CS;
 import io.jsonwebtoken.ExpiredJwtException;
 
 @Component("jwtCustomAdminAuthenticationManager")
@@ -40,7 +40,7 @@ public class JWTAdminAuthenticationManager extends CustomAuthenticationManager {
     String username = null;
     final String authToken;
 
-    authToken = ofNullable(requestHeader).map(value -> removeStart(value, BEARER)).map(String::trim)
+    authToken = ofNullable(requestHeader).map(value -> CS.removeStart(value, BEARER)).map(String::trim)
         .orElseThrow(() -> new CustomAuthenticationException("Missing Authentication Token"));
 
     try {

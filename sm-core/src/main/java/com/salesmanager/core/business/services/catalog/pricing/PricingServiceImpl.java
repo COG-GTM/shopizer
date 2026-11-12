@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Locale;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,7 +87,7 @@ public class PricingServiceImpl implements PricingService {
 	public String getStringAmount(BigDecimal amount, MerchantStore store)
 			throws ServiceException {
 		try {
-			return priceUtil.getAdminFormatedAmount(store, amount);
+			return priceUtil.getStringAmount(amount);
 		} catch (Exception e) {
 			LOGGER.error("An error occured when trying to format an amount " + amount.toString());
 			throw new ServiceException(e);

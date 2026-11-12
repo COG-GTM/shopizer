@@ -2,9 +2,9 @@ package com.salesmanager.test.content;
 
 import java.util.Optional;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 
 import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.services.content.ContentService;
@@ -16,18 +16,18 @@ import com.salesmanager.core.model.merchant.MerchantStore;
  * @author Carl Samson
  *
  */
-@Ignore
+@Disabled("Content folder scenarios have no enabled test methods.")
 public class ContentFolderTest extends com.salesmanager.test.common.AbstractSalesManagerCoreTestCase {
 
 	@Inject
 	private ContentService contentService;
 
 
-	@Ignore
+	@Disabled("Content folder scenarios have no enabled test methods.")
 	public void listImages() {	
 	}
 	
-	@Ignore
+	@Disabled("Content folder scenarios have no enabled test methods.")
 	public void addFolder() {
 		
 		MerchantStore store;
@@ -51,12 +51,12 @@ public class ContentFolderTest extends com.salesmanager.test.common.AbstractSale
 		
 	}
 	
-	@Ignore
+	@Disabled("Content folder scenarios have no enabled test methods.")
 	public void listFolders() {
 		
 	}
 	
-	@Ignore
+	@Disabled("Content folder scenarios have no enabled test methods.")
 	public void removeFolder() {
 		
 	}

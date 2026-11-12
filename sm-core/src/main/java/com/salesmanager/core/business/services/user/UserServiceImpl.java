@@ -1,7 +1,7 @@
 package com.salesmanager.core.business.services.user;
 
 import java.util.List;
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.helper.Validate;
@@ -70,6 +70,7 @@ public class UserServiceImpl extends SalesManagerEntityServiceImpl<Long, User> i
 
 	@Override
 	public void saveOrUpdate(User user) throws ServiceException {
+		normalizeNewEntityId(user);
 		userRepository.save(user);
 	}
 

@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.apache.commons.digester.Digester;
 import org.apache.commons.lang3.StringUtils;
@@ -380,7 +380,7 @@ public class USPSShippingQuote implements ShippingQuoteModule {
 				xmldatabuffer.append(pack);
 				xmldatabuffer.append("</MailType>");
 				xmldatabuffer.append("<ValueOfContents>");
-				xmldatabuffer.append(productPriceUtils.getAdminFormatedAmount(store, orderTotal));
+				xmldatabuffer.append(productPriceUtils.getStringAmount(orderTotal));
 				xmldatabuffer.append("</ValueOfContents>");
 				xmldatabuffer.append("<Country>");
 				xmldatabuffer.append(destination.getName());

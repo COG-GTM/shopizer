@@ -3,13 +3,11 @@ package com.salesmanager.test.utils;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.modules.email.Email;
@@ -18,9 +16,8 @@ import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.test.common.AbstractSalesManagerCoreTestCase;
 import com.salesmanager.test.configuration.ConfigurationTest;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {ConfigurationTest.class})
-@Ignore
+@Disabled("Requires an external mail server.")
 public class SendEmailTest extends AbstractSalesManagerCoreTestCase {
   
   @Inject

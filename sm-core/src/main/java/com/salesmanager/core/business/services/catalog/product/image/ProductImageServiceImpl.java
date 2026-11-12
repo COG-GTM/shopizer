@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.helper.Validate;
@@ -58,7 +58,7 @@ public class ProductImageServiceImpl extends SalesManagerEntityServiceImpl<Long,
 		try {
 			for (ProductImage productImage : productImages) {
 
-				Assert.notNull(productImage.getImage());
+				Assert.notNull(productImage.getImage(), "Product image content is required");
 
 				InputStream inputStream = productImage.getImage();
 				ImageContentFile cmsContentImage = new ImageContentFile();
@@ -111,6 +111,7 @@ public class ProductImageServiceImpl extends SalesManagerEntityServiceImpl<Long,
 	@Override
 	public ProductImage saveOrUpdate(ProductImage productImage) throws ServiceException {
 
+		normalizeNewEntityId(productImage);
 		return productImageRepository.save(productImage);
 
 	}
@@ -200,6 +201,7 @@ public class ProductImageServiceImpl extends SalesManagerEntityServiceImpl<Long,
 		Validate.notNull(product, "Product cannot be null");
 		Validate.notNull(productImage, "ProductImage cannot be null");
 		productImage.setProduct(product);
+		normalizeNewEntityId(productImage);
 		productImageRepository.save(productImage);
 
 	}

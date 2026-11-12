@@ -9,10 +9,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import org.apache.commons.io.IOUtils;
-import org.infinispan.tree.Fqn;
-import org.infinispan.tree.Node;
+import com.salesmanager.core.business.modules.cms.impl.FlatCacheFiles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.salesmanager.core.business.constants.Constants;
@@ -102,9 +101,9 @@ public class CmsImageFileManagerImpl implements ProductAssetsManager {
   public void addProductImage(ProductImage productImage, ImageContentFile contentImage)
       throws ServiceException {
 
-    if (cacheManager.getTreeCache() == null) {
+    if (cacheManager.getCache() == null) {
       throw new ServiceException(
-          "CmsImageFileManagerInfinispan has a null cacheManager.getTreeCache()");
+          "CmsImageFileManagerInfinispan has a null cacheManager.getCache()");
     }
 
     try {
@@ -123,7 +122,7 @@ public class CmsImageFileManagerImpl implements ProductAssetsManager {
         nodePath.append(LARGE);
       }
 
-      Node<String, Object> productNode = this.getNode(nodePath.toString());
+      FlatCacheFiles productNode = this.getNode(nodePath.toString());
 
 
       InputStream isFile = contentImage.getFile();
@@ -164,9 +163,9 @@ public class CmsImageFileManagerImpl implements ProductAssetsManager {
   @Override
   public List<OutputContentFile> getImages(Product product) throws ServiceException {
 
-    if (cacheManager.getTreeCache() == null) {
+    if (cacheManager.getCache() == null) {
       throw new ServiceException(
-          "CmsImageFileManagerInfinispan has a null cacheManager.getTreeCache()");
+          "CmsImageFileManagerInfinispan has a null cacheManager.getCache()");
     }
 
     List<OutputContentFile> images = new ArrayList<OutputContentFile>();
@@ -179,7 +178,7 @@ public class CmsImageFileManagerImpl implements ProductAssetsManager {
       StringBuilder nodePath = new StringBuilder();
       nodePath.append(product.getMerchantStore().getCode());
 
-      Node<String, Object> merchantNode = this.getNode(nodePath.toString());
+      FlatCacheFiles merchantNode = this.getNode(nodePath.toString());
 
       if (merchantNode == null) {
         return null;
@@ -224,9 +223,9 @@ public class CmsImageFileManagerImpl implements ProductAssetsManager {
   @SuppressWarnings("unchecked")
   @Override
   public void removeImages(final String merchantStoreCode) throws ServiceException {
-    if (cacheManager.getTreeCache() == null) {
+    if (cacheManager.getCache() == null) {
       throw new ServiceException(
-          "CmsImageFileManagerInfinispan has a null cacheManager.getTreeCache()");
+          "CmsImageFileManagerInfinispan has a null cacheManager.getCache()");
     }
 
     try {
@@ -234,7 +233,7 @@ public class CmsImageFileManagerImpl implements ProductAssetsManager {
 
       final StringBuilder merchantPath = new StringBuilder();
       merchantPath.append(getRootName()).append(merchantStoreCode);
-      cacheManager.getTreeCache().getRoot().remove(merchantPath.toString());
+      new FlatCacheFiles(cacheManager.getCache(), merchantPath.toString()).removeAll();
 
 
 
@@ -250,9 +249,9 @@ public class CmsImageFileManagerImpl implements ProductAssetsManager {
   @Override
   public void removeProductImage(ProductImage productImage) throws ServiceException {
 
-    if (cacheManager.getTreeCache() == null) {
+    if (cacheManager.getCache() == null) {
       throw new ServiceException(
-          "CmsImageFileManagerInfinispan has a null cacheManager.getTreeCache()");
+          "CmsImageFileManagerInfinispan has a null cacheManager.getCache()");
     }
 
     try {
@@ -263,7 +262,7 @@ public class CmsImageFileManagerImpl implements ProductAssetsManager {
           .append(Constants.SLASH).append(productImage.getProduct().getSku());
 
 
-      Node<String, Object> productNode = this.getNode(nodePath.toString());
+      FlatCacheFiles productNode = this.getNode(nodePath.toString());
       productNode.remove(productImage.getProductImage());
 
 
@@ -279,9 +278,9 @@ public class CmsImageFileManagerImpl implements ProductAssetsManager {
   @Override
   public void removeProductImages(Product product) throws ServiceException {
 
-    if (cacheManager.getTreeCache() == null) {
+    if (cacheManager.getCache() == null) {
       throw new ServiceException(
-          "CmsImageFileManagerInfinispan has a null cacheManager.getTreeCache()");
+          "CmsImageFileManagerInfinispan has a null cacheManager.getCache()");
     }
 
     try {
@@ -291,7 +290,7 @@ public class CmsImageFileManagerImpl implements ProductAssetsManager {
       nodePath.append(product.getMerchantStore().getCode());
 
 
-      Node<String, Object> merchantNode = this.getNode(nodePath.toString());
+      FlatCacheFiles merchantNode = this.getNode(nodePath.toString());
 
       merchantNode.remove(product.getSku());
 
@@ -309,9 +308,9 @@ public class CmsImageFileManagerImpl implements ProductAssetsManager {
   @Override
   public List<OutputContentFile> getImages(final String merchantStoreCode,
       FileContentType imageContentType) throws ServiceException {
-    if (cacheManager.getTreeCache() == null) {
+    if (cacheManager.getCache() == null) {
       throw new ServiceException(
-          "CmsImageFileManagerInfinispan has a null cacheManager.getTreeCache()");
+          "CmsImageFileManagerInfinispan has a null cacheManager.getCache()");
     }
     List<OutputContentFile> images = new ArrayList<OutputContentFile>();
     FileNameMap fileNameMap = URLConnection.getFileNameMap();
@@ -323,12 +322,13 @@ public class CmsImageFileManagerImpl implements ProductAssetsManager {
       nodePath.append(merchantStoreCode);
 
 
-      Node<String, Object> merchantNode = this.getNode(nodePath.toString());
+      FlatCacheFiles merchantNode = this.getNode(nodePath.toString());
 
-      Set<Node<String, Object>> childs = merchantNode.getChildren();
+      Set<String> childs = merchantNode.getChildren();
 
       // TODO image sizes
-      for (Node<String, Object> node : childs) {
+      for (String child : childs) {
+        FlatCacheFiles node = this.getNode(merchantStoreCode + Constants.SLASH + child);
 
         for (String key : node.getKeys()) {
 
@@ -381,9 +381,9 @@ public class CmsImageFileManagerImpl implements ProductAssetsManager {
   private OutputContentFile getProductImage(String merchantStoreCode, String productCode,
       String imageName, String size) throws ServiceException {
 
-    if (cacheManager.getTreeCache() == null) {
+    if (cacheManager.getCache() == null) {
       throw new ServiceException(
-          "CmsImageFileManagerInfinispan has a null cacheManager.getTreeCache()");
+          "CmsImageFileManagerInfinispan has a null cacheManager.getCache()");
     }
     InputStream input = null;
     OutputContentFile contentImage = new OutputContentFile();
@@ -396,7 +396,7 @@ public class CmsImageFileManagerImpl implements ProductAssetsManager {
       nodePath.append(merchantStoreCode).append(Constants.SLASH).append(productCode)
           .append(Constants.SLASH).append(size);
 
-      Node<String, Object> productNode = this.getNode(nodePath.toString());
+      FlatCacheFiles productNode = this.getNode(nodePath.toString());
 
 
       byte[] imageBytes = (byte[]) productNode.get(imageName);
@@ -435,23 +435,8 @@ public class CmsImageFileManagerImpl implements ProductAssetsManager {
 
 
   @SuppressWarnings("unchecked")
-  private Node<String, Object> getNode(final String node) {
-    LOGGER.debug("Fetching node for store {} from Infinispan", node);
-    final StringBuilder merchantPath = new StringBuilder();
-    merchantPath.append(getRootName()).append(node);
-
-    Fqn contentFilesFqn = Fqn.fromString(merchantPath.toString());
-
-    Node<String, Object> nd = cacheManager.getTreeCache().getRoot().getChild(contentFilesFqn);
-
-    if (nd == null) {
-
-      cacheManager.getTreeCache().getRoot().addChild(contentFilesFqn);
-      nd = cacheManager.getTreeCache().getRoot().getChild(contentFilesFqn);
-
-    }
-
-    return nd;
+  private FlatCacheFiles getNode(final String node) {
+    return new FlatCacheFiles(cacheManager.getCache(), getRootName() + node);
 
   }
 

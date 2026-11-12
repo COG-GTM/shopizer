@@ -8,8 +8,8 @@ import com.salesmanager.core.model.reference.language.Language;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 
 public class ProductRelationshipRepositoryImpl implements ProductRelationshipRepositoryCustom {
@@ -47,7 +47,7 @@ public class ProductRelationshipRepositoryImpl implements ProductRelationshipRep
           + "left join fetch pap.descriptions papd "
           + "left join fetch rp.manufacturer manuf "
           + "left join fetch manuf.descriptions manufd "
-          + "left join fetch rp.type type "
+          + "left join fetch rp.type productTypeRef "
           + "where pr.code=:code "
           + "and rp.available=:available "
           + "and p.id=:pId";
@@ -109,7 +109,7 @@ public class ProductRelationshipRepositoryImpl implements ProductRelationshipRep
           + "left join fetch pap.descriptions papd "
           + "left join fetch rp.manufacturer manuf "
           + "left join fetch manuf.descriptions manufd "
-          + "left join fetch rp.type type "
+          + "left join fetch rp.type productTypeRef "
           + "where pr.code=:code "
           + "and pr.store.id=:storeId ";
   private static final String HQL_GET_PRODUCT_RELATIONSHIP_BY_STORE_ID =

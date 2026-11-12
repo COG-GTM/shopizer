@@ -13,16 +13,6 @@
   <description>sm-shop-model contains Shopizer model objects for api</description>
   <url>http://www.shopizer.com</url>
 
-  <distributionManagement>
-    <snapshotRepository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-    </snapshotRepository>
-    <repository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-    </repository>
-  </distributionManagement>
 
   <scm>
     <connection>scm:git:git://github.com:shopizer-ecommerce/shopizer-sm-shop-model.git</connection>
@@ -65,15 +55,10 @@
 		<artifactId>spring-webmvc</artifactId>
 	</dependency>
 
+    <!-- OpenAPI 3 annotations (@Schema) -->
     <dependency>
-      <groupId>javax.annotation</groupId>
-      <artifactId>javax.annotation-api</artifactId>
-    </dependency>
-
-    <!-- Swagger 2 documentation -->
-    <dependency>
-      <groupId>io.springfox</groupId>
-      <artifactId>springfox-swagger2</artifactId>
+      <groupId>io.swagger.core.v3</groupId>
+      <artifactId>swagger-annotations-jakarta</artifactId>
     </dependency>
 
   </dependencies>
@@ -131,7 +116,7 @@
             <configuration>
               <additionalparam>${javadoc.opts}</additionalparam>
               <doclint>none</doclint>
-              <source>11</source>
+              <source>${java.version}</source>
     		  <detectJavaApiLink>false</detectJavaApiLink>
             </configuration>
           </execution>

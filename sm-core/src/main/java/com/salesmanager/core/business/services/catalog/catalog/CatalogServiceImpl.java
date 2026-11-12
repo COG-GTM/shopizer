@@ -1,6 +1,6 @@
 package com.salesmanager.core.business.services.catalog.catalog;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.jsoup.helper.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +38,7 @@ implements CatalogService {
 
 	@Override
 	public Catalog saveOrUpdate(Catalog catalog, MerchantStore store) {
+		normalizeNewEntityId(catalog);
 		catalogRepository.save(catalog);
 		return catalog;
 	}

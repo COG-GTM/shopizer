@@ -26,6 +26,7 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
@@ -67,6 +68,17 @@ public class ShopApplicationConfiguration implements WebMvcConfigurer {
   @Override
   public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
     converters.add(new MappingJackson2HttpMessageConverter());
+  }
+
+  /**
+   * Spring Framework 6 stopped matching trailing slashes by default; shopizer-admin and
+   * shopizer-shop-reactjs call endpoints such as /api/v1/cart/ and /api/v1/category/, so the Boot
+   * 2.x behaviour is part of the REST contract.
+   */
+  @Override
+  @SuppressWarnings("deprecation")
+  public void configurePathMatch(PathMatchConfigurer configurer) {
+    configurer.setUseTrailingSlashMatch(true);
   }
 
   @Override

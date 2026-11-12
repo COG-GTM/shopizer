@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.helper.Validate;
@@ -692,9 +692,9 @@ public class ContentFacadeImpl implements ContentFacade {
 
 	@Override
 	public Long saveContentPage(PersistableContentPage page, MerchantStore merchantStore, Language language) {
-		Validate.notNull(page);
+		Validate.notNull(page, "The validated object is null");
 		Validate.notNull(page.getCode(), "Content code must not be null");
-		Validate.notNull(merchantStore);
+		Validate.notNull(merchantStore, "The validated object is null");
 
 		try {
 			Content content = null;
@@ -715,9 +715,9 @@ public class ContentFacadeImpl implements ContentFacade {
 
 	@Override
 	public Long saveContentBox(PersistableContentBox box, MerchantStore merchantStore, Language language) {
-		Validate.notNull(box);
+		Validate.notNull(box, "The validated object is null");
 		Validate.notNull(box.getCode(), "Content box must not be null");
-		Validate.notNull(merchantStore);
+		Validate.notNull(merchantStore, "The validated object is null");
 
 		try {
 			Content content = null;
@@ -852,9 +852,9 @@ public class ContentFacadeImpl implements ContentFacade {
 	@Override
 	public void updateContentPage(Long id, PersistableContentPage page, MerchantStore merchantStore,
 			Language language) {
-		Validate.notNull(page);
+		Validate.notNull(page, "The validated object is null");
 		Validate.notNull(id, "Content id must not be null");
-		Validate.notNull(merchantStore);
+		Validate.notNull(merchantStore, "The validated object is null");
 
 		try {
 			Content content = null;
@@ -878,7 +878,7 @@ public class ContentFacadeImpl implements ContentFacade {
 	@Override
 	public void deleteContent(Long id, MerchantStore merchantStore) {
 		Validate.notNull(id, "Content id must not be null");
-		Validate.notNull(merchantStore);
+		Validate.notNull(merchantStore, "The validated object is null");
 		
 		try {
 			Content content = null;
@@ -899,9 +899,9 @@ public class ContentFacadeImpl implements ContentFacade {
 
 	@Override
 	public void updateContentBox(Long id, PersistableContentBox box, MerchantStore merchantStore, Language language) {
-		Validate.notNull(box);
+		Validate.notNull(box, "The validated object is null");
 		Validate.notNull(id, "Content id must not be null");
-		Validate.notNull(merchantStore);
+		Validate.notNull(merchantStore, "The validated object is null");
 
 		try {
 			Content content = null;

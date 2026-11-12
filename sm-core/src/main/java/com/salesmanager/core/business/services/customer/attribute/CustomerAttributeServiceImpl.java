@@ -2,7 +2,7 @@ package com.salesmanager.core.business.services.customer.attribute;
 
 import java.util.List;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.springframework.stereotype.Service;
 
@@ -35,7 +35,8 @@ public class CustomerAttributeServiceImpl extends
 	public void saveOrUpdate(CustomerAttribute customerAttribute)
 			throws ServiceException {
 
-			customerAttributeRepository.save(customerAttribute);
+		normalizeNewEntityId(customerAttribute);
+		customerAttributeRepository.save(customerAttribute);
 
 		
 	}

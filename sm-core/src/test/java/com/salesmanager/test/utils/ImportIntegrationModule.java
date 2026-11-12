@@ -5,12 +5,10 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Map;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
-import org.junit.Ignore;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.salesmanager.core.business.exception.ServiceException;
@@ -24,9 +22,8 @@ import com.salesmanager.test.configuration.ConfigurationTest;
 
 
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {ConfigurationTest.class})
-@Ignore
+@Disabled("Manual integration module import utility, not an automated test.")
 public class ImportIntegrationModule  {
 
 	@Inject
@@ -41,7 +38,7 @@ public class ImportIntegrationModule  {
 	 * if it already exists 
 	 * @throws Exception
 	 */
-	@Ignore
+	@Disabled("Manual integration module import utility, not an automated test.")
 	//@Test
 	public void importSpecificIntegrationModule() throws Exception {
 		
@@ -85,7 +82,7 @@ public class ImportIntegrationModule  {
 	 * Import all non existing modules
 	 * @throws Exception
 	 */
-	@Ignore
+	@Disabled("Manual integration module import utility, not an automated test.")
 	//@Test
 	public void importNonExistingIntegrationModule() throws Exception {
 		

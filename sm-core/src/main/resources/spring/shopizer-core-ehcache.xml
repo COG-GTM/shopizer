@@ -13,12 +13,9 @@
    http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring/ehcache-spring.xsd">
 
 
-	<bean id="springCacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
-		<property name="configLocation" value="classpath:/spring/ehcache.xml" />
-		<property name="shared" value="false" />
-	</bean>
+	<bean id="springCacheManager" class="com.salesmanager.core.business.configuration.JCacheConfiguration" factory-method="createCacheManager" destroy-method="close" />
 
-	<bean id="serviceCacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager">
+	<bean id="serviceCacheManager" class="org.springframework.cache.jcache.JCacheCacheManager">
 		<property name="cacheManager">
 			<ref bean="springCacheManager" />
 		</property>

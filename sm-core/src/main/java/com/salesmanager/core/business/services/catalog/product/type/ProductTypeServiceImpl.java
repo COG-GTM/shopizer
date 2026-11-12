@@ -2,7 +2,7 @@ package com.salesmanager.core.business.services.catalog.product.type;
 
 import java.util.List;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -40,6 +40,7 @@ public class ProductTypeServiceImpl extends SalesManagerEntityServiceImpl<Long, 
 
 	@Override
 	public void update(String code, MerchantStore store, ProductType type) throws ServiceException {
+		normalizeNewEntityId(type);
 		productTypeRepository.save(type);
 
 	}

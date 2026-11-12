@@ -4,7 +4,7 @@ package com.salesmanager.core.business.services.catalog.product.price;
 
 import java.util.List;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.springframework.stereotype.Service;
 
@@ -39,6 +39,7 @@ public class ProductPriceServiceImpl extends SalesManagerEntityServiceImpl<Long,
 	public ProductPrice saveOrUpdate(ProductPrice price) throws ServiceException {
 		
 		
+		normalizeNewEntityId(price);
 		ProductPrice returnEntity = productPriceRepository.save(price);
 
 		return returnEntity;
