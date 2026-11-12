@@ -214,7 +214,7 @@ public class StoreFacadeImpl implements StoreFacade {
 	@Override
 	public void update(PersistableMerchantStore store) {
 
-		Validate.notNull(store);
+		Validate.notNull(store, "The validated object is null");
 
 		MerchantStore mStore = mergePersistableMerchantStoreToMerchantStore(store, store.getCode(),
 				languageService.defaultLanguage());

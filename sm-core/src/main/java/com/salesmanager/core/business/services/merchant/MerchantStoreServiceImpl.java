@@ -123,7 +123,7 @@ public class MerchantStoreServiceImpl extends SalesManagerEntityServiceImpl<Inte
 			return storeModel;
 		}
 	
-		return merchantRepository.getById(storeModel.getParent().getId());
+		return merchantRepository.getReferenceById(storeModel.getParent().getId());
 	}
 
 

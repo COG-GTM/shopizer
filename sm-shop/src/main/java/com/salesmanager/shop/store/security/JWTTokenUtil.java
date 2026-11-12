@@ -150,11 +150,11 @@ public class JWTTokenUtil implements Serializable {
 	        System.out.println("doGenerateToken " + createdDate);
 
 	        return Jwts.builder()
-	                .setClaims(claims)
-	                .setSubject(subject)
-	                .setAudience(audience)
-	                .setIssuedAt(createdDate)
-	                .setExpiration(expirationDate)
+	                .claims(claims)
+	                .subject(subject)
+	                .audience().single(audience)
+	                .issuedAt(createdDate)
+	                .expiration(expirationDate)
 	                .signWith(key, Jwts.SIG.HS512)
 	                .compact();
 	    }
@@ -185,7 +185,7 @@ public class JWTTokenUtil implements Serializable {
 	        final Map<String, Object> claims = new HashMap<>(getAllClaimsFromToken(token));
 
 	        return Jwts.builder()
-	                .setClaims(claims)
+	                .claims(claims)
 	                .issuedAt(createdDate)
 	                .expiration(expirationDate)
 	                .signWith(key, Jwts.SIG.HS512)
