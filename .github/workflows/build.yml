@@ -3,7 +3,7 @@ name: Maven build
 on:
   pull_request:
   push:
-    branches: [epic/ab-531-v2]
+    branches: ['3.2.7', epic/ab-531-v2]
   workflow_dispatch:
 
 permissions:
