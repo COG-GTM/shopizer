@@ -12,23 +12,36 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        java: ['21']
+    env:
+      JAVA_VERSION: '21'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: ${{ matrix.java }}
+          java-version: ${{ env.JAVA_VERSION }}
           cache: maven
       - name: Verify
         run: ./mvnw -B verify
+      - name: Build Docker image
+        run: docker build -t shopizer:ci sm-shop
+      - name: Container smoke test
+        run: |
+          docker run -d --name shopizer -p 8080:8080 shopizer:ci
+          for _ in $(seq 1 60); do
+            status=$(docker inspect --format '{{.State.Health.Status}}' shopizer)
+            [ "$status" = healthy ] && break
+            [ "$(docker inspect --format '{{.State.Running}}' shopizer)" = true ] || break
+            sleep 5
+          done
+          docker inspect --format 'user={{.Config.User}} health={{.State.Health.Status}}' shopizer
+          curl -fsS http://localhost:8080/actuator/health | tee health.json
+          python3 -c 'import json; s = json.load(open("health.json"))["status"]; assert s == "UP", s'
+      - name: Container logs
+        if: always()
+        run: docker logs shopizer || true
       - name: Test summary
         if: always()
-        env:
-          JAVA_VERSION: ${{ matrix.java }}
         run: |
           python3 - <<'PY'
           import os
@@ -58,7 +71,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-reports-jdk-${{ matrix.java }}
+          name: test-reports-jdk-${{ env.JAVA_VERSION }}
           path: |
             **/target/surefire-reports/**
             **/target/failsafe-reports/**
