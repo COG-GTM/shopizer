@@ -64,7 +64,7 @@ public class MerchantConfiguration extends SalesManagerEntity<Long, MerchantConf
    * activate and deactivate configuration
    */
   @Column(name = "ACTIVE", nullable = true)
-  private Boolean active = new Boolean(false);
+  private Boolean active = Boolean.valueOf(false);
 
 
   @Column(name = "`VALUE`")

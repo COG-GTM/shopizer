@@ -63,7 +63,7 @@ public class SESEmailSenderImpl implements EmailModule {
       if (client == null) {
         client = SesClient.builder()
             .region(Region.of(region.toLowerCase(java.util.Locale.ROOT).replace('_', '-')))
-            .credentialsProvider(DefaultCredentialsProvider.create()).build();
+            .credentialsProvider(DefaultCredentialsProvider.builder().build()).build();
       }
       SendEmailRequest request = SendEmailRequest.builder()
           .destination(Destination.builder().toAddresses(email.getTo()).build())

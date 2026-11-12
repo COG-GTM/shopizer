@@ -273,8 +273,7 @@ public class MultipleEntryPointsSecurityConfig {
 		
 	    @Bean
 	    public AuthenticationProvider adminAuthenticationProvider() {
-	    	JWTAdminAuthenticationProvider provider = new JWTAdminAuthenticationProvider();
-	        provider.setUserDetailsService(jwtUserDetailsService);
+	        JWTAdminAuthenticationProvider provider = new JWTAdminAuthenticationProvider(jwtUserDetailsService);
 	        return provider;
 	    }
 
@@ -334,8 +333,7 @@ public class MultipleEntryPointsSecurityConfig {
 		
 	    @Bean
 	    public AuthenticationProvider customerAuthenticationProvider() {
-	    	JWTCustomerAuthenticationProvider provider = new JWTCustomerAuthenticationProvider();
-	        provider.setUserDetailsService(jwtCustomerDetailsService);
+	        JWTCustomerAuthenticationProvider provider = new JWTCustomerAuthenticationProvider(jwtCustomerDetailsService);
 	        return provider;
 	    }
 

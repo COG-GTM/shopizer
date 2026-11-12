@@ -96,15 +96,15 @@
 
 		<dependency>
 			<groupId>org.drools</groupId>
-			<artifactId>drools-core</artifactId>
+			<artifactId>drools-engine</artifactId>
 		</dependency>
 
 		<dependency>
 			<groupId>org.drools</groupId>
-			<artifactId>drools-compiler</artifactId>
+			<artifactId>drools-xml-support</artifactId>
 		</dependency>
 
-		<!-- The DRL files use dialect "mvel", split from drools-compiler in Drools 7. -->
+		<!-- Retain the classic MVEL dialect for the existing DRL rules. -->
 		<dependency>
 			<groupId>org.drools</groupId>
 			<artifactId>drools-mvel</artifactId>

@@ -16,7 +16,7 @@ public class LocaleUtils {
 
 	public static Locale getLocale(Language language) {
 
-		return new Locale(language.getCode());
+		return Locale.of(language.getCode());
 
 	}
 
