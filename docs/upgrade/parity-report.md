@@ -2,8 +2,8 @@
 
 **Initial Wave 3 verification; final epic sign-off is pending.**
 
-Generated: 20261112T004013Z. Source commit: `0f235b4f6ebc3da2392d249bfdebe959019e961c`.
-Working-tree patch SHA-256: `798bc5d834fab5ab3e52c8ea7105206c364fb197c8ccf2df19c70ac4f057e47a`; packaged JAR SHA-256: `fe67b9d51c652a61f60e9aa4c9a95e04109d73ae9c30f048661179f8a7ab401b`.
+Generated: 20261112T004651Z. Source commit: `2c4b8e3b63ada0d098d7e0a4bce4020fe2316280`.
+Working-tree patch SHA-256: `82e07cb65473b5fb1a68fcea376fec8bbe30081844d9674a151d3bffa360e5f5`; packaged JAR SHA-256: `2f51d15ca620363c2d5d52a1631d000b064941a56e11928c9b7abb831430b73b`.
 
 This report measures the checked-out integration snapshot plus the AB-548 harness. Re-run on the integration commit containing every other merged Wave 3 ticket before closing AB-531.
 

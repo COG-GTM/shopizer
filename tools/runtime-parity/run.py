@@ -278,7 +278,8 @@ def verify_continuity(before, after, fixtures):
         require(bool(prior["ids"]), f"Existing {kind} fixture rows are required")
         expected = prior["counter"] * 50  # JPA default allocation 50; legacy-hilo maxLo=49.
         require(set(prior["ids"]).issubset(current["ids"]), f"Existing {kind} rows lost")
-        require(min(fixtures[kind]) == expected, f"{kind} first ID must be existing counter * 50")
+        require(bool(fixtures[kind]) and fixtures[kind][0] == expected,
+                f"{kind} first ID must be existing counter * 50")
         require(len(set(fixtures[kind])) == len(fixtures[kind]), f"Duplicate {kind} IDs")
         require(not set(prior["ids"]).intersection(fixtures[kind]), f"{kind} ID collision")
         require(set(fixtures[kind]).issubset(current["ids"]), f"New {kind} rows missing")
