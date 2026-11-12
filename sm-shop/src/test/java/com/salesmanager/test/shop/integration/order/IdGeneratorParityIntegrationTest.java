@@ -6,26 +6,23 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.TreeMap;
 
-import javax.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityManagerFactory;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
-import org.hibernate.id.MultipleHiLoPerTableGenerator;
+import org.hibernate.generator.Generator;
 import org.hibernate.id.enhanced.LegacyHiLoAlgorithmOptimizer;
 import org.hibernate.id.enhanced.NoopOptimizer;
-import org.hibernate.id.enhanced.PooledOptimizer;
-import org.hibernate.id.enhanced.PooledLoOptimizer;
+import org.hibernate.id.enhanced.Optimizer;
 import org.hibernate.id.enhanced.TableGenerator;
-import org.hibernate.type.LongType;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import com.salesmanager.core.business.configuration.LegacyHiLoTableGenerator;
 import com.salesmanager.core.model.catalog.catalog.Catalog;
 import com.salesmanager.core.model.catalog.product.Product;
 import com.salesmanager.core.model.catalog.product.manufacturer.Manufacturer;
@@ -34,56 +31,74 @@ import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.test.shop.common.ServicesTestSupport;
 
+/**
+ * Hibernate 6 parity with the Hibernate 5 legacy MultipleHiLoPerTableGenerator captured in
+ * docs/upgrade/id-generation.md (AB-541): same SM_SEQUENCER rows, same ID arithmetic.
+ */
 public class IdGeneratorParityIntegrationTest extends ServicesTestSupport {
     @Autowired private EntityManagerFactory emf;
-    @Autowired private Environment environment;
 
     private Map<String, Long> sequencers(Session session) {
         Map<String, Long> rows = new TreeMap<>();
-        for (Object value : session.createNativeQuery("select SEQ_NAME, SEQ_COUNT from SALESMANAGER.SM_SEQUENCER order by SEQ_NAME").getResultList()) {
-            Object[] row = (Object[]) value;
+        for (Object[] row : session.createNativeQuery("select SEQ_NAME, SEQ_COUNT from SALESMANAGER.SM_SEQUENCER order by SEQ_NAME", Object[].class).getResultList()) {
             rows.put((String) row[0], ((Number) row[1]).longValue());
         }
         return rows;
     }
 
+    private static int maxLo(TableGenerator generator) {
+        Optimizer optimizer = generator.getOptimizer();
+        return optimizer instanceof LegacyHiLoAlgorithmOptimizer ? optimizer.getIncrementSize() : 0;
+    }
+
     @Test
-    void enhancedTableGeneratorUsesPooledUnlessExplicitlyOverridden() {
+    void everyTableGeneratorReproducesLegacyHiLoParameters() {
         SessionFactoryImplementor factory = emf.unwrap(SessionFactoryImplementor.class);
-        Properties parameters = new Properties();
-        parameters.setProperty("increment_size", "50");
-        TableGenerator generator = new TableGenerator();
-        generator.configure(LongType.INSTANCE, parameters, factory.getServiceRegistry());
-        assertTrue(generator.getOptimizer() instanceof PooledOptimizer);
-        assertEquals(Boolean.TRUE, ReflectionTestUtils.getField(generator, "storeLastUsedValue"));
-        parameters.setProperty("hibernate.id.optimizer.pooled.preferred", "pooled-lo");
-        generator = new TableGenerator();
-        generator.configure(LongType.INSTANCE, parameters, factory.getServiceRegistry());
-        assertTrue(generator.getOptimizer() instanceof PooledLoOptimizer);
-        parameters.setProperty("increment_size", "1");
-        generator = new TableGenerator();
-        generator.configure(LongType.INSTANCE, parameters, factory.getServiceRegistry());
-        assertTrue(generator.getOptimizer() instanceof NoopOptimizer);
+        assertEquals("false", String.valueOf(factory.getProperties().get("hibernate.id.generator.stored_last_used")));
+        assertEquals("legacy-hilo", String.valueOf(factory.getProperties().get("hibernate.id.optimizer.pooled.preferred")));
+        List<String> segments = new ArrayList<>();
+        factory.getMappingMetamodel().forEachEntityDescriptor(descriptor -> {
+            Generator generator = descriptor.getGenerator();
+            if (!(generator instanceof TableGenerator)) return;
+            String entity = descriptor.getEntityName();
+            assertTrue(generator instanceof LegacyHiLoTableGenerator, entity);
+            TableGenerator tableGenerator = (TableGenerator) generator;
+            assertEquals(Boolean.FALSE, ReflectionTestUtils.getField(tableGenerator, "storeLastUsedValue"), entity);
+            assertEquals("SM_SEQUENCER", tableGenerator.getTableName(), entity);
+            Optimizer optimizer = tableGenerator.getOptimizer();
+            if (optimizer instanceof LegacyHiLoAlgorithmOptimizer) {
+                // JPA default allocationSize 50 -> legacy max_lo 49, blocks of 50 ids per SM_SEQUENCER increment
+                assertEquals(49, optimizer.getIncrementSize(), entity);
+                assertEquals(0, tableGenerator.getInitialValue(), entity);
+            } else {
+                // description generators: allocationSize 1, the row value is the id
+                assertTrue(optimizer instanceof NoopOptimizer, entity);
+                assertEquals(1, optimizer.getIncrementSize(), entity);
+                assertEquals(1, tableGenerator.getInitialValue(), entity);
+            }
+            segments.add(tableGenerator.getSegmentValue());
+        });
+        assertTrue(segments.size() >= 60, "table generators found: " + segments.size());
+        assertTrue(segments.contains("PRODUCT_SEQ_NEXT_VAL"));
+        assertTrue(segments.contains("manufacturer_description_seq"));
     }
 
     @Test
     void recordsEffectiveLegacyGeneratorsAcrossNewSessions() {
-        assertEquals("true", environment.getProperty("spring.jpa.hibernate.use-new-id-generator-mappings"));
         SessionFactoryImplementor factory = emf.unwrap(SessionFactoryImplementor.class);
-        assertEquals("false", String.valueOf(factory.getProperties().get("hibernate.id.new_generator_mappings")));
         Map<String, Long> before;
         try (Session session = factory.openSession()) {
             before = sequencers(session);
         }
         for (Class<?> type : new Class<?>[] {Product.class, Catalog.class, Manufacturer.class, ManufacturerDescription.class}) {
-            Object generator = factory.getMetamodel().entityPersister(type).getIdentifierGenerator();
-            assertTrue(generator instanceof MultipleHiLoPerTableGenerator, type.getSimpleName());
-            int maxLo = (Integer) ReflectionTestUtils.getField(generator, "maxLo");
+            Generator rawGenerator = factory.getMappingMetamodel().getEntityDescriptor(type).getGenerator();
+            assertTrue(rawGenerator instanceof LegacyHiLoTableGenerator, type.getSimpleName());
+            TableGenerator generator = (TableGenerator) rawGenerator;
+            int maxLo = maxLo(generator);
             int expectedMaxLo = type == Product.class || type == Manufacturer.class ? 49 : 0;
             assertEquals(expectedMaxLo, maxLo);
-            String segment = (String) ReflectionTestUtils.getField(generator, "segmentName");
-            LegacyHiLoAlgorithmOptimizer optimizer = (LegacyHiLoAlgorithmOptimizer) ReflectionTestUtils.getField(generator, "hiloOptimizer");
-            assertEquals(maxLo > 0, optimizer != null);
+            String segment = generator.getSegmentValue();
+            Optimizer optimizer = generator.getOptimizer();
             Long previousId = null;
             for (int batch = 0; batch < 2; batch++) {
                 try (Session session = factory.openSession()) {

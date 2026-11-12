@@ -4,6 +4,7 @@ import com.salesmanager.shop.application.ShopApplication;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.http.client.ClientHttpRequestFactorySettings.Redirects;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
 
@@ -15,7 +16,9 @@ class SecurityFilterChainIntegrationTest {
 
     @Test
     void servicesUsesItsBasicEntryPointAndRejectsBadCredentials() {
-        ResponseEntity<String> response = http.getForEntity("/services/private/probe", String.class);
+        // Boot 3 TestRestTemplate follows redirects by default; the contract under test is the 302 itself
+        ResponseEntity<String> response = http.withRedirects(Redirects.DONT_FOLLOW)
+                .getForEntity("/services/private/probe", String.class);
         assertEquals(302, response.getStatusCodeValue());
         assertTrue(response.getHeaders().getLocation().getPath().endsWith("/login"));
         challenge("/services/private/probe", "Basic bm9ib2R5Ondyb25n", "rest-customer-realm");

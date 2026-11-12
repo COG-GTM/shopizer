@@ -33,3 +33,14 @@ the suite now configures the built-in `moneyorder` module with its required
 payee address through the private API before checking out. JSON clients must
 also send `Accept: application/json` to get a 401 Basic-auth challenge rather
 than the legacy form-login redirect for browser requests.
+
+## Resolved in AB-544: inventory decrement looked up the product by order-line id
+
+`OrderServiceImpl.process` decremented inventory with
+`productService.getById(orderProduct.getId())`, i.e. it used the `ORDER_PRODUCT_ID` as a
+`PRODUCT_ID`. On Hibernate 5 the smoke checkout only passed because the two sequences happened
+to point at an existing product; with Hibernate 6 the reference proxy fails fast with
+`EntityNotFoundException: Unable to find Product with id N` once that coincidence breaks
+(`BehaviourSmokeTest.checkoutCreatesOrderThatAdminCanRead` in the full `sm-shop` run). The
+lookup now uses the order line's SKU (`productService.getBySku`), which is the product the line
+was created from.

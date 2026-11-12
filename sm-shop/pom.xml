@@ -109,7 +109,7 @@
 		<!-- OpenAPI 3 documentation (springdoc) -->
 		<dependency>
 			<groupId>org.springdoc</groupId>
-			<artifactId>springdoc-openapi-ui</artifactId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 		</dependency>
 
 		<dependency>
@@ -121,6 +121,13 @@
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- Boot 3 TestRestTemplate needs HttpClient 5 for PATCH (Boot 2.7 picked up HttpClient 4 from sm-core) -->
+		<dependency>
+			<groupId>org.apache.httpcomponents.client5</groupId>
+			<artifactId>httpclient5</artifactId>
 			<scope>test</scope>
 		</dependency>
 

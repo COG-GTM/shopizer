@@ -4,8 +4,8 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 import java.util.Arrays;
 
-import org.springdoc.core.GroupedOpenApi;
-import org.springdoc.core.SpringDocUtils;
+import org.springdoc.core.models.GroupedOpenApi;
+import org.springdoc.core.utils.SpringDocUtils;
 import org.springdoc.core.customizers.OperationCustomizer;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;

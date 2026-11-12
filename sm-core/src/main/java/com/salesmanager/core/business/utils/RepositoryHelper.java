@@ -1,6 +1,6 @@
 package com.salesmanager.core.business.utils;
 
-import javax.persistence.Query;
+import jakarta.persistence.Query;
 
 import com.salesmanager.core.model.common.Criteria;
 import com.salesmanager.core.model.common.GenericEntityList;

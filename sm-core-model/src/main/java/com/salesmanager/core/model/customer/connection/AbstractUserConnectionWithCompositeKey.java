@@ -1,7 +1,7 @@
 package com.salesmanager.core.model.customer.connection;
 
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
+import jakarta.persistence.Id;
+import jakarta.persistence.MappedSuperclass;
 
 @Deprecated
 @MappedSuperclass

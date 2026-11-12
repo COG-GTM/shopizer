@@ -2,7 +2,7 @@ package com.salesmanager.core.business.configuration;
 
 import java.util.Properties;
 
-import javax.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityManagerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -111,13 +111,19 @@ public class DataConfiguration {
         hibernateProperties.setProperty("hibernate.show_sql", showSql);
         hibernateProperties.setProperty("hibernate.cache.use_second_level_cache", "true");
         hibernateProperties.setProperty("hibernate.cache.use_query_cache", "true");
-        hibernateProperties.setProperty("hibernate.cache.region.factory_class", "org.hibernate.cache.jcache.JCacheRegionFactory");
+        hibernateProperties.setProperty("hibernate.cache.region.factory_class", "jcache");
         hibernateProperties.put("hibernate.javax.cache.cache_manager", cacheManager);
         hibernateProperties.setProperty("hibernate.javax.cache.missing_cache_strategy", "fail");
         hibernateProperties.setProperty("hibernate.connection.CharSet", "utf8");
         hibernateProperties.setProperty("hibernate.connection.characterEncoding", "utf8");
         hibernateProperties.setProperty("hibernate.connection.useUnicode", "true");
-        hibernateProperties.setProperty("hibernate.id.new_generator_mappings", "false"); //unless you run on a new schema
+        // Hibernate 6 removed the legacy MultipleHiLoPerTableGenerator; LegacyHiLoTableGenerator
+        // reproduces its SM_SEQUENCER arithmetic (see docs/upgrade/id-generation.md)
+        hibernateProperties.setProperty("hibernate.identifier_generator_strategy_provider", LegacyIdentifierGeneratorStrategyProvider.class.getName());
+        hibernateProperties.setProperty("hibernate.id.generator.stored_last_used", "false");
+        hibernateProperties.setProperty("hibernate.id.optimizer.pooled.preferred", "legacy-hilo");
+        // entities were never bean-validated by the persistence provider (Hibernate 5 "auto" mode without a validator on the classpath)
+        hibernateProperties.setProperty("jakarta.persistence.validation.mode", "none");
         hibernateProperties.setProperty("hibernate.generate_statistics", "false");
         // hibernateProperties.setProperty("hibernate.globally_quoted_identifiers", "true");
         return hibernateProperties;

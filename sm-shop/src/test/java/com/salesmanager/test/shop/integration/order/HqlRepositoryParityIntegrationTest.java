@@ -27,9 +27,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -109,6 +109,34 @@ public class HqlRepositoryParityIntegrationTest extends ServicesTestSupport {
     @Autowired private PageableProductAvailabilityRepository pageableAvailability;
 
     private final Properties originals = new Properties();
+
+    /** Hibernate 5 originals whose text Hibernate 6 refuses to interpret (fixed by AB-542). */
+    private static final String[] HIBERNATE6_REJECTED_ORIGINALS = {
+            "MerchantImpl.listByCriteria",
+            "MerchantRepository.findByCode(String)",
+            "MerchantRepository.getById(int)",
+            "MerchantRepository.getByParent(String)",
+            "PageableMerchantRepository.listAll(String,Pageable)",
+            "PageableMerchantRepository.listAllRetailers(String,Pageable)",
+            "PageableMerchantRepository.listByStore(String,Pageable)",
+            "PageableProductAvailabilityRepository.listByStore(Long,Integer,String,Pageable).count",
+            "PageableProductVariantRepositoty.findByProductId(Integer,Long,Pageable)",
+            "ProductAvailabilityRepository.getById(Long)",
+            "ProductAvailabilityRepository.getById(Long,int)",
+            "ProductImpl.criteria.shop",
+            "ProductImpl.getById",
+            "ProductImpl.getProductsListForLocale",
+            "ProductImpl.getProductsListForLocale.count",
+            "ProductImpl.productQueryV2",
+            "ProductReviewRepository.findByProduct(Long)",
+            "ProductReviewRepository.findByProduct(Long,Integer)",
+            "ProductReviewRepository.findByProductAndCustomer(Long,Long)",
+            "ProductVariantRepository.findById(Long,Long,Integer)",
+            "ProductVariantRepository.findByIds(List<Long>,Integer)",
+            "ProductVariantRepository.findByProductId(Integer,Long)",
+            "ProductVariantRepository.findBySku(String,Long,Integer,Integer)",
+            "ProductVariantRepository.findOne(Long,Integer)",
+    };
     private MerchantStore store;
     private MerchantStore parentStore;
     private Language language;
@@ -327,7 +355,24 @@ public class HqlRepositoryParityIntegrationTest extends ServicesTestSupport {
         return value;
     }
 
+    /**
+     * Hibernate 6 (SQM) rejects some of the original Hibernate 5 HQL strings at parse time
+     * (duplicate aliases, fetching the same association twice, boolean/integer comparisons);
+     * those are exactly the defects AB-542 repaired. Such originals cannot be replayed any more,
+     * so the parity checks below fall back to asserting the repaired query alone and
+     * {@link #hibernate6RejectsExactlyTheOriginalsAb542Repaired()} pins the rejected set.
+     */
+    private List<?> original(String hql, Supplier<List<?>> rows) {
+        try {
+            em.createQuery(hql.replaceAll("%?(\\?\\d+)%?", "$1"));
+        } catch (IllegalArgumentException | org.hibernate.query.sqm.InterpretationException e) {
+            return null; // only a Hibernate 6 parse rejection skips the comparison
+        }
+        return rows.get(); // binding or execution failures still fail the test
+    }
+
     private void same(String hql, List<?> expected, Object actual) {
+        if (expected == null) return;
         List<?> before = expected.stream().map(this::id).collect(Collectors.toList());
         List<?> after = rows(actual).stream().map(this::id).collect(Collectors.toList());
         if (hql.toLowerCase(Locale.ROOT).contains("order by")) assertEquals(before, after, hql);
@@ -336,7 +381,7 @@ public class HqlRepositoryParityIntegrationTest extends ServicesTestSupport {
 
     private Query positional(String hql, Object[] args) {
         Query query = em.createQuery(hql.replaceAll("%?(\\?\\d+)%?", "$1"));
-        for (javax.persistence.Parameter<?> parameter : query.getParameters()) {
+        for (jakarta.persistence.Parameter<?> parameter : query.getParameters()) {
             int position = parameter.getPosition();
             Object value = args[position - 1];
             if (value != null && hql.contains("%?" + position + "%")) value = "%" + value + "%";
@@ -410,14 +455,18 @@ public class HqlRepositoryParityIntegrationTest extends ServicesTestSupport {
             Object repository = context.getBean(type);
             Object[] args = arguments(key);
             String hql = original(key);
-            List<?> before = positional(hql, args).getResultList();
-            assertFalse(before.isEmpty(), key);
-            same(hql, before, method.invoke(repository, args));
+            List<?> before = original(hql, () -> positional(hql, args).getResultList());
+            if (before != null) assertFalse(before.isEmpty(), key);
+            Object repaired = method.invoke(repository, args);
+            assertFalse(rows(repaired).isEmpty(), key);
+            same(hql, before, repaired);
             Object[] emptyArgs = args.clone();
             emptyArgs[0] = missing(args[0]);
-            List<?> empty = positional(hql, emptyArgs).getResultList();
-            assertTrue(empty.isEmpty(), key);
-            same(hql, empty, method.invoke(repository, emptyArgs));
+            List<?> empty = original(hql, () -> positional(hql, emptyArgs).getResultList());
+            if (empty != null) assertTrue(empty.isEmpty(), key);
+            Object repairedEmpty = method.invoke(repository, emptyArgs);
+            assertTrue(rows(repairedEmpty).isEmpty(), key);
+            same(hql, empty, repairedEmpty);
             checked++;
         }
         assertEquals(24, checked);
@@ -428,10 +477,11 @@ public class HqlRepositoryParityIntegrationTest extends ServicesTestSupport {
         String hql = original("PageableProductAvailabilityRepository.listByStore(Long,Integer,String,Pageable).count");
         for (Long productId : Arrays.asList(product.getId(), -1L)) {
             Object[] args = {productId, store.getId(), "hql_parity"};
-            long before = ((Number) positional(hql, args).getSingleResult()).longValue();
+            List<?> before = original(hql, () -> positional(hql, args).getResultList());
             Page<ProductAvailability> page = pageableAvailability.listByStore(productId, store.getId(), "hql_parity", PageRequest.of(0, 1));
-            assertEquals(productId.equals(product.getId()) ? 1L : 0L, before);
-            assertEquals(before, page.getTotalElements());
+            long expected = productId.equals(product.getId()) ? 1L : 0L;
+            if (before != null) assertEquals(expected, ((Number) before.get(0)).longValue());
+            assertEquals(expected, page.getTotalElements());
         }
     }
 
@@ -449,9 +499,11 @@ public class HqlRepositoryParityIntegrationTest extends ServicesTestSupport {
 
     private void parity(String key, Map<String, Object> parameters, Supplier<?> repaired, boolean nonEmpty) {
         String hql = original(key);
-        List<?> before = named(hql, parameters);
-        assertEquals(nonEmpty, !before.isEmpty(), key);
-        same(hql, before, repaired.get());
+        List<?> before = original(hql, () -> named(hql, parameters));
+        if (before != null) assertEquals(nonEmpty, !before.isEmpty(), key);
+        Object actual = repaired.get();
+        assertEquals(nonEmpty, !rows(actual).isEmpty(), key);
+        same(hql, before, actual);
     }
 
     @Test
@@ -484,11 +536,15 @@ public class HqlRepositoryParityIntegrationTest extends ServicesTestSupport {
             parity("ProductImpl.listByTaxClass", parameters("tid", selectedTax.getId()), () -> products.listByTaxClass(selectedTax), found);
             parity("ProductImpl.getById", parameters("productId", id, "id", store.getId()), () -> products.getById(id, store, language), found);
             String v2 = original("ProductImpl.productQueryV2") + "where p.id=:pid";
-            List<?> unscoped = named(v2, parameters("pid", id));
-            assertEquals(found, !unscoped.isEmpty());
-            same(v2, unscoped, ((ProductRepositoryCustom) products).getById(id));
+            List<?> unscoped = original(v2, () -> named(v2, parameters("pid", id)));
+            if (unscoped != null) assertEquals(found, !unscoped.isEmpty());
+            Product byId = ((ProductRepositoryCustom) products).getById(id);
+            assertEquals(found, byId != null);
+            same(v2, unscoped, byId);
             String scoped = v2 + " and merch.id in (:mid)";
-            same(scoped, named(scoped, parameters("pid", id, "mid", Arrays.asList(store.getId(), parentStore.getId()))), products.getById(id, store));
+            Product scopedById = products.getById(id, store);
+            assertEquals(found, scopedById != null);
+            same(scoped, original(scoped, () -> named(scoped, parameters("pid", id, "mid", Arrays.asList(store.getId(), parentStore.getId())))), scopedById);
         }
     }
 
@@ -503,9 +559,11 @@ public class HqlRepositoryParityIntegrationTest extends ServicesTestSupport {
             for (Long id : Arrays.asList(product.getId(), -1L)) {
                 String tail = " where p.id=:productId";
                 Map<String, Object> params = parameters("productId", id);
-                List<?> oldRows = named(before + tail, params);
-                assertEquals(id.equals(product.getId()), !oldRows.isEmpty());
-                same(before, oldRows, named(after + tail, params));
+                List<?> oldRows = original(before, () -> named(before + tail, params));
+                if (oldRows != null) assertEquals(id.equals(product.getId()), !oldRows.isEmpty());
+                List<?> newRows = named(after + tail, params);
+                assertEquals(id.equals(product.getId()), !newRows.isEmpty());
+                same(before, oldRows, newRows);
             }
         }
         for (String origin : Arrays.asList(ProductCriteria.ORIGIN_SHOP, ProductCriteria.ORIGIN_ADMIN)) {
@@ -544,9 +602,11 @@ public class HqlRepositoryParityIntegrationTest extends ServicesTestSupport {
             MerchantStoreCriteria criteria = new MerchantStoreCriteria();
             criteria.setCode(code);
             String hql = original("MerchantImpl.listByCriteria") + " where lower(m.code) like:code";
-            List<?> before = named(hql, parameters("code", "%" + code + "%"));
-            assertEquals(code.equals(store.getCode()), !before.isEmpty());
-            same(hql, before, merchants.listByCriteria(criteria).getList());
+            List<?> before = original(hql, () -> named(hql, parameters("code", "%" + code + "%")));
+            if (before != null) assertEquals(code.equals(store.getCode()), !before.isEmpty());
+            List<?> repaired = merchants.listByCriteria(criteria).getList();
+            assertEquals(code.equals(store.getCode()), !repaired.isEmpty());
+            same(hql, before, repaired);
         }
     }
 
@@ -596,10 +656,11 @@ public class HqlRepositoryParityIntegrationTest extends ServicesTestSupport {
         Map<String, Object> params = parameters("mId", store.getId(), "cid", Collections.singleton(child.getId()),
                 "lid", Arrays.asList("*", "CA"), "dt", new Date());
         String count = original("ProductImpl.getProductsListForLocale.count");
-        long before = ((Number) named(count, params).get(0)).longValue();
+        List<?> counted = original(count, () -> named(count, params));
+        long before = counted == null ? 1L : ((Number) counted.get(0)).longValue();
         assertEquals(1L, before);
-        Query broken = em.createQuery(original("ProductImpl.getProductsListForLocale"));
-        assertThrows(IllegalArgumentException.class, () -> broken.setParameter("mId", store.getId()));
+        // Hibernate 5 only failed when binding the parameters; Hibernate 6 already rejects the text
+        assertThrows(IllegalArgumentException.class, () -> em.createQuery(original("ProductImpl.getProductsListForLocale")).setParameter("mId", store.getId()));
         ProductRepositoryImpl implementation = new ProductRepositoryImpl();
         ReflectionTestUtils.setField(implementation, "em", em);
         ProductList result = ReflectionTestUtils.invokeMethod(implementation, "getProductsListForLocale", store, Collections.singleton(child.getId()), language, Locale.CANADA, 0, -1);
@@ -607,6 +668,19 @@ public class HqlRepositoryParityIntegrationTest extends ServicesTestSupport {
         assertEquals(Collections.singletonList(product.getId()), result.getProducts().stream().map(Product::getId).collect(Collectors.toList()));
         ProductList empty = ReflectionTestUtils.invokeMethod(implementation, "getProductsListForLocale", store, Collections.singleton(-1L), language, Locale.CANADA, 0, -1);
         assertEquals(0, empty.getTotalCount());
+    }
+
+    @Test
+    void hibernate6RejectsExactlyTheOriginalsAb542Repaired() {
+        Set<String> rejected = new java.util.TreeSet<>();
+        for (String key : new java.util.TreeSet<>(originals.stringPropertyNames())) {
+            try {
+                em.createQuery(original(key).replaceAll("%?(\\?\\d+)%?", "$1"));
+            } catch (IllegalArgumentException | org.hibernate.query.sqm.InterpretationException e) {
+                rejected.add(key);
+            }
+        }
+        assertEquals(new java.util.TreeSet<>(Arrays.asList(HIBERNATE6_REJECTED_ORIGINALS)), rejected);
     }
 
     @Test
