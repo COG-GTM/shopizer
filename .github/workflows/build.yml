@@ -21,8 +21,8 @@ jobs:
           distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
           cache: maven
-      - name: Verify
-        run: ./mvnw -B verify
+      - name: Clean install (JDK 21)
+        run: ./mvnw -B clean install
       - name: Build Docker image
         run: docker build -t shopizer:ci sm-shop
       - name: Container smoke test
