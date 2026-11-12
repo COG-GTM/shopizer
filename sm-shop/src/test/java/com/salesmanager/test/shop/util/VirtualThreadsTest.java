@@ -23,7 +23,10 @@ class VirtualThreadsTest {
 
     @Test
     void defaultsToPlatformThreads() {
-        assertThreadMode(context, false);
+        assertThreadMode(context.withInitializer(application -> {
+            application.getEnvironment().getPropertySources().remove("systemProperties");
+            application.getEnvironment().getPropertySources().remove("systemEnvironment");
+        }), false);
     }
 
     @Test
