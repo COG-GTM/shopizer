@@ -1,0 +1,5 @@
+*
+!target/shopizer.jar
+!SALESMANAGER.mv.db
+!files/
+!src/main/resources/profiles/docker/database.properties
