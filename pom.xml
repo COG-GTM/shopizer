@@ -61,16 +61,12 @@
 
 		<org.apache.httpcomponent.version>4.5.14</org.apache.httpcomponent.version>
 		<jakarta-inject-api.version>2.0.1</jakarta-inject-api.version>
-		<infinispan.version>9.4.18.Final</infinispan.version>
-		<!-- Infinispan 9.4 needs Caffeine 2.x (CacheWriter was removed in Caffeine 3, which Boot 3 manages); drop with AB-545 -->
-		<caffeine.version>2.9.3</caffeine.version>
+		<infinispan.version>15.0.22.Final</infinispan.version>
 		<oracle.version>18.3.0.0</oracle.version>
 		<postgresql.version>42.2.18</postgresql.version>
 		<simple-json-version>1.1.1</simple-json-version>
 		<geoip2.version>4.3.1</geoip2.version>
-		<drools.version>7.74.1.Final</drools.version>
-		<!-- Drools' MVEL 2.4.15 references java.lang.Compiler, removed in JDK 21. -->
-		<mvel.version>2.5.2.Final</mvel.version>
+		<drools.version>10.2.0</drools.version>
 		<jsoup.version>1.7.2</jsoup.version>
 		<google-client-maps-services-version>0.1.6</google-client-maps-services-version>
 		<jwt.version>0.12.6</jwt.version>
@@ -90,6 +86,13 @@
 	<!--BOM -->
 	<dependencyManagement>
 		<dependencies>
+			<dependency>
+				<groupId>org.drools</groupId>
+				<artifactId>drools-bom</artifactId>
+				<version>${drools.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
 			<dependency>
 				<groupId>jakarta.activation</groupId>
 				<artifactId>jakarta.activation-api</artifactId>
@@ -191,34 +194,6 @@
 				<groupId>com.google.maps</groupId>
 				<artifactId>google-maps-services</artifactId>
 				<version>${google-client-maps-services-version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.drools</groupId>
-				<artifactId>drools-decisiontables</artifactId>
-				<version>${drools.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.drools</groupId>
-				<artifactId>drools-core</artifactId>
-				<version>${drools.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.drools</groupId>
-				<artifactId>drools-compiler</artifactId>
-				<version>${drools.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.drools</groupId>
-				<artifactId>drools-mvel</artifactId>
-				<version>${drools.version}</version>
-			</dependency>
-			<!-- end rules engine -->
-
-			<dependency>
-				<groupId>org.mvel</groupId>
-				<artifactId>mvel2</artifactId>
-				<version>${mvel.version}</version>
 			</dependency>
 
 			<dependency>
