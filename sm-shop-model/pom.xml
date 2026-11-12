@@ -55,15 +55,10 @@
 		<artifactId>spring-webmvc</artifactId>
 	</dependency>
 
-    <dependency>
-      <groupId>javax.annotation</groupId>
-      <artifactId>javax.annotation-api</artifactId>
-    </dependency>
-
     <!-- OpenAPI 3 annotations (@Schema) -->
     <dependency>
       <groupId>io.swagger.core.v3</groupId>
-      <artifactId>swagger-annotations</artifactId>
+      <artifactId>swagger-annotations-jakarta</artifactId>
     </dependency>
 
   </dependencies>

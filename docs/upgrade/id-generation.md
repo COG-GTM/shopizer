@@ -312,3 +312,23 @@ without `inventory` returned 400 ("product must have at least one availability")
 a cart request with numeric product 1 returned 400 ("Cannot get product with sku
 [1]"). Using the actual DTO's inventory and SKU fields produced the successful
 requests above. These were request corrections, not application changes.
+
+## Implemented in AB-544 (Hibernate 6.6)
+
+* `DataConfiguration` no longer sets `hibernate.id.new_generator_mappings` (removed in
+  Hibernate 6) and `spring.jpa.hibernate.use-new-id-generator-mappings` was removed from
+  `application.properties`.
+* `com.salesmanager.core.business.configuration.LegacyHiLoTableGenerator` extends the
+  Hibernate 6 enhanced `TableGenerator` and translates every JPA `@TableGenerator` into the
+  parameters of the table above: allocation `n > 1` becomes `optimizer=legacy-hilo`,
+  `increment_size=n-1`, `initial_value=0`; allocation `1` becomes `optimizer=none`,
+  `increment_size=1`, `initial_value=1`. The JPA annotations (and their never-effective
+  `initialValue=2000`) are unchanged.
+* `LegacyIdentifierGeneratorStrategyProvider` routes `GenerationType.TABLE`
+  (`enhanced-table`) to that class through
+  `hibernate.identifier_generator_strategy_provider`; `DataConfiguration` also sets
+  `hibernate.id.generator.stored_last_used=false` and, as a safety net for any generator
+  that bypasses the provider, `hibernate.id.optimizer.pooled.preferred=legacy-hilo`.
+* `IdGeneratorParityIntegrationTest` (sm-shop) asserts every table generator in the
+  metamodel uses these parameters and replays the Hibernate 5 capture above (same
+  `SM_SEQUENCER` rows, same `source * 50 + lo` / `row value` arithmetic across new sessions).

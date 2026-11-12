@@ -54,8 +54,7 @@ public class MultipleEntryPointsSecurityConfig {
 
 	private static AuthenticationManager authenticationManager(UserDetailsService userDetailsService,
 			PasswordEncoder passwordEncoder, AuthenticationProvider... additionalProviders) {
-		DaoAuthenticationProvider daoProvider = new DaoAuthenticationProvider();
-		daoProvider.setUserDetailsService(userDetailsService);
+		DaoAuthenticationProvider daoProvider = new DaoAuthenticationProvider(userDetailsService);
 		daoProvider.setPasswordEncoder(passwordEncoder);
 		java.util.List<AuthenticationProvider> providers = new java.util.ArrayList<>(java.util.Arrays.asList(additionalProviders));
 		providers.add(daoProvider);
@@ -115,11 +114,11 @@ public class MultipleEntryPointsSecurityConfig {
 		public WebSecurityCustomizer publicResourcesIgnoring() {
 			return web -> {
 
-			web.ignoring().antMatchers("/");
-			web.ignoring().antMatchers("/error");
-			web.ignoring().antMatchers("/resources/**");
-			web.ignoring().antMatchers("/static/**");
-			web.ignoring().antMatchers("/services/public/**");
+			web.ignoring().requestMatchers("/");
+			web.ignoring().requestMatchers("/error");
+			web.ignoring().requestMatchers("/resources/**");
+			web.ignoring().requestMatchers("/static/**");
+			web.ignoring().requestMatchers("/services/public/**");
 			};
 		}
 
@@ -131,31 +130,27 @@ public class MultipleEntryPointsSecurityConfig {
 		public SecurityFilterChain customerSecurityFilterChain(HttpSecurity http, PasswordEncoder passwordEncoder) throws Exception {
 			http.authenticationManager(customerAuthenticationManager(passwordEncoder));
 			http
-			.antMatcher("/shop/**")
-			.csrf().disable()			
-			.authorizeRequests()
-					.antMatchers("/shop/").permitAll()
-					.antMatchers("/shop/**").permitAll()
-					.antMatchers("/shop/customer/logon*").permitAll()
-					.antMatchers("/shop/customer/registration*").permitAll()
-					.antMatchers("/shop/customer/logout*").permitAll()
-					.antMatchers("/shop/customer/customLogon*").permitAll()
-					.antMatchers("/shop/customer/denied*").permitAll()
-					.antMatchers("/shop/customer/**").hasRole("AUTH_CUSTOMER")
-					.anyRequest().authenticated()
-					.and()
-					.httpBasic()
-					.authenticationEntryPoint(shopAuthenticationEntryPoint())
-					.and()
-					.logout()
+			.securityMatcher("/shop/**")
+			.csrf(csrf -> csrf.disable())
+			.authorizeHttpRequests(authorize -> authorize
+					.requestMatchers("/shop/").permitAll()
+					.requestMatchers("/shop/**").permitAll()
+					.requestMatchers("/shop/customer/logon*").permitAll()
+					.requestMatchers("/shop/customer/registration*").permitAll()
+					.requestMatchers("/shop/customer/logout*").permitAll()
+					.requestMatchers("/shop/customer/customLogon*").permitAll()
+					.requestMatchers("/shop/customer/denied*").permitAll()
+					.requestMatchers("/shop/customer/**").hasRole("AUTH_CUSTOMER")
+					.anyRequest().authenticated())
+			.httpBasic(basic -> basic
+					.authenticationEntryPoint(shopAuthenticationEntryPoint()))
+			.logout(logout -> logout
 					.logoutUrl("/shop/customer/logout")
 					.logoutSuccessUrl("/shop/")
 					.invalidateHttpSession(true)
 					.deleteCookies("JSESSIONID")
-
-					.invalidateHttpSession(false)
-					.and()
-					.exceptionHandling().accessDeniedPage("/shop/");
+					.invalidateHttpSession(false))
+			.exceptionHandling(handling -> handling.accessDeniedPage("/shop/"));
 
 			return http.build();
 
@@ -198,15 +193,14 @@ public class MultipleEntryPointsSecurityConfig {
 		public SecurityFilterChain servicesSecurityFilterChain(HttpSecurity http, PasswordEncoder passwordEncoder) throws Exception {
 			http.authenticationManager(servicesAuthenticationManager(passwordEncoder));
 			http
-			.antMatcher("/services/**")
-			.csrf().disable()
-					.authorizeRequests()
-					.antMatchers("/services/public/**").permitAll()
-					.antMatchers("/services/private/**").hasRole("AUTH")
-					.anyRequest().authenticated()
-					.and().httpBasic().authenticationEntryPoint(servicesAuthenticationEntryPoint())
-					.and().formLogin()
-					.successHandler(servicesAuthenticationSuccessHandler);
+			.securityMatcher("/services/**")
+			.csrf(csrf -> csrf.disable())
+			.authorizeHttpRequests(authorize -> authorize
+					.requestMatchers("/services/public/**").permitAll()
+					.requestMatchers("/services/private/**").hasRole("AUTH")
+					.anyRequest().authenticated())
+			.httpBasic(basic -> basic.authenticationEntryPoint(servicesAuthenticationEntryPoint()))
+			.formLogin(login -> login.successHandler(servicesAuthenticationSuccessHandler));
 
 			return http.build();
 
@@ -249,7 +243,7 @@ public class MultipleEntryPointsSecurityConfig {
 		public WebSecurityCustomizer apiDocumentationIgnoring() {
 			return web -> {
 
-			web.ignoring().antMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs", "/v3/api-docs/**");
+			web.ignoring().requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs", "/v3/api-docs/**");
 			};
 		}
 
@@ -262,18 +256,16 @@ public class MultipleEntryPointsSecurityConfig {
 		public SecurityFilterChain jwtAdminSecurityFilterChain(HttpSecurity http, PasswordEncoder passwordEncoder) throws Exception {
 			http.authenticationManager(jwtAdminAuthenticationManager(passwordEncoder));
 			http
-					.antMatcher(API_VERSION + "/private/**")
-					.authorizeRequests()
-					.antMatchers(API_VERSION + "/private/login*").permitAll()
-					.antMatchers(API_VERSION + "/private/refresh").permitAll()
-					.antMatchers(HttpMethod.OPTIONS, API_VERSION + "/private/**").permitAll()
-					.antMatchers(API_VERSION + "/private/**").hasRole("AUTH")
-					.anyRequest().authenticated()
-					.and()
-					.httpBasic().authenticationEntryPoint(apiAdminAuthenticationEntryPoint())
-					.and()
+					.securityMatcher(API_VERSION + "/private/**")
+					.authorizeHttpRequests(authorize -> authorize
+							.requestMatchers(API_VERSION + "/private/login*").permitAll()
+							.requestMatchers(API_VERSION + "/private/refresh").permitAll()
+							.requestMatchers(HttpMethod.OPTIONS, API_VERSION + "/private/**").permitAll()
+							.requestMatchers(API_VERSION + "/private/**").hasRole("AUTH")
+							.anyRequest().authenticated())
+					.httpBasic(basic -> basic.authenticationEntryPoint(apiAdminAuthenticationEntryPoint()))
 					.addFilterAfter(authenticationTokenFilter, BasicAuthenticationFilter.class)
-					.csrf().disable();
+					.csrf(csrf -> csrf.disable());
 
 			return http.build();
 
@@ -324,19 +316,17 @@ public class MultipleEntryPointsSecurityConfig {
 		public SecurityFilterChain jwtCustomerSecurityFilterChain(HttpSecurity http, PasswordEncoder passwordEncoder) throws Exception {
 			http.authenticationManager(jwtCustomerAuthenticationManager(passwordEncoder));
 			http
-			
-				.antMatcher(API_VERSION + "/auth/**")
-				.authorizeRequests()
-					.antMatchers(API_VERSION + "/auth/refresh").permitAll()
-					.antMatchers(API_VERSION + "/auth/login").permitAll()
-					.antMatchers(API_VERSION + "/auth/register").permitAll()
-					.antMatchers(HttpMethod.OPTIONS, API_VERSION + "/auth/**").permitAll()
-					.antMatchers(API_VERSION + "/auth/**")
-					.hasRole("AUTH_CUSTOMER").anyRequest().authenticated()
-					.and()
-					.httpBasic()
-					.authenticationEntryPoint(apiCustomerAuthenticationEntryPoint()).and().csrf().disable()
-					.addFilterAfter(authenticationTokenFilter, BasicAuthenticationFilter.class);
+				.securityMatcher(API_VERSION + "/auth/**")
+				.authorizeHttpRequests(authorize -> authorize
+					.requestMatchers(API_VERSION + "/auth/refresh").permitAll()
+					.requestMatchers(API_VERSION + "/auth/login").permitAll()
+					.requestMatchers(API_VERSION + "/auth/register").permitAll()
+					.requestMatchers(HttpMethod.OPTIONS, API_VERSION + "/auth/**").permitAll()
+					.requestMatchers(API_VERSION + "/auth/**").hasRole("AUTH_CUSTOMER")
+					.anyRequest().authenticated())
+				.httpBasic(basic -> basic.authenticationEntryPoint(apiCustomerAuthenticationEntryPoint()))
+				.csrf(csrf -> csrf.disable())
+				.addFilterAfter(authenticationTokenFilter, BasicAuthenticationFilter.class);
 
 			return http.build();
 
