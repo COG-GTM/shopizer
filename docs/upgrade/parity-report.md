@@ -1,11 +1,13 @@
 # Runtime parity report (AB-548)
 
-**Initial Wave 3 verification; final epic sign-off is pending.**
+**Final runtime parity sign-off on the fully merged Wave 3 integration commit.**
 
-Generated: 20261112T011559Z. Source commit: `438ced1d0efbafc9cc916847c5614bc81e8878c1`.
-Working-tree patch SHA-256: `f90d1afb82ee6a81083fc683b373e2eb3f1d295c676ac32c0aac4cb0cbf75ca0`; packaged JAR SHA-256: `dcae9bc0e0772ba5c65e6935da560135ec1ba6d4a492180e3415f78bc32cacd0`.
+Generated: 20261112T012535Z. Source commit: `6307ae39f2e10e5487a3d51b08dc87199275a141`.
+Working-tree patch SHA-256: `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`; packaged JAR SHA-256: `35a569cfedb931e46bb3aec8a25a39ffc25dfe64b5faee41ce28cafad2f80a8a`.
 
-This report measures the checked-out integration snapshot plus the AB-548 harness. Re-run on the integration commit containing every other merged Wave 3 ticket before closing AB-531.
+This report measures the unmodified integration commit containing AB-545 (#383), AB-546 (#382), AB-547 (#380), AB-549 (#381), AB-550 (#384), and the AB-548 harness (#388). The empty working-tree patch hash above confirms no application or harness changes were applied for this run.
+
+Runtime: OpenJDK `21.0.13.0.3` (build `21.0.13.0.3+1-1-22.04.1-Ubuntu`). Evidence: `.runtime-parity/20261112T012535Z-5a80fb/` (local, not committed). Harness regression tests: 6 passed.
 
 Result: **PASS**.
 
@@ -81,4 +83,6 @@ python3 tools/runtime-parity/run.py --report docs/upgrade/parity-report.md
 
 Requires system Maven, Docker and Python 3; no additional test dependencies. MySQL is pulled if needed. Evidence (build and app logs, Surefire XML, OpenAPI/inventories/diffs, raw coverage, dataset snapshots, result JSON) is preserved under `.runtime-parity/<run>/`, outside Maven's cleaned target directories. Tokens and database passwords are not written to the report. The runner exits nonzero on any failed gate, preserves diagnostics, terminates app processes, and stops only its own uniquely named MySQL container. Stopped containers are retained for diagnosis and can be removed explicitly by their printed name.
 
-Before final sign-off, check that AB-545/546/547/549 (and AB-550 if included) are merged into `epic/ab-531-v2`, run the command on that exact commit, review all additive/metadata differences and commit the regenerated report. A passing initial report does not close the epic. No load/performance or frontend repository verification is claimed.
+Final sign-off completed on the source commit above after all other Wave 3 tickets merged. No removed/renamed operations or additive operations were found on either database. Metadata differences remain the documented Swagger 2 → OpenAPI 3 normalization; no security metadata differences were found. No load/performance or frontend repository verification is claimed.
+
+No gate failures occurred. MySQL emitted transient socket-not-ready/access-denied messages during container initialization; readiness subsequently succeeded and all MySQL smoke, contract, sequence-continuity, and restart-readback gates passed. This is a fresh local MySQL 8 fixture dataset, not a production-data migration rehearsal.
