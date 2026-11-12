@@ -250,7 +250,7 @@ public class S3StaticContentAssetsManagerImpl implements ContentAssetsManager {
 
 		if (client == null) {
 			client = S3Client.builder().region(Region.of(region))
-					.credentialsProvider(DefaultCredentialsProvider.create()).build();
+					.credentialsProvider(DefaultCredentialsProvider.builder().build()).build();
 		}
 		return client;
 	}

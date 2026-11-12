@@ -278,7 +278,7 @@ public class InitializationDatabaseImpl implements InitializationDatabase {
 				countryService.create(country);
 				
 				for (Language language : languages) {
-					String name = locale.getDisplayCountry(new Locale(language.getCode()));
+					String name = locale.getDisplayCountry(Locale.of(language.getCode()));
 					//byte[] ptext = value.getBytes(Constants.ISO_8859_1); 
 					//String name = new String(ptext, Constants.UTF_8); 
 					CountryDescription description = new CountryDescription(language, name);

@@ -248,7 +248,7 @@ public class S3ProductContentFileManager
   private S3Client s3Client() {
     if (client == null) {
       client = S3Client.builder().region(Region.of(regionName()))
-          .credentialsProvider(DefaultCredentialsProvider.create()).build();
+          .credentialsProvider(DefaultCredentialsProvider.builder().build()).build();
     }
     return client;
   }

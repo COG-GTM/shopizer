@@ -57,11 +57,11 @@ public class LanguageServiceImpl extends SalesManagerEntityServiceImpl<Integer, 
 		
 			String countryCode = store.getCountry().getIsoCode();
 			
-			return new Locale(language.getCode(), countryCode);
+			return Locale.of(language.getCode(), countryCode);
 		
 		} else {
 			
-			return new Locale(language.getCode());
+			return Locale.of(language.getCode());
 		}
 	}
 	

@@ -50,7 +50,7 @@ public class CustomerOptionSet extends SalesManagerEntity<Long, CustomerOptionSe
 
 
 	@Column(name="SORT_ORDER")
-	private Integer sortOrder = new Integer(0);
+	private Integer sortOrder = Integer.valueOf(0);
 	
 
 
