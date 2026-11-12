@@ -61,9 +61,7 @@
 
 		<org.apache.httpcomponent.version>4.5.14</org.apache.httpcomponent.version>
 		<jakarta-inject-api.version>2.0.1</jakarta-inject-api.version>
-		<infinispan.version>9.4.18.Final</infinispan.version>
-		<!-- Infinispan 9.4 needs Caffeine 2.x (CacheWriter was removed in Caffeine 3, which Boot 3 manages); drop with AB-545 -->
-		<caffeine.version>2.9.3</caffeine.version>
+		<infinispan.version>15.0.22.Final</infinispan.version>
 		<oracle.version>18.3.0.0</oracle.version>
 		<postgresql.version>42.2.18</postgresql.version>
 		<simple-json-version>1.1.1</simple-json-version>
