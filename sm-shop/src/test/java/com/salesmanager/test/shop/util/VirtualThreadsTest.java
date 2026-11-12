@@ -12,12 +12,14 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.SimpleApplicationEventMulticaster;
+import org.springframework.scheduling.annotation.Async;
 import static org.junit.jupiter.api.Assertions.*;
 
 class VirtualThreadsTest {
     private final ApplicationContextRunner context = new ApplicationContextRunner()
             .withConfiguration(AutoConfigurations.of(PropertyPlaceholderAutoConfiguration.class))
-            .withUserConfiguration(AsyncConfig.class, AsynchronousEventsConfiguration.class);
+            .withUserConfiguration(AsyncConfig.class, AsynchronousEventsConfiguration.class)
+            .withBean(AsyncProbe.class);
 
     @Test
     void defaultsToPlatformThreads() {
@@ -47,6 +49,11 @@ class VirtualThreadsTest {
             assertSame(executor, application.getBean(AsyncConfig.class).getAsyncExecutor());
             assertEquals(virtual, executor.submit(() -> Thread.currentThread().isVirtual())
                     .get(5, TimeUnit.SECONDS));
+            Thread caller = Thread.currentThread();
+            Thread asyncThread = application.getBean(AsyncProbe.class).currentThread()
+                    .get(5, TimeUnit.SECONDS);
+            assertNotSame(caller, asyncThread, "@Async must dispatch off the caller thread");
+            assertEquals(virtual, asyncThread.isVirtual());
             CompletableFuture<Boolean> eventThread = new CompletableFuture<>();
             SimpleApplicationEventMulticaster events = application.getBean(
                     "applicationEventMulticaster", SimpleApplicationEventMulticaster.class);
@@ -55,6 +62,13 @@ class VirtualThreadsTest {
             events.multicastEvent(new ProbeEvent(this));
             assertEquals(virtual, eventThread.get(5, TimeUnit.SECONDS));
         });
+    }
+
+    static class AsyncProbe {
+        @Async
+        public CompletableFuture<Thread> currentThread() {
+            return CompletableFuture.completedFuture(Thread.currentThread());
+        }
     }
 
     private static class ProbeEvent extends ApplicationEvent {
