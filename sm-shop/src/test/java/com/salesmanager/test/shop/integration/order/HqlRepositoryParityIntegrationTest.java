@@ -364,10 +364,11 @@ public class HqlRepositoryParityIntegrationTest extends ServicesTestSupport {
      */
     private List<?> original(String hql, Supplier<List<?>> rows) {
         try {
-            return rows.get();
+            em.createQuery(hql.replaceAll("%?(\\?\\d+)%?", "$1"));
         } catch (IllegalArgumentException | org.hibernate.query.sqm.InterpretationException e) {
-            return null;
+            return null; // only a Hibernate 6 parse rejection skips the comparison
         }
+        return rows.get(); // binding or execution failures still fail the test
     }
 
     private void same(String hql, List<?> expected, Object actual) {
