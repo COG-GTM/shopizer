@@ -31,3 +31,6 @@ sm-shop/src/main/resources/database.properties
 .DS_Store
 
 .mvnw/*.jar
+
+# Packaged runtime parity logs, database copies and generated evidence (AB-548)
+/.runtime-parity/
