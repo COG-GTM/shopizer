@@ -152,7 +152,7 @@ public class JWTTokenUtil implements Serializable {
 	        return Jwts.builder()
 	                .claims(claims)
 	                .subject(subject)
-	                .audience().single(audience)
+	                .claim("aud", audience)
 	                .issuedAt(createdDate)
 	                .expiration(expirationDate)
 	                .signWith(key, Jwts.SIG.HS512)
