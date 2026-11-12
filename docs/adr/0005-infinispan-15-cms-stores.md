@@ -1,4 +1,4 @@
-# 0004. Upgrade embedded CMS persistence to Infinispan 15
+# 0005. Upgrade embedded CMS persistence to Infinispan 15
 
 - **Status:** Proposed
 - **Date:** 2026-11-12
