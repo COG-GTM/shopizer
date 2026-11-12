@@ -240,7 +240,7 @@ public class Stripe3Payment implements PaymentModule {
 				throw te;
 			}
 
-			String amnt = productPriceUtils.getStringAmount(order.getTotal());
+			String amnt = productPriceUtils.getAdminFormatedAmount(store, order.getTotal());
 			String strAmount = String.valueOf(amnt);
 			strAmount = strAmount.replace(".","");
 
@@ -316,7 +316,7 @@ public class Stripe3Payment implements PaymentModule {
 		Transaction transaction = new Transaction();
 		try {
 			
-			String amnt = productPriceUtils.getStringAmount(amount);
+			String amnt = productPriceUtils.getAdminFormatedAmount(store, amount);
 			
 			//stripe does not support floating point
 			//so amnt * 100 or remove floating point
@@ -402,7 +402,7 @@ public class Stripe3Payment implements PaymentModule {
 
 			String trnID = transaction.getTransactionDetails().get("TRNORDERNUMBER");
 			
-			String amnt = productPriceUtils.getStringAmount(amount);
+			String amnt = productPriceUtils.getAdminFormatedAmount(store, amount);
 			
 			Stripe.apiKey = apiKey;
 			
