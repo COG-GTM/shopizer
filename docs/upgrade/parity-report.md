@@ -2,8 +2,8 @@
 
 **Initial Wave 3 verification; final epic sign-off is pending.**
 
-Generated: 20261112T004651Z. Source commit: `2c4b8e3b63ada0d098d7e0a4bce4020fe2316280`.
-Working-tree patch SHA-256: `82e07cb65473b5fb1a68fcea376fec8bbe30081844d9674a151d3bffa360e5f5`; packaged JAR SHA-256: `2f51d15ca620363c2d5d52a1631d000b064941a56e11928c9b7abb831430b73b`.
+Generated: 20261112T005308Z. Source commit: `637d3d5fa1737950e09c41b2862d5663f8dd44ed`.
+Working-tree patch SHA-256: `68fe95312f43a7b7e13e250b301cf6c7ef1bb1cec987a44030cb3974ba28383b`; packaged JAR SHA-256: `f03517854b2241541830a2de7c53ebad7060aff2a76104f0d877d35d553125cb`.
 
 This report measures the checked-out integration snapshot plus the AB-548 harness. Re-run on the integration commit containing every other merged Wave 3 ticket before closing AB-531.
 
@@ -60,7 +60,7 @@ The Swagger 2 → OpenAPI 3 normalization exposes media-type declarations and co
 
 ## Existing MySQL dataset and process restart
 
-The first process creates durable products/customers/orders and completes the smoke suite. After it stops, the harness snapshots all existing entity IDs and SM_SEQUENCER values. A second process opens the same database, creates three more of each entity through the real APIs and checkout, then stops. Read-only SQL checks every prior ID is retained, new IDs are disjoint, first IDs equal the existing source counter × 50, and counters advance. A third process verifies new entities still read back after another restart. This is an existing fixture dataset on the upgraded schema, not a production dump or a Hibernate 5 cutover rehearsal.
+The first process creates durable products/customers/orders and completes the smoke suite. After it stops, the harness snapshots all existing entity IDs and SM_SEQUENCER values. A second process opens the same database, creates three more of each entity through the real APIs and checkout, then stops. Read-only SQL checks every prior ID is retained, new IDs are disjoint and sequential starting at the existing source counter × 50, and counters advance. A third process verifies new entities still read back after another restart. This is an existing fixture dataset on the upgraded schema, not a production dump or a Hibernate 5 cutover rehearsal.
 
 | Entity | Existing rows | Counter before → after | First expected | New IDs | Collisions |
 | --- | ---: | --- | ---: | --- | ---: |

@@ -278,9 +278,11 @@ def verify_continuity(before, after, fixtures):
         require(bool(prior["ids"]), f"Existing {kind} fixture rows are required")
         expected = prior["counter"] * 50  # JPA default allocation 50; legacy-hilo maxLo=49.
         require(set(prior["ids"]).issubset(current["ids"]), f"Existing {kind} rows lost")
-        require(bool(fixtures[kind]) and fixtures[kind][0] == expected,
-                f"{kind} first ID must be existing counter * 50")
-        require(len(set(fixtures[kind])) == len(fixtures[kind]), f"Duplicate {kind} IDs")
+        # Fixtures create one entity at a time, with no competing allocator. Verify
+        # the whole block: checking only the first/minimum can hide later resets.
+        expected_ids = list(range(expected, expected + len(fixtures[kind])))
+        require(bool(fixtures[kind]) and fixtures[kind] == expected_ids,
+                f"{kind} IDs must continue existing counter * 50 in allocation order")
         require(not set(prior["ids"]).intersection(fixtures[kind]), f"{kind} ID collision")
         require(set(fixtures[kind]).issubset(current["ids"]), f"New {kind} rows missing")
         require(current["counter"] > prior["counter"], f"{kind} sequencer did not advance")
@@ -360,7 +362,7 @@ def write_report(path, state):
                   "The first process creates durable products/customers/orders and completes the smoke suite. After it stops, "
                   "the harness snapshots all existing entity IDs and SM_SEQUENCER values. A second process opens the same database, "
                   "creates three more of each entity through the real APIs and checkout, then stops. Read-only SQL checks every prior ID is "
-                  "retained, new IDs are disjoint, first IDs equal the existing source counter × 50, and counters advance. "
+                  "retained, new IDs are disjoint and sequential starting at the existing source counter × 50, and counters advance. "
                   "A third process verifies new entities still read back after another restart. "
                   "This is an existing fixture dataset on the upgraded schema, not a production dump or a Hibernate 5 cutover rehearsal.", "",
                   "| Entity | Existing rows | Counter before → after | First expected | New IDs | Collisions |",

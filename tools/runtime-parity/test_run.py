@@ -34,7 +34,8 @@ class GateTests(unittest.TestCase):
         self.assertEqual(350, result["product"]["first_expected"])
 
     def test_counter_reinterpretation_collision_and_lost_rows_fail(self):
-        for scenario in ("counter-reset", "collision", "lost-row", "duplicate", "wrong-first-id"):
+        for scenario in ("counter-reset", "collision", "lost-row", "duplicate", "wrong-first-id",
+                         "later-low-id", "later-gap", "later-out-of-order"):
             with self.subTest(scenario=scenario):
                 before = {kind: {"ids": [199, 200], "counter": 7} for kind in runner["SEGMENTS"]}
                 after = {kind: {"ids": [199, 200, 350, 351, 352], "counter": 8} for kind in before}
@@ -48,6 +49,12 @@ class GateTests(unittest.TestCase):
                 elif scenario == "wrong-first-id":
                     # A later matching minimum must not hide the wrong first allocation.
                     ids["order"] = [351, 350, 352]
+                elif scenario in ("later-low-id", "later-gap", "later-out-of-order"):
+                    # Existing rows and disjoint IDs alone do not prove correct allocation.
+                    ids["order"] = {"later-low-id": [350, 349, 352],
+                                    "later-gap": [350, 355, 352],
+                                    "later-out-of-order": [350, 352, 351]}[scenario]
+                    after["order"]["ids"] = [199, 200] + ids["order"]
                 else:
                     ids["product"] = [350, 350, 352]
                 with self.assertRaises(AssertionError):
