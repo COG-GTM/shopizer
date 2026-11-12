@@ -97,7 +97,7 @@ public abstract class BehaviourSmokeScenarios {
         checkout();
     }
 
-    protected void checkout() throws Exception {
+    protected ObjectNode checkout() throws Exception {
         String token = admin();
         // Configure the built-in offline payment method just as a merchant would.
         ObjectNode paymentConfig = json.createObjectNode().put("code", "moneyorder").put("active", true);
@@ -118,6 +118,11 @@ public abstract class BehaviourSmokeScenarios {
         assertEquals(1, confirmation.path("products").size());
         JsonNode persisted = request(HttpMethod.GET, "/api/v1/private/orders/" + id, null, token, 200);
         assertEquals(id, persisted.path("id").asLong());
+        JsonNode store = request(HttpMethod.GET, "/api/v1/store/DEFAULT", null, null, 200);
+        // This scenario uses an English-language customer. Export only test mail metadata.
+        return json.createObjectNode().put("customer", order.path("customer").path("emailAddress").asText())
+                .put("merchant", store.path("email").asText())
+                .put("subject", store.path("name").asText() + " - Order confirmation: " + id);
     }
 
     @Test

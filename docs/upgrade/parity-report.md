@@ -2,8 +2,8 @@
 
 **Initial Wave 3 verification; final epic sign-off is pending.**
 
-Generated: 20261112T005308Z. Source commit: `637d3d5fa1737950e09c41b2862d5663f8dd44ed`.
-Working-tree patch SHA-256: `68fe95312f43a7b7e13e250b301cf6c7ef1bb1cec987a44030cb3974ba28383b`; packaged JAR SHA-256: `f03517854b2241541830a2de7c53ebad7060aff2a76104f0d877d35d553125cb`.
+Generated: 20261112T011559Z. Source commit: `438ced1d0efbafc9cc916847c5614bc81e8878c1`.
+Working-tree patch SHA-256: `f90d1afb82ee6a81083fc683b373e2eb3f1d295c676ac32c0aac4cb0cbf75ca0`; packaged JAR SHA-256: `dcae9bc0e0772ba5c65e6935da560135ec1ba6d4a492180e3415f78bc32cacd0`.
 
 This report measures the checked-out integration snapshot plus the AB-548 harness. Re-run on the integration commit containing every other merged Wave 3 ticket before closing AB-531.
 
@@ -15,7 +15,7 @@ Command: `JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 mvn -B clean install`.
 
 ```text
 BUILD SUCCESS
-{"errors": 0, "failures": 0, "skipped": 22, "tests": 207}
+{"errors": 0, "failures": 0, "skipped": 22, "tests": 213}
 ```
 
 ## Coverage against AB-533
@@ -24,12 +24,12 @@ Aggregate JaCoCo counters from the full build, captured before packaged tests. B
 
 | Counter | Baseline covered / total | Current covered / total | Baseline | Current | Gate |
 | --- | ---: | ---: | ---: | ---: | --- |
-| LINE | 8602 / 30779 | 10602 / 30999 | 27.9476% | 34.2011% | PASS |
-| BRANCH | 1286 / 7652 | 1674 / 7770 | 16.8061% | 21.5444% | PASS |
+| LINE | 8602 / 30779 | 10618 / 31015 | 27.9476% | 34.2350% | PASS |
+| BRANCH | 1286 / 7652 | 1681 / 7778 | 16.8061% | 21.6122% | PASS |
 
 ## Packaged runtime and REST/JWT contract
 
-The same eight enabled AB-533 scenarios run over HTTP against the packaged JAR: admin JWT, customer registration/login/profile, admin authorization denials, product CRUD, cart quantity persistence, offline moneyorder checkout, services Basic Auth, and health. KF-1 (deleted-product GET) stays disabled as in the baseline. The ninth enabled check compares OpenAPI and operational endpoints. The embedded suite still mocks SMTP; packaged runs deliver real composed mail to a local discard-only SMTP sink.
+The same eight enabled AB-533 scenarios run over HTTP against the packaged JAR: admin JWT, customer registration/login/profile, admin authorization denials, product CRUD, cart quantity persistence, offline moneyorder checkout, services Basic Auth, and health. KF-1 (deleted-product GET) stays disabled as in the baseline. The ninth enabled check compares OpenAPI and operational endpoints. The embedded suite still mocks SMTP; packaged runs deliver real composed mail to a local SMTP sink. Each checkout must deliver two confirmations with its exact order subject: one to its unique customer and one to the merchant. Registration messages and confirmations for other orders cannot satisfy the gate. Bodies are discarded; only subject/envelope metadata is held in memory.
 
 | Runtime | Executed / skipped | Failed / errors | Operations (baseline / current) | Removed | Added | Health / Swagger / Info |
 | --- | ---: | ---: | ---: | ---: | ---: | --- |
@@ -37,6 +37,8 @@ The same eight enabled AB-533 scenarios run over HTTP against the packaged JAR: 
 | mysql | 9 / 1 | 0 / 0 | 308 / 308 | 0 | 0 | UP / 200 / 200 |
 
 H2 uses a copy of the tracked H2 2.x seed and files with the default/docker H2 profile. MySQL uses the repository MySQL profile in an isolated `mysql:8.0.44` container, bound to loopback. The harness never accepts an external database address and never changes production configuration.
+
+Checkout SMTP (h2): `{"customer": 1, "merchant": 1, "messages": 2}`.
 
 ### h2 additive operations
 
@@ -47,6 +49,8 @@ Metadata changed on 308 preserved operations; the complete normalized inventory 
 Changed metadata fields: `{"parameters": 250, "requestMediaTypes": 202, "responseMediaTypes": 308, "security": 0}`.
 
 The Swagger 2 → OpenAPI 3 normalization exposes media-type declarations and corrected parameter locations (for example, an unspecified `store` parameter is now explicitly `query`). These are documentation differences; the AB-533 HTTP scenarios check the representative REST/JWT behavior separately.
+
+Checkout SMTP (mysql): `{"customer": 1, "merchant": 1, "messages": 2}`.
 
 ### mysql additive operations
 

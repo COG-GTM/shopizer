@@ -7,6 +7,9 @@ The full build runs first; evidence is preserved before the external Surefire ru
 import argparse
 from contextlib import contextmanager
 from datetime import datetime, timezone
+from email.parser import BytesHeaderParser
+from email.policy import default as email_policy
+from email.utils import parseaddr
 import hashlib
 import json
 import os
@@ -70,25 +73,40 @@ def wait_ready(check, label, process=None, timeout=180):
 
 
 class SmtpSink(socketserver.StreamRequestHandler):
-    """Discard local test messages; keep only a delivery count, never mail contents."""
+    """Discard bodies; retain only subject/envelope metadata in memory for checkout correlation."""
     def handle(self):
         def reply(text):
             self.wfile.write((text + "\r\n").encode())
             self.wfile.flush()
         reply("220 parity.local ESMTP")
+        recipients = []
         while line := self.rfile.readline():
             verb = line.split(b" ", 1)[0].strip().upper()
             if verb == b"DATA":
                 reply("354 End with a dot")
+                headers = bytearray()
+                in_headers = True
                 while (line := self.rfile.readline()) and line != b".\r\n":
-                    pass
+                    if in_headers:
+                        headers.extend(line)
+                        in_headers = line not in (b"\r\n", b"\n")
+                if line != b".\r\n":
+                    return  # An interrupted DATA transfer is not a delivery.
+                subject = str(BytesHeaderParser(policy=email_policy).parsebytes(bytes(headers)).get("Subject", ""))
                 with self.server.lock:
                     self.server.deliveries += 1
+                    self.server.messages.append(dict(subject=subject, recipients=recipients))
+                recipients = []
                 reply("250 accepted")
+            elif verb == b"RCPT":
+                recipients.append(parseaddr(line.decode().split(":", 1)[1])[1].casefold())
+                reply("250 recipient accepted")
             elif verb == b"QUIT":
                 reply("221 bye")
                 break
             else:
+                if verb in (b"MAIL", b"RSET"):
+                    recipients = []
                 reply("250 parity.local")
 
 
@@ -97,6 +115,7 @@ def smtp_sink():
     with socketserver.ThreadingTCPServer(("127.0.0.1", 0), SmtpSink) as server:
         server.daemon_threads = True
         server.deliveries = 0
+        server.messages = []
         server.lock = threading.Lock()
         thread = threading.Thread(target=server.serve_forever, daemon=True)
         thread.start()
@@ -208,14 +227,31 @@ def suite_counts(paths):
     return counts
 
 
+def checkout_mail_counts(messages, expected):
+    """Match this checkout's exact order subject and both recipients, not registration mail."""
+    matching = [message for message in messages if message["subject"] == expected["subject"]]
+    counts = {role: sum(expected[role].casefold() in message["recipients"] for message in matching)
+              for role in ("customer", "merchant")}
+    return dict(messages=len(matching), **counts)
+
+
 def smoke(url, evidence, smtp):
     evidence.mkdir(parents=True, exist_ok=True)
-    deliveries_before = smtp.deliveries
+    with smtp.lock:
+        messages_before = len(smtp.messages)
     run(["mvn", "-B", "-pl", "sm-shop", "-Dtest=PackagedSmokeTest,PackagedContractTest",
          "-Djacoco.skip=true", f"-Dparity.url={url}", f"-Dparity.output={evidence}",
          f"-Dparity.database={'MySQL' if evidence.name == 'mysql' else 'H2'}", "test"],
         log=evidence / "smoke.log")
-    wait_ready(lambda: smtp.deliveries >= deliveries_before + 2, "Checkout SMTP delivery", timeout=15)
+    expected = json.loads((evidence / "checkout-mail.json").read_text())
+    require(expected["customer"] and expected["merchant"] and expected["subject"]
+            and expected["customer"].casefold() != expected["merchant"].casefold(),
+            "Checkout mail evidence must identify its subject and distinct customer/merchant recipients")
+    def deliveries():
+        with smtp.lock:
+            return checkout_mail_counts(smtp.messages[messages_before:], expected)
+    wait_ready(lambda: deliveries() == {"messages": 2, "customer": 1, "merchant": 1},
+               "Checkout-specific customer and merchant SMTP deliveries", timeout=15)
     paths = sorted((ROOT / "sm-shop/target/surefire-reports").glob("TEST-*Packaged*.xml"))
     counts = suite_counts(paths)
     require(counts == {"tests": 10, "skipped": 1, "failures": 0, "errors": 0},
@@ -224,7 +260,7 @@ def smoke(url, evidence, smtp):
         shutil.copy2(path, evidence / path.name)
     diff = json.loads((evidence / "contract-diff.json").read_text())
     return dict(counts=counts, contract=diff, health="UP", swagger=200, info=200,
-                smtp_deliveries=smtp.deliveries - deliveries_before)
+                checkout_mail=deliveries())
 
 
 def fixture(url):
@@ -332,7 +368,9 @@ def write_report(path, state):
               "The same eight enabled AB-533 scenarios run over HTTP against the packaged JAR: admin JWT, customer registration/login/profile, "
               "admin authorization denials, product CRUD, cart quantity persistence, offline moneyorder checkout, services Basic Auth, and health. "
               "KF-1 (deleted-product GET) stays disabled as in the baseline. The ninth enabled check compares OpenAPI and operational endpoints. "
-              "The embedded suite still mocks SMTP; packaged runs deliver real composed mail to a local discard-only SMTP sink.", "",
+              "The embedded suite still mocks SMTP; packaged runs deliver real composed mail to a local SMTP sink. "
+              "Each checkout must deliver two confirmations with its exact order subject: one to its unique customer and one to the merchant. "
+              "Registration messages and confirmations for other orders cannot satisfy the gate. Bodies are discarded; only subject/envelope metadata is held in memory.", "",
               "| Runtime | Executed / skipped | Failed / errors | Operations (baseline / current) | Removed | Added | Health / Swagger / Info |",
               "| --- | ---: | ---: | ---: | ---: | ---: | --- |"]
     for mode in ("h2", "mysql"):
@@ -349,6 +387,7 @@ def write_report(path, state):
     for mode in ("h2", "mysql"):
         if mode in state:
             diff = state[mode]["contract"]
+            lines += [f"Checkout SMTP ({mode}): `" + json.dumps(state[mode]["checkout_mail"], sort_keys=True) + "`.", ""]
             lines += [f"### {mode} additive operations", ""]
             lines += [f"- `{key}`" for key in diff["added"]] or ["None."]
             lines += ["", f"Metadata changed on {len(diff['metadataChanged'])} preserved operations; the complete normalized "
@@ -448,7 +487,6 @@ def main():
                             require(request(url + path + str(ids[kind]), token=token)["id"] == ids[kind],
                                     "Restart readback failed: " + kind)
             state["smtp_deliveries"] = smtp.deliveries
-            require(smtp.deliveries >= 4, "Packaged checkouts must deliver composed mail locally")
         require(all(value["passes"] for value in state["coverage"].values()), "Coverage below AB-533 baseline")
         state["result"] = "PASS"
     except Exception as error:

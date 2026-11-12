@@ -1,7 +1,9 @@
-"""Regression tests for the report's two safety gates; no Docker or Maven needed."""
+"""Regression tests for the report's safety gates; no Docker or Maven needed."""
+from email.message import EmailMessage
 from pathlib import Path
 import io
 import runpy
+import smtplib
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -10,6 +12,33 @@ runner = runpy.run_path(str(Path(__file__).with_name("run.py")))
 
 
 class GateTests(unittest.TestCase):
+    def test_only_the_checkout_confirmations_satisfy_the_mail_gate(self):
+        expected = dict(subject="Shopizer - Order confirmation: 42", customer="checkout@example.test",
+                        merchant="merchant@example.test")
+        customer = dict(subject=expected["subject"], recipients=[expected["customer"]])
+        merchant = dict(subject=expected["subject"], recipients=[expected["merchant"]])
+        registration = dict(subject="Welcome to Shopizer", recipients=[expected["customer"]])
+        other_order = dict(subject="Shopizer - Order confirmation: 41", recipients=[expected["merchant"]])
+        both_recipients = dict(subject=expected["subject"], recipients=list(merchant["recipients"] + customer["recipients"]))
+        required = dict(messages=2, customer=1, merchant=1)
+        for messages in ([], [registration, registration], [customer, registration], [customer, other_order],
+                         [customer, customer], [both_recipients], [merchant, merchant]):
+            with self.subTest(messages=messages):
+                self.assertNotEqual(required, runner["checkout_mail_counts"](messages, expected))
+        self.assertEqual(required, runner["checkout_mail_counts"]([registration, other_order, customer, merchant], expected))
+
+    def test_smtp_sink_decodes_subject_and_keeps_only_metadata(self):
+        message = EmailMessage()
+        message["Subject"] = "Café - Order confirmation: 42"
+        message["From"] = "sender@example.test"
+        message["To"] = "customer@example.test"
+        message.set_content("The body is discarded, never retained in parity evidence.")
+        with runner["smtp_sink"]() as sink:
+            with smtplib.SMTP(*sink.server_address) as smtp:
+                smtp.send_message(message)
+            self.assertEqual(1, sink.deliveries)
+            self.assertEqual([dict(subject=str(message["Subject"]), recipients=["customer@example.test"])], sink.messages)
+
     def test_success_with_no_response_body_is_allowed(self):
         # Payment configuration returns HTTP 200 with an empty body.
         with patch("urllib.request.urlopen", return_value=io.BytesIO(b"")):
