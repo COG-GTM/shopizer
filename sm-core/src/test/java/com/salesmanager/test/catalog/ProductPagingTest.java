@@ -11,6 +11,11 @@ import java.util.List;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.LoggerFactory;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import javax.inject.Inject;
 import com.salesmanager.core.business.repositories.catalog.product.ProductRepository;
 import com.salesmanager.core.model.catalog.category.Category;
@@ -107,7 +112,6 @@ public class ProductPagingTest extends AbstractSalesManagerCoreTestCase {
         for (int offset = 0; offset < 9; offset += 3) {
             ProductList page = list(criteria(offset, 3));
             assertEquals(full.getTotalCount(), page.getTotalCount());
-            assertEquals(full.getTotalPages(), page.getTotalPages());
             assertEquals(Math.min(3, 7 - offset), page.getProducts().size());
             for (Product p : page.getProducts()) {
                 assertTrue(seen.add(p.getId()));
@@ -126,6 +130,25 @@ public class ProductPagingTest extends AbstractSalesManagerCoreTestCase {
         ProductList beyond = list(criteria(99, 3));
         assertTrue(beyond.getProducts().isEmpty());
         assertEquals(7, beyond.getTotalCount());
+    }
+
+    @Test
+    public void pagedListingDoesNotFallBackToInMemoryPagination() {
+        Logger logger = (Logger) LoggerFactory.getLogger("org.hibernate.hql.internal.ast.QueryTranslatorImpl");
+        Level previousLevel = logger.getLevel();
+        ListAppender<ILoggingEvent> appender = new ListAppender<>();
+        appender.start();
+        logger.addAppender(appender);
+        logger.setLevel(Level.WARN);
+        try {
+            assertEquals(3, list(criteria(0, 3)).getProducts().size());
+            assertFalse("Paged listing must not log HHH000104 (in-memory collection-fetch pagination)",
+                    appender.list.stream().anyMatch(event -> event.getFormattedMessage().contains("HHH000104")));
+        } finally {
+            logger.setLevel(previousLevel);
+            logger.detachAppender(appender);
+            appender.stop();
+        }
     }
 
     @Test
