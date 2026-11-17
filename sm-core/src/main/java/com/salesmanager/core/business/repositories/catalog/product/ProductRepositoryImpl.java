@@ -1,14 +1,17 @@
 package com.salesmanager.core.business.repositories.catalog.product;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
+import javax.persistence.Parameter;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
@@ -888,10 +891,13 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 			qs.append(" and pov.id in (:povid)");
 		}
 		
-		qs.append(" order by p.sortOrder asc");
-
-		String hql = qs.toString();
-		Query q = this.em.createQuery(hql);
+		// Page on ids first: with collection fetch joins Hibernate cannot limit in SQL
+		// and would load the whole matching catalog to page it in memory.
+		String fetchHql = qs.toString();
+		String idHql = "select distinct p.id, p.sortOrder from Product as p "
+				+ fetchHql.substring("select distinct p from Product as p ".length()).replace("join fetch", "join")
+				+ " order by p.sortOrder asc, p.id asc";
+		Query q = this.em.createQuery(idHql);
 
 		if (criteria.getLanguage() != null && !criteria.getLanguage().equals("_all")) {
 			q.setParameter("lang", language.getCode());
@@ -963,7 +969,22 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
 
 		@SuppressWarnings("unchecked")
-		List<Product> products = q.getResultList();
+		List<Object[]> pageRows = q.getResultList();
+		List<Long> pageIds = pageRows.stream().map(r -> (Long) r[0]).collect(Collectors.toList());
+		if (pageIds.isEmpty()) {
+			productList.setProducts(new ArrayList<>());
+			return productList;
+		}
+
+		Query fetchQ = this.em.createQuery(fetchHql + " and p.id in (:pageIds) order by p.sortOrder asc");
+		for (Parameter<?> param : q.getParameters()) {
+			fetchQ.setParameter(param.getName(), q.getParameterValue(param.getName()));
+		}
+		fetchQ.setParameter("pageIds", pageIds);
+
+		@SuppressWarnings("unchecked")
+		List<Product> products = fetchQ.getResultList();
+		products.sort(Comparator.comparingInt(p -> pageIds.indexOf(p.getId())));
 		productList.setProducts(products);
 
 		return productList;
