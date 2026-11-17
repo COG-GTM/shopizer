@@ -1,14 +1,17 @@
 package com.salesmanager.core.business.repositories.catalog.product;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
+import javax.persistence.Parameter;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
@@ -888,10 +891,36 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 			qs.append(" and pov.id in (:povid)");
 		}
 		
-		qs.append(" order by p.sortOrder asc");
-
-		String hql = qs.toString();
-		Query q = this.em.createQuery(hql);
+		// Page on ids first: with collection fetch joins Hibernate cannot limit in SQL
+		// and would load the whole matching catalog to page it in memory.
+		// The id query keeps only the joins the where clause filters on.
+		String fetchHql = qs.toString();
+		StringBuilder idHql = new StringBuilder();
+		idHql.append("select distinct p.id, p.sortOrder from Product as p ");
+		idHql.append("join p.merchantStore merch ");
+		idHql.append("join p.availabilities pa ");
+		idHql.append("left join p.descriptions pd ");
+		if (!CollectionUtils.isEmpty(criteria.getCategoryIds())) {
+			idHql.append("left join p.categories categs ");
+		}
+		if (criteria.getManufacturerId() != null) {
+			idHql.append("left join p.manufacturer manuf ");
+		}
+		if (criteria.getOrigin().equals(ProductCriteria.ORIGIN_SHOP)
+				&& !CollectionUtils.isEmpty(criteria.getAttributeCriteria())) {
+			idHql.append(" inner join p.attributes pattr");
+			idHql.append(" inner join pattr.productOption po");
+			idHql.append(" inner join po.descriptions pod");
+			idHql.append(" inner join pattr.productOptionValue pov ");
+			idHql.append(" inner join pov.descriptions povd");
+		} else if (criteria.getOrigin().equals(ProductCriteria.ORIGIN_SHOP)
+				&& CollectionUtils.isNotEmpty(criteria.getOptionValueIds())) {
+			idHql.append(" left join p.attributes pattr");
+			idHql.append(" left join pattr.productOptionValue pov");
+		}
+		idHql.append(fetchHql.substring(fetchHql.indexOf(" where merch.id=:mId")));
+		idHql.append(" order by p.sortOrder asc, p.id asc");
+		Query q = this.em.createQuery(idHql.toString());
 
 		if (criteria.getLanguage() != null && !criteria.getLanguage().equals("_all")) {
 			q.setParameter("lang", language.getCode());
@@ -963,7 +992,22 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
 
 		@SuppressWarnings("unchecked")
-		List<Product> products = q.getResultList();
+		List<Object[]> pageRows = q.getResultList();
+		List<Long> pageIds = pageRows.stream().map(r -> (Long) r[0]).collect(Collectors.toList());
+		if (pageIds.isEmpty()) {
+			productList.setProducts(new ArrayList<>());
+			return productList;
+		}
+
+		Query fetchQ = this.em.createQuery(fetchHql + " and p.id in (:pageIds) order by p.sortOrder asc");
+		for (Parameter<?> param : q.getParameters()) {
+			fetchQ.setParameter(param.getName(), q.getParameterValue(param.getName()));
+		}
+		fetchQ.setParameter("pageIds", pageIds);
+
+		@SuppressWarnings("unchecked")
+		List<Product> products = fetchQ.getResultList();
+		products.sort(Comparator.comparingInt(p -> pageIds.indexOf(p.getId())));
 		productList.setProducts(products);
 
 		return productList;
