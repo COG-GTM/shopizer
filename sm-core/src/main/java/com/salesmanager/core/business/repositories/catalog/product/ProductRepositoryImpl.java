@@ -893,11 +893,34 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 		
 		// Page on ids first: with collection fetch joins Hibernate cannot limit in SQL
 		// and would load the whole matching catalog to page it in memory.
+		// The id query keeps only the joins the where clause filters on.
 		String fetchHql = qs.toString();
-		String idHql = "select distinct p.id, p.sortOrder from Product as p "
-				+ fetchHql.substring("select distinct p from Product as p ".length()).replace("join fetch", "join")
-				+ " order by p.sortOrder asc, p.id asc";
-		Query q = this.em.createQuery(idHql);
+		StringBuilder idHql = new StringBuilder();
+		idHql.append("select distinct p.id, p.sortOrder from Product as p ");
+		idHql.append("join p.merchantStore merch ");
+		idHql.append("join p.availabilities pa ");
+		idHql.append("left join p.descriptions pd ");
+		if (!CollectionUtils.isEmpty(criteria.getCategoryIds())) {
+			idHql.append("left join p.categories categs ");
+		}
+		if (criteria.getManufacturerId() != null) {
+			idHql.append("left join p.manufacturer manuf ");
+		}
+		if (criteria.getOrigin().equals(ProductCriteria.ORIGIN_SHOP)
+				&& !CollectionUtils.isEmpty(criteria.getAttributeCriteria())) {
+			idHql.append(" inner join p.attributes pattr");
+			idHql.append(" inner join pattr.productOption po");
+			idHql.append(" inner join po.descriptions pod");
+			idHql.append(" inner join pattr.productOptionValue pov ");
+			idHql.append(" inner join pov.descriptions povd");
+		} else if (criteria.getOrigin().equals(ProductCriteria.ORIGIN_SHOP)
+				&& CollectionUtils.isNotEmpty(criteria.getOptionValueIds())) {
+			idHql.append(" left join p.attributes pattr");
+			idHql.append(" left join pattr.productOptionValue pov");
+		}
+		idHql.append(fetchHql.substring(fetchHql.indexOf(" where merch.id=:mId")));
+		idHql.append(" order by p.sortOrder asc, p.id asc");
+		Query q = this.em.createQuery(idHql.toString());
 
 		if (criteria.getLanguage() != null && !criteria.getLanguage().equals("_all")) {
 			q.setParameter("lang", language.getCode());
