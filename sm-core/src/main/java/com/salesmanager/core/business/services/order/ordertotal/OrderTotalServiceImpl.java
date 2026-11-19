@@ -48,7 +48,7 @@ public class OrderTotalServiceImpl implements OrderTotalService {
 				List<ShoppingCartItem> items = summary.getProducts();
 				for(ShoppingCartItem item : items) {
 
-					Product product = productService.getBySku(item.getSku(), store, language);
+					Product product = cartItemProduct(item, store, language);
 					//Product product = productService.getProductForLocale(productId, language, languageService.toLocale(language, store));
 					
 					OrderTotal orderTotal = module.caculateProductPiceVariation(summary, item, product, customer, store);
@@ -69,6 +69,18 @@ public class OrderTotalServiceImpl implements OrderTotalService {
 		
 		
 		return variation;
+	}
+
+	/**
+	 * Cart items are populated with their product by sku before totals are
+	 * calculated; reuse it instead of reloading the full product graph.
+	 */
+	private Product cartItemProduct(ShoppingCartItem item, MerchantStore store, Language language) throws Exception {
+		Product product = item.getProduct();
+		if (product != null && item.getSku() != null && item.getSku().equals(product.getSku())) {
+			return product;
+		}
+		return productService.getBySku(item.getSku(), store, language);
 	}
 
 }
