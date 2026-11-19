@@ -111,13 +111,14 @@ public class OrderTotalServiceImplTest {
         ShoppingCartItem firstItem = item("first", product("first"));
         ShoppingCartItem secondItem = item("second", product("second"));
         summary.setProducts(Arrays.asList(firstItem, secondItem));
-        OrderTotal first = total("-1"), next = total("-2"), last = total("-3");
+        OrderTotal first = total("-1"), next = total("-2"), third = total("-4"), last = total("-3");
         when(module.caculateProductPiceVariation(summary, firstItem, firstItem.getProduct(), customer, store)).thenReturn(first);
         when(module.caculateProductPiceVariation(summary, secondItem, secondItem.getProduct(), customer, store)).thenReturn(next);
+        when(second.caculateProductPiceVariation(summary, firstItem, firstItem.getProduct(), customer, store)).thenReturn(third);
         when(second.caculateProductPiceVariation(summary, secondItem, secondItem.getProduct(), customer, store)).thenReturn(last);
         OrderTotalVariation result = service.findOrderTotalVariation(summary, customer, store, language);
-        assertEquals(Arrays.asList(first, next, last), result.getVariations());
-        assertEquals(new BigDecimal("-6"), result.getVariations().stream().map(OrderTotal::getValue).reduce(BigDecimal.ZERO, BigDecimal::add));
+        assertEquals(Arrays.asList(first, next, third, last), result.getVariations());
+        assertEquals(new BigDecimal("-10"), result.getVariations().stream().map(OrderTotal::getValue).reduce(BigDecimal.ZERO, BigDecimal::add));
         verify(second).caculateProductPiceVariation(summary, firstItem, firstItem.getProduct(), customer, store);
         verify(second).caculateProductPiceVariation(summary, secondItem, secondItem.getProduct(), customer, store);
         verifyZeroInteractions(products);
